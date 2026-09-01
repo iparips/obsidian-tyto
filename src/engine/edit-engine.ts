@@ -19,6 +19,8 @@ export interface NoteAccess {
 const MAX_ITERATIONS = 6
 
 export class EditEngine {
+  // Tail of the single-flight chain: resolves once every utterance queued so
+  // far has settled. Seeded resolved so the first utterance starts immediately.
   private queue: Promise<unknown> = Promise.resolve()
 
   constructor(
@@ -28,8 +30,16 @@ export class EditEngine {
     private skills: SkillCatalogue = EMPTY_CATALOGUE,
   ) {}
 
+  // Turns are single-flight: a turn mutates the session history and the note,
+  // so two running at once would corrupt both. Each call chains onto the
+  // pending tail, then becomes the tail itself.
   processUtterance(text: string): Promise<Outcome<string>> {
     const run = this.queue.then(() => this.runTurn(text))
+    // Two promises because the caller and the chain need opposite things. The
+    // caller needs a rejection to propagate, so SessionPanel can render the
+    // error; the chain needs it swallowed, or one failed turn leaves the tail
+    // rejected and every later utterance chains onto it and fails too. catch()
+    // derives a second promise rather than altering run, so both hold.
     this.queue = run.catch(() => undefined)
     return run
   }
