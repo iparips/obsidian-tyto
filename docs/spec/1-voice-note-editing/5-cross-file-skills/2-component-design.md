@@ -54,11 +54,11 @@ vault API leaves the user with a change that undoes halfway (NFR1).
 
 Three options to weigh:
 
-| Option              | How it works                                                    | Cost                                                    |
-|---------------------|-----------------------------------------------------------------|---------------------------------------------------------|
-| Route through editors | Open each target in a hidden editor, apply through the editor API | Undo works natively; opening files has UI side effects  |
-| Staged transaction  | Buffer every write, apply on turn success, discard on failure    | Atomic per turn; still outside the editor's undo stack  |
-| Turn journal        | Record prior content per file, expose a plugin-level undo        | Works everywhere; a second undo gesture users must learn |
+| Option                | How it works                                                      | Cost                                                     |
+| --------------------- | ----------------------------------------------------------------- | -------------------------------------------------------- |
+| Route through editors | Open each target in a hidden editor, apply through the editor API | Undo works natively; opening files has UI side effects   |
+| Staged transaction    | Buffer every write, apply on turn success, discard on failure     | Atomic per turn; still outside the editor's undo stack   |
+| Turn journal          | Record prior content per file, expose a plugin-level undo         | Works everywhere; a second undo gesture users must learn |
 
 Pick one, state why, and note what the user has to press to undo a turn.
 

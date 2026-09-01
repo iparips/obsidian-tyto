@@ -23,8 +23,7 @@ describe('EditEngine', () => {
     engine = new EditEngine(chat, session, access)
   })
 
-  const toolResults = () =>
-    session.history.filter((message: ChatMessage) => message.isToolResult())
+  const toolResults = () => session.history.filter((message: ChatMessage) => message.isToolResult())
 
   describe('when the model responds with text', () => {
     it('returns the text as summary when the model responds without tool calls', async () => {

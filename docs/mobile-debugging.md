@@ -30,16 +30,19 @@ DevTools opens against the Obsidian WebView. Console output from the plugin appe
 ## Troubleshooting
 
 Device shows "Offline - Pending authentication"
+
 - The phone has not authorised the desktop, so Chrome cannot list any target.
 - Restart the adb server: `adb kill-server && adb devices`. This re-triggers the prompt.
 - Accept the prompt on an unlocked screen.
 - If it still fails, revoke USB debugging authorisations in Developer options, then replug.
 
 No md.obsidian entry despite an authorised device
+
 - Obsidian must be open and in the foreground. The WebView vanishes when the app backgrounds.
 - Stay online the first time, as Chrome fetches DevTools over the network.
 - Check that no other tool (Android Studio, scrcpy) is holding the adb server.
 
 Nothing works over USB
+
 - `adb logcat | grep -i obsidian` catches crashes that DevTools misses.
 - Have the plugin append log lines to a note in the vault as a last resort.

@@ -71,6 +71,8 @@ After a rebuild, reload the plugin: toggle it off and on in Community plugins, o
 - Prettier and eslint run as part of `bun run build`, so commit formatted code
 - Specs live under docs/spec, one folder per feature
 
+Working with an AI agent: see [AGENTS.md](AGENTS.md).
+
 ## Releasing
 
 See [RELEASE.md](RELEASE.md).

@@ -68,7 +68,10 @@ Discovery reads `0 - Meta/Skills` through `app.vault.adapter`, listing skill fol
 
 ```typescript
 export class SkillLoader {
-  constructor(private adapter: DataAdapter, private skillsPath: string) {}
+  constructor(
+    private adapter: DataAdapter,
+    private skillsPath: string,
+  ) {}
   async list(): Promise<SkillCatalogue> {}
 }
 ```

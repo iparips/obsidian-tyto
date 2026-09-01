@@ -49,15 +49,15 @@ export default class VoiceEditPlugin extends Plugin {
   }
 
   private async buildPanelProps(file: TFile): Promise<SessionPanelProps> {
-    const provider = new MistralProvider(this.settings.mistralApiKey, this.settings.editModel)
+    const modelProvider = new MistralProvider(this.settings.mistralApiKey, this.settings.editModel)
     const session = new EditSession(file)
-    const catalogue = await this.loadSkills()
-    const access = new WorkspaceNoteAccess(this.app, file)
-    const engine = new EditEngine(provider, session, access, catalogue)
+    const skillCatalogue = await this.loadSkills()
+    const noteAccess = new WorkspaceNoteAccess(this.app, file)
+    const engine = new EditEngine(modelProvider, session, noteAccess, skillCatalogue)
     return {
       noteName: file.basename,
       recorder: new Recorder(),
-      transcribe: (blob, mimeType) => provider.transcribe(blob, mimeType),
+      transcribe: (blob, mimeType) => modelProvider.transcribe(blob, mimeType),
       processUtterance: (text) => engine.processUtterance(text),
     }
   }

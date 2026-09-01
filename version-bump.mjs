@@ -4,8 +4,8 @@ import { execSync } from 'child_process'
 // Get bump type from command line argument
 const bumpType = process.argv[2]?.toLowerCase()
 if (!bumpType || !['major', 'minor', 'patch'].includes(bumpType)) {
-	console.error('Please specify version bump type: major, minor, or patch')
-	process.exit(1)
+  console.error('Please specify version bump type: major, minor, or patch')
+  process.exit(1)
 }
 
 // Read current version from package.json
@@ -15,15 +15,15 @@ const [major, minor, patch] = packageJson.version.split('.').map(Number)
 // Calculate new version based on bump type
 let newVersion
 switch (bumpType) {
-	case 'major':
-		newVersion = `${major + 1}.0.0`
-		break
-	case 'minor':
-		newVersion = `${major}.${minor + 1}.0`
-		break
-	case 'patch':
-		newVersion = `${major}.${minor}.${patch + 1}`
-		break
+  case 'major':
+    newVersion = `${major + 1}.0.0`
+    break
+  case 'minor':
+    newVersion = `${major}.${minor + 1}.0`
+    break
+  case 'patch':
+    newVersion = `${major}.${minor}.${patch + 1}`
+    break
 }
 
 // Update package.json with new version
@@ -43,14 +43,14 @@ writeFileSync('versions.json', JSON.stringify(versions, null, 2) + '\n')
 
 // Create git tag for the new version
 try {
-	execSync(`git add package.json manifest.json versions.json`)
-	execSync(`git commit -m "Bump version to ${newVersion}"`)
-	execSync(`git tag ${newVersion}`)
-	console.log(`✅ Version bumped to ${newVersion}`)
-	console.log(`✅ Git tag ${newVersion} created`)
-	console.log(`📝 To push: git push origin main --tags`)
-	console.log(`🚀 To release: Create a release on GitHub using tag ${newVersion}`)
+  execSync(`git add package.json manifest.json versions.json`)
+  execSync(`git commit -m "Bump version to ${newVersion}"`)
+  execSync(`git tag ${newVersion}`)
+  console.log(`✅ Version bumped to ${newVersion}`)
+  console.log(`✅ Git tag ${newVersion} created`)
+  console.log(`📝 To push: git push origin main --tags`)
+  console.log(`🚀 To release: Create a release on GitHub using tag ${newVersion}`)
 } catch (error) {
-	console.error('❌ Git operations failed:', error.message)
-	console.log(`📝 Files updated to version ${newVersion}, but git tag creation failed`)
+  console.error('❌ Git operations failed:', error.message)
+  console.log(`📝 Files updated to version ${newVersion}, but git tag creation failed`)
 }
