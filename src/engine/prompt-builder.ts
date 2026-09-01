@@ -8,12 +8,13 @@ export interface NoteContext {
 }
 
 export class PromptBuilder {
+  // The note itself is not here: EditEngine sends it as the last message, so the
+  // current copy sits after every stale one in the conversation.
   static build(note: NoteContext, skills: SkillCatalogue = EMPTY_CATALOGUE): string {
     return [
       EditingRules.roleRules(),
       EditingRules.dictationRules(),
       ...PromptBuilder.skillSection(skills),
-      PromptBuilder.context(note),
     ].join('\n\n')
   }
 
@@ -40,10 +41,16 @@ export class PromptBuilder {
     return skills.map((skill) => `${skill.name} - ${skill.description}`)
   }
 
-  private static context(note: NoteContext): string {
+  // Re-read from the editor every turn. Anything the conversation says about
+  // the note is a record of an earlier state, including the user's own manual
+  // edits between turns, so this copy is the only current one.
+  static context(note: NoteContext): string {
     return [
       `Note path: ${note.path}`,
       `Cursor line: ${note.cursorLine}`,
+      'This is the note as it is right now, re-read from the editor. It supersedes any',
+      'earlier copy or description in this conversation, including your own. The user may',
+      'have edited it since the last turn. Never answer from an earlier copy.',
       'Note content:',
       '```markdown',
       note.content,

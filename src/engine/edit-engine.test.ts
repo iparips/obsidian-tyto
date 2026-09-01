@@ -181,6 +181,16 @@ describe('EditEngine', () => {
       expect(order).toEqual(['first', 'second'])
     })
 
+    it('sends the note after the conversation history when a turn starts', async () => {
+      complete.mockResolvedValue(Outcomes.success(aTextTurn('ok')))
+      await engine.processUtterance('first')
+
+      await engine.processUtterance('second')
+
+      const sent = complete.mock.calls[1][0]
+      expect(sent[sent.length - 1].content).toContain('Note content:')
+    })
+
     it('re-reads note content when a new turn starts', async () => {
       complete.mockResolvedValue(Outcomes.success(aTextTurn('ok')))
       await engine.processUtterance('first')
@@ -188,8 +198,8 @@ describe('EditEngine', () => {
 
       await engine.processUtterance('second')
 
-      const lastSystem = complete.mock.calls[1][0][0]
-      expect(lastSystem.content).toContain('changed externally')
+      const sent = complete.mock.calls[1][0]
+      expect(sent[sent.length - 1].content).toContain('changed externally')
     })
   })
 })

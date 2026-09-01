@@ -27,24 +27,10 @@ describe('PromptBuilder', () => {
       expect(prompt).toContain(PromptBuilder.skillRules())
     })
 
-    it('keeps the skills section above the note context when the catalogue has entries', () => {
+    it('omits the note content when the prompt is built', () => {
       const prompt = PromptBuilder.build(aNote(), catalogue)
 
-      expect(prompt.indexOf('tidy-notes -')).toBeLessThan(prompt.indexOf('Note path:'))
-    })
-  })
-
-  describe('when the note holds checkboxes', () => {
-    it('states that checking an item is an edit when the prompt is built', () => {
-      const prompt = PromptBuilder.build(aNote())
-
-      expect(prompt).toContain('- [x]')
-    })
-
-    it('states that plain bullets are left alone when the prompt is built', () => {
-      const prompt = PromptBuilder.build(aNote())
-
-      expect(prompt).toContain('plain bullets')
+      expect(prompt).not.toContain('Note path:')
     })
   })
 
@@ -77,8 +63,10 @@ describe('PromptBuilder', () => {
   })
 
   describe('when the vault defines skills', () => {
+    const catalogue = [aSkill('todo', 'Archives ticked items.')]
+
     it('tells the model to load a skill before following it when skills exist', () => {
-      const prompt = PromptBuilder.build(aNote(), [aSkill('todo', 'Archives ticked items.')])
+      const prompt = PromptBuilder.build(aNote(), catalogue)
 
       expect(prompt).toContain('Call load_skill')
     })

@@ -59,9 +59,13 @@ export class EditEngine {
     return Outcomes.failure('chat', `edit loop exceeded ${MAX_ITERATIONS} iterations`)
   }
 
+  // The note goes last, not in the system message: history holds snapshots from
+  // earlier turns, and the model weights the most recent message most heavily.
+  // Freshest content in the freshest position.
   private askModel(note: OpenNote, history: readonly ChatMessage[]) {
     const system = ChatMessage.system(PromptBuilder.build(note.context(), this.skills))
-    return this.modelProvider.complete([system, ...history], TOOL_SCHEMAS)
+    const current = ChatMessage.system(PromptBuilder.context(note.context()))
+    return this.modelProvider.complete([system, ...history, current], TOOL_SCHEMAS)
   }
 
   private concludeUtterance(
