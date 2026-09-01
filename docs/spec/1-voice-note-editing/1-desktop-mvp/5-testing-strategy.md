@@ -52,7 +52,23 @@ Vitest with happy-dom; obsidian aliased to the test-support mock. Tests follow t
 - returns a transcription-step failure when mic permission is denied
 - discards the recording when cancel is called
 
+### SkillLoader (skills/skill-loader.test.ts)
+
+- builds a catalogue holding every skill when the directory has several
+- returns an empty catalogue when the skills directory is missing
+- skips a skill file when its frontmatter has no name
+- keeps valid siblings when one skill file is malformed
+- parses a description written as a folded scalar across several lines
+- reads the configured path when settings override the default
+
+### Skills in the prompt (engine/tool-schemas.test.ts)
+
+- lists one line per skill when the catalogue has entries
+- omits the skills section when the catalogue is empty
+- states the single-note rule when the catalogue has entries
+
 ## Out of Scope
 
 - No end-to-end tests against live APIs; provider tests mock fetch at module level.
 - The MVP exit test (example instructions on a real note) is manual, run against a dev vault.
+- FR37 refusal of a cross-file skill is model behaviour, so tests assert the prompt carries the rule and the tool list stays single-note. Whether the model obeys is checked in the manual exit test.

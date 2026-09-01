@@ -1,6 +1,6 @@
 # Release Plan: Voice Note Editing
 
-Five releases. The MVPs prove the core loop with the simplest capture path, record-then-transcribe. The V1s add realtime streaming and polish. Release 5 teaches the plugin the host vault's own conventions. Requirement IDs refer to [1-requirements.md](1-requirements.md), except release 5, which carries its own.
+Five releases. The MVPs prove the core loop with the simplest capture path, record-then-transcribe, and follow the host vault's single-note skills. The V1s add realtime streaming and polish. Release 5 lifts the single-note limit so cross-file skills become actionable. Requirement IDs refer to [1-requirements.md](1-requirements.md), except release 5, which carries its own.
 
 ## 1. Desktop MVP
 
@@ -16,10 +16,11 @@ Goal: prove the loop - speak an instruction, see the note change.
 - Apply immediately via editor API, cursor follows the edit (FR22, FR23 default, FR25).
 - Provider interface with Mistral as the only implementation (FR26).
 - Settings: API key, model selection (FR28, FR29).
+- Vault skills: discover them, list them in the prompt, follow the single-note ones, refuse the rest with a reason (FR34-38).
 
-Cut from this release: streaming, review-first mode, mobile, language settings, mic selection, OpenAI provider.
+Cut from this release: streaming, review-first mode, mobile, language settings, mic selection, OpenAI provider, cross-file skills.
 
-Exit test: the example instructions from the requirements work end to end on a real note.
+Exit test: the example instructions from the requirements work end to end on a real note, and an instruction matching a cross-file skill is declined by name rather than half-applied.
 
 ## 2. Mobile MVP
 
@@ -28,9 +29,10 @@ Goal: same loop on a phone. Cheap because batch transcription uses plain REST, n
 - Mobile toolbar button starts the session (FR1).
 - Sidebar opens as slide-over drawer; controls tappable (FR3, FR33).
 - Mobile audio capture with record-then-transcribe.
+- Vault skills resolve through the mobile adapter, same catalogue as desktop (FR34, FR32).
 - Everything else carries over unchanged (FR32).
 
-Exit test: the desktop exit test passes on iOS and Android.
+Exit test: the desktop exit test passes on iOS and Android, skills included.
 
 ## 3. Desktop V1
 
@@ -56,16 +58,15 @@ Goal: streaming parity on mobile, then public release.
 
 Exit test: the desktop V1 exit test passes on mobile, and a token-mint failure degrades gracefully to batch.
 
-## 5. Repo Skills
+## 5. Cross-File Skills
 
-Goal: the plugin follows the host vault's own agent skills, so a spoken instruction gets the same treatment it would from any other harness.
+Goal: lift the single-note limit, so the vault skills that route between files become actionable rather than declined.
 
-- Discover `.agents/skills/*/SKILL.md` through the vault adapter, since dot-directories are invisible to the file API.
-- Inject skill names and descriptions into the system prompt; load a full body only when the model asks for it.
-- Behave exactly as before in a vault with no skills directory.
+- File tools beyond the session note: read a named note, create one at a computed path, append to one.
+- Undo story for writes that bypass `EditApplier`, since `app.vault.modify` breaks native undo.
+- Skill bodies loaded on demand, so a matched skill's full steps reach the model rather than its description alone.
+- The FR37 refusal narrows to whatever remains unsupported, rather than covering every cross-file skill.
 
-Detailed design: [5-repo-skills/index.md](5-repo-skills/index.md).
+Detailed design: [5-cross-file-skills/index.md](5-cross-file-skills/index.md).
 
-Cut from this release: file writes beyond the session note, which several skills need before they are fully actionable.
-
-Exit test: with the vault's todo skill present, an instruction to archive done items follows the skill's steps rather than improvising.
+Exit test: with the vault's todo skill present, an instruction to archive done items follows the skill's steps rather than improvising, and the journal skill files an entry at the right computed path.

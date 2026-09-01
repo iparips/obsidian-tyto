@@ -53,7 +53,7 @@ Documented here for the UI contract; design detail in [3-component-design.md](3-
 
 ## Settings (settings-tab.tsx + SettingsPanel.tsx)
 
-- SettingsPanel fields: Mistral API key (password-style input), edit model (text input, default mistral-medium-latest).
+- SettingsPanel fields: Mistral API key (password-style input), edit model (text input, default mistral-medium-latest), skills folder (text input, default `0 - Meta/Skills`, empty to disable).
 - Changes save through an updateSettings callback into the plugin's saveData.
 - A note in the panel states the key never leaves the device except toward the provider (NFR1).
 

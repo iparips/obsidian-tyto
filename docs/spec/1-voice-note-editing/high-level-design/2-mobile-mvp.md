@@ -21,6 +21,12 @@ Covers release 2 of [2-plan.md](../2-plan.md): the Desktop MVP loop running on i
 - MistralProvider [Providers] passes the mime type through; the batch endpoint accepts both containers, so no transcoding is done client-side.
 - Mic permission is requested lazily on first record, and a denial renders as a step-named error in the sidebar (NFR5).
 
+### Vault Skills
+
+- SkillLoader [Skills] is unchanged. It reads through the vault adapter, which Obsidian implements on both platforms, so the catalogue and the prompt match desktop (FR34, FR32).
+- The skills folder must be a normal vault folder rather than a dot-folder. Obsidian Sync copies no dot-folder to a phone except `.obsidian` and `.trash`, and the mobile adapter resolves no symlink, so a dot-path or a link to one never arrives.
+- The symptom of an unmigrated vault is an empty catalogue on the phone and a populated one on the laptop.
+
 ## Capture Decision Flow
 
 ```mermaid
@@ -37,6 +43,7 @@ Arrows: data flow (direction data moves).
 ## Risks Checked by This Release
 
 - MediaRecorder behaviour inside the Obsidian mobile webview, per OS.
+- Adapter access to the skills folder on a real device, confirming the catalogue matches desktop.
 - Keyboard, toolbar and drawer interplay: recording while the drawer is open, keyboard covering the toolbar.
 - App backgrounding mid-recording: MVP behaviour is stop-and-discard with a notice; configurable behaviour is a Mobile V1 concern.
 

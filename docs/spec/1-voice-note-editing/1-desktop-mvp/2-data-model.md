@@ -75,16 +75,34 @@ export interface VoiceEditSettings {
   provider: 'mistral'
   mistralApiKey: string
   editModel: string
+  skillsPath: string
 }
 
 export const DEFAULT_SETTINGS: VoiceEditSettings = {
   provider: 'mistral',
   mistralApiKey: '',
   editModel: 'mistral-medium-latest',
+  skillsPath: '0 - Meta/Skills',
 }
 ```
 
 The provider field is a single-member union now; Desktop V1 widens it (FR26).
+
+An empty skillsPath disables discovery, giving a user without vault skills the same prompt and the same startup cost (FR38).
+
+### Skill
+
+```typescript
+export interface Skill {
+  name: string
+  description: string
+  path: string
+}
+
+export type SkillCatalogue = readonly Skill[]
+```
+
+Descriptions are held, bodies are not. The catalogue is built once per session and carries only what the prompt lists (NFR6).
 
 ## Mistral Endpoints (src/providers/mistral-provider.ts)
 

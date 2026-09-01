@@ -1,21 +1,51 @@
 # Desktop MVP: Implementation Order
 
-Numbered steps; each is small enough to review alone. Steps marked with the same letter can proceed in parallel once step 1 lands.
+## Status
 
-1. Scaffold: package.json, tsconfig, vite config, manifest, bun build script, empty main.ts that loads.
-2. Contracts: providers/types.ts, engine/outcome.ts, settings/settings.ts exactly as [2-data-model.md](2-data-model.md).
-3. (A) MistralProvider with fetch-mocked tests.
-4. (A) Tool schemas and system prompt builder.
-5. (A) EditApplier with tests; pure string plus editor-mock work.
-6. (A) Recorder with tests.
-7. EditEngine tool loop with tests, using 3-5.
-8. EditSession and session binding in main.ts.
-9. SessionPanel and SessionView, wiring capture, engine and provider.
-10. SettingsPanel and settings tab.
-11. styles.css and manual exit test against a dev vault.
+The release is built and its tests pass. `src/` holds the plugin lifecycle,
+session binding and rebind flow, the recorder, the Mistral provider, the tool
+schemas and prompt builder, the edit engine loop, the anchor applier, and the
+React session and settings panels.
 
-## Parallelisation
+Vault skills (FR34-38) are the one part not built. Everything below is that
+delta. Treat the rest of this folder as a description of working code, not a
+build sequence.
 
-- Steps 3-6 are independent of each other; they share only step 2's contracts.
-- Steps 9 and 10 are independent of each other once 7 and 8 exist.
-- The exit test (step 11) is the only step needing a real API key.
+## Steps
+
+Each step is small enough to review alone. Steps 1 and 2 can proceed in
+parallel; the rest are sequential.
+
+1. `src/skills/skill-frontmatter.ts`: parse name and description out of a
+   SKILL.md, handling the folded-scalar description. Tests cover the folded
+   form, a missing frontmatter block, and a block with no name.
+2. `src/settings/settings.ts`: add `skillsPath` to the interface and the
+   defaults, per [2-data-model.md](2-data-model.md).
+3. `src/skills/skill-catalogue.ts` and `src/skills/skill-loader.ts`: the Skill
+   type, the catalogue, and adapter-driven discovery with the signature in
+   [3-component-design.md](3-component-design.md). Tests drive a fake adapter
+   and cover a populated folder, a missing folder, an empty configured path,
+   and a malformed file among valid siblings.
+4. `src/engine/tool-schemas.ts`: `PromptBuilder.build()` takes a catalogue
+   defaulting to empty, and emits the skills section and scope rule when it has
+   entries. Tests assert the section is present with entries, absent without,
+   and that the scope rule is carried.
+5. `src/main.ts` and `src/engine/edit-engine.ts`: build the catalogue in
+   `buildPanelProps()` and pass it through the EditEngine constructor to the
+   prompt, per the Wiring section of [3-component-design.md](3-component-design.md).
+6. `src/settings/SettingsPanel.tsx`: the skills folder field, per
+   [4-settings-ui.md](4-settings-ui.md).
+7. Manual exit test against a vault holding real skills.
+
+## Exit test
+
+Run against a vault whose skills folder holds both kinds of skill.
+
+- An instruction matching a single-note skill follows that skill's workflow
+  rather than improvising (FR36).
+- An instruction matching a cross-file skill is declined by name, with no
+  partial edit made (FR37).
+- A vault with `skillsPath` pointing nowhere behaves exactly as the current
+  build does (FR38).
+
+This step needs a real API key.

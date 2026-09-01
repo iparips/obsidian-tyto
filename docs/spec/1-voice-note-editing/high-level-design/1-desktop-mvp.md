@@ -13,6 +13,8 @@ flowchart LR
     Eng["EditEngine [Engine]<br/>Responsibility: owns the model loop by turning an utterance into validated operations"]
     App["EditApplier [Engine]<br/>Responsibility: owns note mutation by resolving anchors and applying operations"]
     Ed["Editor API [Obsidian]<br/>Responsibility: owns the document by exposing range edits and undo"]
+    Skills["SkillLoader [Skills, new]<br/>Responsibility: owns skill discovery by reading the vault's skill folder into a catalogue"]
+    Adapter["Vault Adapter [Obsidian]<br/>Responsibility: owns raw file access by listing and reading paths the file API omits"]
 
     Main --> View
     View --> Rec
@@ -20,6 +22,8 @@ flowchart LR
     View -->|"transcribe"| Prov
     Eng -->|"complete"| Prov
     Eng --> App
+    Eng --> Skills
+    Skills --> Adapter
     App --> Ed
 ```
 
@@ -86,6 +90,24 @@ The loop repeats while the model returns tool calls. A text-only response ends t
 - EditSession [Engine] holds the bound file, the message history, and the applied-operation log.
 - History is provider-format messages, so follow-ups reuse the same array (FR4).
 - The note content is re-read and re-sent each turn; the note may have been edited by hand between utterances.
+
+## Vault Skills
+
+- SkillLoader [Skills, new] reads the configured skills folder through the vault adapter on session start, parsing the name and description out of each SKILL.md (FR34).
+- The catalogue holds descriptions, never bodies, so prompt cost scales with skill count rather than skill size (NFR6).
+- EditEngine [Engine] lists the catalogue in the system prompt, and omits the section entirely when it is empty, leaving a skill-free vault byte-identical to a build without the feature (FR35, FR38).
+- Discovery goes through the adapter rather than `app.vault.getFiles()`, which omits dot-directories. The configured folder is a normal vault folder, since Obsidian Sync copies no dot-folder to mobile and the mobile adapter resolves no symlink (NFR3).
+- A missing folder, a file without frontmatter, and a malformed file are all non-events: the first yields an empty catalogue, the others are skipped (FR38).
+
+## Skill Scope
+
+The MVP tools edit the open note and nothing else, so a skill is followable only while its steps stay in that note. Of a typical vault, a todo archiver qualifies; a journal router that creates files at computed paths does not.
+
+The model draws that line, using the descriptions in the prompt and the tools it holds (FR36). When a skill fits the utterance but needs another file, it names the skill, says the capability is not there yet, and makes no partial edit (FR37).
+
+Skills declare no scope of their own. A frontmatter flag would be one more thing to set when authoring a skill and would drift from what the skill actually does, whereas the tool list cannot drift: no cross-file tool exists, so a skill reaching for one finds nothing to call. That makes the tools the real boundary and the model's judgement the explanation the user hears.
+
+Release 5 lifts the limit, at which point the FR37 message narrows to whatever is still unsupported.
 
 ## Error Handling
 

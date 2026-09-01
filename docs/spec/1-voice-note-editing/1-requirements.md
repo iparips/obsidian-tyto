@@ -101,6 +101,14 @@ Existing dictation plugins rely on fixed voice-command phrases and cannot perfor
 - FR32: All features work on desktop and mobile: voice capture, transcription, editing, dictation.
 - FR33: The session UI fits a phone screen; controls are tappable, not hover-dependent.
 
+### Vault skills
+
+- FR34: On session start, discover the vault's agent skills and read the name and description of each.
+- FR35: Inject those names and descriptions into the system prompt, so the model knows which workflows the vault defines.
+- FR36: Follow a skill whose work stays inside the session note.
+- FR37: Tell the user plainly when a matched skill needs to read or write other files, naming the skill and saying the capability is not supported yet.
+- FR38: Behave exactly as before in a vault with no skills.
+
 ## Non-functional requirements
 
 - NFR1: Note content and instructions go only to the selected provider's API, using the user's own key. No middleman service, no telemetry.
@@ -108,6 +116,8 @@ Existing dictation plugins rely on fixed voice-command phrases and cannot perfor
 - NFR3: Works on desktop and mobile. The mobile webview cannot set custom auth headers on WebSockets, so realtime transcription there uses the provider's ephemeral client tokens; batch record-then-transcribe is the fallback.
 - NFR4: The plugin never writes to any file other than the session's note.
 - NFR5: API errors surface as clear notices with the failing step named (transcription vs edit).
+- NFR6: Skill discovery adds no perceptible latency to session start, and its prompt cost scales with skill count, not skill size.
+- NFR7: Skill files are user content, not trusted input. A skill cannot grant the model a tool it does not have, nor widen what it may edit.
 
 ## Decisions
 
@@ -118,3 +128,4 @@ Existing dictation plugins rely on fixed voice-command phrases and cannot perfor
 - Capture: realtime streaming transcription from v1. The transcript streams into the sidebar; the note changes per utterance, after the model processes the complete transcript.
 - Classification: implicit; the model decides content vs instruction per utterance. No mode toggle.
 - Flush timing: per utterance. One mic start-stop cycle is one unit of processing.
+- Skill scope: the model judges whether a skill fits the single-note tools, rather than the skill declaring a scope in frontmatter. A declared flag would be one more thing to forget when authoring a skill, and it would go stale; the tool list is the real constraint, so the judgement belongs where the utterance is.

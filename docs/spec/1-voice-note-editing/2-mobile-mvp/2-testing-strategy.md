@@ -23,3 +23,9 @@ The release risk is webview behaviour, which unit tests cannot cover. Run the De
 | Android phone | Android | webm capture, drawer with keyboard open, permission flow |
 
 - Also verify: recording while the drawer is open, backgrounding mid-recording shows the discard notice, toolbar command reachable with the keyboard up.
+
+### Vault Skills
+
+- Skills discovered on device match the desktop catalogue for the same vault.
+- An instruction matching a single-note skill behaves as it does on desktop.
+- A vault with the skills folder absent starts a session with no error.
