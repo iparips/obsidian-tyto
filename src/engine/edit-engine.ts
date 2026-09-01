@@ -41,16 +41,18 @@ export class EditEngine {
   private async runTurn(text: string): Promise<Outcome<string>> {
     const opened = this.noteAccess.open()
     if (!opened.ok) return opened
-    this.editSession.history.push({ role: 'user', content: text })
-    return this.runToolLoop(opened.value)
+    const history = this.editSession.history
+    history.push({ role: 'user', content: text })
+    return this.runToolLoop(opened.value, history)
   }
 
-  private async runToolLoop(note: OpenNote): Promise<Outcome<string>> {
+  private async runToolLoop(note: OpenNote, history: ChatMessage[]): Promise<Outcome<string>> {
     for (let iteration = 0; iteration < MAX_ITERATIONS; iteration++) {
-      const turn = await this.askModel(note, this.editSession.history)
+      const turn = await this.askModel(note, history)
       if (!turn.ok) return turn
-      if (turn.value.kind === 'text') return this.concludeUtterance(turn.value.content, note)
-      this.executeCalls(turn.value.calls, note)
+      if (turn.value.kind === 'text')
+        return this.concludeUtterance(turn.value.content, note, history)
+      this.executeCalls(turn.value.calls, note, history)
     }
     return Outcomes.failure('chat', `edit loop exceeded ${MAX_ITERATIONS} iterations`)
   }
@@ -63,24 +65,28 @@ export class EditEngine {
     return this.modelProvider.complete([system, ...history], TOOL_SCHEMAS)
   }
 
-  private concludeUtterance(summary: string, note: OpenNote): Outcome<string> {
-    this.editSession.history.push({ role: 'assistant', content: summary })
+  private concludeUtterance(
+    summary: string,
+    note: OpenNote,
+    history: ChatMessage[],
+  ): Outcome<string> {
+    history.push({ role: 'assistant', content: summary })
     note.applier.focusLastEdit()
     return Outcomes.success(summary)
   }
 
-  private executeCalls(calls: ToolCall[], note: OpenNote): void {
-    this.editSession.history.push({ role: 'assistant', toolCalls: calls })
-    calls.forEach((call) => this.executeCall(call, note))
+  private executeCalls(calls: ToolCall[], note: OpenNote, history: ChatMessage[]): void {
+    history.push({ role: 'assistant', toolCalls: calls })
+    calls.forEach((call) => this.executeCall(call, note, history))
   }
 
-  private executeCall(call: ToolCall, note: OpenNote): void {
+  private executeCall(call: ToolCall, note: OpenNote, history: ChatMessage[]): void {
     const parsed = OperationParser.parse(call)
     const result =
       'error' in parsed
         ? `invalid arguments: ${parsed.error}`
         : this.applyOperation(parsed.op, note)
-    this.editSession.history.push({ role: 'tool', toolCallId: call.id, content: result })
+    history.push({ role: 'tool', toolCallId: call.id, content: result })
   }
 
   private applyOperation(op: Parameters<EditApplier['apply']>[0], note: OpenNote): string {
