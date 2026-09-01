@@ -30,6 +30,7 @@ export class PromptBuilder {
       'workflow rather than improvising.',
       'Your tools edit the open note and nothing else. Follow a skill only while its',
       'steps stay inside that note.',
+      "Call load_skill to read a skill's steps before following it; the line below is only a summary.",
       'When a matching skill needs to read or write another file, name the skill, say',
       'that editing other files is not supported yet, and make no partial edit.',
     ].join('\n')

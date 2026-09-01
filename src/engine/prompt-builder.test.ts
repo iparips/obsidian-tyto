@@ -76,6 +76,14 @@ describe('PromptBuilder', () => {
     })
   })
 
+  describe('when the vault defines skills', () => {
+    it('tells the model to load a skill before following it when skills exist', () => {
+      const prompt = PromptBuilder.build(aNote(), [aSkill('todo', 'Archives ticked items.')])
+
+      expect(prompt).toContain('Call load_skill')
+    })
+  })
+
   describe('when the catalogue is empty', () => {
     it('omits the skills section when the catalogue is empty', () => {
       const prompt = PromptBuilder.build(aNote(), [])

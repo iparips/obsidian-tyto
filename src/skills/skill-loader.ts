@@ -19,6 +19,12 @@ export class SkillLoader {
     return skills.filter((skill): skill is Skill => skill !== null)
   }
 
+  // Bodies are read on demand, for the one skill an utterance matched, so the
+  // per-turn prompt cost stays tied to that skill rather than the whole vault.
+  async body(skill: Skill): Promise<string | null> {
+    return this.readFile(skill.path)
+  }
+
   private async skillFolders(): Promise<string[]> {
     try {
       return (await this.adapter.list(this.skillsPath)).folders

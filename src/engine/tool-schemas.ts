@@ -42,4 +42,16 @@ export const TOOL_SCHEMAS: ToolSchema[] = [
       required: ['location', 'content'],
     },
   },
+  {
+    name: 'load_skill',
+    description:
+      'Read the full instructions of one vault skill listed above. Call this before following a skill, so you work from its steps rather than its summary.',
+    parameters: {
+      type: 'object',
+      properties: {
+        name: { type: 'string', description: 'The skill name exactly as listed.' },
+      },
+      required: ['name'],
+    },
+  },
 ]

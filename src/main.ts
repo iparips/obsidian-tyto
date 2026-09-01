@@ -51,9 +51,12 @@ export default class VoiceEditPlugin extends Plugin {
   private async buildPanelProps(file: TFile): Promise<SessionPanelProps> {
     const modelProvider = new MistralProvider(this.settings.mistralApiKey, this.settings.editModel)
     const session = new EditSession(file)
-    const skillCatalogue = await this.loadSkills()
+    const loader = this.skillLoader()
+    const skillCatalogue = await loader.list()
     const noteAccess = new WorkspaceNoteAccess(this.app, file)
-    const engine = new EditEngine(modelProvider, session, noteAccess, skillCatalogue)
+    const engine = new EditEngine(modelProvider, session, noteAccess, skillCatalogue, (skill) =>
+      loader.body(skill),
+    )
     return {
       noteName: file.basename,
       recorder: new Recorder(),
@@ -62,8 +65,8 @@ export default class VoiceEditPlugin extends Plugin {
     }
   }
 
-  private loadSkills() {
-    return new SkillLoader(this.app.vault.adapter, this.settings.skillsPath).list()
+  private skillLoader(): SkillLoader {
+    return new SkillLoader(this.app.vault.adapter, this.settings.skillsPath)
   }
 
   private async revealSessionView(): Promise<SessionView | null> {

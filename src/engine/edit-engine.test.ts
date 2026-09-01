@@ -12,14 +12,16 @@ describe('EditEngine', () => {
   let session: EditSession
   let complete: Mock<Parameters<ChatProvider['complete']>, ReturnType<ChatProvider['complete']>>
   let engine: EditEngine
+  let chat: ChatProvider
+  let access: NoteAccess
 
   beforeEach(() => {
     vi.clearAllMocks()
     editor = new FakeEditor('# Budget\n\nbody')
     session = new EditSession({ path: 'note.md', basename: 'note' } as TFile)
     complete = vi.fn()
-    const chat: ChatProvider = { complete }
-    const access: NoteAccess = { open: () => Outcomes.success(anOpenNote(editor)) }
+    chat = { complete }
+    access = { open: () => Outcomes.success(anOpenNote(editor)) }
     engine = new EditEngine(chat, session, access)
   })
 
@@ -112,6 +114,56 @@ describe('EditEngine', () => {
         step: 'chat',
         message: 'edit loop exceeded 6 iterations',
       })
+    })
+  })
+
+  describe('when the vault defines skills', () => {
+    const todo = {
+      name: 'todo',
+      description: 'Archives ticked items.',
+      path: '0 - Meta/Skills/todo/SKILL.md',
+    }
+
+    const engineWithSkills = (readBody: (skill: unknown) => Promise<string | null>) =>
+      new EditEngine(chat, session, access, [todo], readBody as never)
+
+    it('returns the skill body as a tool result when load_skill names a skill', async () => {
+      const withSkills = engineWithSkills(async () => '1. Split it.')
+      complete
+        .mockResolvedValueOnce(
+          Outcomes.success(aToolTurn(aToolCall('load_skill', { name: 'todo' }))),
+        )
+        .mockResolvedValueOnce(Outcomes.success(aTextTurn('done')))
+
+      await withSkills.processUtterance('archive my todo')
+
+      expect(toolResults()[0]).toMatchObject({ content: '1. Split it.' })
+    })
+
+    it('says so when load_skill names a skill the vault does not define', async () => {
+      const withSkills = engineWithSkills(async () => '1. Split it.')
+      complete
+        .mockResolvedValueOnce(
+          Outcomes.success(aToolTurn(aToolCall('load_skill', { name: 'nope' }))),
+        )
+        .mockResolvedValueOnce(Outcomes.success(aTextTurn('done')))
+
+      await withSkills.processUtterance('archive')
+
+      expect(toolResults()[0]).toMatchObject({ content: 'no skill named nope in this vault' })
+    })
+
+    it('says so when the skill file cannot be read', async () => {
+      const withSkills = engineWithSkills(async () => null)
+      complete
+        .mockResolvedValueOnce(
+          Outcomes.success(aToolTurn(aToolCall('load_skill', { name: 'todo' }))),
+        )
+        .mockResolvedValueOnce(Outcomes.success(aTextTurn('done')))
+
+      await withSkills.processUtterance('archive my todo')
+
+      expect(toolResults()[0]).toMatchObject({ content: 'skill todo could not be read' })
     })
   })
 

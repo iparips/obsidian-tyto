@@ -72,6 +72,26 @@ describe('SkillLoader', () => {
     })
   })
 
+  describe('when a skill body is requested', () => {
+    it('returns the file source when the skill exists', async () => {
+      adapter.withSkill(`${DEFAULT_PATH}/tidy-notes`, aSkillFile('tidy-notes', 'Tidies.'))
+      const loader = new SkillLoader(adapter.asAdapter(), DEFAULT_PATH)
+      const [skill] = await loader.list()
+
+      const body = await loader.body(skill)
+
+      expect(body).toContain('Body.')
+    })
+
+    it('returns null when the skill file has gone', async () => {
+      const loader = new SkillLoader(adapter.asAdapter(), DEFAULT_PATH)
+
+      const body = await loader.body({ name: 'x', description: '', path: 'missing/SKILL.md' })
+
+      expect(body).toBeNull()
+    })
+  })
+
   describe('when discovery finds nothing', () => {
     it('returns an empty catalogue when the skills directory is missing', async () => {
       const catalogue = await load()
