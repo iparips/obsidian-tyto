@@ -41,7 +41,8 @@ export class SkillLoader {
     const source = await this.readFile(path)
     if (source === null) return null
     const frontmatter = SkillFrontmatterParser.parse(source)
-    return frontmatter ? { ...frontmatter, path } : null
+    if (!frontmatter) return null
+    return new Skill(frontmatter.name, frontmatter.description, path)
   }
 
   private async readFile(path: string): Promise<string | null> {

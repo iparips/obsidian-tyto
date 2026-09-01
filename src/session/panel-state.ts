@@ -7,9 +7,19 @@ export type Entry =
   | { kind: 'assistant'; text: string }
   | { kind: 'error'; step: FailureStep; text: string }
 
-export interface PanelState {
-  phase: Phase
-  entries: Entry[]
+export class PanelState {
+  constructor(
+    readonly phase: Phase,
+    readonly entries: Entry[],
+  ) {}
+
+  withPhase(phase: Phase): PanelState {
+    return new PanelState(phase, this.entries)
+  }
+
+  withEntry(phase: Phase, entry: Entry): PanelState {
+    return new PanelState(phase, [...this.entries, entry])
+  }
 }
 
 export type PanelAction =
@@ -20,32 +30,27 @@ export type PanelAction =
   | { type: 'summary'; text: string }
   | { type: 'failed'; step: FailureStep; message: string }
 
-export const INITIAL_PANEL_STATE: PanelState = { phase: 'idle', entries: [] }
+export const INITIAL_PANEL_STATE: PanelState = new PanelState('idle', [])
 
 export class PanelReducer {
   static reduce(state: PanelState, action: PanelAction): PanelState {
     switch (action.type) {
       case 'recordingStarted':
-        return { ...state, phase: 'recording' }
+        return state.withPhase('recording')
       case 'stopRequested':
-        return { ...state, phase: 'transcribing' }
+        return state.withPhase('transcribing')
       case 'cancelled':
-        return { ...state, phase: 'idle' }
+        return state.withPhase('idle')
       case 'transcript':
-        return {
-          phase: 'thinking',
-          entries: [...state.entries, { kind: 'user', text: action.text }],
-        }
+        return state.withEntry('thinking', { kind: 'user', text: action.text })
       case 'summary':
-        return {
-          phase: 'idle',
-          entries: [...state.entries, { kind: 'assistant', text: action.text }],
-        }
+        return state.withEntry('idle', { kind: 'assistant', text: action.text })
       case 'failed':
-        return {
-          phase: 'idle',
-          entries: [...state.entries, { kind: 'error', step: action.step, text: action.message }],
-        }
+        return state.withEntry('idle', {
+          kind: 'error',
+          step: action.step,
+          text: action.message,
+        })
     }
   }
 }

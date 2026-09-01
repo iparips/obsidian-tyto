@@ -1,15 +1,22 @@
 import { ChatMessage, ChatProvider, ToolCall } from '../providers/types'
-import { EditApplier } from './edit-applier'
-import { OperationParser } from './operation-parser'
+import { EditApplier, EditOperation } from './edit-applier'
+import { NoteOperationParser } from './note-operation-parser'
 import { Outcome, Outcomes } from './outcome'
-import { NoteContext, PromptBuilder } from './prompt-builder'
+import { NoteContext } from './note-context'
+import { PromptBuilder } from './prompt-builder'
 import { TOOL_SCHEMAS } from './tool-schemas'
 import { EditSession } from '../session/edit-session'
 import { EMPTY_CATALOGUE, Skill, SkillCatalogue } from '../skills/skill-catalogue'
 
-export interface OpenNote {
-  context(): NoteContext
-  applier: EditApplier
+export class OpenNote {
+  constructor(
+    readonly applier: EditApplier,
+    private readonly readContext: () => NoteContext,
+  ) {}
+
+  context(): NoteContext {
+    return this.readContext()
+  }
 }
 
 export interface NoteAccess {
@@ -43,7 +50,7 @@ export class EditEngine {
 
   private async runTurn(text: string): Promise<Outcome<string>> {
     const opened = this.noteAccess.open()
-    if (!opened.ok) return opened
+    if (opened.hasFailed()) return Outcomes.failure(opened.step, opened.message)
     const history = this.editSession.history
     history.push(ChatMessage.user(text))
     return this.runToolLoop(opened.value, history)
@@ -52,9 +59,9 @@ export class EditEngine {
   private async runToolLoop(note: OpenNote, history: ChatMessage[]): Promise<Outcome<string>> {
     for (let iteration = 0; iteration < MAX_ITERATIONS; iteration++) {
       const turn = await this.askModel(note, history)
-      if (!turn.ok) return turn
+      if (turn.hasFailed()) return Outcomes.failure(turn.step, turn.message)
       if (turn.value.isText()) return this.concludeUtterance(turn.value.content, note, history)
-      await this.executeCalls(turn.value.calls, note, history)
+      await this.executeToolCalls(turn.value.calls, note, history)
     }
     return Outcomes.failure('chat', `edit loop exceeded ${MAX_ITERATIONS} iterations`)
   }
@@ -73,40 +80,40 @@ export class EditEngine {
     note: OpenNote,
     history: ChatMessage[],
   ): Outcome<string> {
-    history.push(ChatMessage.assistant(summary))
+    history.push(ChatMessage.model(summary))
     note.applier.focusLastEdit()
     return Outcomes.success(summary)
   }
 
-  private async executeCalls(
+  private async executeToolCalls(
     calls: ToolCall[],
     note: OpenNote,
     history: ChatMessage[],
   ): Promise<void> {
-    history.push(ChatMessage.assistantToolCalls(calls))
-    for (const call of calls) history.push(await this.executeCall(call, note))
+    history.push(ChatMessage.modelToolCalls(calls))
+    for (const call of calls) history.push(await this.executeToolCall(call, note))
   }
 
-  private async executeCall(call: ToolCall, note: OpenNote): Promise<ChatMessage> {
-    const result =
-      call.name === 'load_skill' ? await this.loadSkill(call.args) : this.applyParsed(call, note)
-    return ChatMessage.toolResult(call.id, result)
+  private async executeToolCall(call: ToolCall, note: OpenNote): Promise<ChatMessage> {
+    const result = call.isLoadSkill() ? await this.loadSkill(call) : this.callToolOnNote(call, note)
+    return ChatMessage.toolCallResult(call.id, result)
   }
 
-  private applyParsed(call: ToolCall, note: OpenNote): string {
-    const parsed = OperationParser.parse(call)
-    if ('error' in parsed) return `invalid arguments: ${parsed.error}`
-    return this.applyOperation(parsed.op, note)
+  private callToolOnNote(call: ToolCall, note: OpenNote): string {
+    const parsed = NoteOperationParser.parse(call)
+    if (parsed.hasFailed()) return `invalid arguments: ${parsed.message}`
+    return this.doCallToolOnNote(parsed.value, note)
   }
 
-  private async loadSkill(args: Record<string, unknown>): Promise<string> {
-    const skill = this.skills.find((candidate) => candidate.name === args.name)
-    if (!skill) return `no skill named ${String(args.name)} in this vault`
+  private async loadSkill(call: ToolCall): Promise<string> {
+    const name = call.argument('name')
+    const skill = this.skills.find((candidate) => candidate.name === name)
+    if (!skill) return `no skill named ${name} in this vault`
     const body = await this.readSkillBody(skill)
     return body ?? `skill ${skill.name} could not be read`
   }
 
-  private applyOperation(op: Parameters<EditApplier['apply']>[0], note: OpenNote): string {
+  private doCallToolOnNote(op: EditOperation, note: OpenNote): string {
     const result = note.applier.apply(op)
     if (result.applied) {
       this.editSession.operationLog.push(op)

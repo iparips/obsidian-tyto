@@ -1,8 +1,10 @@
 import { Outcome, Outcomes } from '../engine/outcome'
 
-export interface Utterance {
-  blob: Blob
-  mimeType: string
+export class Utterance {
+  constructor(
+    readonly blob: Blob,
+    readonly mimeType: string,
+  ) {}
 }
 
 const MIME_PREFERENCES = ['audio/webm', 'audio/mp4', 'audio/aac']
@@ -27,7 +29,7 @@ export class Recorder {
     return new Promise((resolve) => {
       const recorder = this.recorder
       if (!recorder)
-        return resolve({ blob: new Blob([], { type: this.mimeType }), mimeType: this.mimeType })
+        return resolve(new Utterance(new Blob([], { type: this.mimeType }), this.mimeType))
       recorder.onstop = () => resolve(this.takeUtterance(recorder))
       recorder.stop()
     })
@@ -60,7 +62,7 @@ export class Recorder {
 
   private takeUtterance(recorder: MediaRecorder): Utterance {
     const mimeType = this.mimeType || recorder.mimeType || DEFAULT_MIME_TYPE
-    const utterance = { blob: new Blob(this.chunks, { type: mimeType }), mimeType }
+    const utterance = new Utterance(new Blob(this.chunks, { type: mimeType }), mimeType)
     console.debug('[voice-edit] captured', utterance.blob.size, 'bytes as', mimeType)
     this.releaseStream(recorder)
     this.reset()

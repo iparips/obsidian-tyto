@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, Mock, vi } from 'vitest'
 import { act, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { SessionPanel, RecorderPort } from './SessionPanel'
+import { Utterance } from '../capture/recorder'
 import { Outcome, Outcomes } from '../engine/outcome'
 
 describe('SessionPanel', () => {
@@ -14,7 +15,7 @@ describe('SessionPanel', () => {
     vi.clearAllMocks()
     recorder = {
       start: vi.fn().mockResolvedValue(Outcomes.success(undefined)),
-      stop: vi.fn().mockResolvedValue({ blob: new Blob(['a']), mimeType: 'audio/webm' }),
+      stop: vi.fn().mockResolvedValue(new Utterance(new Blob(['a']), 'audio/webm')),
       cancel: vi.fn(),
     }
     transcribe = vi.fn().mockResolvedValue(Outcomes.success('spoken words'))

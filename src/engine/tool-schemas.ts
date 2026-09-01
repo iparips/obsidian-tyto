@@ -1,4 +1,5 @@
 import { ToolSchema } from '../providers/types'
+import { LOAD_SKILL } from '../providers/tool-call'
 
 const ANCHOR_DESCRIPTION =
   'Exact text currently in the note. Must match exactly once. Include enough surrounding text to be unique.'
@@ -43,7 +44,7 @@ export const TOOL_SCHEMAS: ToolSchema[] = [
     },
   },
   {
-    name: 'load_skill',
+    name: LOAD_SKILL,
     description:
       'Read the full instructions of one vault skill listed above. Call this before following a skill, so you work from its steps rather than its summary.',
     parameters: {

@@ -27,22 +27,25 @@ export const SessionPanel = (props: SessionPanelProps) => {
   const runTurn = async (text: string) => {
     dispatch({ type: 'transcript', text })
     const outcome = await props.processUtterance(text)
-    if (outcome.ok) dispatch({ type: 'summary', text: outcome.value })
-    else dispatch({ type: 'failed', step: outcome.step, message: outcome.message })
+    if (outcome.hasFailed())
+      dispatch({ type: 'failed', step: outcome.step, message: outcome.message })
+    else dispatch({ type: 'summary', text: outcome.value })
   }
 
   const startRecording = async () => {
     const outcome = await props.recorder.start()
-    if (outcome.ok) dispatch({ type: 'recordingStarted' })
-    else dispatch({ type: 'failed', step: outcome.step, message: outcome.message })
+    if (outcome.hasFailed())
+      dispatch({ type: 'failed', step: outcome.step, message: outcome.message })
+    else dispatch({ type: 'recordingStarted' })
   }
 
   const stopRecording = async () => {
     dispatch({ type: 'stopRequested' })
     const utterance = await props.recorder.stop()
     const transcript = await props.transcribe(utterance.blob, utterance.mimeType)
-    if (transcript.ok) await runTurn(transcript.value)
-    else dispatch({ type: 'failed', step: transcript.step, message: transcript.message })
+    if (transcript.hasFailed())
+      dispatch({ type: 'failed', step: transcript.step, message: transcript.message })
+    else await runTurn(transcript.value)
   }
 
   const cancelRecording = () => {

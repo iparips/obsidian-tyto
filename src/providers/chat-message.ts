@@ -21,15 +21,15 @@ export class ChatMessage {
     return new ChatMessage('user', content, [], '')
   }
 
-  static assistant(content: string): ChatMessage {
+  static model(content: string): ChatMessage {
     return new ChatMessage('assistant', content, [], '')
   }
 
-  static assistantToolCalls(toolCalls: ToolCall[]): ChatMessage {
+  static modelToolCalls(toolCalls: ToolCall[]): ChatMessage {
     return new ChatMessage('assistant', '', toolCalls, '')
   }
 
-  static toolResult(toolCallId: string, content: string): ChatMessage {
+  static toolCallResult(toolCallId: string, content: string): ChatMessage {
     return new ChatMessage('tool', content, [], toolCallId)
   }
 

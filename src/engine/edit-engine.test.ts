@@ -33,7 +33,7 @@ describe('EditEngine', () => {
 
       const outcome = await engine.processUtterance('hello')
 
-      expect(outcome).toEqual({ ok: true, value: 'Nothing to do' })
+      expect(outcome).toEqual(Outcomes.success('Nothing to do'))
     })
   })
 
@@ -109,11 +109,7 @@ describe('EditEngine', () => {
 
       const outcome = await engine.processUtterance('edit')
 
-      expect(outcome).toEqual({
-        ok: false,
-        step: 'chat',
-        message: 'edit loop exceeded 6 iterations',
-      })
+      expect(outcome).toEqual(Outcomes.failure('chat', 'edit loop exceeded 6 iterations'))
     })
   })
 

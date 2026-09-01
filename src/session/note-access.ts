@@ -1,6 +1,7 @@
 import { App, Editor, MarkdownView, TFile } from 'obsidian'
 import { EditApplier } from '../engine/edit-applier'
 import { NoteAccess, OpenNote } from '../engine/edit-engine'
+import { NoteContext } from '../engine/note-context'
 import { Outcome, Outcomes } from '../engine/outcome'
 
 export class WorkspaceNoteAccess implements NoteAccess {
@@ -17,14 +18,10 @@ export class WorkspaceNoteAccess implements NoteAccess {
 
   private openNote(editor: Editor): OpenNote {
     const cursor = editor.getCursor()
-    return {
-      applier: new EditApplier(editor, cursor),
-      context: () => ({
-        path: this.file.path,
-        content: editor.getValue(),
-        cursorLine: cursor.line,
-      }),
-    }
+    return new OpenNote(
+      new EditApplier(editor, cursor),
+      () => new NoteContext(this.file.path, editor.getValue(), cursor.line),
+    )
   }
 
   private findEditor(): Editor | null {

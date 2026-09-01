@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import { NoteContext, PromptBuilder } from './prompt-builder'
+import { NoteContext } from './note-context'
+import { PromptBuilder } from './prompt-builder'
 import { Skill } from '../skills/skill-catalogue'
 
-const aNote = (): NoteContext => ({ path: 'note.md', content: '# Budget\n\nbody', cursorLine: 2 })
+const aNote = (): NoteContext => new NoteContext('note.md', '# Budget\n\nbody', 2)
 
 const aSkill = (name: string, description: string): Skill => ({
   name,

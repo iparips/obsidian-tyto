@@ -1,6 +1,8 @@
-export interface SkillFrontmatter {
-  name: string
-  description: string
+export class SkillFrontmatter {
+  constructor(
+    readonly name: string,
+    readonly description: string,
+  ) {}
 }
 
 const BLOCK = /^---\r?\n([\s\S]*?)\r?\n---/
@@ -15,7 +17,7 @@ export class SkillFrontmatterParser {
     const lines = block[1].split(/\r?\n/)
     const name = SkillFrontmatterParser.read(lines, 'name')
     if (!name) return null
-    return { name, description: SkillFrontmatterParser.read(lines, 'description') }
+    return new SkillFrontmatter(name, SkillFrontmatterParser.read(lines, 'description'))
   }
 
   private static read(lines: string[], key: string): string {

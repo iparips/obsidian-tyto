@@ -1,11 +1,6 @@
 import { EMPTY_CATALOGUE, SkillCatalogue } from '../skills/skill-catalogue'
 import { EditingRules } from './editing-rules'
-
-export interface NoteContext {
-  path: string
-  content: string
-  cursorLine: number
-}
+import { NoteContext } from './note-context'
 
 export class PromptBuilder {
   // The note itself is not here: EditEngine sends it as the last message, so the

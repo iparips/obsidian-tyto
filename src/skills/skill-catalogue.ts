@@ -1,7 +1,9 @@
-export interface Skill {
-  name: string
-  description: string
-  path: string
+export class Skill {
+  constructor(
+    readonly name: string,
+    readonly description: string,
+    readonly path: string,
+  ) {}
 }
 
 // Descriptions are held, bodies are not: prompt cost scales with skill count,

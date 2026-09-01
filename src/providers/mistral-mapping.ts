@@ -46,11 +46,11 @@ export class MistralMapping {
   }
 
   private static toToolCall(call: ApiToolCall): ToolCall {
-    return {
-      id: call.id,
-      name: call.function.name,
-      args: MistralMapping.parseArgs(call.function.arguments),
-    }
+    return new ToolCall(
+      call.id,
+      call.function.name,
+      MistralMapping.parseArgs(call.function.arguments),
+    )
   }
 
   private static parseArgs(raw: string): Record<string, unknown> {

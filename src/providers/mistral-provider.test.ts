@@ -1,8 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { MistralProvider } from './mistral-provider'
+import { Outcomes } from '../engine/outcome'
 import { TOOL_SCHEMAS } from '../engine/tool-schemas'
 import { ChatMessage } from './chat-message'
-import { ChatTurn } from './chat-turn'
 
 const jsonResponse = (body: unknown) =>
   new Response(JSON.stringify(body), {
@@ -30,7 +30,7 @@ describe('MistralProvider', () => {
 
       const outcome = await provider.transcribe(new Blob(['audio']), 'audio/webm')
 
-      expect(outcome).toEqual({ ok: true, value: 'hello world' })
+      expect(outcome).toEqual(Outcomes.success('hello world'))
     })
 
     it('returns a transcription-step failure when the API responds non-2xx', async () => {
@@ -38,11 +38,7 @@ describe('MistralProvider', () => {
 
       const outcome = await provider.transcribe(new Blob(['audio']), 'audio/webm')
 
-      expect(outcome).toEqual({
-        ok: false,
-        step: 'transcription',
-        message: 'API responded 401: unauthorised',
-      })
+      expect(outcome).toEqual(Outcomes.failure('transcription', 'API responded 401: unauthorised'))
     })
   })
 
@@ -67,8 +63,9 @@ describe('MistralProvider', () => {
 
       const outcome = await provider.complete([ChatMessage.user('hi')], TOOL_SCHEMAS)
 
-      expect(outcome.ok).toBe(true)
-      const turn = (outcome as { ok: true; value: ChatTurn }).value
+      expect(outcome.hasFailed()).toBe(false)
+      if (outcome.hasFailed()) return
+      const turn = outcome.value
       expect(turn.isToolCalls()).toBe(true)
       expect(turn.calls).toEqual([{ id: 'c1', name: 'replace_text', args: { anchor_text: 'a' } }])
     })
@@ -78,8 +75,9 @@ describe('MistralProvider', () => {
 
       const outcome = await provider.complete([ChatMessage.user('hi')], TOOL_SCHEMAS)
 
-      expect(outcome.ok).toBe(true)
-      const turn = (outcome as { ok: true; value: ChatTurn }).value
+      expect(outcome.hasFailed()).toBe(false)
+      if (outcome.hasFailed()) return
+      const turn = outcome.value
       expect(turn.isText()).toBe(true)
       expect(turn.content).toBe('all done')
     })
@@ -89,11 +87,7 @@ describe('MistralProvider', () => {
 
       const outcome = await provider.complete([ChatMessage.user('hi')], TOOL_SCHEMAS)
 
-      expect(outcome).toEqual({
-        ok: false,
-        step: 'chat',
-        message: 'request failed: Error: network down',
-      })
+      expect(outcome).toEqual(Outcomes.failure('chat', 'request failed: Error: network down'))
     })
   })
 })

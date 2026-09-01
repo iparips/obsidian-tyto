@@ -16,7 +16,7 @@ export class MistralProvider implements TranscriptionProvider, ChatProvider {
     form.append('file', audio, MistralMapping.fileNameFor(mimeType))
     form.append('model', TRANSCRIBE_MODEL)
     const body = await this.request('transcription', '/audio/transcriptions', { body: form })
-    if (!body.ok) return body
+    if (body.hasFailed()) return Outcomes.failure(body.step, body.message)
     const data = body.value as { text?: string }
     return Outcomes.success(data.text ?? '')
   }
@@ -32,7 +32,7 @@ export class MistralProvider implements TranscriptionProvider, ChatProvider {
       body: JSON.stringify(payload),
       headers: { 'Content-Type': 'application/json' },
     })
-    if (!body.ok) return body
+    if (body.hasFailed()) return Outcomes.failure(body.step, body.message)
     const data = body.value as { choices?: { message?: ApiMessage }[] }
     return Outcomes.success(MistralMapping.toChatTurn(data.choices?.[0]?.message ?? {}))
   }

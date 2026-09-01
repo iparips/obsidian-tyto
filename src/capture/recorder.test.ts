@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { Recorder } from './recorder'
+import { Outcomes } from '../engine/outcome'
 
 class FakeMediaRecorder {
   static instances: FakeMediaRecorder[] = []
@@ -86,11 +87,9 @@ describe('Recorder', () => {
 
       const outcome = await recorder.start()
 
-      expect(outcome).toEqual({
-        ok: false,
-        step: 'transcription',
-        message: 'microphone unavailable: Error: denied',
-      })
+      expect(outcome).toEqual(
+        Outcomes.failure('transcription', 'microphone unavailable: Error: denied'),
+      )
     })
   })
 
