@@ -9,6 +9,7 @@ import { SessionView, VIEW_TYPE_SESSION } from './session/session-view'
 import { SessionPanelProps } from './session/SessionPanel'
 import { DEFAULT_SETTINGS, VoiceEditSettings } from './settings/settings'
 import { VoiceEditSettingsTab } from './settings/settings-tab'
+import { SkillLoader } from './skills/skill-loader'
 
 export default class VoiceEditPlugin extends Plugin {
   settings: VoiceEditSettings = DEFAULT_SETTINGS
@@ -35,28 +36,34 @@ export default class VoiceEditPlugin extends Plugin {
     if (!file) return void new Notice('Open a note first.')
     const view = await this.revealSessionView()
     if (!view) return
-    this.bindOrAskRebind(view, file)
+    await this.bindOrAskRebind(view, file)
   }
 
-  private bindOrAskRebind(view: SessionView, file: TFile): void {
+  private async bindOrAskRebind(view: SessionView, file: TFile): Promise<void> {
     const boundName = view.boundNoteName()
     if (boundName && boundName !== file.basename)
-      return new RebindModal(this.app, boundName, file.basename, () =>
-        view.bindSession(this.buildPanelProps(file)),
+      return new RebindModal(this.app, boundName, file.basename, async () =>
+        view.bindSession(await this.buildPanelProps(file)),
       ).open()
-    if (!boundName) view.bindSession(this.buildPanelProps(file))
+    if (!boundName) view.bindSession(await this.buildPanelProps(file))
   }
 
-  private buildPanelProps(file: TFile): SessionPanelProps {
+  private async buildPanelProps(file: TFile): Promise<SessionPanelProps> {
     const provider = new MistralProvider(this.settings.mistralApiKey, this.settings.editModel)
     const session = new EditSession(file)
-    const engine = new EditEngine(provider, session, new WorkspaceNoteAccess(this.app, file))
+    const catalogue = await this.loadSkills()
+    const access = new WorkspaceNoteAccess(this.app, file)
+    const engine = new EditEngine(provider, session, access, catalogue)
     return {
       noteName: file.basename,
       recorder: new Recorder(),
       transcribe: (blob, mimeType) => provider.transcribe(blob, mimeType),
       processUtterance: (text) => engine.processUtterance(text),
     }
+  }
+
+  private loadSkills() {
+    return new SkillLoader(this.app.vault.adapter, this.settings.skillsPath).list()
   }
 
   private async revealSessionView(): Promise<SessionView | null> {

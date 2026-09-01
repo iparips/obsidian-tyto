@@ -51,5 +51,15 @@ export type Editor = {
   scrollIntoView(range: { from: EditorPosition; to: EditorPosition }, center?: boolean): void
 }
 
+export interface ListedFiles {
+  files: string[]
+  folders: string[]
+}
+
+export interface DataAdapter {
+  list(normalizedPath: string): Promise<ListedFiles>
+  read(normalizedPath: string): Promise<string>
+}
+
 export type App = Record<string, unknown>
 export type WorkspaceLeaf = Record<string, unknown>

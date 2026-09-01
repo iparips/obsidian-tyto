@@ -2,8 +2,10 @@ import { ChatMessage, ChatProvider, ToolCall } from '../providers/types'
 import { EditApplier } from './edit-applier'
 import { OperationParser } from './operation-parser'
 import { Outcome, Outcomes } from './outcome'
-import { NoteContext, PromptBuilder, TOOL_SCHEMAS } from './tool-schemas'
+import { NoteContext, PromptBuilder } from './prompt-builder'
+import { TOOL_SCHEMAS } from './tool-schemas'
 import { EditSession } from '../session/edit-session'
+import { EMPTY_CATALOGUE, SkillCatalogue } from '../skills/skill-catalogue'
 
 export interface OpenNote {
   context(): NoteContext
@@ -23,6 +25,7 @@ export class EditEngine {
     private chat: ChatProvider,
     private session: EditSession,
     private access: NoteAccess,
+    private skills: SkillCatalogue = EMPTY_CATALOGUE,
   ) {}
 
   processUtterance(text: string): Promise<Outcome<string>> {
@@ -49,7 +52,10 @@ export class EditEngine {
   }
 
   private completeTurn(note: OpenNote) {
-    const system: ChatMessage = { role: 'system', content: PromptBuilder.build(note.context()) }
+    const system: ChatMessage = {
+      role: 'system',
+      content: PromptBuilder.build(note.context(), this.skills),
+    }
     return this.chat.complete([system, ...this.session.history], TOOL_SCHEMAS)
   }
 
