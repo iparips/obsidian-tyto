@@ -34,6 +34,48 @@ describe('PromptBuilder', () => {
     })
   })
 
+  describe('when the note holds checkboxes', () => {
+    it('states that checking an item is an edit when the prompt is built', () => {
+      const prompt = PromptBuilder.build(aNote())
+
+      expect(prompt).toContain('- [x]')
+    })
+
+    it('states that plain bullets are left alone when the prompt is built', () => {
+      const prompt = PromptBuilder.build(aNote())
+
+      expect(prompt).toContain('plain bullets')
+    })
+  })
+
+  describe('when the model reports on its work', () => {
+    it('forbids claiming an edit that no tool call made when the prompt is built', () => {
+      const prompt = PromptBuilder.build(aNote())
+
+      expect(prompt).toContain('Only claim an edit you actually made')
+    })
+
+    it('states the single-note limit and the absent undo when the prompt is built', () => {
+      const prompt = PromptBuilder.build(aNote())
+
+      expect(prompt).toContain('no undo tool')
+    })
+  })
+
+  describe('when the note holds checkboxes', () => {
+    it('states that checking an item is an edit when the prompt is built', () => {
+      const prompt = PromptBuilder.build(aNote())
+
+      expect(prompt).toContain('- [x]')
+    })
+
+    it('states that plain bullets are left alone when the prompt is built', () => {
+      const prompt = PromptBuilder.build(aNote())
+
+      expect(prompt).toContain('plain bullets')
+    })
+  })
+
   describe('when the catalogue is empty', () => {
     it('omits the skills section when the catalogue is empty', () => {
       const prompt = PromptBuilder.build(aNote(), [])

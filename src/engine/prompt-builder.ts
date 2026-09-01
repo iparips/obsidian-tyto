@@ -1,4 +1,5 @@
 import { EMPTY_CATALOGUE, SkillCatalogue } from '../skills/skill-catalogue'
+import { EditingRules } from './editing-rules'
 
 export interface NoteContext {
   path: string
@@ -9,8 +10,8 @@ export interface NoteContext {
 export class PromptBuilder {
   static build(note: NoteContext, skills: SkillCatalogue = EMPTY_CATALOGUE): string {
     return [
-      PromptBuilder.roleRules(),
-      PromptBuilder.dictationRules(),
+      EditingRules.roleRules(),
+      EditingRules.dictationRules(),
       ...PromptBuilder.skillSection(skills),
       PromptBuilder.context(note),
     ].join('\n\n')
@@ -36,26 +37,6 @@ export class PromptBuilder {
 
   private static skillLines(skills: SkillCatalogue): string[] {
     return skills.map((skill) => `${skill.name} - ${skill.description}`)
-  }
-
-  private static roleRules(): string {
-    return [
-      'You edit one markdown note through the provided tools.',
-      'Never rewrite the whole note; make the smallest targeted edits that satisfy the instruction.',
-      'If the instruction is ambiguous, respond with a clarifying question instead of guessing.',
-      'Multi-part instructions become multiple tool calls, applied in order.',
-      'When you are done, respond with a one-sentence summary of what changed.',
-    ].join('\n')
-  }
-
-  private static dictationRules(): string {
-    return [
-      'The user speaks utterances that are content to write down, an editing instruction, or a mix. Classify each utterance and act accordingly.',
-      'For content: drop filler words, fix punctuation and capitalisation, and resolve self-corrections such as "no, not X, Y".',
-      'Format content to fit the note: prose stays prose, enumerations become markdown lists, spoken structure cues become headings.',
-      'Infer formatting intent from natural phrasing; there are no fixed trigger phrases.',
-      'Content goes at the cursor unless the utterance directs it elsewhere.',
-    ].join('\n')
   }
 
   private static context(note: NoteContext): string {
