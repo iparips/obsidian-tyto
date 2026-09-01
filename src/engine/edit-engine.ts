@@ -43,15 +43,15 @@ export class EditEngine {
 
   private async runToolLoop(note: OpenNote): Promise<Outcome<string>> {
     for (let iteration = 0; iteration < MAX_ITERATIONS; iteration++) {
-      const turn = await this.completeTurn(note)
+      const turn = await this.askModel(note)
       if (!turn.ok) return turn
-      if (turn.value.kind === 'text') return this.finishTurn(turn.value.content, note)
+      if (turn.value.kind === 'text') return this.concludeUtterance(turn.value.content, note)
       this.executeCalls(turn.value.calls, note)
     }
     return Outcomes.failure('chat', `edit loop exceeded ${MAX_ITERATIONS} iterations`)
   }
 
-  private completeTurn(note: OpenNote) {
+  private askModel(note: OpenNote) {
     const system: ChatMessage = {
       role: 'system',
       content: PromptBuilder.build(note.context(), this.skills),
@@ -59,7 +59,7 @@ export class EditEngine {
     return this.chat.complete([system, ...this.session.history], TOOL_SCHEMAS)
   }
 
-  private finishTurn(summary: string, note: OpenNote): Outcome<string> {
+  private concludeUtterance(summary: string, note: OpenNote): Outcome<string> {
     this.session.history.push({ role: 'assistant', content: summary })
     note.applier.focusLastEdit()
     return Outcomes.success(summary)
