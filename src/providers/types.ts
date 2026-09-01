@@ -1,4 +1,5 @@
 import { Outcome } from '../engine/outcome'
+import { ChatTurn } from './chat-turn'
 
 export interface TranscriptionProvider {
   transcribe(audio: Blob, mimeType: string): Promise<Outcome<string>>
@@ -19,7 +20,7 @@ export interface ToolCall {
   args: Record<string, unknown>
 }
 
-export type ChatTurn = { kind: 'toolCalls'; calls: ToolCall[] } | { kind: 'text'; content: string }
+export { ChatTurn }
 
 export interface ToolSchema {
   name: string

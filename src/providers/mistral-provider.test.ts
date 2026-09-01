@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { MistralProvider } from './mistral-provider'
 import { TOOL_SCHEMAS } from '../engine/tool-schemas'
+import { ChatTurn } from './chat-turn'
 
 const jsonResponse = (body: unknown) =>
   new Response(JSON.stringify(body), {
@@ -65,13 +66,10 @@ describe('MistralProvider', () => {
 
       const outcome = await provider.complete([{ role: 'user', content: 'hi' }], TOOL_SCHEMAS)
 
-      expect(outcome).toEqual({
-        ok: true,
-        value: {
-          kind: 'toolCalls',
-          calls: [{ id: 'c1', name: 'replace_text', args: { anchor_text: 'a' } }],
-        },
-      })
+      expect(outcome.ok).toBe(true)
+      const turn = (outcome as { ok: true; value: ChatTurn }).value
+      expect(turn.isToolCalls()).toBe(true)
+      expect(turn.calls).toEqual([{ id: 'c1', name: 'replace_text', args: { anchor_text: 'a' } }])
     })
 
     it('maps content to ChatTurn text when the chat response is plain', async () => {
@@ -79,7 +77,10 @@ describe('MistralProvider', () => {
 
       const outcome = await provider.complete([{ role: 'user', content: 'hi' }], TOOL_SCHEMAS)
 
-      expect(outcome).toEqual({ ok: true, value: { kind: 'text', content: 'all done' } })
+      expect(outcome.ok).toBe(true)
+      const turn = (outcome as { ok: true; value: ChatTurn }).value
+      expect(turn.isText()).toBe(true)
+      expect(turn.content).toBe('all done')
     })
 
     it('returns a chat-step failure when the chat request rejects', async () => {

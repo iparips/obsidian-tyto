@@ -32,8 +32,8 @@ export class MistralMapping {
 
   static toChatTurn(message: ApiMessage): ChatTurn {
     if (message.tool_calls?.length)
-      return { kind: 'toolCalls', calls: message.tool_calls.map(MistralMapping.toToolCall) }
-    return { kind: 'text', content: typeof message.content === 'string' ? message.content : '' }
+      return ChatTurn.ofToolCalls(message.tool_calls.map(MistralMapping.toToolCall))
+    return ChatTurn.ofText(typeof message.content === 'string' ? message.content : '')
   }
 
   static fileNameFor(mimeType: string): string {

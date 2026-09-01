@@ -50,8 +50,7 @@ export class EditEngine {
     for (let iteration = 0; iteration < MAX_ITERATIONS; iteration++) {
       const turn = await this.askModel(note, history)
       if (!turn.ok) return turn
-      if (turn.value.kind === 'text')
-        return this.concludeUtterance(turn.value.content, note, history)
+      if (turn.value.isText()) return this.concludeUtterance(turn.value.content, note, history)
       this.executeCalls(turn.value.calls, note, history)
     }
     return Outcomes.failure('chat', `edit loop exceeded ${MAX_ITERATIONS} iterations`)

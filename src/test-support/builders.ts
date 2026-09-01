@@ -11,9 +11,9 @@ export const aToolCall = (name: string, args: Record<string, unknown>): ToolCall
   args,
 })
 
-export const aToolTurn = (...calls: ToolCall[]): ChatTurn => ({ kind: 'toolCalls', calls })
+export const aToolTurn = (...calls: ToolCall[]): ChatTurn => ChatTurn.ofToolCalls(calls)
 
-export const aTextTurn = (content: string): ChatTurn => ({ kind: 'text', content })
+export const aTextTurn = (content: string): ChatTurn => ChatTurn.ofText(content)
 
 export const anOpenNote = (editor: FakeEditor, path = 'note.md'): OpenNote => ({
   applier: new EditApplier(editor.asEditor(), editor.getCursor()),
