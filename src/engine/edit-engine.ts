@@ -22,9 +22,9 @@ export class EditEngine {
   private queue: Promise<unknown> = Promise.resolve()
 
   constructor(
-    private chat: ChatProvider,
-    private session: EditSession,
-    private access: NoteAccess,
+    private modelProvider: ChatProvider,
+    private editSession: EditSession,
+    private noteAccess: NoteAccess,
     private skills: SkillCatalogue = EMPTY_CATALOGUE,
   ) {}
 
@@ -35,15 +35,15 @@ export class EditEngine {
   }
 
   private async runTurn(text: string): Promise<Outcome<string>> {
-    const opened = this.access.open()
+    const opened = this.noteAccess.open()
     if (!opened.ok) return opened
-    this.session.history.push({ role: 'user', content: text })
+    this.editSession.history.push({ role: 'user', content: text })
     return this.runToolLoop(opened.value)
   }
 
   private async runToolLoop(note: OpenNote): Promise<Outcome<string>> {
     for (let iteration = 0; iteration < MAX_ITERATIONS; iteration++) {
-      const turn = await this.askModel(note)
+      const turn = await this.askModel(note, this.editSession.history)
       if (!turn.ok) return turn
       if (turn.value.kind === 'text') return this.concludeUtterance(turn.value.content, note)
       this.executeCalls(turn.value.calls, note)
@@ -51,22 +51,22 @@ export class EditEngine {
     return Outcomes.failure('chat', `edit loop exceeded ${MAX_ITERATIONS} iterations`)
   }
 
-  private askModel(note: OpenNote) {
+  private askModel(note: OpenNote, history: readonly ChatMessage[]) {
     const system: ChatMessage = {
       role: 'system',
       content: PromptBuilder.build(note.context(), this.skills),
     }
-    return this.chat.complete([system, ...this.session.history], TOOL_SCHEMAS)
+    return this.modelProvider.complete([system, ...history], TOOL_SCHEMAS)
   }
 
   private concludeUtterance(summary: string, note: OpenNote): Outcome<string> {
-    this.session.history.push({ role: 'assistant', content: summary })
+    this.editSession.history.push({ role: 'assistant', content: summary })
     note.applier.focusLastEdit()
     return Outcomes.success(summary)
   }
 
   private executeCalls(calls: ToolCall[], note: OpenNote): void {
-    this.session.history.push({ role: 'assistant', toolCalls: calls })
+    this.editSession.history.push({ role: 'assistant', toolCalls: calls })
     calls.forEach((call) => this.executeCall(call, note))
   }
 
@@ -76,13 +76,13 @@ export class EditEngine {
       'error' in parsed
         ? `invalid arguments: ${parsed.error}`
         : this.applyOperation(parsed.op, note)
-    this.session.history.push({ role: 'tool', toolCallId: call.id, content: result })
+    this.editSession.history.push({ role: 'tool', toolCallId: call.id, content: result })
   }
 
   private applyOperation(op: Parameters<EditApplier['apply']>[0], note: OpenNote): string {
     const result = note.applier.apply(op)
     if (result.applied) {
-      this.session.operationLog.push(op)
+      this.editSession.operationLog.push(op)
       return 'applied'
     }
     if (result.reason === 'noMatch') return 'anchor not found in note'
