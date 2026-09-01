@@ -24,7 +24,7 @@ describe('EditEngine', () => {
   })
 
   const toolResults = () =>
-    session.history.filter((message: ChatMessage) => message.role === 'tool')
+    session.history.filter((message: ChatMessage) => message.isToolResult())
 
   describe('when the model responds with text', () => {
     it('returns the text as summary when the model responds without tool calls', async () => {
@@ -120,8 +120,8 @@ describe('EditEngine', () => {
     it('queues a second utterance when a turn is in flight', async () => {
       const order: string[] = []
       complete.mockImplementation(async (messages: ChatMessage[]) => {
-        const lastUser = [...messages].reverse().find((message) => message.role === 'user')
-        order.push(lastUser && 'content' in lastUser ? lastUser.content : '')
+        const lastUser = [...messages].reverse().find((message) => message.isUser())
+        order.push(lastUser ? lastUser.content : '')
         return Outcomes.success(aTextTurn('ok'))
       })
 
@@ -138,7 +138,7 @@ describe('EditEngine', () => {
       await engine.processUtterance('second')
 
       const lastSystem = complete.mock.calls[1][0][0]
-      expect('content' in lastSystem ? lastSystem.content : '').toContain('changed externally')
+      expect(lastSystem.content).toContain('changed externally')
     })
   })
 })

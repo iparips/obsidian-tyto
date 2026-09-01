@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { MistralProvider } from './mistral-provider'
 import { TOOL_SCHEMAS } from '../engine/tool-schemas'
+import { ChatMessage } from './chat-message'
 import { ChatTurn } from './chat-turn'
 
 const jsonResponse = (body: unknown) =>
@@ -64,7 +65,7 @@ describe('MistralProvider', () => {
         }),
       )
 
-      const outcome = await provider.complete([{ role: 'user', content: 'hi' }], TOOL_SCHEMAS)
+      const outcome = await provider.complete([ChatMessage.user('hi')], TOOL_SCHEMAS)
 
       expect(outcome.ok).toBe(true)
       const turn = (outcome as { ok: true; value: ChatTurn }).value
@@ -75,7 +76,7 @@ describe('MistralProvider', () => {
     it('maps content to ChatTurn text when the chat response is plain', async () => {
       fetchMock.mockResolvedValue(jsonResponse({ choices: [{ message: { content: 'all done' } }] }))
 
-      const outcome = await provider.complete([{ role: 'user', content: 'hi' }], TOOL_SCHEMAS)
+      const outcome = await provider.complete([ChatMessage.user('hi')], TOOL_SCHEMAS)
 
       expect(outcome.ok).toBe(true)
       const turn = (outcome as { ok: true; value: ChatTurn }).value
@@ -86,7 +87,7 @@ describe('MistralProvider', () => {
     it('returns a chat-step failure when the chat request rejects', async () => {
       fetchMock.mockRejectedValue(new Error('network down'))
 
-      const outcome = await provider.complete([{ role: 'user', content: 'hi' }], TOOL_SCHEMAS)
+      const outcome = await provider.complete([ChatMessage.user('hi')], TOOL_SCHEMAS)
 
       expect(outcome).toEqual({
         ok: false,

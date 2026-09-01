@@ -42,7 +42,7 @@ export class EditEngine {
     const opened = this.noteAccess.open()
     if (!opened.ok) return opened
     const history = this.editSession.history
-    history.push({ role: 'user', content: text })
+    history.push(ChatMessage.user(text))
     return this.runToolLoop(opened.value, history)
   }
 
@@ -57,10 +57,7 @@ export class EditEngine {
   }
 
   private askModel(note: OpenNote, history: readonly ChatMessage[]) {
-    const system: ChatMessage = {
-      role: 'system',
-      content: PromptBuilder.build(note.context(), this.skills),
-    }
+    const system = ChatMessage.system(PromptBuilder.build(note.context(), this.skills))
     return this.modelProvider.complete([system, ...history], TOOL_SCHEMAS)
   }
 
@@ -69,13 +66,13 @@ export class EditEngine {
     note: OpenNote,
     history: ChatMessage[],
   ): Outcome<string> {
-    history.push({ role: 'assistant', content: summary })
+    history.push(ChatMessage.assistant(summary))
     note.applier.focusLastEdit()
     return Outcomes.success(summary)
   }
 
   private executeCalls(calls: ToolCall[], note: OpenNote, history: ChatMessage[]): void {
-    history.push({ role: 'assistant', toolCalls: calls })
+    history.push(ChatMessage.assistantToolCalls(calls))
     calls.forEach((call) => this.executeCall(call, note, history))
   }
 
@@ -85,7 +82,7 @@ export class EditEngine {
       'error' in parsed
         ? `invalid arguments: ${parsed.error}`
         : this.applyOperation(parsed.op, note)
-    history.push({ role: 'tool', toolCallId: call.id, content: result })
+    history.push(ChatMessage.toolResult(call.id, result))
   }
 
   private applyOperation(op: Parameters<EditApplier['apply']>[0], note: OpenNote): string {

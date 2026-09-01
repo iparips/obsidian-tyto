@@ -12,15 +12,15 @@ export interface ApiMessage {
 
 export class MistralMapping {
   static toApiMessage(message: ChatMessage): Record<string, unknown> {
-    if ('toolCalls' in message)
+    if (message.hasToolCalls())
       return {
         role: 'assistant',
         content: '',
         tool_calls: message.toolCalls.map(MistralMapping.toApiToolCall),
       }
-    if (message.role === 'tool')
+    if (message.isToolResult())
       return { role: 'tool', tool_call_id: message.toolCallId, content: message.content }
-    return { role: message.role, content: message.content }
+    return { role: message.apiRole(), content: message.content }
   }
 
   static toApiTool(tool: ToolSchema): Record<string, unknown> {
