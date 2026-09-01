@@ -5,12 +5,13 @@ export interface Utterance {
   mimeType: string
 }
 
-const PREFERRED_MIME_TYPE = 'audio/webm'
+const MIME_PREFERENCES = ['audio/webm', 'audio/mp4', 'audio/aac']
+const DEFAULT_MIME_TYPE = MIME_PREFERENCES[0]
 
 export class Recorder {
   private recorder: MediaRecorder | null = null
   private chunks: Blob[] = []
-  private mimeType = PREFERRED_MIME_TYPE
+  private mimeType = DEFAULT_MIME_TYPE
 
   async start(): Promise<Outcome<void>> {
     try {
@@ -41,7 +42,8 @@ export class Recorder {
   }
 
   private beginRecording(stream: MediaStream): void {
-    this.mimeType = MediaRecorder.isTypeSupported(PREFERRED_MIME_TYPE) ? PREFERRED_MIME_TYPE : ''
+    this.mimeType = Recorder.supportedMimeType()
+    console.debug('[voice-edit] recording as', this.mimeType || 'browser default')
     this.chunks = []
     this.recorder = new MediaRecorder(
       stream,
@@ -51,9 +53,15 @@ export class Recorder {
     this.recorder.start()
   }
 
+  // '' asks the browser to choose, so an unlisted codec still records.
+  private static supportedMimeType(): string {
+    return MIME_PREFERENCES.find((type) => MediaRecorder.isTypeSupported(type)) ?? ''
+  }
+
   private takeUtterance(recorder: MediaRecorder): Utterance {
-    const mimeType = this.mimeType || recorder.mimeType || PREFERRED_MIME_TYPE
+    const mimeType = this.mimeType || recorder.mimeType || DEFAULT_MIME_TYPE
     const utterance = { blob: new Blob(this.chunks, { type: mimeType }), mimeType }
+    console.debug('[voice-edit] captured', utterance.blob.size, 'bytes as', mimeType)
     this.releaseStream(recorder)
     this.reset()
     return utterance

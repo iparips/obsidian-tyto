@@ -1,4 +1,4 @@
-import { useReducer, useState } from 'react'
+import { useEffect, useReducer, useRef, useState } from 'react'
 import { Outcome } from '../engine/outcome'
 import { Utterance } from '../capture/recorder'
 import { HistoryList } from './HistoryList'
@@ -15,6 +15,9 @@ export interface SessionPanelProps {
   recorder: RecorderPort
   transcribe(blob: Blob, mimeType: string): Promise<Outcome<string>>
   processUtterance(text: string): Promise<Outcome<string>>
+  // The plugin owns the listener so Obsidian detaches it on unload.
+  onHidden?(listener: () => void): () => void
+  notify?(message: string): void
 }
 
 export const SessionPanel = (props: SessionPanelProps) => {
@@ -46,6 +49,16 @@ export const SessionPanel = (props: SessionPanelProps) => {
     props.recorder.cancel()
     dispatch({ type: 'cancelled' })
   }
+
+  // Read through a ref so the listener subscribes once, not once per render.
+  const discardOnBackground = useRef(() => {})
+  discardOnBackground.current = () => {
+    if (state.phase !== 'recording') return
+    cancelRecording()
+    props.notify?.('Recording discarded: Voice Edit cannot record in the background.')
+  }
+
+  useEffect(() => props.onHidden?.(() => discardOnBackground.current()), [])
 
   const sendDraft = async () => {
     const text = draft.trim()

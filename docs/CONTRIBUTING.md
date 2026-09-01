@@ -13,9 +13,8 @@ Voice Edit is an Obsidian plugin built with [Bun](https://bun.sh/) and TypeScrip
 1. Install Bun
 2. Clone this repository
 3. Run `bun install` to install dependencies
-4. Run `bun run build` to build the plugin
-5. Copy `.env.example` to `.env` and set `OBSIDIAN_VAULT_PATH`
-6. Run `./install` to symlink the plugin into that vault
+4. Copy `.env.example` to `.env` and set `OBSIDIAN_VAULT_PATH`
+5. Run `./install` to build the plugin and symlink it into that vault
 
 ## Install Into a Vault
 
@@ -45,9 +44,25 @@ Re-running it is safe. It refuses to clobber a real directory, so remove a Commu
 rm -rf /path/to/vault/.obsidian/plugins/obsidian-voice-edit
 ```
 
-It also checks main.js, manifest.json, and styles.css are all present, and tells you to run `bun run build` if any are missing. Those three files are the plugin.
+It builds first, so an install is never a stale bundle. A failing build aborts the install and leaves the previous one in place. Pass `--skip-tests` to build without the test suite when you want a faster loop.
+
+Those three files, main.js, manifest.json and styles.css, are the plugin.
 
 The link points at the repo itself, so a rebuild is picked up without reinstalling.
+
+## Install For Mobile
+
+Obsidian Sync does not follow symlinks, so a linked install never reaches a phone. The vault gets the plugin's id through `community-plugins.json` but none of its files, which shows on mobile as a plugin that lists but will not enable, with nothing in the console.
+
+Install the built files as a real directory instead:
+
+```bash
+./install --copy
+```
+
+Sync then carries `main.js`, `manifest.json` and `styles.css` to the phone. Check Settings, Sync on the phone has installed plugins enabled, or the files still will not travel.
+
+A copy is a snapshot, not a link, so run `./install --copy` again whenever the phone needs the current code. Your `data.json`, which holds the API key, is left alone by the copy.
 
 Then in Obsidian: turn off Restricted mode, refresh installed plugins, enable Voice Edit, and paste your Mistral API key into its settings.
 

@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, Mock, vi } from 'vitest'
-import { render, screen, waitFor } from '@testing-library/react'
+import { act, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { SessionPanel, RecorderPort } from './SessionPanel'
 import { Outcome, Outcomes } from '../engine/outcome'
@@ -8,6 +8,7 @@ describe('SessionPanel', () => {
   let recorder: RecorderPort
   let transcribe: Mock<[Blob, string], Promise<Outcome<string>>>
   let processUtterance: Mock<[string], Promise<Outcome<string>>>
+  let notify: Mock<[string], void>
 
   beforeEach(() => {
     vi.clearAllMocks()
@@ -18,7 +19,15 @@ describe('SessionPanel', () => {
     }
     transcribe = vi.fn().mockResolvedValue(Outcomes.success('spoken words'))
     processUtterance = vi.fn().mockResolvedValue(Outcomes.success('made the edit'))
+    notify = vi.fn()
   })
+
+  const hiddenListeners: (() => void)[] = []
+  const onHidden = (listener: () => void) => {
+    hiddenListeners.push(listener)
+    return () => hiddenListeners.splice(hiddenListeners.indexOf(listener), 1)
+  }
+  const goToBackground = () => act(() => hiddenListeners.forEach((listener) => listener()))
 
   const renderPanel = () =>
     render(
@@ -27,6 +36,8 @@ describe('SessionPanel', () => {
         recorder={recorder}
         transcribe={transcribe}
         processUtterance={processUtterance}
+        onHidden={onHidden}
+        notify={notify}
       />,
     )
 
@@ -90,6 +101,39 @@ describe('SessionPanel', () => {
       await userEvent.click(screen.getByRole('button', { name: 'Stop recording' }))
 
       await waitFor(() => expect(screen.getByText('chat failed: model unavailable')).toBeTruthy())
+    })
+  })
+
+  describe('when the document becomes hidden', () => {
+    it('discards the recording and returns to idle when hidden while recording', async () => {
+      renderPanel()
+      await userEvent.click(screen.getByRole('button', { name: 'Record' }))
+
+      goToBackground()
+
+      expect(recorder.cancel).toHaveBeenCalled()
+      await waitFor(() =>
+        expect(screen.getByRole('button', { name: 'Record' }).hasAttribute('disabled')).toBe(false),
+      )
+    })
+
+    it('notifies that the recording was discarded when hidden while recording', async () => {
+      renderPanel()
+      await userEvent.click(screen.getByRole('button', { name: 'Record' }))
+
+      goToBackground()
+
+      expect(notify).toHaveBeenCalledWith(
+        'Recording discarded: Voice Edit cannot record in the background.',
+      )
+    })
+
+    it('leaves the recorder alone when hidden while idle', () => {
+      renderPanel()
+
+      goToBackground()
+
+      expect(recorder.cancel).not.toHaveBeenCalled()
     })
   })
 

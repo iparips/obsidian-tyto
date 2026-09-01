@@ -21,6 +21,7 @@ export default class VoiceEditPlugin extends Plugin {
     this.addCommand({
       id: 'start-session',
       name: 'Start session for active note',
+      icon: 'mic',
       callback: () => this.openSession(),
     })
     this.addSettingTab(new VoiceEditSettingsTab(this.app, this))
@@ -62,7 +63,15 @@ export default class VoiceEditPlugin extends Plugin {
       recorder: new Recorder(),
       transcribe: (blob, mimeType) => modelProvider.transcribe(blob, mimeType),
       processUtterance: (text) => engine.processUtterance(text),
+      onHidden: (listener) => this.onDocumentHidden(listener),
+      notify: (message) => void new Notice(message),
     }
+  }
+
+  private onDocumentHidden(listener: () => void): () => void {
+    const handler = () => document.hidden && listener()
+    this.registerDomEvent(document, 'visibilitychange', handler)
+    return () => document.removeEventListener('visibilitychange', handler)
   }
 
   private skillLoader(): SkillLoader {

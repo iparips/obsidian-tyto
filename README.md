@@ -19,11 +19,22 @@ See [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) for prerequisites, build comman
 
 If a step fails, the panel shows an error entry naming the failing step: transcription, chat, or apply.
 
+## On Mobile
+
+Installing on a phone needs `./install --copy`, which rebuilds and copies the plugin into the vault. Obsidian Sync does not follow the symlink a normal install creates. See [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md).
+
+The session panel opens as a drawer from the right sidebar. To reach it in one tap, add the command to the mobile toolbar: Settings, Mobile, Manage toolbar options, then add "Voice Edit: Start session for active note".
+
+Recording stops if you leave Obsidian. The partial audio is discarded and the panel returns to idle, because a backgrounded recording captures silence.
+
+Skills must live in a normal vault folder. Obsidian Sync copies no dot-folder to a phone, so a skills path starting with a dot gives an empty catalogue on mobile.
+
 ## Troubleshooting
 
 - Mic errors: macOS needs microphone permission for Obsidian under System Settings, Privacy and Security.
 - 401 errors: check the API key in settings.
 - "note is not open in an editor": the session's note must stay open in a tab while you edit.
+- No skills on mobile: check the skills path in settings is a normal folder, not a dot-folder.
 
 ## Releasing
 

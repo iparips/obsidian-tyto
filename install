@@ -1,6 +1,13 @@
 #!/usr/bin/env bash
 #
-# Symlinks this repo into an Obsidian vault's plugins directory.
+# Installs this repo into an Obsidian vault's plugins directory.
+#
+# Builds first, so an install is never a stale bundle. --skip-tests builds
+# without the test suite, for a faster loop while debugging on a device.
+#
+# Default mode symlinks, so a rebuild is picked up without reinstalling.
+# --copy installs the built files as a real directory instead, because
+# Obsidian Sync does not follow symlinks and so never reaches mobile.
 #
 # Reads OBSIDIAN_VAULT_PATH from .env. Copy .env.example to .env and set it.
 
@@ -67,6 +74,21 @@ plugin_id() {
 # symlinked directory loads as a broken plugin.
 PLUGIN_FILES=(main.js manifest.json styles.css)
 
+build_plugin() {
+	local script="$1"
+
+	echo "Building ($script)..."
+	if ! (cd "$REPO_ROOT" && bun run "$script"); then
+		fail "Cannot install: the build failed." \
+			"" \
+			"The output above says why. The vault was left untouched, so the" \
+			"previous install is still in place." \
+			"" \
+			"To install the current code anyway, without the test suite:" \
+			"  ./install --skip-tests"
+	fi
+}
+
 check_build() {
 	local missing=()
 
@@ -80,11 +102,10 @@ check_build() {
 			"Missing: ${missing[*]}" \
 			"" \
 			"Obsidian loads the plugin from main.js, manifest.json and" \
-			"styles.css. Linking without them gives a broken plugin." \
+			"styles.css. Installing without them gives a broken plugin." \
 			"" \
-			"To fix:" \
-			"  1. bun run build" \
-			"  2. ./install"
+			"The build ran but did not produce them, so this is a build" \
+			"configuration problem rather than a missing step."
 	fi
 }
 
@@ -125,8 +146,12 @@ link_plugin() {
 			fail "Cannot install: a real plugin directory already exists at" \
 				"  $target" \
 				"" \
-				"This is most likely an install from the Community Plugins store." \
-				"It may contain data.json, which holds your API key and settings." \
+				"This is either a ./install --copy install or one from the" \
+				"Community Plugins store. It may contain data.json, which holds" \
+				"your API key and settings." \
+				"" \
+				"To keep copying (the mode Obsidian Sync needs for mobile):" \
+				"  ./install --copy" \
 				"" \
 				"To replace it with a link to this repo:" \
 				"  1. Back up data.json if you want to keep your settings" \
@@ -162,11 +187,66 @@ link_plugin() {
 	echo "Now enable Voice Edit in Obsidian: Settings, Community plugins, refresh, enable."
 }
 
+# data.json holds the API key and settings, so it is left where it is.
+copy_plugin() {
+	local target="$1"
+
+	if [[ -e "$target" && ! -d "$target" && ! -L "$target" ]]; then
+		fail "Cannot install: a file is in the way at" \
+			"  $target" \
+			"" \
+			"A plugin lives in a directory, so this file is not an install." \
+			"Check it is not something you meant to keep, then:" \
+			"  1. rm \"$target\"" \
+			"  2. ./install --copy"
+	fi
+
+	if [[ -L "$target" ]]; then
+		echo "Replacing link $target -> $(readlink "$target")"
+		rm "$target"
+	fi
+
+	mkdir -p "$target"
+	cp "${PLUGIN_FILES[@]/#/$REPO_ROOT/}" "$target/"
+	echo "Copied ${PLUGIN_FILES[*]} to $target"
+	echo "Obsidian Sync can now carry the plugin to mobile."
+}
+
+usage() {
+	fail "Unknown option: $1" \
+		"" \
+		"Usage:" \
+		"  ./install               symlink the repo, for desktop development" \
+		"  ./install --copy        copy the built files, so Sync reaches mobile" \
+		"  ./install --skip-tests  build without running the test suite" \
+		"" \
+		"--copy and --skip-tests can be combined."
+}
+
 main() {
+	local mode="link"
+	local script="build"
+
+	for arg in "$@"; do
+		case "$arg" in
+		--copy) mode="copy" ;;
+		--skip-tests) script="build:no-tests" ;;
+		*) usage "$arg" ;;
+		esac
+	done
+
 	load_env
-	check_build
 	check_vault
-	link_plugin "$OBSIDIAN_VAULT_PATH/.obsidian/plugins/$(plugin_id)"
+	build_plugin "$script"
+	check_build
+
+	local target
+	target="$OBSIDIAN_VAULT_PATH/.obsidian/plugins/$(plugin_id)"
+	if [[ "$mode" == "copy" ]]; then
+		copy_plugin "$target"
+	else
+		link_plugin "$target"
+	fi
 }
 
 main "$@"

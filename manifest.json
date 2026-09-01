@@ -5,5 +5,5 @@
   "minAppVersion": "1.5.0",
   "description": "Edit the active note with natural-language voice or text instructions.",
   "author": "Ilya Paripsa",
-  "isDesktopOnly": true
+  "isDesktopOnly": false
 }

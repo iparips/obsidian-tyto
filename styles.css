@@ -72,6 +72,41 @@
 
 .voice-edit-input-row input {
   flex: 1;
+  /* Without this a flex item refuses to shrink past its content width, which
+     pushes Send off the edge of a narrow drawer. */
+  min-width: 0;
+}
+
+.voice-edit-input-row button,
+.voice-edit-input-row input {
+  min-height: 44px;
+}
+
+.voice-edit-input-row button {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+/* Touch has no hover, so the copy button stays visible on mobile (FR33).
+   Taking it out of the corner overlay and into the entry's own row stops it
+   sitting on top of the text it copies. */
+.is-mobile .voice-edit-entry {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--size-4-2);
+}
+
+.is-mobile .voice-edit-entry-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.is-mobile .voice-edit-entry-copy {
+  position: static;
+  opacity: 1;
+  flex: 0 0 auto;
+  min-height: 32px;
+  align-self: center;
 }
 
 .voice-edit-settings {

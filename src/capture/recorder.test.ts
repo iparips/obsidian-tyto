@@ -3,7 +3,8 @@ import { Recorder } from './recorder'
 
 class FakeMediaRecorder {
   static instances: FakeMediaRecorder[] = []
-  static isTypeSupported = () => true
+  static supportedTypes: string[] = ['audio/webm', 'audio/mp4', 'audio/aac']
+  static isTypeSupported = (type: string) => FakeMediaRecorder.supportedTypes.includes(type)
   onstop: (() => void) | null = null
   ondataavailable: ((event: { data: Blob }) => void) | null = null
   mimeType = 'audio/webm'
@@ -30,6 +31,7 @@ describe('Recorder', () => {
 
   beforeEach(() => {
     FakeMediaRecorder.instances = []
+    FakeMediaRecorder.supportedTypes = ['audio/webm', 'audio/mp4', 'audio/aac']
     trackStop = vi.fn()
     getUserMedia = vi.fn().mockResolvedValue({ getTracks: () => [{ stop: trackStop }] })
     vi.stubGlobal('MediaRecorder', FakeMediaRecorder)
@@ -49,6 +51,32 @@ describe('Recorder', () => {
 
       expect(utterance.mimeType).toBe('audio/webm')
       expect(utterance.blob.size).toBeGreaterThan(0)
+    })
+  })
+
+  describe('when choosing a mime type', () => {
+    const chosenOptions = () => FakeMediaRecorder.instances[0].options
+
+    it('picks audio/webm when it is the first supported type', async () => {
+      await recorder.start()
+
+      expect(chosenOptions()).toEqual({ mimeType: 'audio/webm' })
+    })
+
+    it('falls back to audio/mp4 when webm is unsupported', async () => {
+      FakeMediaRecorder.supportedTypes = ['audio/mp4', 'audio/aac']
+
+      await recorder.start()
+
+      expect(chosenOptions()).toEqual({ mimeType: 'audio/mp4' })
+    })
+
+    it('falls back to the browser default when no listed type is supported', async () => {
+      FakeMediaRecorder.supportedTypes = []
+
+      await recorder.start()
+
+      expect(chosenOptions()).toBeUndefined()
     })
   })
 

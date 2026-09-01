@@ -44,9 +44,9 @@ alone does not:
 
 The release risk is webview behaviour. Run the Desktop MVP exit test on each row.
 
-| Device        | OS      | Checks                                                  |
-| ------------- | ------- | ------------------------------------------------------- |
-| iPhone        | iOS     | mp4 capture, drawer with keyboard open, permission flow |
+| Device        | OS      | Checks                                                   |
+| ------------- | ------- | -------------------------------------------------------- |
+| iPhone        | iOS     | mp4 capture, drawer with keyboard open, permission flow  |
 | Android phone | Android | webm capture, drawer with keyboard open, permission flow |
 
 Also verify:
