@@ -23,7 +23,31 @@
 .voice-edit-entry {
   padding: var(--size-4-2);
   border-radius: var(--radius-s);
+  position: relative;
+  /* Obsidian views default to user-select: none; opt back in so entries can be
+     selected and copied. */
+  user-select: text;
+  -webkit-user-select: text;
+  cursor: text;
+}
+
+.voice-edit-entry-text {
   white-space: pre-wrap;
+}
+
+.voice-edit-entry-copy {
+  position: absolute;
+  top: var(--size-4-1);
+  right: var(--size-4-1);
+  padding: 0 var(--size-4-1);
+  font-size: var(--font-smallest);
+  box-shadow: none;
+  opacity: 0;
+}
+
+.voice-edit-entry:hover .voice-edit-entry-copy,
+.voice-edit-entry-copy:focus-visible {
+  opacity: 1;
 }
 
 .voice-edit-entry-user {
