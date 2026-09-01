@@ -1,6 +1,6 @@
 # Release Plan: Voice Note Editing
 
-Four releases. The MVPs prove the core loop with the simplest capture path, record-then-transcribe. The V1s add realtime streaming and polish. Requirement IDs refer to [1-requirements.md](1-requirements.md).
+Five releases. The MVPs prove the core loop with the simplest capture path, record-then-transcribe. The V1s add realtime streaming and polish. Release 5 teaches the plugin the host vault's own conventions. Requirement IDs refer to [1-requirements.md](1-requirements.md), except release 5, which carries its own.
 
 ## 1. Desktop MVP
 
@@ -55,3 +55,17 @@ Goal: streaming parity on mobile, then public release.
 - Community plugin submission.
 
 Exit test: the desktop V1 exit test passes on mobile, and a token-mint failure degrades gracefully to batch.
+
+## 5. Repo Skills
+
+Goal: the plugin follows the host vault's own agent skills, so a spoken instruction gets the same treatment it would from any other harness.
+
+- Discover `.agents/skills/*/SKILL.md` through the vault adapter, since dot-directories are invisible to the file API.
+- Inject skill names and descriptions into the system prompt; load a full body only when the model asks for it.
+- Behave exactly as before in a vault with no skills directory.
+
+Detailed design: [5-repo-skills/index.md](5-repo-skills/index.md).
+
+Cut from this release: file writes beyond the session note, which several skills need before they are fully actionable.
+
+Exit test: with the vault's todo skill present, an instruction to archive done items follows the skill's steps rather than improvising.
