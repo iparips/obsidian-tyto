@@ -2,7 +2,7 @@
 
 Covers release 4 of [2-plan.md](../spec/2-plan.md): running Obsidian commands, rebinding the session to the note one opens, and searching the vault to answer a question. Delta design on top of [3-agents-md-loading.md](3-agents-md-loading.md). Requirement IDs refer to [4-obsidian-agent-harness/2-functional-requirements.md](../spec/4-obsidian-agent-harness/2-functional-requirements.md).
 
-Not yet designed. Seven open questions in [4-obsidian-agent-harness/3-decisions.md](../spec/4-obsidian-agent-harness/3-decisions.md) gate it, two of which decide whether the release is buildable as specced.
+Designed in [4-obsidian-agent-harness/4-component-design.md](../spec/4-obsidian-agent-harness/4-component-design.md). Both feasibility questions are settled: search needs no private API, and the command registry is reachable through a module augmentation with an empty-catalogue fallback.
 
 ## What the Requirements Already Fix
 
@@ -16,19 +16,17 @@ The shape below is settled by the requirements and is not open for the design to
 
 ## What the Design Must Settle
 
-Two questions decide feasibility, five decide shape. All seven are stated in full in [3-decisions.md](../spec/4-obsidian-agent-harness/3-decisions.md).
+Feasibility is settled. Five questions remain, all shaping the build rather than gating it, and stated in full in [3-decisions.md](../spec/4-obsidian-agent-harness/3-decisions.md).
 
-| Question              | Decides     | Risk if it goes badly                             |
-| --------------------- | ----------- | ------------------------------------------------- |
-| Command enumeration   | Feasibility | No command tool; the release is search only       |
-| Search implementation | Feasibility | Scan cost or a view the plugin cannot read back   |
-| Iteration cap sizing  | Shape       | Search turns exhaust the loop before answering    |
-| Command effect checks | Shape       | An edit follows a command that did something else |
-| Answer panel entry    | Shape       | An answer reads as an edit that never happened    |
-| Mobile settings       | Shape       | A resolved allow-list is unreadable on a phone    |
-| Destructive core ids  | Shape       | A namespace pattern can permit file deletion      |
+| Question              | Decides | Risk if it goes badly                             |
+| --------------------- | ------- | ------------------------------------------------- |
+| Iteration cap sizing  | Settled | Raised to 10, one cap rather than per-flow        |
+| Command effect checks | Shape   | An edit follows a command that did something else |
+| Answer panel entry    | Shape   | An answer reads as an edit that never happened    |
+| Mobile settings       | Shape   | A resolved allow-list is unreadable on a phone    |
+| Destructive core ids  | Shape   | A namespace pattern can permit file deletion      |
 
-Command enumeration is the one to resolve first. The Command interface is public in the Obsidian typings, but the registry holding every registered command is not on the typed App class. Confirm what runtime surface exists, and design the command tool so its absence degrades to a search-only harness rather than a broken plugin (NFR3).
+Command enumeration turned out to be the smaller risk. The registry is not on the typed App class, but listCommands and executeCommandById are reachable through a module augmentation, and the vault's own open-or-create-file plugin already depends on them. CommandCatalogue probes for the methods and yields an empty catalogue when they are missing, so their loss costs the command flow rather than the plugin (NFR4).
 
 ## Rebinding Is the Core Change
 

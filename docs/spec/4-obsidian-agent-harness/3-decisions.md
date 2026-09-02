@@ -75,19 +75,15 @@ does. Both wait for a later release.
 Search stays available when no command is allowed. The two flows share nothing
 but the loop, so neither should gate the other.
 
+## Settled by the design
+
+Command enumeration, search implementation and the iteration cap are resolved
+in [4-component-design.md](4-component-design.md). Search needs no private API:
+prepareSimpleSearch is exported. Commands need two private methods, reached
+through one module augmentation and guarded by a probe. The cap rises to 10 and
+stays a single number.
+
 ## Open questions
-
-Command enumeration is not in the public Obsidian API. The Command interface is
-public, but the registry holding them is not typed. Confirm in the design what
-runtime surface is available, and what the fallback is when it changes.
-
-Search has no public API either. Decide between a plugin-side scan over
-getMarkdownFiles and cachedRead, and driving Obsidian's own search view. The
-scan is typed and testable; the search view matches what the user sees.
-
-Iteration cap sizing is unresolved. The search flow spends calls on search and
-reads before it answers, and the current cap of 6 was set for single-note
-editing. Decide whether the cap rises, or becomes per-flow.
 
 Command effects are unbounded from the plugin's point of view. Running one and
 then diffing the workspace is the only way to know what it did. Decide how much
