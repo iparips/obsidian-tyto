@@ -75,6 +75,13 @@
   /* Without this a flex item refuses to shrink past its content width, which
      pushes Send off the edge of a narrow drawer. */
   min-width: 0;
+  /* Obsidian's own text-field tokens, so the input matches other fields in the
+     app rather than whatever the bare element default gives. The radius follows
+     the buttons beside it. */
+  border-radius: var(--button-radius);
+  background-color: var(--background-modifier-form-field);
+  border: 1px solid var(--background-modifier-border);
+  color: var(--text-normal);
 }
 
 .voice-edit-input-row button,
