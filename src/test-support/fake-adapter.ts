@@ -4,6 +4,7 @@ import { DataAdapter, ListedFiles } from 'obsidian'
 // missing directory, read() throws on a missing file.
 export class FakeAdapter {
   readonly listed: string[] = []
+  readonly reads: string[] = []
   private readonly vanishing = new Set<string>()
 
   constructor(private files: Record<string, string> = {}) {}
@@ -25,6 +26,11 @@ export class FakeAdapter {
     return this
   }
 
+  withFile(path: string, source: string): this {
+    this.files[path] = source
+    return this
+  }
+
   async list(path: string): Promise<ListedFiles> {
     this.listed.push(path)
     const folders = Object.keys(this.files)
@@ -35,6 +41,7 @@ export class FakeAdapter {
   }
 
   async read(path: string): Promise<string> {
+    this.reads.push(path)
     const source = this.files[path]
     if (source === undefined) throw new Error(`ENOENT: ${path}`)
     if (this.vanishing.has(path)) delete this.files[path]

@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest'
 import { NoteContext } from '../models/note-context'
 import { PromptBuilder } from '../prompt-builder'
 import { Skill } from '../../skills/skill'
+import { AgentsMdChain } from '../../agents/agents-md-chain'
+import { AgentsMdFile } from '../../agents/agents-md-file'
 
 const aNote = (): NoteContext => new NoteContext('note.md', '# Budget\n\nbody', { line: 2, ch: 0 })
 
@@ -11,7 +13,80 @@ const aSkill = (name: string, description: string): Skill => ({
   path: `0 - Meta/Skills/${name}/SKILL.md`,
 })
 
+const aChain = (...files: AgentsMdFile[]) => new AgentsMdChain(files)
+
 describe('PromptBuilder', () => {
+  describe('when a folder holds instructions', () => {
+    it('labels the block with the folder when one file applies', () => {
+      const chain = aChain(new AgentsMdFile('Journal', 'AGENTS.md', 'Write in second person.'))
+
+      const prompt = PromptBuilder.build(aNote(), [], chain)
+
+      expect(prompt).toContain('Instructions from Journal (AGENTS.md):')
+    })
+
+    it('labels the block as the vault root when the file sits there', () => {
+      const chain = aChain(new AgentsMdFile('', 'AGENTS.md', 'Use full names.'))
+
+      const prompt = PromptBuilder.build(aNote(), [], chain)
+
+      expect(prompt).toContain('Instructions from vault root (AGENTS.md):')
+    })
+
+    it('renders the file contents when one file applies', () => {
+      const chain = aChain(new AgentsMdFile('Journal', 'AGENTS.md', 'Write in second person.'))
+
+      const prompt = PromptBuilder.build(aNote(), [], chain)
+
+      expect(prompt).toContain('Write in second person.')
+    })
+
+    it('states that a later block wins when instructions apply', () => {
+      const chain = aChain(new AgentsMdFile('Journal', 'AGENTS.md', 'Write in second person.'))
+
+      const prompt = PromptBuilder.build(aNote(), [], chain)
+
+      expect(prompt).toContain('wins wherever it conflicts with an earlier one')
+    })
+
+    it('places the root block before the nearer one when several apply', () => {
+      const chain = aChain(
+        new AgentsMdFile('', 'AGENTS.md', 'Use full names.'),
+        new AgentsMdFile('Journal', 'AGENTS.md', 'Write in second person.'),
+      )
+
+      const prompt = PromptBuilder.build(aNote(), [], chain)
+
+      expect(prompt.indexOf('Use full names.')).toBeLessThan(
+        prompt.indexOf('Write in second person.'),
+      )
+    })
+
+    it('places the instructions before the skill catalogue when both apply', () => {
+      const chain = aChain(new AgentsMdFile('Journal', 'AGENTS.md', 'Write in second person.'))
+
+      const prompt = PromptBuilder.build(aNote(), [aSkill('todo', 'Archives.')], chain)
+
+      expect(prompt.indexOf('Instructions from Journal')).toBeLessThan(
+        prompt.indexOf('This vault defines the skills below'),
+      )
+    })
+  })
+
+  describe('when no folder holds instructions', () => {
+    it('omits the instructions section when the chain is empty', () => {
+      const prompt = PromptBuilder.build(aNote(), [], new AgentsMdChain())
+
+      expect(prompt).not.toContain('standing instructions below')
+    })
+
+    it('produces the same prompt when the chain is omitted entirely', () => {
+      const prompt = PromptBuilder.build(aNote(), [])
+
+      expect(prompt).toBe(PromptBuilder.build(aNote(), [], new AgentsMdChain()))
+    })
+  })
+
   describe('when the catalogue has entries', () => {
     const catalogue = [aSkill('tidy-notes', 'Tidies a note.'), aSkill('weekly-review', 'Reviews.')]
 

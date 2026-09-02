@@ -5,6 +5,7 @@ const ENTRY_CLASSES = {
   user: 'voice-edit-entry-user',
   assistant: 'voice-edit-entry-assistant',
   error: 'voice-edit-entry-error',
+  instructions: 'voice-edit-entry-instructions',
 }
 
 const entryText = (entry: Entry) =>

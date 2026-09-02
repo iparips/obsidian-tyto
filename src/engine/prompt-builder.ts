@@ -1,16 +1,43 @@
 import { Skill } from '../skills/skill'
 import { RuleBuilder } from './rule-builder'
 import { NoteContext } from './models/note-context'
+import { AgentsMdChain } from '../agents/agents-md-chain'
+import { AgentsMdFile } from '../agents/agents-md-file'
 
 export class PromptBuilder {
   // The note itself is not here: EditEngine sends it as the last message, so the
   // current copy sits after every stale one in the conversation.
-  static build(note: NoteContext, skills: readonly Skill[] = []): string {
+  static build(
+    note: NoteContext,
+    skills: readonly Skill[] = [],
+    instructions: AgentsMdChain = new AgentsMdChain(),
+  ): string {
     return [
       RuleBuilder.roleRules(),
       RuleBuilder.dictationRules(),
+      ...PromptBuilder.instructionSection(instructions),
       ...PromptBuilder.skillSection(skills),
     ].join('\n\n')
+  }
+
+  // Omitted entirely when no folder holds instructions, so a vault with neither
+  // filename produces the release 2 prompt byte for byte (FR11).
+  private static instructionSection(chain: AgentsMdChain): string[] {
+    if (chain.isEmpty()) return []
+    return [[RuleBuilder.instructionRules(), ...PromptBuilder.instructionBlocks(chain)].join('\n')]
+  }
+
+  private static instructionBlocks(chain: AgentsMdChain): string[] {
+    return chain.files.map((file) => PromptBuilder.instructionBlock(file))
+  }
+
+  private static instructionBlock(file: AgentsMdFile): string {
+    return [
+      `Instructions from ${file.label()} (${file.fileName}):`,
+      '```markdown',
+      file.contents.trim(),
+      '```',
+    ].join('\n')
   }
 
   // Omitted entirely when the catalogue is empty, so a vault without skills

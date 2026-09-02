@@ -19,6 +19,9 @@ export interface SessionPanelProps {
   onHidden?(listener: () => void): () => void
   notify?(message: string): void
   startNewSession?(): void
+  // The plugin owns the subscription, as with onHidden, so the engine reports a
+  // resolved chain without knowing the panel.
+  onInstructions?(listener: (text: string) => void): () => void
 }
 
 export const SessionPanel = (props: SessionPanelProps) => {
@@ -63,6 +66,8 @@ export const SessionPanel = (props: SessionPanelProps) => {
   }
 
   useEffect(() => props.onHidden?.(() => discardOnBackground.current()), [])
+
+  useEffect(() => props.onInstructions?.((text) => dispatch({ type: 'instructions', text })), [])
 
   const sendDraft = async () => {
     const text = draft.trim()

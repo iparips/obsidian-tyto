@@ -6,6 +6,7 @@ export type Entry =
   | { kind: 'user'; text: string }
   | { kind: 'assistant'; text: string }
   | { kind: 'error'; step: FailureStep; text: string }
+  | { kind: 'instructions'; text: string }
 
 export class PanelState {
   constructor(
@@ -29,6 +30,7 @@ export type PanelAction =
   | { type: 'transcript'; text: string }
   | { type: 'summary'; text: string }
   | { type: 'failed'; step: FailureStep; message: string }
+  | { type: 'instructions'; text: string }
 
 export const INITIAL_PANEL_STATE: PanelState = new PanelState('idle', [])
 
@@ -51,6 +53,8 @@ export class PanelReducer {
           step: action.step,
           text: action.message,
         })
+      case 'instructions':
+        return state.withEntry(state.phase, { kind: 'instructions', text: action.text })
     }
   }
 }

@@ -80,6 +80,12 @@
   background-color: var(--background-secondary);
 }
 
+.voice-edit-entry-instructions {
+  color: var(--text-muted);
+  background-color: var(--background-secondary);
+  font-size: var(--font-ui-smaller);
+}
+
 .voice-edit-input-row {
   display: flex;
   gap: var(--size-4-1);

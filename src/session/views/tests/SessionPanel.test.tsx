@@ -190,4 +190,30 @@ describe('SessionPanel', () => {
       await waitFor(() => expect(processUtterance).toHaveBeenCalledWith('rename heading'))
     })
   })
+
+  describe('when a turn resolves instruction files', () => {
+    const instructionListeners: ((text: string) => void)[] = []
+    const onInstructions = (listener: (text: string) => void) => {
+      instructionListeners.push(listener)
+      return () => instructionListeners.splice(instructionListeners.indexOf(listener), 1)
+    }
+    const report = (text: string) =>
+      act(() => instructionListeners.forEach((listener) => listener(text)))
+
+    it('lists the folders that applied when a chain is reported', () => {
+      renderPanel({ onInstructions })
+
+      report('Instructions applied: vault root, Journal')
+
+      expect(screen.getByText('Instructions applied: vault root, Journal')).toBeTruthy()
+    })
+
+    it('shows the drop count when the cap dropped a file', () => {
+      renderPanel({ onInstructions })
+
+      report('Instructions applied: Journal (1 dropped over the size limit)')
+
+      expect(screen.getByText(/1 dropped over the size limit/)).toBeTruthy()
+    })
+  })
 })

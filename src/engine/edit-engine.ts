@@ -10,6 +10,8 @@ import { WorkspaceNoteLocator } from './workspace-note-locator'
 import { OpenNote } from './models/open-note'
 import { Skill } from '../skills/skill'
 import { SkillRepository } from '../skills/skill-repository'
+import { AgentsMdChain } from '../agents/agents-md-chain'
+import { AgentsMdRepository } from '../agents/agents-md-repository'
 
 // editedTo is absent when the call changed nothing, so the turn keeps the
 // position of the last call that did.
@@ -30,7 +32,9 @@ export class EditEngine {
     private agentSession: AgentSession,
     private skillRepository: SkillRepository,
     private noteLocator: WorkspaceNoteLocator,
+    private agentsMdRepository: AgentsMdRepository,
     private noteEditor: NoteEditor = new NoteEditor(),
+    private reportInstructions: (chain: AgentsMdChain) => void = () => undefined,
   ) {}
 
   processUtterance(text: string): Promise<Outcome<string>> {
@@ -47,17 +51,27 @@ export class EditEngine {
     const history = this.agentSession.chatHistory
     history.push(ChatMessage.user(text))
     const skills = await this.skillRepository.listSkills()
-    return this.runAgentLoop(located.value, history, skills)
+    const instructions = await this.resolveInstructions(located.value)
+    return this.runAgentLoop(located.value, history, skills, instructions)
+  }
+
+  // Resolved from the note this turn writes to, not from the session, and
+  // passed down rather than held, so no chain reaches another target (FR8, FR13).
+  private async resolveInstructions(note: OpenNote): Promise<AgentsMdChain> {
+    const chain = await this.agentsMdRepository.resolveFor(note.path)
+    this.reportInstructions(chain)
+    return chain
   }
 
   private async runAgentLoop(
     note: OpenNote,
     history: ChatMessage[],
     skills: readonly Skill[],
+    instructions: AgentsMdChain,
   ): Promise<Outcome<string>> {
     let lastEditEnd: EditorPosition | null = null
     for (let iteration = 0; iteration < MAX_ITERATIONS; iteration++) {
-      const turn = await this.askModel(note, history, skills)
+      const turn = await this.askModel(note, history, skills, instructions)
       if (turn.hasFailed()) return Outcomes.failure(turn.step, turn.message)
       if (turn.value.isText())
         return this.concludeUtterance(turn.value.content, note, history, lastEditEnd)
@@ -75,8 +89,13 @@ export class EditEngine {
   // The note goes last, not in the system message: history holds snapshots from
   // earlier turns, and the model weights the most recent message most heavily.
   // Freshest content in the freshest position.
-  private askModel(note: OpenNote, history: readonly ChatMessage[], skills: readonly Skill[]) {
-    const system = ChatMessage.system(PromptBuilder.build(note.context(), skills))
+  private askModel(
+    note: OpenNote,
+    history: readonly ChatMessage[],
+    skills: readonly Skill[],
+    instructions: AgentsMdChain,
+  ) {
+    const system = ChatMessage.system(PromptBuilder.build(note.context(), skills, instructions))
     const current = ChatMessage.system(PromptBuilder.context(note.context()))
     return this.modelProvider.complete([system, ...history, current], TOOL_SCHEMAS)
   }

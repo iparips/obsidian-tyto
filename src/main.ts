@@ -1,6 +1,7 @@
 import { Notice, Plugin, TFile, WorkspaceLeaf } from 'obsidian'
 import { Recorder } from './capture/recorder'
 import { EditEngine } from './engine/edit-engine'
+import { NoteEditor } from './engine/note-editor'
 import { MistralProvider } from './providers/mistral-provider'
 import { AgentSession } from './engine/models/agent-session'
 import { WorkspaceNoteLocator } from './engine/workspace-note-locator'
@@ -10,6 +11,10 @@ import { SessionPanelProps } from './session/views/SessionPanel'
 import { DEFAULT_SETTINGS, VoiceEditSettings } from './settings/settings'
 import { VoiceEditSettingsTab } from './settings/settings-tab'
 import { SkillRepository } from './skills/skill-repository'
+import { AgentsMdChain } from './agents/agents-md-chain'
+import { AgentsMdRepository } from './agents/agents-md-repository'
+import { InstructionReport } from './agents/instruction-report'
+import { InstructionListeners } from './session/instruction-listeners'
 
 export default class VoiceEditPlugin extends Plugin {
   settings: VoiceEditSettings = DEFAULT_SETTINGS
@@ -53,7 +58,16 @@ export default class VoiceEditPlugin extends Plugin {
     const modelProvider = new MistralProvider(this.settings.mistralApiKey, this.settings.editModel)
     const session = new AgentSession(file)
     const noteLocator = new WorkspaceNoteLocator(this.app, file)
-    const engine = new EditEngine(modelProvider, session, this.skillRepository(), noteLocator)
+    const listeners = new InstructionListeners()
+    const engine = new EditEngine(
+      modelProvider,
+      session,
+      this.skillRepository(),
+      noteLocator,
+      this.agentsMdRepository(),
+      new NoteEditor(),
+      (chain) => this.reportInstructions(chain, listeners),
+    )
     return {
       noteName: file.basename,
       recorder: new Recorder(),
@@ -62,7 +76,25 @@ export default class VoiceEditPlugin extends Plugin {
       onHidden: (listener) => this.onDocumentHidden(listener),
       notify: (message) => void new Notice(message),
       startNewSession: () => void this.startNewSession(file, view),
+      onInstructions: (listener) => listeners.subscribe(listener),
     }
+  }
+
+  // The three channels a drop reaches the user through: the panel entry, one
+  // Notice per resolved chain, and a console line naming every file (FR10, FR14-16).
+  private reportInstructions(chain: AgentsMdChain, listeners: InstructionListeners): void {
+    const report = InstructionReport.of(chain)
+    if (report.isEmpty()) return
+    listeners.publish(report.panelText())
+    if (!chain.hasDrops()) return
+    new Notice(report.noticeText())
+    VoiceEditPlugin.logDrops(chain)
+  }
+
+  private static logDrops(chain: AgentsMdChain): void {
+    chain.dropped.forEach((file) =>
+      console.debug('[voice-edit] instruction file dropped:', file.fileName, 'in', file.label()),
+    )
   }
 
   // Rebuilds the props, so the model's history and the panel's entries both go.
@@ -78,6 +110,10 @@ export default class VoiceEditPlugin extends Plugin {
 
   private skillRepository(): SkillRepository {
     return new SkillRepository(this.app.vault.adapter, this.settings.skillsPath)
+  }
+
+  private agentsMdRepository(): AgentsMdRepository {
+    return new AgentsMdRepository(this.app.vault.adapter)
   }
 
   private async revealSessionView(): Promise<SessionView | null> {
