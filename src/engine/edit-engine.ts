@@ -31,10 +31,10 @@ export class EditEngine {
     private modelProvider: ChatProvider,
     private agentSession: AgentSession,
     private skillRepository: SkillRepository,
-    private noteLocator: WorkspaceNoteLocator,
     private agentsMdRepository: AgentsMdRepository,
-    private noteEditor: NoteEditor = new NoteEditor(),
-    private reportInstructions: (chain: AgentsMdChain) => void = () => undefined,
+    private noteLocator: WorkspaceNoteLocator,
+    private noteEditor: NoteEditor,
+    private reportInstructions: (chain: AgentsMdChain) => void,
   ) {}
 
   processUtterance(text: string): Promise<Outcome<string>> {

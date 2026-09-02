@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, Mock, vi } from 'vitest'
 import { EditEngine } from '../edit-engine'
+import { NoteEditor } from '../note-editor'
 import { WorkspaceNoteLocator } from '../workspace-note-locator'
 import { Outcomes } from '../../shared/models/outcome'
 import { SkillRepository } from '../../skills/skill-repository'
@@ -27,7 +28,15 @@ describe('EditEngine', () => {
     chat = { complete }
     noteLocator = new WorkspaceNoteLocator({} as App, {} as TFile)
     vi.spyOn(noteLocator, 'locate').mockImplementation(() => Outcomes.success(anOpenNote(editor)))
-    engine = new EditEngine(chat, session, emptySkills(), noteLocator, noInstructions())
+    engine = new EditEngine(
+      chat,
+      session,
+      emptySkills(),
+      noInstructions(),
+      noteLocator,
+      new NoteEditor(),
+      () => undefined,
+    )
   })
 
   const emptySkills = () => new SkillRepository(new FakeAdapter().asAdapter(), '')
@@ -158,8 +167,10 @@ describe('EditEngine', () => {
         chat,
         session,
         new SkillRepository(adapter.asAdapter(), SKILLS_PATH),
-        noteLocator,
         noInstructions(),
+        noteLocator,
+        new NoteEditor(),
+        () => undefined,
       )
 
     const engineWithTodoSkill = () =>

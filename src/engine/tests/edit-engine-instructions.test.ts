@@ -39,8 +39,8 @@ describe('EditEngine', () => {
       { complete },
       new AgentSession({ path: notePath, basename: 'today' } as TFile),
       new SkillRepository(adapter.asAdapter(), ''),
-      noteLocator,
       new AgentsMdRepository(adapter.asAdapter()),
+      noteLocator,
       new NoteEditor(),
       (chain) => reported.push(chain),
     )
