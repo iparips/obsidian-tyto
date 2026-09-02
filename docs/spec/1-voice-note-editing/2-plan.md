@@ -1,6 +1,16 @@
 # Release Plan: Voice Note Editing
 
-Five releases. The MVPs prove the core loop with the simplest capture path, record-then-transcribe, and follow the host vault's single-note skills. The V1s add realtime streaming and polish. Release 5 lifts the single-note limit so cross-file skills become actionable. Requirement IDs refer to [1-requirements.md](1-requirements.md), except release 5, which carries its own.
+Seven releases. The MVPs prove the core loop with the simplest capture path, record-then-transcribe, and follow the host vault's single-note skills. Release 3 makes behaviour depend on where a note sits. Release 4 widens the plugin from one bound note to the vault, through commands and search. The V1s add realtime streaming and polish. Release 7 lifts the single-note write limit so cross-file skills become actionable. Requirement IDs refer to [1-requirements.md](1-requirements.md), except releases 3, 4 and 7, which carry their own.
+
+## Table of Contents
+
+1. [Desktop MVP](#1-desktop-mvp)
+2. [Mobile MVP](#2-mobile-mvp)
+3. [AGENTS.md Loading](#3-agentsmd-loading)
+4. [Obsidian Agent Harness](#4-obsidian-agent-harness)
+5. [Desktop V1](#5-desktop-v1)
+6. [Mobile V1](#6-mobile-v1)
+7. [Cross-File Skills](#7-cross-file-skills)
 
 ## 1. Desktop MVP
 
@@ -34,7 +44,40 @@ Goal: same loop on a phone. Cheap because batch transcription uses plain REST, n
 
 Exit test: the desktop exit test passes on iOS and Android, skills included.
 
-## 3. Desktop V1
+## 3. AGENTS.md Loading
+
+Goal: let a folder set the standing instructions for the notes inside it, via AGENTS.md or CLAUDE.md.
+
+- Walk the path from the vault root down to the folder holding the note being written to, taking one instruction file per folder (FR1, FR3).
+- Prefer AGENTS.md, falling back to CLAUDE.md where a folder has none (FR2).
+- Concatenate root first, so the nearest folder's instructions read last and win (FR4).
+- Inject the result as its own prompt section, ahead of the skill catalogue (FR5).
+- Resolve per write target, not per session, and cache by folder (FR7, FR12).
+- Cap the total loaded, and report which folders applied in the panel (FR8, FR9).
+- Notify and log to the console when the cap drops a file (FR13-FR15).
+
+Detailed design: [3-agents-md-loading/index.md](3-agents-md-loading/index.md).
+
+Exit test: two notes in sibling folders with different AGENTS.md files produce visibly different behaviour for the same utterance, rebinding between them swaps the rules, and a vault with none behaves byte for byte as release 2.
+
+## 4. Obsidian Agent Harness
+
+Goal: stop the session being trapped in one note. Two flows, sharing only the agent loop.
+
+- Command catalogue behind a user-editable allow-list, injected into the prompt like the skill catalogue (FR1-FR5).
+- A tool that runs one allowed command, reporting what opened (FR6-FR10).
+- Session rebinds to the note a command opened, so the edit tools target it (FR11-FR15).
+- Search and read tools, bounded by result count, excerpt length and per-turn call count (FR16-FR20).
+- A search answer renders as a copyable panel block citing its source notes, never written into a note (FR21-FR24).
+- Commands beat search when an utterance names a destination; no command match is said plainly rather than guessed at (FR25-FR27).
+
+The write destination always comes from a command, never from a path the model picked. Search-and-edit waits for a later release, for the same reason cross-file writes do.
+
+Detailed design: [4-obsidian-agent-harness/index.md](4-obsidian-agent-harness/index.md).
+
+Exit test: "open my daily note and add a paragraph under Meetings" opens the note and edits it, "what did I write about Lewis school recently" returns a copyable summary naming its sources and touches no note, and a vault with an empty allow-list behaves byte for byte as release 3.
+
+## 5. Desktop V1
 
 Goal: the specced experience - live transcript, safety options, polish.
 
@@ -47,7 +90,7 @@ Goal: the specced experience - live transcript, safety options, polish.
 
 Exit test: dictating a mixed prose-and-structure paragraph feels live, and a rejected edit leaves the note untouched.
 
-## 4. Mobile V1
+## 6. Mobile V1
 
 Goal: streaming parity on mobile, then public release.
 
@@ -58,7 +101,7 @@ Goal: streaming parity on mobile, then public release.
 
 Exit test: the desktop V1 exit test passes on mobile, and a token-mint failure degrades gracefully to batch.
 
-## 5. Cross-File Skills
+## 7. Cross-File Skills
 
 Goal: lift the single-note limit, so the vault skills that route between files become actionable rather than declined.
 
@@ -66,7 +109,9 @@ Goal: lift the single-note limit, so the vault skills that route between files b
 - Undo story for writes that bypass `NoteEditor`, since `app.vault.modify` breaks native undo.
 - Skill bodies loaded on demand, so a matched skill's full steps reach the model rather than its description alone.
 - The FR37 refusal narrows to whatever remains unsupported, rather than covering every cross-file skill.
+- Each write resolves its own target's AGENTS.md chain, per release 3.
+- Each write resolves its own target's AGENTS.md chain, per release 3.
 
-Detailed design: [5-cross-file-skills/index.md](5-cross-file-skills/index.md).
+Detailed design: [7-cross-file-skills/index.md](7-cross-file-skills/index.md).
 
 Exit test: with the vault's todo skill present, an instruction to archive done items follows the skill's steps rather than improvising, and the journal skill files an entry at the right computed path.
