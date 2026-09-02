@@ -18,6 +18,7 @@ export interface SessionPanelProps {
   // The plugin owns the listener so Obsidian detaches it on unload.
   onHidden?(listener: () => void): () => void
   notify?(message: string): void
+  startNewSession?(): void
 }
 
 export const SessionPanel = (props: SessionPanelProps) => {
@@ -74,7 +75,19 @@ export const SessionPanel = (props: SessionPanelProps) => {
   const busy = state.phase === 'transcribing' || state.phase === 'thinking'
   return (
     <div className="voice-edit-panel">
-      <div className="voice-edit-header">{props.noteName}</div>
+      <div className="voice-edit-header">
+        <span className="voice-edit-header-name">{props.noteName}</span>
+        {props.startNewSession && (
+          <button
+            className="voice-edit-new-session"
+            aria-label="New session"
+            disabled={recording || busy}
+            onClick={props.startNewSession}
+          >
+            New
+          </button>
+        )}
+      </div>
       <HistoryList entries={state.entries} />
       <div className="voice-edit-input-row">
         <button

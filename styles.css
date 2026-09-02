@@ -9,6 +9,23 @@
   font-weight: var(--font-semibold);
   padding: var(--size-4-2);
   border-bottom: 1px solid var(--background-modifier-border);
+  display: flex;
+  align-items: center;
+  gap: var(--size-4-2);
+}
+
+.voice-edit-header-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.voice-edit-new-session {
+  flex: 0 0 auto;
+  font-size: var(--font-smallest);
+  padding: 0 var(--size-4-2);
 }
 
 .voice-edit-history {

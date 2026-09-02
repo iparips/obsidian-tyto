@@ -44,12 +44,12 @@ export default class VoiceEditPlugin extends Plugin {
     const boundName = view.boundNoteName()
     if (boundName && boundName !== file.basename)
       return new RebindModal(this.app, boundName, file.basename, async () =>
-        view.bindSession(await this.buildPanelProps(file)),
+        view.bindSession(await this.buildPanelProps(file, view)),
       ).open()
-    if (!boundName) view.bindSession(await this.buildPanelProps(file))
+    if (!boundName) view.bindSession(await this.buildPanelProps(file, view))
   }
 
-  private async buildPanelProps(file: TFile): Promise<SessionPanelProps> {
+  private async buildPanelProps(file: TFile, view: SessionView): Promise<SessionPanelProps> {
     const modelProvider = new MistralProvider(this.settings.mistralApiKey, this.settings.editModel)
     const session = new AgentSession(file)
     const noteLocator = new WorkspaceNoteLocator(this.app, file)
@@ -61,7 +61,13 @@ export default class VoiceEditPlugin extends Plugin {
       processUtterance: (text) => engine.processUtterance(text),
       onHidden: (listener) => this.onDocumentHidden(listener),
       notify: (message) => void new Notice(message),
+      startNewSession: () => void this.startNewSession(file, view),
     }
+  }
+
+  // Rebuilds the props, so the model's history and the panel's entries both go.
+  private async startNewSession(file: TFile, view: SessionView): Promise<void> {
+    view.bindSession(await this.buildPanelProps(file, view))
   }
 
   private onDocumentHidden(listener: () => void): () => void {

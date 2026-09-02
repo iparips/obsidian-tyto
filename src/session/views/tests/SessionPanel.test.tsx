@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, Mock, vi } from 'vitest'
 import { act, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { SessionPanel, RecorderPort } from '../SessionPanel'
+import { SessionPanel, RecorderPort, SessionPanelProps } from '../SessionPanel'
 import { Utterance } from '../../../capture/recorder'
 import { Outcome, Outcomes } from '../../../shared/models/outcome'
 
@@ -30,7 +30,7 @@ describe('SessionPanel', () => {
   }
   const goToBackground = () => act(() => hiddenListeners.forEach((listener) => listener()))
 
-  const renderPanel = () =>
+  const renderPanel = (overrides: Partial<SessionPanelProps> = {}) =>
     render(
       <SessionPanel
         noteName="note"
@@ -39,6 +39,7 @@ describe('SessionPanel', () => {
         processUtterance={processUtterance}
         onHidden={onHidden}
         notify={notify}
+        {...overrides}
       />,
     )
 
@@ -102,6 +103,32 @@ describe('SessionPanel', () => {
       await userEvent.click(screen.getByRole('button', { name: 'Stop recording' }))
 
       await waitFor(() => expect(screen.getByText('chat failed: model unavailable')).toBeTruthy())
+    })
+  })
+
+  describe('when starting a new session', () => {
+    it('calls startNewSession when the button is clicked in idle', async () => {
+      const startNewSession = vi.fn()
+      renderPanel({ startNewSession })
+
+      await userEvent.click(screen.getByRole('button', { name: 'New session' }))
+
+      expect(startNewSession).toHaveBeenCalled()
+    })
+
+    it('omits the button when no startNewSession is given', () => {
+      renderPanel()
+
+      expect(screen.queryByRole('button', { name: 'New session' })).toBeNull()
+    })
+
+    it('disables the button while recording', async () => {
+      renderPanel({ startNewSession: vi.fn() })
+      await userEvent.click(screen.getByRole('button', { name: 'Record' }))
+
+      const button = screen.getByRole('button', { name: 'New session' })
+
+      expect(button.hasAttribute('disabled')).toBe(true)
     })
   })
 

@@ -7,6 +7,9 @@ export const VIEW_TYPE_SESSION = 'voice-edit-session'
 export class SessionView extends ItemView {
   private root: Root | null = null
   private panelProps: SessionPanelProps | null = null
+  // Bumped on every bind, so rebinding the same note still remounts the panel
+  // and clears the entries on screen.
+  private sessionCount = 0
 
   constructor(leaf: WorkspaceLeaf) {
     super(leaf)
@@ -26,6 +29,7 @@ export class SessionView extends ItemView {
 
   bindSession(props: SessionPanelProps): void {
     this.panelProps = props
+    this.sessionCount += 1
     this.renderPanel()
   }
 
@@ -47,6 +51,7 @@ export class SessionView extends ItemView {
   private renderPanel(): void {
     if (!this.root) return
     if (!this.panelProps) return
-    this.root.render(<SessionPanel key={this.panelProps.noteName} {...this.panelProps} />)
+    const key = `${this.panelProps.noteName}-${this.sessionCount}`
+    this.root.render(<SessionPanel key={key} {...this.panelProps} />)
   }
 }
