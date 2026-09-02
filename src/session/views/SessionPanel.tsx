@@ -80,11 +80,11 @@ export const SessionPanel = (props: SessionPanelProps) => {
         {props.startNewSession && (
           <button
             className="voice-edit-new-session"
-            aria-label="New session"
+            aria-label="Reset session"
             disabled={recording || busy}
             onClick={props.startNewSession}
           >
-            New
+            Reset
           </button>
         )}
       </div>

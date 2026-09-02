@@ -99,6 +99,7 @@
   background-color: var(--background-modifier-form-field);
   border: 1px solid var(--background-modifier-border);
   color: var(--text-normal);
+  padding: 0 var(--size-4-2);
 }
 
 .voice-edit-input-row button,

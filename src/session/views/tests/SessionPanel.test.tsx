@@ -111,7 +111,7 @@ describe('SessionPanel', () => {
       const startNewSession = vi.fn()
       renderPanel({ startNewSession })
 
-      await userEvent.click(screen.getByRole('button', { name: 'New session' }))
+      await userEvent.click(screen.getByRole('button', { name: 'Reset session' }))
 
       expect(startNewSession).toHaveBeenCalled()
     })
@@ -119,14 +119,14 @@ describe('SessionPanel', () => {
     it('omits the button when no startNewSession is given', () => {
       renderPanel()
 
-      expect(screen.queryByRole('button', { name: 'New session' })).toBeNull()
+      expect(screen.queryByRole('button', { name: 'Reset session' })).toBeNull()
     })
 
     it('disables the button while recording', async () => {
       renderPanel({ startNewSession: vi.fn() })
       await userEvent.click(screen.getByRole('button', { name: 'Record' }))
 
-      const button = screen.getByRole('button', { name: 'New session' })
+      const button = screen.getByRole('button', { name: 'Reset session' })
 
       expect(button.hasAttribute('disabled')).toBe(true)
     })
