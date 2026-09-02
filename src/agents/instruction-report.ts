@@ -25,7 +25,7 @@ export class InstructionReport {
   }
 
   noticeText(): string {
-    return `Voice Edit: ${this.droppedCount} instruction file(s) dropped; the chain was over the size limit.`
+    return `Owl: ${this.droppedCount} instruction file(s) dropped; the chain was over the size limit.`
   }
 
   private appliedText(): string {

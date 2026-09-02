@@ -184,7 +184,7 @@ link_plugin() {
 	# -h stops ln following an existing link and nesting inside the target.
 	ln -sfh "$REPO_ROOT" "$target"
 	echo "Linked $target -> $REPO_ROOT"
-	echo "Now enable Voice Edit in Obsidian: Settings, Community plugins, refresh, enable."
+	echo "Now enable Owl in Obsidian: Settings, Community plugins, refresh, enable."
 }
 
 # data.json holds the API key and settings, so it is left where it is.

@@ -41,7 +41,7 @@ fitted, and the panel's entry for the turn is unchanged (NFR5).
 
 The two new channels reuse what the codebase has. `notify` is already an optional prop
 on SessionPanel (Session), backed by Notice (Obsidian) in main.ts, and carries
-the backgrounded-recording message today. Console lines take the [voice-edit]
+the backgrounded-recording message today. Console lines take the [owl]
 prefix SkillRepository (Skills) and Recorder (Capture) already use.
 
 AgentsMdRepository (Agents, new) returns which files it dropped rather than

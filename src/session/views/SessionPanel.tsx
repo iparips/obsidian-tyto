@@ -62,7 +62,7 @@ export const SessionPanel = (props: SessionPanelProps) => {
   discardOnBackground.current = () => {
     if (state.phase !== 'recording') return
     cancelRecording()
-    props.notify?.('Recording discarded: Voice Edit cannot record in the background.')
+    props.notify?.('Recording discarded: Owl cannot record in the background.')
   }
 
   useEffect(() => props.onHidden?.(() => discardOnBackground.current()), [])
@@ -79,12 +79,12 @@ export const SessionPanel = (props: SessionPanelProps) => {
   const recording = state.phase === 'recording'
   const busy = state.phase === 'transcribing' || state.phase === 'thinking'
   return (
-    <div className="voice-edit-panel">
-      <div className="voice-edit-header">
-        <span className="voice-edit-header-name">{props.noteName}</span>
+    <div className="owl-panel">
+      <div className="owl-header">
+        <span className="owl-header-name">{props.noteName}</span>
         {props.startNewSession && (
           <button
-            className="voice-edit-new-session"
+            className="owl-new-session"
             aria-label="Reset session"
             disabled={recording || busy}
             onClick={props.startNewSession}
@@ -94,7 +94,7 @@ export const SessionPanel = (props: SessionPanelProps) => {
         )}
       </div>
       <HistoryList entries={state.entries} />
-      <div className="voice-edit-input-row">
+      <div className="owl-input-row">
         <button
           aria-label={recording ? 'Stop recording' : 'Record'}
           disabled={busy}

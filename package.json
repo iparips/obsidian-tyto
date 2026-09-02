@@ -1,7 +1,7 @@
 {
-  "name": "obsidian-voice-edit",
+  "name": "obsidian-owl",
   "version": "0.1.0",
-  "description": "Edit the active note with natural-language voice or text instructions.",
+  "description": "Edit your notes by voice. Speak an instruction and the note changes, with no fixed command phrases.",
   "main": "main.js",
   "scripts": {
     "build": "bun run test && bun run build:no-tests",

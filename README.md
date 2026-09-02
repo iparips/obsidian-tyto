@@ -1,4 +1,4 @@
-# Voice Edit
+# Owl
 
 An Obsidian plugin that edits the active note from natural-language instructions, spoken or typed. Speak "rename heading Budget to Costs" or "add a list A, B, C under heading X" and the note changes. Dictated content lands formatted as markdown. Powered by Mistral speech-to-text and chat models, using your own API key.
 
@@ -23,7 +23,7 @@ If a step fails, the panel shows an error entry naming the failing step: transcr
 
 Installing on a phone needs `./install --copy`, which rebuilds and copies the plugin into the vault. Obsidian Sync does not follow the symlink a normal install creates. See [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md).
 
-The session panel opens as a drawer from the right sidebar. To reach it in one tap, add the command to the mobile toolbar: Settings, Mobile, Manage toolbar options, then add "Voice Edit: Start session for active note".
+The session panel opens as a drawer from the right sidebar. To reach it in one tap, add the command to the mobile toolbar: Settings, Mobile, Manage toolbar options, then add "Owl: Start session for active note".
 
 Recording stops if you leave Obsidian. The partial audio is discarded and the panel returns to idle, because a backgrounded recording captures silence.
 

@@ -4,7 +4,7 @@ React components mounted from Obsidian shells: the ItemView and PluginSettingTab
 
 ## SessionView (session-view.tsx)
 
-An ItemView registered for the right sidebar, view type voice-edit-session. Its only job is mounting SessionPanel with the session, recorder, provider and engine as props, and unmounting on close.
+An ItemView registered for the right sidebar, view type owl-session. Its only job is mounting SessionPanel with the session, recorder, provider and engine as props, and unmounting on close.
 
 ## SessionPanel (SessionPanel.tsx)
 
@@ -60,4 +60,4 @@ Documented here for the UI contract; design detail in [3-component-design.md](3-
 ## Styling (styles.css)
 
 - Obsidian CSS variables only, no hardcoded colours.
-- Classes prefixed voice-edit-. Mic button uses the microphone lucide icon, switching to a stop icon while recording.
+- Classes prefixed owl-. Mic button uses the microphone lucide icon, switching to a stop icon while recording.

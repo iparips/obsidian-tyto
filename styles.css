@@ -1,11 +1,11 @@
-.voice-edit-panel {
+.owl-panel {
   display: flex;
   flex-direction: column;
   height: 100%;
   gap: var(--size-4-2);
 }
 
-.voice-edit-header {
+.owl-header {
   font-weight: var(--font-semibold);
   padding: var(--size-4-2);
   border-bottom: 1px solid var(--background-modifier-border);
@@ -14,7 +14,7 @@
   gap: var(--size-4-2);
 }
 
-.voice-edit-header-name {
+.owl-header-name {
   flex: 1;
   min-width: 0;
   overflow: hidden;
@@ -22,13 +22,13 @@
   white-space: nowrap;
 }
 
-.voice-edit-new-session {
+.owl-new-session {
   flex: 0 0 auto;
   font-size: var(--font-smallest);
   padding: 0 var(--size-4-2);
 }
 
-.voice-edit-history {
+.owl-history {
   flex: 1;
   overflow-y: auto;
   display: flex;
@@ -37,7 +37,7 @@
   padding: var(--size-4-2);
 }
 
-.voice-edit-entry {
+.owl-entry {
   padding: var(--size-4-2);
   border-radius: var(--radius-s);
   position: relative;
@@ -48,11 +48,11 @@
   cursor: text;
 }
 
-.voice-edit-entry-text {
+.owl-entry-text {
   white-space: pre-wrap;
 }
 
-.voice-edit-entry-copy {
+.owl-entry-copy {
   position: absolute;
   top: var(--size-4-1);
   right: var(--size-4-1);
@@ -62,38 +62,38 @@
   opacity: 0;
 }
 
-.voice-edit-entry:hover .voice-edit-entry-copy,
-.voice-edit-entry-copy:focus-visible {
+.owl-entry:hover .owl-entry-copy,
+.owl-entry-copy:focus-visible {
   opacity: 1;
 }
 
-.voice-edit-entry-user {
+.owl-entry-user {
   background-color: var(--background-secondary);
 }
 
-.voice-edit-entry-assistant {
+.owl-entry-assistant {
   background-color: var(--background-primary-alt);
 }
 
-.voice-edit-entry-error {
+.owl-entry-error {
   color: var(--text-error);
   background-color: var(--background-secondary);
 }
 
-.voice-edit-entry-instructions {
+.owl-entry-instructions {
   color: var(--text-muted);
   background-color: var(--background-secondary);
   font-size: var(--font-ui-smaller);
 }
 
-.voice-edit-input-row {
+.owl-input-row {
   display: flex;
   gap: var(--size-4-1);
   padding: var(--size-4-2);
   border-top: 1px solid var(--background-modifier-border);
 }
 
-.voice-edit-input-row input {
+.owl-input-row input {
   flex: 1;
   /* Without this a flex item refuses to shrink past its content width, which
      pushes Send off the edge of a narrow drawer. */
@@ -108,12 +108,12 @@
   padding: 0 var(--size-4-2);
 }
 
-.voice-edit-input-row button,
-.voice-edit-input-row input {
+.owl-input-row button,
+.owl-input-row input {
   min-height: 44px;
 }
 
-.voice-edit-input-row button {
+.owl-input-row button {
   flex: 0 0 auto;
   white-space: nowrap;
 }
@@ -121,18 +121,18 @@
 /* Touch has no hover, so the copy button stays visible on mobile (FR33).
    Taking it out of the corner overlay and into the entry's own row stops it
    sitting on top of the text it copies. */
-.is-mobile .voice-edit-entry {
+.is-mobile .owl-entry {
   display: flex;
   align-items: flex-start;
   gap: var(--size-4-2);
 }
 
-.is-mobile .voice-edit-entry-text {
+.is-mobile .owl-entry-text {
   flex: 1;
   min-width: 0;
 }
 
-.is-mobile .voice-edit-entry-copy {
+.is-mobile .owl-entry-copy {
   position: static;
   opacity: 1;
   flex: 0 0 auto;
@@ -140,20 +140,20 @@
   align-self: center;
 }
 
-.voice-edit-settings {
+.owl-settings {
   display: flex;
   flex-direction: column;
   gap: var(--size-4-3);
 }
 
-.voice-edit-setting {
+.owl-setting {
   display: flex;
   flex-direction: column;
   gap: var(--size-4-1);
   max-width: 24em;
 }
 
-.voice-edit-settings-note {
+.owl-settings-note {
   color: var(--text-muted);
   font-size: var(--font-ui-small);
 }

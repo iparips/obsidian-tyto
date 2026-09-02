@@ -2,10 +2,10 @@ import { useState } from 'react'
 import { Entry } from '../models/panel-state'
 
 const ENTRY_CLASSES = {
-  user: 'voice-edit-entry-user',
-  assistant: 'voice-edit-entry-assistant',
-  error: 'voice-edit-entry-error',
-  instructions: 'voice-edit-entry-instructions',
+  user: 'owl-entry-user',
+  assistant: 'owl-entry-assistant',
+  error: 'owl-entry-error',
+  instructions: 'owl-entry-instructions',
 }
 
 const entryText = (entry: Entry) =>
@@ -22,10 +22,10 @@ export const HistoryEntry = ({ entry }: { entry: Entry }) => {
   }
 
   return (
-    <div className={`voice-edit-entry ${ENTRY_CLASSES[entry.kind]}`}>
-      <div className="voice-edit-entry-text">{text}</div>
+    <div className={`owl-entry ${ENTRY_CLASSES[entry.kind]}`}>
+      <div className="owl-entry-text">{text}</div>
       <button
-        className="voice-edit-entry-copy"
+        className="owl-entry-copy"
         aria-label={copied ? 'Copied' : 'Copy entry'}
         onClick={copy}
       >

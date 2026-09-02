@@ -22,7 +22,7 @@ export default class VoiceEditPlugin extends Plugin {
   async onload(): Promise<void> {
     this.settings = { ...DEFAULT_SETTINGS, ...(await this.loadData()) }
     this.registerView(VIEW_TYPE_SESSION, (leaf) => new SessionView(leaf))
-    this.addRibbonIcon('mic', 'Start voice edit session', () => this.openSession())
+    this.addRibbonIcon('mic', 'Start Owl session', () => this.openSession())
     this.addCommand({
       id: 'start-session',
       name: 'Start session for active note',
@@ -63,8 +63,8 @@ export default class VoiceEditPlugin extends Plugin {
       modelProvider,
       session,
       this.skillRepository(),
-      noteLocator,
       this.agentsMdRepository(),
+      noteLocator,
       new NoteEditor(),
       (chain) => this.reportInstructions(chain, listeners),
     )
@@ -93,7 +93,7 @@ export default class VoiceEditPlugin extends Plugin {
 
   private static logDrops(chain: AgentsMdChain): void {
     chain.dropped.forEach((file) =>
-      console.debug('[voice-edit] instruction file dropped:', file.fileName, 'in', file.label()),
+      console.debug('[owl] instruction file dropped:', file.fileName, 'in', file.label()),
     )
   }
 

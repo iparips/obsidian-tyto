@@ -1,6 +1,6 @@
 # Contributing
 
-Voice Edit is an Obsidian plugin built with [Bun](https://bun.sh/) and TypeScript. Bun handles install, test, and bundling, so no separate Node toolchain is needed.
+Owl is an Obsidian plugin built with [Bun](https://bun.sh/) and TypeScript. Bun handles install, test, and bundling, so no separate Node toolchain is needed.
 
 ## Prerequisites
 
@@ -36,12 +36,12 @@ Then run the installer:
 ./install
 ```
 
-It links the repo to `<vault>/.obsidian/plugins/<manifest id>`. The link name must match the `id` in manifest.json (`obsidian-voice-edit`), not the repository name, because Obsidian keys plugin settings and sync off that id. The script reads the id from the manifest, so it stays correct if the id changes.
+It links the repo to `<vault>/.obsidian/plugins/<manifest id>`. The link name must match the `id` in manifest.json (`obsidian-owl`), not the repository name, because Obsidian keys plugin settings and sync off that id. The script reads the id from the manifest, so it stays correct if the id changes.
 
 Re-running it is safe. It refuses to clobber a real directory, so remove a Community Plugins install first:
 
 ```bash
-rm -rf /path/to/vault/.obsidian/plugins/obsidian-voice-edit
+rm -rf /path/to/vault/.obsidian/plugins/obsidian-owl
 ```
 
 It builds first, so an install is never a stale bundle. A failing build aborts the install and leaves the previous one in place. Pass `--skip-tests` to build without the test suite when you want a faster loop.
@@ -64,7 +64,7 @@ Sync then carries `main.js`, `manifest.json` and `styles.css` to the phone. Chec
 
 A copy is a snapshot, not a link, so run `./install --copy` again whenever the phone needs the current code. Your `data.json`, which holds the API key, is left alone by the copy.
 
-Then in Obsidian: turn off Restricted mode, refresh installed plugins, enable Voice Edit, and paste your Mistral API key into its settings.
+Then in Obsidian: turn off Restricted mode, refresh installed plugins, enable Owl, and paste your Mistral API key into its settings.
 
 ## Build and Test
 

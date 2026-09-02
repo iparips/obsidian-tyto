@@ -42,7 +42,7 @@ export interface VoiceEditSettings {
 }
 ```
 
-- Frontmatter key voice-edit-language overrides language per note (FR30).
+- Frontmatter key owl-language overrides language per note (FR30).
 - Provider selection picks which key and endpoints are used everywhere (FR28).
 
 ## Review Types (src/engine/review-controller.ts)

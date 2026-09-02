@@ -1,9 +1,9 @@
 {
-  "id": "obsidian-voice-edit",
-  "name": "Voice Edit",
+  "id": "obsidian-owl",
+  "name": "Owl",
   "version": "0.1.0",
   "minAppVersion": "1.5.0",
-  "description": "Edit the active note with natural-language voice or text instructions.",
+  "description": "Edit your notes by voice. Speak an instruction and the note changes, with no fixed command phrases.",
   "author": "Ilya Paripsa",
   "isDesktopOnly": false
 }

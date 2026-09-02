@@ -2,7 +2,7 @@ import { ItemView, WorkspaceLeaf } from 'obsidian'
 import { createRoot, Root } from 'react-dom/client'
 import { SessionPanel, SessionPanelProps } from './SessionPanel'
 
-export const VIEW_TYPE_SESSION = 'voice-edit-session'
+export const VIEW_TYPE_SESSION = 'owl-session'
 
 export class SessionView extends ItemView {
   private root: Root | null = null
@@ -20,7 +20,7 @@ export class SessionView extends ItemView {
   }
 
   getDisplayText(): string {
-    return 'Voice edit session'
+    return 'Owl session'
   }
 
   getIcon(): string {

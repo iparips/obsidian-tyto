@@ -6,8 +6,8 @@ export interface SettingsPanelProps {
 }
 
 export const SettingsPanel = ({ settings, onChange }: SettingsPanelProps) => (
-  <div className="voice-edit-settings">
-    <label className="voice-edit-setting">
+  <div className="owl-settings">
+    <label className="owl-setting">
       Mistral API key
       <input
         type="password"
@@ -16,7 +16,7 @@ export const SettingsPanel = ({ settings, onChange }: SettingsPanelProps) => (
         onChange={(event) => onChange({ mistralApiKey: event.target.value })}
       />
     </label>
-    <label className="voice-edit-setting">
+    <label className="owl-setting">
       Edit model
       <input
         type="text"
@@ -25,7 +25,7 @@ export const SettingsPanel = ({ settings, onChange }: SettingsPanelProps) => (
         onChange={(event) => onChange({ editModel: event.target.value })}
       />
     </label>
-    <label className="voice-edit-setting">
+    <label className="owl-setting">
       Skills folder
       <input
         type="text"
@@ -34,11 +34,11 @@ export const SettingsPanel = ({ settings, onChange }: SettingsPanelProps) => (
         onChange={(event) => onChange({ skillsPath: event.target.value })}
       />
     </label>
-    <p className="voice-edit-settings-note">
+    <p className="owl-settings-note">
       Vault folder holding agent skills. Their names and descriptions are sent with each
       instruction. Leave empty to disable.
     </p>
-    <p className="voice-edit-settings-note">
+    <p className="owl-settings-note">
       Your key is stored in this vault and only ever sent to the provider. Note content and
       instructions go to the provider when you use a session; nothing else leaves your device.
     </p>

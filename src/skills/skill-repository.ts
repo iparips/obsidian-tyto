@@ -29,10 +29,10 @@ export class SkillRepository {
   private async skillFolders(): Promise<string[]> {
     try {
       const folders = (await this.adapter.list(this.skillsPath)).folders
-      console.debug('[voice-edit]', folders.length, 'skill folders under', this.skillsPath)
+      console.debug('[owl]', folders.length, 'skill folders under', this.skillsPath)
       return folders
     } catch {
-      console.debug('[voice-edit] no skill folders under', this.skillsPath)
+      console.debug('[owl] no skill folders under', this.skillsPath)
       return []
     }
   }

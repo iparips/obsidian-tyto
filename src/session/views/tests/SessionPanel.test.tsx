@@ -152,7 +152,7 @@ describe('SessionPanel', () => {
       goToBackground()
 
       expect(notify).toHaveBeenCalledWith(
-        'Recording discarded: Voice Edit cannot record in the background.',
+        'Recording discarded: Owl cannot record in the background.',
       )
     })
 

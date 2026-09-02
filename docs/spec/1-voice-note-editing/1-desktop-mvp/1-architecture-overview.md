@@ -7,7 +7,7 @@ The tree below is the finished shape. Every path exists except `src/skills/`, wh
 ## Source Tree
 
 ```
-obsidian-voice-edit/
+obsidian-owl/
   manifest.json
   esbuild.config.mjs
   package.json
@@ -81,6 +81,6 @@ Matches the conventions of the author's other Obsidian plugins.
 - React 19 for the session panel and settings UI, mounted from ItemView and PluginSettingTab shells.
 - Vitest with happy-dom and testing-library; obsidian aliased to src/test-support/**mocks**/obsidian.ts in vite config.
 - eslint and prettier; build script runs test, lint, format, then bundle.
-- manifest.json: id obsidian-voice-edit, minAppVersion 1.5.0, isDesktopOnly true for this release.
+- manifest.json: id obsidian-owl, minAppVersion 1.5.0, isDesktopOnly true for this release.
 
 Outstanding work lives in [6-implementation-order.md](6-implementation-order.md); the shared contracts it depends on are in [2-data-model.md](2-data-model.md).
