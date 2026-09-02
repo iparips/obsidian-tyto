@@ -60,10 +60,10 @@ a search, and an answer the user reads rather than a note the plugin writes.
 The release ships two independent capabilities. They share the agent loop and
 nothing else.
 
-| Flow             | Destination comes from | Model chooses  | Ends in         |
-|------------------|------------------------|----------------|-----------------|
-| Command and edit | An allowed command     | Which command  | A note edit     |
-| Search and answer| Nothing; no write      | Which notes to read | A panel block |
+| Flow              | Destination comes from | Model chooses       | Ends in       |
+| ----------------- | ---------------------- | ------------------- | ------------- |
+| Command and edit  | An allowed command     | Which command       | A note edit   |
+| Search and answer | Nothing; no write      | Which notes to read | A panel block |
 
 Splitting them is the point. A command resolves a path through the user's own
 configuration, so the destination is deterministic and an edit can follow it. A

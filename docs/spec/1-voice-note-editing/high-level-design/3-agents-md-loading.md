@@ -7,7 +7,7 @@ Covers release 3 of [2-plan.md](../2-plan.md): standing instructions a folder se
 The MVPs ship one: skills, conditional and matched per utterance, catalogued by description and read on demand. This release ships the other.
 
 | Kind      | When it applies                  | Loaded as         | Cost paid              |
-|-----------|----------------------------------|-------------------|------------------------|
+| --------- | -------------------------------- | ----------------- | ---------------------- |
 | Skill     | When an utterance matches it     | Description first | Per matching turn      |
 | AGENTS.md | Every write to a note beneath it | Whole file        | Every write, so capped |
 

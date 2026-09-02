@@ -17,13 +17,13 @@ The shape below is settled by the requirements and is not open for the design to
 
 Two questions decide feasibility, three decide shape. All five are stated in full in [3-decisions.md](../4-obsidian-agent-harness/3-decisions.md).
 
-| Question              | Decides      | Risk if it goes badly                                  |
-|-----------------------|--------------|--------------------------------------------------------|
-| Command enumeration   | Feasibility  | No command tool; the release is search only            |
-| Search implementation | Feasibility  | Scan cost or a view the plugin cannot read back        |
-| Iteration cap sizing  | Shape        | Search turns exhaust the loop before answering         |
-| Command effect checks | Shape        | An edit follows a command that did something else      |
-| Answer panel entry    | Shape        | An answer reads as an edit that never happened         |
+| Question              | Decides     | Risk if it goes badly                             |
+| --------------------- | ----------- | ------------------------------------------------- |
+| Command enumeration   | Feasibility | No command tool; the release is search only       |
+| Search implementation | Feasibility | Scan cost or a view the plugin cannot read back   |
+| Iteration cap sizing  | Shape       | Search turns exhaust the loop before answering    |
+| Command effect checks | Shape       | An edit follows a command that did something else |
+| Answer panel entry    | Shape       | An answer reads as an edit that never happened    |
 
 Command enumeration is the one to resolve first. The Command interface is public in the Obsidian typings, but the registry holding every registered command is not on the typed App class. Confirm what runtime surface exists, and design the command tool so its absence degrades to a search-only harness rather than a broken plugin (NFR3).
 

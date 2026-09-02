@@ -16,6 +16,7 @@ Requirements only. No design yet; five questions in
 - [3-decisions.md](3-decisions.md) - decisions made, and open questions a design must settle
 
 Related specs
+
 - [1-requirements.md](../1-requirements.md) - the single-note baseline this widens
 - [3-agents-md-loading/index.md](../3-agents-md-loading/index.md) - per-folder instructions a rebound note must honour
 - [7-cross-file-skills/index.md](../7-cross-file-skills/index.md) - multi-file writes, which stay out of this release
