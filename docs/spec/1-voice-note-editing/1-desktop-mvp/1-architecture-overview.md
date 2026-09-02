@@ -2,7 +2,7 @@
 
 Implements [high-level-design/1-desktop-mvp.md](../high-level-design/1-desktop-mvp.md). This folder is the implementable spec: an agent should build the release from these files without further decisions.
 
-The tree below is the finished shape. Every path exists except `src/skills/`, which [6-implementation-order.md](6-implementation-order.md) covers. Package ownership and the dependency rule: [high-level-design/5-package-design.md](../high-level-design/5-package-design.md).
+The tree below is the finished shape. Every path exists except `src/skills/`, which [6-implementation-order.md](6-implementation-order.md) covers. Package ownership and the dependency rule: [high-level-design/7-package-design.md](../high-level-design/7-package-design.md).
 
 ## Source Tree
 
@@ -62,7 +62,7 @@ obsidian-voice-edit/
 ```
 
 Services sit in the package root; value objects go in models/, rendering code in
-views/, and tests in tests/. [high-level-design/5-package-design.md](../high-level-design/5-package-design.md)
+views/, and tests in tests/. [high-level-design/7-package-design.md](../high-level-design/7-package-design.md)
 holds the rule and the per-package counts.
 
 ## Rules
