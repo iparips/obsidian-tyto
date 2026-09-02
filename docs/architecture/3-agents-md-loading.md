@@ -1,6 +1,6 @@
 # Design: AGENTS.md Loading
 
-Covers release 3 of [2-plan.md](../spec/2-plan.md): standing instructions a folder sets for the notes inside it. Delta design on top of [2-mobile-mvp.md](2-mobile-mvp.md). Requirement IDs refer to [3-agents-md-loading/2-functional-requirements.md](../spec/3-agents-md-loading/2-functional-requirements.md).
+Covers release 3 of [2-plan.md](../spec/2-plan.md): standing instructions a folder sets for the notes inside it. Delta design on top of [2-mobile-mvp.md](2-mobile-mvp.md). Requirement IDs refer to [3-agents-md-loading/2-functional-requirements.md](../spec/3-agents-md-loading/3-functional-requirements.md).
 
 ## Two Kinds of Instruction
 
@@ -72,4 +72,4 @@ The Notice fires once per resolved chain rather than once per dropped file, and 
 
 ## Out of Scope
 
-Instruction files above the vault root, an include mechanism, and per-note frontmatter instructions. Resolving a chain for a note the model reads is excluded by design, not deferred. Multiple write targets in one turn arrive with the cross-file tools in [7-cross-file-skills/index.md](../spec/7-cross-file-skills/index.md), which reuse this resolution unchanged.
+Instruction files above the vault root, an include mechanism, and per-note frontmatter instructions. Resolving a chain for a note the model reads is excluded by design, not deferred. Multiple write targets in one turn arrive with the cross-file tools in [7-cross-file-skills/index.md](../spec/7-cross-file-skills/1-index.md), which reuse this resolution unchanged.

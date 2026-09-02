@@ -56,7 +56,7 @@ Goal: let a folder set the standing instructions for the notes inside it, via AG
 - Cap the total loaded, and report which folders applied in the panel (FR8, FR9).
 - Notify and log to the console when the cap drops a file (FR13-FR15).
 
-Detailed design: [3-agents-md-loading/index.md](3-agents-md-loading/index.md).
+Detailed design: [3-agents-md-loading/index.md](3-agents-md-loading/1-index.md).
 
 Exit test: two notes in sibling folders with different AGENTS.md files produce visibly different behaviour for the same utterance, rebinding between them swaps the rules, and a vault with none behaves byte for byte as release 2.
 
@@ -73,7 +73,7 @@ Goal: stop the session being trapped in one note. Two flows, sharing only the ag
 
 The write destination always comes from a command, never from a path the model picked. Search-and-edit waits for a later release, for the same reason cross-file writes do.
 
-Detailed design: [4-obsidian-agent-harness/index.md](4-obsidian-agent-harness/index.md).
+Detailed design: [4-obsidian-agent-harness/index.md](4-obsidian-agent-harness/1-index.md).
 
 Exit test: "open my daily note and add a paragraph under Meetings" opens the note and edits it, "what did I write about the roofing quote recently" returns a copyable summary naming its sources and touches no note, and a vault with an empty allow-list behaves byte for byte as release 3.
 
@@ -112,6 +112,6 @@ Goal: lift the single-note limit, so the vault skills that route between files b
 - Each write resolves its own target's AGENTS.md chain, per release 3.
 - Each write resolves its own target's AGENTS.md chain, per release 3.
 
-Detailed design: [7-cross-file-skills/index.md](7-cross-file-skills/index.md).
+Detailed design: [7-cross-file-skills/index.md](7-cross-file-skills/1-index.md).
 
 Exit test: with the vault's todo skill present, an instruction to archive done items follows the skill's steps rather than improvising, and the journal skill files an entry at the right computed path.
