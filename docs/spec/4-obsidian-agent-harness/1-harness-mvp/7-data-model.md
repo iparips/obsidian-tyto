@@ -1,7 +1,7 @@
 # Obsidian Agent Harness: Data Model
 
 New types, written first so the packages can be built in parallel against them.
-Delta on [1-desktop-mvp/2-data-model.md](../1-desktop-mvp/2-data-model.md).
+Delta on [1-desktop-mvp/2-data-model.md](../../1-desktop-mvp/2-data-model.md).
 
 ## Commands (src/commands/models/)
 
@@ -86,9 +86,42 @@ construction across every vault (FR5). Anything vault-specific, including the
 open-or-create commands, is the user's to add: the plugin cannot know which of
 their commands open notes without running them.
 
-Rename note: the interface is currently `VoiceEditSettings`, missed by the
-rename to Owl. It becomes `OwlSettings` in step 1 of the implementation order,
-along with `VoiceEditPlugin` and `VoiceEditSettingsTab`.
+Rename note: the interface was `VoiceEditSettings`, missed by the rename to Owl.
+It is `OwlSettings` now, along with `OwlPlugin` and `OwlSettingsTab`.
+
+## Session state
+
+State changes go through a repository, split by how long the state lives.
+AgentSession (Engine) is gone: its chat history moved to SessionRepository, and
+its operation history was dropped, since Obsidian owns undo (NFR5) and the
+journal release 7 needs is a different shape.
+
+```typescript
+// src/session/session-repository.ts - what survives every turn
+export class SessionRepository {
+  targetNote(): string
+  changeTargetNote(path: string): void
+  resetTargetNoteToOriginal(): void // FR20
+  chatHistory(): readonly ChatMessage[]
+  appendChatMessage(message: ChatMessage): void
+}
+
+// src/engine/turn-repository.ts - what one turn holds, discarded with it
+export class TurnRepository {
+  targetNote(): OpenNote
+  agentMdChain(): AgentsMdChain
+  skills(): readonly Skill[]
+  skillNamed(name: string): Skill | undefined
+  editEnd(): EditorPosition | null
+  retargetTo(resolved: ResolvedNote): void
+  recordEdit(editedTo: EditorPosition | undefined): void
+}
+```
+
+The session holds a path; the turn holds the editor found for it. An editor
+handle kept across turns goes stale silently when the user closes the tab,
+whereas a path re-resolves and fails loudly, which is the failure the release
+wants.
 
 ## Panel entries (src/session/models/panel-state.ts)
 

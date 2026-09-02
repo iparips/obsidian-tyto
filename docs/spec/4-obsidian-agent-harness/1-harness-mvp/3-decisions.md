@@ -83,23 +83,26 @@ prepareSimpleSearch is exported. Commands need two private methods, reached
 through one module augmentation and guarded by a probe. The cap rises to 10 and
 stays a single number.
 
-## Open questions
+## Settled while building
 
-Command effects are unbounded from the plugin's point of view. Running one and
-then diffing the workspace is the only way to know what it did. Decide how much
-of that the harness verifies before it lets an edit follow.
+Command effect verification stays the before-and-after diff, plus one check the
+build added: a note a command opened but that has no editor does not move the
+binding. CommandRunner (Commands) reports the diff, and ToolDispatcher (Engine,
+new) downgrades the report to "no note opened" when the rebind cannot find an
+editor. The model is told the binding stayed, so its next anchor targets the
+note it can actually write to.
 
-Answer entries may need their own panel affordance. Release 4 has copyable
-history entries, but an answer carries cited paths and no edit, so it may want a
-distinct shape rather than reusing the edit entry.
+The answer entry reuses the copyable entry with a second row. Sources render
+below the body under their own class, so copying yields the answer alone and the
+citation count is visible without reading it. An accent border separates it from
+an assistant entry, which is what FR29 asks for.
 
-The settings surface has no mobile design yet. A resolved allow-list can run to
-dozens of commands, which is unreadable on a phone, and the plugin already
-targets mobile. FR7 and FR8 state the requirement: show what a pattern resolves
-to, and keep it scrollable. Whether that is a collapsed count, a searchable
-list, or a read-only summary with editing left to desktop is a design question.
+The mobile settings surface is a textarea plus a collapsed count. Entries are
+one per line, which scrolls on a phone and needs no per-row controls. The
+resolved list sits behind a summary reading "N commands allowed right now", so a
+pattern's reach is one tap away rather than filling the screen (FR7, FR8).
 
-Core commands are not distinguished from community ones. The colon rule permits
-file-explorer:* as readily as open-or-create-file-command:*, and the former
-includes deletion. Decide whether a denylist of known-destructive core ids is
-worth carrying, or whether the user choosing what to add is protection enough.
+Core commands are not distinguished from community ones, and no denylist ships.
+The allow-list starts at daily-notes:* and the user adds the rest, so a
+destructive core id is only reachable if they type its namespace. A denylist
+would suggest the allow-list is safe to widen carelessly, which it is not.

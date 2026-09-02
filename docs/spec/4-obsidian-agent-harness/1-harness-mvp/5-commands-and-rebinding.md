@@ -14,6 +14,8 @@ command list every session, so a command registered after the pattern was
 written is matched without a settings edit (FR6). Resolution is the only place
 the two meet, which keeps the stored settings independent of what is installed.
 
+### Flow: the user reviews what their allow-list includes
+
 ```mermaid
 sequenceDiagram
     participant Settings as OwlSettings [Settings]
@@ -54,30 +56,78 @@ files, change settings, or do nothing observable. Comparing the bound note
 before and after answers exactly one question, which is the only one the next
 tool call depends on: which note the edit tools will now target.
 
+### Flow: the user says "open my daily note and add a paragraph"
+
 ```mermaid
 sequenceDiagram
-    participant Engine as EditEngine [Engine]
+    participant Dispatcher as ToolDispatcher [Engine, new]
     participant Runner as CommandRunner [Commands, new]
     participant App as App.commands [Obsidian]
     participant Workspace as Workspace [Obsidian]
-    participant Session as AgentSession [Engine]
+    participant Sessions as SessionRepository [Session, new]
 
-    Engine->>Runner: run this command id
+    Dispatcher->>Runner: run
     Note over Runner: refuses an id outside the catalogue
-    Runner->>Workspace: active note path
+    Runner->>Workspace: getActiveFile
     Runner->>App: executeCommandById
     Note over App: effects are unbounded and unobservable
-    Runner->>Workspace: active note path again
+    Runner->>Workspace: getActiveFile
     Note over Runner: the difference is the whole report
-    Runner-->>Engine: opened a note, or nothing changed
-    Engine->>Session: rebind to the opened note
+    Runner-->>Dispatcher: CommandEffect [new]
+    Dispatcher->>Sessions: changeTargetNote
+    Note over Dispatcher: rolls the target back if no editor holds it
 ```
 
 Arrows: uses-relationship (client to supplier).
 
-A command that opens no note leaves the binding alone (FR17). A command that
-opens one rebinds the session, and the tool result says so in words, because a
-silent rebind would leave the model anchoring into the wrong note.
+A command that opens no note leaves the target alone (FR17). A command that
+opens one moves it, and the tool result says so in words, because a silent move
+would leave the model anchoring into the wrong note.
+
+A note that opened but has no editor is the third case, and it reports as the
+second. ToolDispatcher (Engine, new) moves the target, asks TargetNoteResolver
+(Engine, new) to find its editor, and puts the target back when it cannot, so
+the model is told nothing opened rather than anchoring into an unopened note.
+
+### Where the target note lives
+
+SessionRepository (Session, new) owns the target note as a path, and every move
+goes through it. What a turn holds is derived from that path, not a second copy
+of it.
+
+```mermaid
+flowchart LR
+    Engine["EditEngine [Engine]<br/>Responsibility: owns the turn by running the model loop"]
+    Dispatcher["ToolDispatcher [Engine, new]<br/>Responsibility: owns what one tool call does"]
+    Resolver["TargetNoteResolver [Engine, new]<br/>Responsibility: owns turning the target path into an editor and its chain"]
+    Locator["WorkspaceNoteLocator [Engine]<br/>Responsibility: owns the editor lookup for the bound path"]
+    Turn["TurnRepository [Engine, new]<br/>Responsibility: owns what one turn holds, including the note in hand"]
+    Sessions["SessionRepository [Session, new]<br/>Responsibility: owns the target note and the conversation"]
+
+    Engine --> Dispatcher
+    Engine --> Resolver
+    Engine --> Sessions
+    Engine --> Turn
+    Dispatcher --> Resolver
+    Dispatcher --> Sessions
+    Resolver --> Sessions
+    Resolver --> Locator
+    Resolver --> Turn
+```
+
+Arrows: uses-relationship (client to supplier).
+
+The split is between what survives and what is derived. SessionRepository
+(Session, new) holds the path, which outlives every turn. TurnRepository (Engine,
+new) holds the editor found for it, which does not: a handle kept across turns goes
+stale the moment the user closes the tab, whereas a path re-resolves and fails
+loudly.
+
+WorkspaceNoteLocator (Engine) holds neither. It takes a path and finds the editor
+showing it, so nothing in the engine keeps a second copy of the target.
+
+The repository also keeps the note the session started on, so FR20 has somewhere
+to return to.
 
 Commands run one at a time. The runner is called from the existing tool-call
 loop, which already executes calls in sequence, so a turn that opens a note and

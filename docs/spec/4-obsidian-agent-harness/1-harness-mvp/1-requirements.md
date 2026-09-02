@@ -11,7 +11,7 @@ opened, never one the model chose.
 ## Problem
 
 The session binds to one note at start and never moves (FR2 of
-[1-requirements.md](../1-requirements.md)). Two kinds of instruction fail as a
+[1-requirements.md](../../1-requirements.md)). Two kinds of instruction fail as a
 result.
 
 - "Open my daily note and add a paragraph under heading X" names a destination

@@ -4,8 +4,9 @@ Unit test outline for the components in
 [4-component-design.md](4-component-design.md). Follows the repo's unit test
 conventions: one dedicated case per branch, named "does X when Y".
 
-FakeAdapter (Test Support) backs the search tests unchanged. Commands needs one
-new fake, since no existing double stands in for the command registry.
+FakeAdapter (Test Support) backs the skill tests unchanged. Four new doubles
+join it, since nothing existing stands in for the command registry, the vault or
+the editor lookup.
 
 ## New test doubles (src/test-support/)
 
@@ -14,6 +15,14 @@ new fake, since no existing double stands in for the command registry.
   being constructed absent, so the probe path has something to test against.
 - FakeWorkspace: reports an active note path that a test can change between
   calls, which is what makes the before-and-after diff testable.
+- FakeVault: notes keyed by path, each with a modification time a test can set,
+  which is what makes the recency filter assertable.
+- FakeNoteLocator: an editor per path, so a test says which notes are open. A
+  path with no editor fails the way a closed tab does, which is the case a
+  command opening an unopened note has to report.
+
+`anEngine` (Test Support) in builders.ts wires an engine the way EngineFactory
+(Engine, new) does, so a test states only what it varies.
 
 ## AllowList (Commands, new)
 
@@ -69,17 +78,36 @@ new fake, since no existing double stands in for the command registry.
 - A missing path returns a failure the model can act on, not an exception.
 - Reading never rebinds the session, asserted by the locator being untouched.
 
+## SessionRepository (Session, new)
+
+- Starts targeting the note it was opened on, holding no conversation.
+- A changed target reads back, and resets to the original on request (FR20).
+- A reset keeps the conversation, which is what separates it from a new session.
+- Messages read back in the order they were appended.
+
+## TurnRepository (Engine, new)
+
+- Holds the note it opened on, with no edit position until one lands.
+- A retarget moves both the note and its chain, so the two never disagree.
+- The last edit position survives a later call that changed nothing.
+
 ## EditEngine (Engine, changed)
 
 - Dispatch: one case per new tool, asserting the right collaborator is called.
-- Rebinding (FR17): a `run_command` call that opens a note makes the following
-  `replace_text` apply to the new note, not the old one.
-- No rebind: a command opening nothing leaves the following edit on the original
-  note.
-- AGENTS.md re-resolution (FR20): a rebind to a note in a different folder
+- Retargeting (FR17): a `run_command` call that opens a note makes the following
+  edit apply to the new note, not the old one.
+- No retarget: a command opening nothing leaves the following edit on the
+  original note.
+- Opened but unopenable: a command opening a note no editor holds reports as
+  opening nothing, and leaves the target where it was.
+- AGENTS.md re-resolution (FR21): a retarget to a note in a different folder
   resolves that folder's chain before the next write.
-- Answer terminates (FR30): a turn calling `answer_from_search` produces a panel
+- Answer terminates (FR31): a turn calling `answer_from_search` produces a panel
   answer and applies no edit, asserted by the editor being untouched.
+- Per-turn caps (FR15, FR26): a fourth command and a fifth search are both
+  refused with the cap message.
+- Tool inventory (NFR8): a vault allowing no commands with search off is offered
+  the release 3 tools exactly.
 - Iteration cap: a turn reaching 10 iterations fails with the cap message.
 
 ## PromptBuilder (Engine, changed)
@@ -87,12 +115,22 @@ new fake, since no existing double stands in for the command registry.
 - Command section present: the catalogue renders as id and name pairs, and
   carries the FR11 decline instruction.
 - Command section omitted: an empty catalogue produces the release 3 prompt byte
-  for byte (NFR8), asserted against a stored expected string.
+  for byte (NFR8), asserted against a stored fixture rather than a rebuilt string.
+- Note snapshot: names the path and cursor, carries the content, and states that
+  it supersedes earlier copies. The standing rules carry none of it.
 
 ## SessionPanel (Session, changed)
 
 - A command entry renders with its own class and is copyable.
 - An answer entry renders its sources apart from its body, and copying yields
   the body.
-- An answer entry is visually distinct from an assistant entry (FR28), asserted
+- An answer entry is visually distinct from an assistant entry (FR29), asserted
   by class rather than by text.
+- The header names the note a command moved to, and offers a way back to the one
+  the session started on (FR19, FR20).
+
+## AllowListEditor (Settings, new)
+
+- Entries publish one per line, with blank lines dropped.
+- An invalid entry shows its reason; a valid list shows no alert.
+- The resolved list counts and names its commands, collapsed by default (FR7, FR8).

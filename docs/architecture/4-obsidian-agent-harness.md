@@ -1,8 +1,8 @@
 # Design: Obsidian Agent Harness
 
-Covers release 4 of [2-plan.md](../spec/2-plan.md): running Obsidian commands, rebinding the session to the note one opens, and searching the vault to answer a question. Delta design on top of [3-agents-md-loading.md](3-agents-md-loading.md). Requirement IDs refer to [4-obsidian-agent-harness/2-functional-requirements.md](../spec/4-obsidian-agent-harness/2-functional-requirements.md).
+Covers release 4 of [2-plan.md](../spec/2-plan.md): running Obsidian commands, rebinding the session to the note one opens, and searching the vault to answer a question. Delta design on top of [3-agents-md-loading.md](3-agents-md-loading.md). Requirement IDs refer to [1-harness-mvp/2-functional-requirements.md](../spec/4-obsidian-agent-harness/1-harness-mvp/2-functional-requirements.md).
 
-Designed in [4-obsidian-agent-harness/4-component-design.md](../spec/4-obsidian-agent-harness/4-component-design.md). Both feasibility questions are settled: search needs no private API, and the command registry is reachable through a module augmentation with an empty-catalogue fallback.
+Designed in [1-harness-mvp/4-component-design.md](../spec/4-obsidian-agent-harness/1-harness-mvp/4-component-design.md). Both feasibility questions are settled: search needs no private API, and the command registry is reachable through a module augmentation with an empty-catalogue fallback.
 
 ## What the Requirements Already Fix
 
@@ -14,17 +14,17 @@ The shape below is settled by the requirements and is not open for the design to
 - The command surface is an allow-list the user edits, and nothing in a prompt, skill or AGENTS.md file can widen it (NFR1).
 - Allow-list entries are command ids or namespace patterns, where the plugin id is literal and only a trailing wildcard is permitted (FR4), and the prompt asks the model to decline a command it cannot identify (FR11).
 
-## What the Design Must Settle
+## What the Design Settled
 
-Feasibility is settled. Five questions remain, all shaping the build rather than gating it, and stated in full in [3-decisions.md](../spec/4-obsidian-agent-harness/3-decisions.md).
+All five questions are closed, with the reasoning in [3-decisions.md](../spec/4-obsidian-agent-harness/1-harness-mvp/3-decisions.md).
 
-| Question              | Decides | Risk if it goes badly                             |
-| --------------------- | ------- | ------------------------------------------------- |
-| Iteration cap sizing  | Settled | Raised to 10, one cap rather than per-flow        |
-| Command effect checks | Shape   | An edit follows a command that did something else |
-| Answer panel entry    | Shape   | An answer reads as an edit that never happened    |
-| Mobile settings       | Shape   | A resolved allow-list is unreadable on a phone    |
-| Destructive core ids  | Shape   | A namespace pattern can permit file deletion      |
+| Question              | Answer                                                                    |
+| --------------------- | ------------------------------------------------------------------------- |
+| Iteration cap sizing  | Raised to 10, one cap rather than per-flow                                |
+| Command effect checks | The before-and-after diff, plus a check that an editor holds the new note |
+| Answer panel entry    | The copyable entry, with sources rendered below the body                  |
+| Mobile settings       | One entry per line, with the resolved list collapsed to a count           |
+| Destructive core ids  | No denylist; the user typing a namespace is what permits it               |
 
 Command enumeration turned out to be the smaller risk. The registry is not on the typed App class, but listCommands and executeCommandById are reachable through a module augmentation, and the vault's own open-or-create-file plugin already depends on them. CommandCatalogue probes for the methods and yields an empty catalogue when they are missing, so their loss costs the command flow rather than the plugin (NFR4).
 
