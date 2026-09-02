@@ -1,6 +1,6 @@
 # Design: Desktop V1
 
-Covers release 3 of [2-plan.md](../2-plan.md): realtime streaming capture, the OpenAI provider, review-first mode, and the remaining settings. Delta design on top of [1-desktop-mvp.md](1-desktop-mvp.md).
+Covers release 5 of [2-plan.md](../2-plan.md): realtime streaming capture, the OpenAI provider, review-first mode, and the remaining settings. Delta design on top of [1-desktop-mvp.md](1-desktop-mvp.md).
 
 ## Streaming Capture
 
@@ -35,7 +35,7 @@ Arrows: uses-relationship (client to supplier).
 Built now so Mobile V1 reuses it, per the plan's rework warning.
 
 - RealtimeAuth [Providers] produces connection credentials. Desktop implementation: DirectKeyAuth, the API key on the connection request.
-- The mobile implementation, EphemeralTokenAuth, is specified in [4-mobile-v1.md](4-mobile-v1.md); the interface lands here.
+- The mobile implementation, EphemeralTokenAuth, is specified in [6-mobile-v1.md](6-mobile-v1.md); the interface lands here.
 - RealtimeSession [Providers] takes a RealtimeAuth, so transports never see key handling.
 
 ## OpenAI Provider

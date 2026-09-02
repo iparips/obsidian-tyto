@@ -49,4 +49,4 @@ Arrows: data flow (direction data moves).
 
 ## Out of Scope
 
-Streaming, ephemeral tokens, and mic lifecycle across app switches stay in [4-mobile-v1.md](4-mobile-v1.md).
+Streaming, ephemeral tokens, and mic lifecycle across app switches stay in [6-mobile-v1.md](6-mobile-v1.md).

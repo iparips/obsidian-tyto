@@ -197,7 +197,7 @@ The model draws that line, using the descriptions in the prompt and the tools it
 
 Skills declare no scope of their own. A frontmatter flag would be one more thing to set when authoring a skill and would drift from what the skill actually does, whereas the tool list cannot drift: no cross-file tool exists, so a skill reaching for one finds nothing to call. That makes the tools the real boundary and the model's judgement the explanation the user hears.
 
-Release 5 lifts the limit, at which point the FR37 message narrows to whatever is still unsupported.
+Release 6 lifts the limit, at which point the FR37 message narrows to whatever is still unsupported.
 
 ## Error Handling
 

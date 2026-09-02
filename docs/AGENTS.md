@@ -47,7 +47,7 @@ Services sit in the package root. Three subfolders hold the rest:
 A package with a single value object keeps it in the root; a folder holding one
 file costs more than it saves. Session is the UI package and owns no engine
 types. Dependencies point one way with no cycles, and
-[spec/1-voice-note-editing/high-level-design/5-package-design.md](spec/1-voice-note-editing/high-level-design/5-package-design.md)
+[spec/1-voice-note-editing/high-level-design/7-package-design.md](spec/1-voice-note-editing/high-level-design/7-package-design.md)
 holds the direction and the per-package counts. Outcome lives in shared, which
 depends on nothing.
 

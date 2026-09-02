@@ -43,6 +43,18 @@ a path outside the vault regardless of which skill asked (NFR4).
 `edit_note` reuses NoteEditor (Engine) rather than a second implementation, so
 anchor semantics stay identical wherever an edit lands.
 
+Each write tool resolves the target's own AGENTS.md chain before writing, via
+AgentsMdRepository (Agents) from release 3. A note created in a journal folder
+follows that folder's rules even though the session started elsewhere. Release
+3 already resolves per write target and caches by folder, so this is a call at
+each new write site rather than a change to the loading design. `read_note`
+resolves nothing, by the same release 3 decision that reads carry no
+instructions.
+
+This is the first release with several write targets in one turn, so the panel
+line naming which folders applied (release 3, FR8) now lists them per write
+rather than once per turn.
+
 ## Undo
 
 Resolve this before building the file tools. It is the open question

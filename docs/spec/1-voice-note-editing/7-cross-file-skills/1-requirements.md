@@ -63,6 +63,10 @@ rather than covering every cross-file skill.
 FR8. Summarise every file touched by a turn, so a multi-file edit is legible
 after the fact.
 
+FR9. Resolve each write target's AGENTS.md chain before writing to it, so a
+note created outside the session note's folder follows its destination's
+standing instructions.
+
 ## Non-functional requirements
 
 NFR1. A turn undoes in one step from the user's point of view, including its
