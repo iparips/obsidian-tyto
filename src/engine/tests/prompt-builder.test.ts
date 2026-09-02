@@ -254,4 +254,60 @@ describe('PromptBuilder', () => {
       expect(standingRulesText()).not.toContain('Note path:')
     })
   })
+
+  describe('when a tool can reach beyond the open note', () => {
+    const catalogue = [new AllowedCommand('daily-notes:goto-today', 'Open today')]
+
+    it('does not claim other files are unreachable when a command is allowed', () => {
+      const prompt = standingRulesText([], new AgentsMdChain(), catalogue)
+
+      expect(prompt).not.toContain('You cannot read or write any file other than this note')
+    })
+
+    it('does not claim other files are unreachable when search is enabled', () => {
+      const prompt = standingRulesText([], new AgentsMdChain(), [], true)
+
+      expect(prompt).not.toContain('You cannot read or write any file other than this note')
+    })
+
+    it('says a command can open another note when one is allowed', () => {
+      const prompt = standingRulesText([], new AgentsMdChain(), catalogue)
+
+      expect(prompt).toContain('open another note by running one of the commands listed below')
+    })
+
+    it('says search can read other notes when search is enabled', () => {
+      const prompt = standingRulesText([], new AgentsMdChain(), [], true)
+
+      expect(prompt).toContain('read other notes by searching the vault')
+    })
+
+    it('names both reaches when commands and search are both available', () => {
+      const prompt = standingRulesText([], new AgentsMdChain(), catalogue, true)
+
+      expect(prompt).toContain('open another note')
+      expect(prompt).toContain('read other notes')
+    })
+
+    it('keeps the no-undo warning when the reach widens', () => {
+      const prompt = standingRulesText([], new AgentsMdChain(), catalogue, true)
+
+      expect(prompt).toContain('no undo tool')
+    })
+
+    it('tells a skill to run the command rather than decline when one is allowed', () => {
+      const skills = [aSkill('todo', 'Manages todo.md files.')]
+      const prompt = standingRulesText(skills, new AgentsMdChain(), catalogue)
+
+      expect(prompt).toContain('run the command that opens it')
+      expect(prompt).not.toContain('editing other files is not supported yet')
+    })
+
+    it('keeps the skill refusal when no command is allowed', () => {
+      const skills = [aSkill('todo', 'Manages todo.md files.')]
+      const prompt = standingRulesText(skills, new AgentsMdChain(), [])
+
+      expect(prompt).toContain('editing other files is not supported yet')
+    })
+  })
 })

@@ -1,16 +1,30 @@
 // The fixed instructions every turn carries: what the model may do, and how to
 // treat spoken input.
 export class RuleBuilder {
-  static roleRules(): string {
+  // The reach line is conditional: with no command and no search tool it states
+  // the truth, and a vault with neither produces the release 3 prompt byte for
+  // byte (NFR8). With either, it would have the model refuse work it can do.
+  static roleRules(reach = RuleBuilder.SINGLE_NOTE_REACH): string {
     return [
       'You edit one markdown note through the provided tools.',
       'Never rewrite the whole note; make the smallest targeted edits that satisfy the instruction.',
       'If the instruction is ambiguous, respond with a clarifying question instead of guessing.',
       'Multi-part instructions become multiple tool calls, applied in order.',
       'Only claim an edit you actually made with a tool call. If you made none, say what stopped you.',
-      'You cannot read or write any file other than this note, and you have no undo tool.',
+      reach,
       'When you are done, respond with a one-sentence summary of what changed.',
     ].join('\n')
+  }
+
+  static readonly SINGLE_NOTE_REACH =
+    'You cannot read or write any file other than this note, and you have no undo tool.'
+
+  static widenedReach(canRunCommands: boolean, canSearch: boolean): string {
+    const reaches = [
+      canRunCommands ? 'open another note by running one of the commands listed below' : '',
+      canSearch ? 'read other notes by searching the vault' : '',
+    ].filter(Boolean)
+    return `You write to one note at a time, and you have no undo tool. You can ${reaches.join(', and ')}.`
   }
 
   static dictationRules(): string {
