@@ -55,41 +55,42 @@ The model judges this, not the plugin. Skills do not declare a scope, so there i
 ## Skills (src/skills/)
 
 ```
-skill-loader.ts      # adapter access, enumerate and read SKILL.md files
+skill-repository.ts  # adapter access, list skill descriptions and read one body
 skill-frontmatter.ts # parse name and description out of a skill file
-skill-catalogue.ts   # holds discovered skills for a session
+skill.ts             # one discovered skill: name, description, path
 ```
 
-SkillLoader (Skills, new) takes the Obsidian adapter rather than App, so tests inject a fake without touching the workspace.
+SkillRepository (Skills, new) takes the Obsidian adapter rather than App, so tests inject a fake without touching the workspace.
 
 Discovery reads `0 - Meta/Skills` through `app.vault.adapter`, listing skill folders and reading each SKILL.md. The path is configurable in settings, defaulting to that value.
 
 ### Signature
 
 ```typescript
-export class SkillLoader {
+export class SkillRepository {
   constructor(
     private adapter: DataAdapter,
     private skillsPath: string,
   ) {}
-  async list(): Promise<SkillCatalogue> {}
+  async listSkills(): Promise<readonly Skill[]> {}
+  async readBody(skill: Skill): Promise<string | null> {}
 }
 ```
 
-`list()` returns a bare catalogue, not an `Outcome`. Every absent-or-broken case is a defined empty result rather than a failure: a missing folder, an empty configured path, a file without frontmatter, a malformed file (FR38). There is no error for `main.ts` to render, so the Outcome rule in [1-architecture-overview.md](1-architecture-overview.md) does not apply here.
+`listSkills()` returns a bare list, not an `Outcome`. Every absent-or-broken case is a defined empty result rather than a failure: a missing folder, an empty configured path, a file without frontmatter, a malformed file (FR38). There is no error for `main.ts` to render, so the Outcome rule in [1-architecture-overview.md](1-architecture-overview.md) does not apply here.
 
-An empty `skillsPath` returns an empty catalogue without touching the adapter, so disabling the feature costs nothing at session start (NFR6).
+An empty `skillsPath` returns an empty list without touching the adapter, so disabling the feature costs nothing (NFR6).
 
 ### Wiring
 
-`VoiceEditPlugin.buildPanelProps()` (Main) becomes async and builds the catalogue once per session, before constructing the engine:
+`VoiceEditPlugin.buildPanelProps()` (Main) injects the repository and lets the engine read through it:
 
 ```typescript
-const catalogue = await new SkillLoader(this.app.vault.adapter, this.settings.skillsPath).list()
-const engine = new EditEngine(provider, session, access, catalogue)
+const skills = new SkillRepository(this.app.vault.adapter, this.settings.skillsPath)
+const engine = new EditEngine(provider, session, access, skills)
 ```
 
-`bindOrAskRebind()` and its RebindModal callback await it. `openSession()` is already async, so the change stops there and no caller above it moves.
+EditEngine lists the skills at the start of each turn rather than once per session, so a skill added or edited mid-session is picked up on the next utterance.
 
 `EditEngine` takes the catalogue as a fourth constructor parameter, holds it for the session's life, and passes it to the prompt on every turn:
 
@@ -113,7 +114,7 @@ Skill frontmatter is a leading `---` block with name and description, the descri
 
 A skill body is user content that reaches the model as instructions. It cannot widen capability: tools come from TOOL_SCHEMAS (Engine), and a skill naming something outside them finds no tool. Keep it that way, and never let a skill file name a tool, an API endpoint, or a path outside the vault that the plugin then acts on (NFR7).
 
-## Tool Loop (edit-engine.ts)
+## Agent Loop (edit-engine.ts)
 
 ```
 processUtterance(text):
@@ -132,7 +133,7 @@ processUtterance(text):
 - The iteration cap prevents loops; hitting it is surfaced as a chat-step error.
 - A text response is a summary or a clarifying question (FR12); SessionView renders it either way and the next utterance continues the same history.
 
-## Anchor Resolution (edit-applier.ts)
+## Anchor Resolution (note-editor.ts)
 
 ```
 apply(op):

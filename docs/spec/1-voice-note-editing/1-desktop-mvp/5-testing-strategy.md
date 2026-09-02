@@ -4,7 +4,7 @@ Vitest with happy-dom; obsidian aliased to the test-support mock. Tests follow t
 
 ## Test Outline
 
-### EditApplier (engine/edit-applier.test.ts)
+### NoteEditor (engine/note-editor.test.ts)
 
 - applies replacement when the anchor matches exactly once
 - returns noMatch when the anchor is absent
@@ -52,7 +52,7 @@ Vitest with happy-dom; obsidian aliased to the test-support mock. Tests follow t
 - returns a transcription-step failure when mic permission is denied
 - discards the recording when cancel is called
 
-### SkillLoader (skills/skill-loader.test.ts)
+### SkillRepository (skills/skill-repository.test.ts)
 
 - builds a catalogue holding every skill when the directory has several
 - returns an empty catalogue when the skills directory is missing

@@ -1,4 +1,4 @@
-import { Outcome, Outcomes } from '../engine/outcome'
+import { Outcome, Outcomes } from '../shared/models/outcome'
 
 export class Utterance {
   constructor(

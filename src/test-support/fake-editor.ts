@@ -1,5 +1,5 @@
 import { Editor, EditorPosition } from 'obsidian'
-import { TextPositions } from '../engine/text-positions'
+import { PositionConverter } from '../engine/position-converter'
 
 export class FakeEditor {
   cursor: EditorPosition = { line: 0, ch: 0 }
@@ -16,8 +16,8 @@ export class FakeEditor {
   }
 
   replaceRange(text: string, from: EditorPosition, to: EditorPosition): void {
-    const start = TextPositions.posToOffset(this.content, from)
-    const end = TextPositions.posToOffset(this.content, to)
+    const start = PositionConverter.posToOffset(this.content, from)
+    const end = PositionConverter.posToOffset(this.content, to)
     this.content = this.content.slice(0, start) + text + this.content.slice(end)
   }
 

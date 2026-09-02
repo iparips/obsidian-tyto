@@ -21,7 +21,7 @@ parallel; the rest are sequential.
    form, a missing frontmatter block, and a block with no name.
 2. `src/settings/settings.ts`: add `skillsPath` to the interface and the
    defaults, per [2-data-model.md](2-data-model.md).
-3. `src/skills/skill-catalogue.ts` and `src/skills/skill-loader.ts`: the Skill
+3. `src/skills/skill.ts` and `src/skills/skill-repository.ts`: the Skill
    type, the catalogue, and adapter-driven discovery with the signature in
    [3-component-design.md](3-component-design.md). Tests drive a fake adapter
    and cover a populated folder, a missing folder, an empty configured path,

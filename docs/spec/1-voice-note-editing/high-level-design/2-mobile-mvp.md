@@ -23,7 +23,7 @@ Covers release 2 of [2-plan.md](../2-plan.md): the Desktop MVP loop running on i
 
 ### Vault Skills
 
-- SkillLoader [Skills] is unchanged. It reads through the vault adapter, which Obsidian implements on both platforms, so the catalogue and the prompt match desktop (FR34, FR32).
+- SkillRepository [Skills] is unchanged. It reads through the vault adapter, which Obsidian implements on both platforms, so the catalogue and the prompt match desktop (FR34, FR32).
 - The skills folder must be a normal vault folder rather than a dot-folder. Obsidian Sync copies no dot-folder to a phone except `.obsidian` and `.trash`, and the mobile adapter resolves no symlink, so a dot-path or a link to one never arrives.
 - The symptom of an unmigrated vault is an empty catalogue on the phone and a populated one on the laptop.
 

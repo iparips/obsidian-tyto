@@ -6,7 +6,7 @@ The release is built apart from vault skills (FR34-38). These files describe wor
 
 - [1-architecture-overview.md](1-architecture-overview.md) - source tree, dependency rules, tech stack
 - [2-data-model.md](2-data-model.md) - shared contracts: Outcome, provider interfaces, operations, settings
-- [3-component-design.md](3-component-design.md) - tool schemas, system prompt, tool loop, anchor resolution, recorder
+- [3-component-design.md](3-component-design.md) - tool schemas, system prompt, agent loop, anchor resolution, recorder
 - [4-settings-ui.md](4-settings-ui.md) - SessionPanel state machine, session binding, SettingsPanel
 - [5-testing-strategy.md](5-testing-strategy.md) - test outline per component
 - [6-implementation-order.md](6-implementation-order.md) - what is built, and the steps left for vault skills

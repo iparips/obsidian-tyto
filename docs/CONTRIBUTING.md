@@ -82,7 +82,7 @@ After a rebuild, reload the plugin: toggle it off and on in Community plugins, o
 
 ## Code Conventions
 
-- Tests use Vitest, colocated with the code under test
+- Tests use Vitest, in a tests/ folder beside the code under test
 - Prettier and eslint run as part of `bun run build`, so commit formatted code
 - Specs live under docs/spec, one folder per feature
 

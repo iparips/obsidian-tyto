@@ -2,14 +2,14 @@ import { Notice, Plugin, TFile, WorkspaceLeaf } from 'obsidian'
 import { Recorder } from './capture/recorder'
 import { EditEngine } from './engine/edit-engine'
 import { MistralProvider } from './providers/mistral-provider'
-import { EditSession } from './session/edit-session'
-import { WorkspaceNoteAccess } from './session/note-access'
-import { RebindModal } from './session/rebind-modal'
-import { SessionView, VIEW_TYPE_SESSION } from './session/session-view'
-import { SessionPanelProps } from './session/SessionPanel'
+import { AgentSession } from './engine/models/agent-session'
+import { WorkspaceNoteLocator } from './engine/workspace-note-locator'
+import { RebindModal } from './session/views/rebind-modal'
+import { SessionView, VIEW_TYPE_SESSION } from './session/views/session-view'
+import { SessionPanelProps } from './session/views/SessionPanel'
 import { DEFAULT_SETTINGS, VoiceEditSettings } from './settings/settings'
 import { VoiceEditSettingsTab } from './settings/settings-tab'
-import { SkillLoader } from './skills/skill-loader'
+import { SkillRepository } from './skills/skill-repository'
 
 export default class VoiceEditPlugin extends Plugin {
   settings: VoiceEditSettings = DEFAULT_SETTINGS
@@ -51,13 +51,9 @@ export default class VoiceEditPlugin extends Plugin {
 
   private async buildPanelProps(file: TFile): Promise<SessionPanelProps> {
     const modelProvider = new MistralProvider(this.settings.mistralApiKey, this.settings.editModel)
-    const session = new EditSession(file)
-    const loader = this.skillLoader()
-    const skillCatalogue = await loader.list()
-    const noteAccess = new WorkspaceNoteAccess(this.app, file)
-    const engine = new EditEngine(modelProvider, session, noteAccess, skillCatalogue, (skill) =>
-      loader.body(skill),
-    )
+    const session = new AgentSession(file)
+    const noteLocator = new WorkspaceNoteLocator(this.app, file)
+    const engine = new EditEngine(modelProvider, session, this.skillRepository(), noteLocator)
     return {
       noteName: file.basename,
       recorder: new Recorder(),
@@ -74,8 +70,8 @@ export default class VoiceEditPlugin extends Plugin {
     return () => document.removeEventListener('visibilitychange', handler)
   }
 
-  private skillLoader(): SkillLoader {
-    return new SkillLoader(this.app.vault.adapter, this.settings.skillsPath)
+  private skillRepository(): SkillRepository {
+    return new SkillRepository(this.app.vault.adapter, this.settings.skillsPath)
   }
 
   private async revealSessionView(): Promise<SessionView | null> {

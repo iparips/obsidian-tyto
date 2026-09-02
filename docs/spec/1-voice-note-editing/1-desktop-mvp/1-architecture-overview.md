@@ -2,7 +2,7 @@
 
 Implements [high-level-design/1-desktop-mvp.md](../high-level-design/1-desktop-mvp.md). This folder is the implementable spec: an agent should build the release from these files without further decisions.
 
-The tree below is the finished shape. Every path exists except `src/skills/`, which [6-implementation-order.md](6-implementation-order.md) covers.
+The tree below is the finished shape. Every path exists except `src/skills/`, which [6-implementation-order.md](6-implementation-order.md) covers. Package ownership and the dependency rule: [high-level-design/5-package-design.md](../high-level-design/5-package-design.md).
 
 ## Source Tree
 
@@ -16,36 +16,54 @@ obsidian-voice-edit/
   src/
     main.ts                  VoiceEditPlugin: lifecycle, view + command registration
     session/
-      edit-session.ts        EditSession: bound file, history, operation log
-      session-view.tsx       SessionView: sidebar ItemView hosting a React root
-      SessionPanel.tsx       React component: history list, mic button, input row
-      HistoryList.tsx        React component: the scrolling turn entries
-      panel-state.ts         SessionPanel reducer and state machine
-      note-access.ts         WorkspaceNoteAccess: opens the bound note for a turn
-      rebind-modal.ts        RebindModal: keep-or-restart prompt on a new file
+      models/
+        panel-state.ts       SessionPanel reducer and state machine
+      views/
+        session-view.tsx     SessionView: sidebar ItemView hosting a React root
+        SessionPanel.tsx     React component: history list, mic button, input row
+        HistoryList.tsx      React component: the scrolling turn entries
+        HistoryEntry.tsx     React component: one entry with its copy button
+        rebind-modal.ts      RebindModal: keep-or-restart prompt on a new file
     capture/
       recorder.ts            Recorder: MediaRecorder wrapper, one utterance per cycle
     providers/
-      types.ts               TranscriptionProvider, ChatProvider, message and tool types
+      types.ts               TranscriptionProvider, ChatProvider, ToolSchema
       mistral-provider.ts    MistralProvider: both interfaces against api.mistral.ai
-      mistral-mapping.ts     Request and response mapping for the Mistral wire format
+      mistral-mapper.ts      MistralMapper: map to and from the Mistral wire format
+      models/
+        chat-message.ts      ChatMessage: one message in the conversation
+        chat-turn.ts         ChatTurn: tool calls or text from one model response
+        tool-call.ts         ToolCall: one tool call the model asked for
     engine/
-      edit-engine.ts         EditEngine: tool loop orchestration
-      edit-applier.ts        EditApplier: anchor resolution and editor mutations
-      operation-parser.ts    OperationParser: tool call arguments to EditOperation
-      text-positions.ts      Offset to EditorPosition conversion
-      tool-schemas.ts        Tool JSON schemas and the system prompt builder
-      outcome.ts             Outcome type
+      edit-engine.ts         EditEngine: agent loop orchestration
+      note-editor.ts         NoteEditor: anchor resolution and editor mutations, stateless
+      workspace-note-locator.ts  WorkspaceNoteLocator: finds the editor holding the bound note
+      note-operation-parser.ts  NoteOperationParser: tool call arguments to EditOperation
+      position-converter.ts  PositionConverter: offset to EditorPosition conversion
+      prompt-builder.ts      PromptBuilder: assembles the system prompt
+      rule-builder.ts        RuleBuilder: the role and dictation rule text
+      models/
+        note-context.ts      NoteContext: path, content and cursor for one model call
+        agent-session.ts     AgentSession: bound file, chat history, operation history
+        open-note.ts         OpenNote: the editor handle, path and cursor for a turn
+        tool-schemas.ts      TOOL_SCHEMAS: the JSON schemas sent to the model
     skills/
-      skill-loader.ts        SkillLoader: adapter access, enumerate and read SKILL.md
+      skill-repository.ts    SkillRepository: list skill descriptions, read one body
       skill-frontmatter.ts   Parse name and description out of a skill file
-      skill-catalogue.ts     SkillCatalogue: discovered skills for a session
+      skill.ts               Skill: name, description and path of one skill
     settings/
       settings.ts            Settings interface and defaults
       settings-tab.tsx       PluginSettingTab hosting a React root
       SettingsPanel.tsx      React component: provider key and model fields
+    shared/
+      models/
+        outcome.ts           Outcome: success or failure with a step, depends on nothing
   src/test-support/          Builders and the obsidian mock (__mocks__/obsidian.ts)
 ```
+
+Services sit in the package root; value objects go in models/, rendering code in
+views/, and tests in tests/. [high-level-design/5-package-design.md](../high-level-design/5-package-design.md)
+holds the rule and the per-package counts.
 
 ## Rules
 

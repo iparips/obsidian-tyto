@@ -42,7 +42,7 @@ export interface ToolSchema {
 }
 ```
 
-## Edit Operations (src/engine/edit-applier.ts)
+## Edit Operations (src/engine/note-editor.ts)
 
 ```typescript
 export type EditOperation =
@@ -56,13 +56,14 @@ export type ApplyResult =
 
 ApplyResult failures are serialised into the tool message so the model can retry (FR13).
 
-## Session State (src/session/edit-session.ts)
+## Session State (src/session/agent-session.ts)
 
 ```typescript
-export interface EditSessionState {
-  file: TFile
-  history: ChatMessage[]
-  operationLog: EditOperation[]
+export class AgentSession {
+  chatHistory: ChatMessage[] = []
+  operationHistory: EditOperation[] = []
+
+  constructor(readonly file: TFile) {}
 }
 ```
 
@@ -93,16 +94,16 @@ An empty skillsPath disables discovery, giving a user without vault skills the s
 ### Skill
 
 ```typescript
-export interface Skill {
-  name: string
-  description: string
-  path: string
+export class Skill {
+  constructor(
+    readonly name: string,
+    readonly description: string,
+    readonly path: string,
+  ) {}
 }
-
-export type SkillCatalogue = readonly Skill[]
 ```
 
-Descriptions are held, bodies are not. The catalogue is built once per session and carries only what the prompt lists (NFR6).
+Descriptions are held, bodies are not. SkillRepository lists them at the start of each turn and carries only what the prompt lists (NFR6). A body is read on demand, for the one skill an utterance matched.
 
 ## Mistral Endpoints (src/providers/mistral-provider.ts)
 

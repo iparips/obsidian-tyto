@@ -44,7 +44,7 @@ choose, and it is what makes an unlisted codec still work.
 
 iOS WebKit records mp4 (AAC); Android records webm (Opus). MistralProvider
 passes the type through to the multipart request, deriving the filename
-extension from it in `MistralMapping.fileNameFor`. There is no client-side
+extension from it in `MistralMapper.fileNameFor`. There is no client-side
 transcoding.
 
 ### Backgrounding
@@ -74,7 +74,7 @@ transcription-step error entry, as it does on desktop.
 
 ## Vault Skills
 
-No code delta. SkillLoader (Skills) reads through `app.vault.adapter`, which
+No code delta. SkillRepository (Skills) reads through `app.vault.adapter`, which
 Obsidian implements on both platforms, so the catalogue builds the same way on a
 phone.
 

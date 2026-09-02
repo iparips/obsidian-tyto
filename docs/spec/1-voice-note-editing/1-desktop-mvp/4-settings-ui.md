@@ -38,7 +38,7 @@ History entries, append only in this release:
 - Assistant entry: turn summary or clarifying question.
 - Error entry: step name plus message, styled distinctly (NFR5).
 
-## Session Binding (main.ts + edit-session.ts)
+## Session Binding (main.ts + agent-session.ts)
 
 - The command and ribbon icon open the view and bind it to the active markdown file (FR1, FR2).
 - If a session exists for another file, the user is asked: keep it or start over. No implicit rebinding.

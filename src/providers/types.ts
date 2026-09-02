@@ -1,7 +1,7 @@
-import { Outcome } from '../engine/outcome'
-import { ChatMessage } from './chat-message'
-import { ChatTurn } from './chat-turn'
-import { ToolCall } from './tool-call'
+import { Outcome } from '../shared/models/outcome'
+import { ChatMessage } from './models/chat-message'
+import { ChatTurn } from './models/chat-turn'
+import { ToolCall } from './models/tool-call'
 
 export interface TranscriptionProvider {
   transcribe(audio: Blob, mimeType: string): Promise<Outcome<string>>

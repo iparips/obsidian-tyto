@@ -1,21 +1,21 @@
-import { EMPTY_CATALOGUE, SkillCatalogue } from '../skills/skill-catalogue'
-import { EditingRules } from './editing-rules'
-import { NoteContext } from './note-context'
+import { Skill } from '../skills/skill'
+import { RuleBuilder } from './rule-builder'
+import { NoteContext } from './models/note-context'
 
 export class PromptBuilder {
   // The note itself is not here: EditEngine sends it as the last message, so the
   // current copy sits after every stale one in the conversation.
-  static build(note: NoteContext, skills: SkillCatalogue = EMPTY_CATALOGUE): string {
+  static build(note: NoteContext, skills: readonly Skill[] = []): string {
     return [
-      EditingRules.roleRules(),
-      EditingRules.dictationRules(),
+      RuleBuilder.roleRules(),
+      RuleBuilder.dictationRules(),
       ...PromptBuilder.skillSection(skills),
     ].join('\n\n')
   }
 
   // Omitted entirely when the catalogue is empty, so a vault without skills
   // produces the three-section prompt byte for byte (FR38).
-  private static skillSection(skills: SkillCatalogue): string[] {
+  private static skillSection(skills: readonly Skill[]): string[] {
     if (skills.length === 0) return []
     return [[PromptBuilder.skillRules(), ...PromptBuilder.skillLines(skills)].join('\n')]
   }
@@ -32,7 +32,7 @@ export class PromptBuilder {
     ].join('\n')
   }
 
-  private static skillLines(skills: SkillCatalogue): string[] {
+  private static skillLines(skills: readonly Skill[]): string[] {
     return skills.map((skill) => `${skill.name} - ${skill.description}`)
   }
 
@@ -42,7 +42,7 @@ export class PromptBuilder {
   static context(note: NoteContext): string {
     return [
       `Note path: ${note.path}`,
-      `Cursor line: ${note.cursorLine}`,
+      `Cursor line: ${note.cursor.line}`,
       'This is the note as it is right now, re-read from the editor. It supersedes any',
       'earlier copy or description in this conversation, including your own. The user may',
       'have edited it since the last turn. Never answer from an earlier copy.',

@@ -1,6 +1,6 @@
 # Desktop V1: Review Mode
 
-ReviewController (src/engine/review-controller.ts) sits between EditEngine and EditApplier when settings.reviewFirst is on (FR23, FR24). Off by default; the MVP path is unchanged when disabled.
+ReviewController (src/engine/review-controller.ts) sits between EditEngine and NoteEditor when settings.reviewFirst is on (FR23, FR24). Off by default; the MVP path is unchanged when disabled.
 
 ## Flow
 
@@ -9,7 +9,7 @@ sequenceDiagram
     participant Eng as EditEngine [Engine]
     participant Rev as ReviewController [Engine]
     participant Panel as SessionPanel [UI]
-    participant App as EditApplier [Engine]
+    participant App as NoteEditor [Engine]
 
     Eng->>Rev: submitTurn
     Rev->>Rev: validate anchors
@@ -24,7 +24,7 @@ sequenceDiagram
 Arrows: uses-relationship (client to supplier).
 
 - Validation runs at submit time: anchors resolve against the live note, so a stale anchor is caught before the user sees the diff.
-- Accept applies the buffered operations in order through EditApplier; a validation-to-apply race (the note changed while the diff was open) re-validates on accept and reports any newly failing operation.
+- Accept applies the buffered operations in order through NoteEditor; a validation-to-apply race (the note changed while the diff was open) re-validates on accept and reports any newly failing operation.
 - Reject discards the buffer and appends a rejection message to the session history, so the model knows the edit did not land and can respond to "why did you reject" follow-ups.
 - The buffer is accepted or rejected whole; mixed verdicts are out of scope for V1.
 

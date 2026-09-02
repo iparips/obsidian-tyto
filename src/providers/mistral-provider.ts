@@ -1,5 +1,5 @@
-import { FailureStep, Outcome, Outcomes } from '../engine/outcome'
-import { ApiMessage, MistralMapping } from './mistral-mapping'
+import { FailureStep, Outcome, Outcomes } from '../shared/models/outcome'
+import { ApiMessage, MistralMapper } from './mistral-mapper'
 import { ChatMessage, ChatProvider, ChatTurn, ToolSchema, TranscriptionProvider } from './types'
 
 const API_BASE = 'https://api.mistral.ai/v1'
@@ -13,7 +13,7 @@ export class MistralProvider implements TranscriptionProvider, ChatProvider {
 
   async transcribe(audio: Blob, mimeType: string): Promise<Outcome<string>> {
     const form = new FormData()
-    form.append('file', audio, MistralMapping.fileNameFor(mimeType))
+    form.append('file', audio, MistralMapper.fileNameFor(mimeType))
     form.append('model', TRANSCRIBE_MODEL)
     const body = await this.request('transcription', '/audio/transcriptions', { body: form })
     if (body.hasFailed()) return Outcomes.failure(body.step, body.message)
@@ -24,8 +24,8 @@ export class MistralProvider implements TranscriptionProvider, ChatProvider {
   async complete(messages: ChatMessage[], tools: ToolSchema[]): Promise<Outcome<ChatTurn>> {
     const payload = {
       model: this.editModel,
-      messages: messages.map(MistralMapping.toApiMessage),
-      tools: tools.map(MistralMapping.toApiTool),
+      messages: messages.map(MistralMapper.toApiMessage),
+      tools: tools.map(MistralMapper.toApiTool),
       tool_choice: 'auto',
     }
     const body = await this.request('chat', '/chat/completions', {
@@ -34,7 +34,7 @@ export class MistralProvider implements TranscriptionProvider, ChatProvider {
     })
     if (body.hasFailed()) return Outcomes.failure(body.step, body.message)
     const data = body.value as { choices?: { message?: ApiMessage }[] }
-    return Outcomes.success(MistralMapping.toChatTurn(data.choices?.[0]?.message ?? {}))
+    return Outcomes.success(MistralMapper.toChatTurn(data.choices?.[0]?.message ?? {}))
   }
 
   private async request(

@@ -1,6 +1,6 @@
 import { ToolCall } from '../providers/types'
-import { EditOperation } from './edit-applier'
-import { Outcome, Outcomes } from './outcome'
+import { EditOperation } from './note-editor'
+import { Outcome, Outcomes } from '../shared/models/outcome'
 
 export type NoteOperation = Outcome<EditOperation>
 

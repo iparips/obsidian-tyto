@@ -9,7 +9,7 @@ StreamingTranscriber [Capture] replaces Recorder for live sessions; Recorder sta
 - An AudioWorklet captures PCM16 chunks from the selected microphone (FR31).
 - Chunks stream over a WebSocket to the provider; partial transcripts come back as events.
 - SessionView [UI] renders partials live and replaces them with the final transcript on stop (FR7).
-- Stop closes the utterance; the final transcript feeds EditEngine [Engine] exactly as in the MVP, so the tool loop is untouched.
+- Stop closes the utterance; the final transcript feeds EditEngine [Engine] exactly as in the MVP, so the agent loop is untouched.
 
 ```mermaid
 sequenceDiagram
@@ -46,11 +46,11 @@ Built now so Mobile V1 reuses it, per the plan's rework warning.
 
 ## Review-First Mode
 
-ReviewController [Engine] sits between EditEngine and EditApplier when the setting is on (FR23, FR24).
+ReviewController [Engine] sits between EditEngine and NoteEditor when the setting is on (FR23, FR24).
 
 - Tool calls are validated (anchor resolution) but buffered, not applied.
 - The sidebar shows a per-operation diff: anchor context with deletions and insertions highlighted.
-- Accept applies the buffer through EditApplier in order. Reject discards the buffer and records the rejection in history, so the model knows the edit did not land.
+- Accept applies the buffer through NoteEditor in order. Reject discards the buffer and records the rejection in history, so the model knows the edit did not land.
 - Mixed verdicts are out of scope: the buffer is accepted or rejected as one turn.
 
 ## Remaining Settings

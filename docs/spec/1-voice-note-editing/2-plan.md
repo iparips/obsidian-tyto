@@ -63,7 +63,7 @@ Exit test: the desktop V1 exit test passes on mobile, and a token-mint failure d
 Goal: lift the single-note limit, so the vault skills that route between files become actionable rather than declined.
 
 - File tools beyond the session note: read a named note, create one at a computed path, append to one.
-- Undo story for writes that bypass `EditApplier`, since `app.vault.modify` breaks native undo.
+- Undo story for writes that bypass `NoteEditor`, since `app.vault.modify` breaks native undo.
 - Skill bodies loaded on demand, so a matched skill's full steps reach the model rather than its description alone.
 - The FR37 refusal narrows to whatever remains unsupported, rather than covering every cross-file skill.
 

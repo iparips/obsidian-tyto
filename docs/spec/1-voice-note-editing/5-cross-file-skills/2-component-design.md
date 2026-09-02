@@ -15,7 +15,7 @@ src/engine/
   turn-journal.ts      # records a turn's writes for undo
 ```
 
-SkillLoader, skill-frontmatter and skill-catalogue (Skills) are unchanged.
+SkillRepository and skill-frontmatter (Skills) are unchanged.
 
 ## Skill bodies
 
@@ -40,7 +40,7 @@ Path handling is the security surface. Normalise every path, reject absolute
 paths, reject any path escaping the vault root after normalisation, and reject
 a path outside the vault regardless of which skill asked (NFR4).
 
-`edit_note` reuses EditApplier (Engine) rather than a second implementation, so
+`edit_note` reuses NoteEditor (Engine) rather than a second implementation, so
 anchor semantics stay identical wherever an edit lands.
 
 ## Undo

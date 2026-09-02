@@ -68,7 +68,7 @@ after the fact.
 NFR1. A turn undoes in one step from the user's point of view, including its
 writes to files other than the session note.
 
-NFR2. The tool loop's existing iteration cap still bounds a turn that loads
+NFR2. The agent loop's existing iteration cap still bounds a turn that loads
 skills and touches files.
 
 NFR3. Skill files stay user content, not trusted input. A skill cannot grant

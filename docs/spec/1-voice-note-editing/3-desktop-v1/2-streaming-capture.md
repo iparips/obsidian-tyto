@@ -23,7 +23,7 @@ stop():
   panel replaces partials with final; final feeds EditEngine unchanged
 ```
 
-- The tool loop is untouched: EditEngine still receives one complete transcript per utterance.
+- The agent loop is untouched: EditEngine still receives one complete transcript per utterance.
 - cancel() closes the session without resolving to the engine.
 
 ## Failure Handling
