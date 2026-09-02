@@ -16,7 +16,7 @@ result.
 
 - "Open my daily note and add a paragraph under heading X" names a destination
   the session cannot move to.
-- "What did I write about Lewis school recently" asks a question about the
+- "What did I write about the roofing quote recently" asks a question about the
   vault, which no tool can read.
 
 Both are within reach. The first is a command run before an edit. The second is
@@ -46,9 +46,9 @@ a search, and an answer the user reads rather than a note the plugin writes.
   under Meetings", and the daily note opens and gains the paragraph.
 - As a user with a shopping list command, I say "add eggs to my shopping list",
   and this week's list opens and gains the item.
-- As a user, I say "find my notes about Lewis school", and the panel lists the
+- As a user, I say "find my notes about the roofing quote", and the panel lists the
   matching notes with enough context to pick one.
-- As a user, I say "what did I write about Lewis school recently", and the panel
+- As a user, I say "what did I write about the roofing quote recently", and the panel
   shows a summary I can copy, naming the notes it drew on.
 - As a user, I paste that summary into whichever note I want, having read it
   first.

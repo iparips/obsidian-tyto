@@ -75,7 +75,7 @@ The write destination always comes from a command, never from a path the model p
 
 Detailed design: [4-obsidian-agent-harness/index.md](4-obsidian-agent-harness/index.md).
 
-Exit test: "open my daily note and add a paragraph under Meetings" opens the note and edits it, "what did I write about Lewis school recently" returns a copyable summary naming its sources and touches no note, and a vault with an empty allow-list behaves byte for byte as release 3.
+Exit test: "open my daily note and add a paragraph under Meetings" opens the note and edits it, "what did I write about the roofing quote recently" returns a copyable summary naming its sources and touches no note, and a vault with an empty allow-list behaves byte for byte as release 3.
 
 ## 5. Desktop V1
 
