@@ -3,6 +3,7 @@ import { Outcome } from '../../shared/models/outcome'
 import { Utterance } from '../../capture/recorder'
 import { HistoryList } from './HistoryList'
 import { INITIAL_PANEL_STATE, PanelReducer } from '../models/panel-state'
+import { AnswerReport } from '../session-listeners'
 
 export interface RecorderPort {
   start(): Promise<Outcome<void>>
@@ -19,14 +20,19 @@ export interface SessionPanelProps {
   onHidden?(listener: () => void): () => void
   notify?(message: string): void
   startNewSession?(): void
+  returnToStartingNote?(): void
   // The plugin owns the subscription, as with onHidden, so the engine reports a
   // resolved chain without knowing the panel.
   onInstructions?(listener: (text: string) => void): () => void
+  onCommandRun?(listener: (text: string) => void): () => void
+  onAnswer?(listener: (report: AnswerReport) => void): () => void
+  onTargetNoteChanged?(listener: (path: string) => void): () => void
 }
 
 export const SessionPanel = (props: SessionPanelProps) => {
   const [state, dispatch] = useReducer(PanelReducer.reduce, INITIAL_PANEL_STATE)
   const [draft, setDraft] = useState('')
+  const [targetName, setTargetName] = useState(props.noteName)
 
   const runTurn = async (text: string) => {
     dispatch({ type: 'transcript', text })
@@ -69,6 +75,20 @@ export const SessionPanel = (props: SessionPanelProps) => {
 
   useEffect(() => props.onInstructions?.((text) => dispatch({ type: 'instructions', text })), [])
 
+  useEffect(() => props.onCommandRun?.((text) => dispatch({ type: 'commandRan', text })), [])
+
+  useEffect(
+    () =>
+      props.onAnswer?.((report) =>
+        dispatch({ type: 'answer', text: report.text, sources: report.sources }),
+      ),
+    [],
+  )
+
+  // The header names the note the edit tools now target, which a command may
+  // have moved mid-turn (FR19).
+  useEffect(() => props.onTargetNoteChanged?.((path) => setTargetName(noteNameOf(path))), [])
+
   const sendDraft = async () => {
     const text = draft.trim()
     if (!text) return
@@ -81,7 +101,17 @@ export const SessionPanel = (props: SessionPanelProps) => {
   return (
     <div className="owl-panel">
       <div className="owl-header">
-        <span className="owl-header-name">{props.noteName}</span>
+        <span className="owl-header-name">{targetName}</span>
+        {props.returnToStartingNote && targetName !== props.noteName && (
+          <button
+            className="owl-return-note"
+            aria-label={`Return to ${props.noteName}`}
+            disabled={recording || busy}
+            onClick={props.returnToStartingNote}
+          >
+            {`Back to ${props.noteName}`}
+          </button>
+        )}
         {props.startNewSession && (
           <button
             className="owl-new-session"
@@ -121,3 +151,6 @@ export const SessionPanel = (props: SessionPanelProps) => {
     </div>
   )
 }
+
+const noteNameOf = (path: string): string =>
+  path.slice(path.lastIndexOf('/') + 1).replace(/\.md$/, '')

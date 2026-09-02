@@ -1,14 +1,16 @@
 import { App, PluginSettingTab } from 'obsidian'
 import { createRoot, Root } from 'react-dom/client'
 import { SettingsPanel } from './SettingsPanel'
-import { VoiceEditSettings } from './settings'
+import { OwlSettings } from './settings'
+import { AllowList } from '../commands/allow-list'
+import { CommandCatalogue } from '../commands/command-catalogue'
 
 export interface SettingsHost {
-  settings: VoiceEditSettings
-  updateSettings(update: Partial<VoiceEditSettings>): Promise<void>
+  settings: OwlSettings
+  updateSettings(update: Partial<OwlSettings>): Promise<void>
 }
 
-export class VoiceEditSettingsTab extends PluginSettingTab {
+export class OwlSettingsTab extends PluginSettingTab {
   private root: Root | null = null
 
   constructor(
@@ -34,11 +36,19 @@ export class VoiceEditSettingsTab extends PluginSettingTab {
       <SettingsPanel
         settings={this.host.settings}
         onChange={(update) => this.applyUpdate(update)}
+        resolvedCommands={this.resolvedCommands()}
       />,
     )
   }
 
-  private async applyUpdate(update: Partial<VoiceEditSettings>): Promise<void> {
+  // Resolved on every render, so an edited pattern shows its new reach at once
+  // rather than after a reload (FR7).
+  private resolvedCommands() {
+    const allowList = new AllowList(this.host.settings.commandAllowList)
+    return new CommandCatalogue(this.app, allowList).resolve()
+  }
+
+  private async applyUpdate(update: Partial<OwlSettings>): Promise<void> {
     await this.host.updateSettings(update)
     this.renderPanel()
   }

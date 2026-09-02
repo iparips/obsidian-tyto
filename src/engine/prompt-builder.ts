@@ -1,23 +1,54 @@
 import { Skill } from '../skills/skill'
 import { RuleBuilder } from './rule-builder'
-import { NoteContext } from './models/note-context'
+import { NoteDetails } from './models/note-details'
 import { AgentsMdChain } from '../agents/agents-md-chain'
 import { AgentsMdFile } from '../agents/agents-md-file'
+import { AllowedCommand } from '../commands/models/allowed-command'
+import { ChatMessage } from '../providers/types'
 
 export class PromptBuilder {
   // The note itself is not here: EditEngine sends it as the last message, so the
   // current copy sits after every stale one in the conversation.
-  static build(
-    note: NoteContext,
+  static standingRules(
     skills: readonly Skill[] = [],
     instructions: AgentsMdChain = new AgentsMdChain(),
+    commands: readonly AllowedCommand[] = [],
+    searchEnabled = false,
+  ): ChatMessage {
+    return ChatMessage.system(
+      PromptBuilder.standingRulesText(skills, instructions, commands, searchEnabled),
+    )
+  }
+
+  private static standingRulesText(
+    skills: readonly Skill[],
+    instructions: AgentsMdChain,
+    commands: readonly AllowedCommand[],
+    searchEnabled: boolean,
   ): string {
     return [
       RuleBuilder.roleRules(),
       RuleBuilder.dictationRules(),
       ...PromptBuilder.instructionSection(instructions),
       ...PromptBuilder.skillSection(skills),
+      ...PromptBuilder.commandSection(commands),
+      ...PromptBuilder.searchSection(searchEnabled),
     ].join('\n\n')
+  }
+
+  // Omitted entirely when the catalogue is empty, so a vault allowing no
+  // commands produces the release 3 prompt byte for byte (NFR8).
+  private static commandSection(commands: readonly AllowedCommand[]): string[] {
+    if (commands.length === 0) return []
+    return [[RuleBuilder.commandRules(), ...PromptBuilder.commandLines(commands)].join('\n')]
+  }
+
+  private static commandLines(commands: readonly AllowedCommand[]): string[] {
+    return commands.map((command) => `${command.id} - ${command.name}`)
+  }
+
+  private static searchSection(searchEnabled: boolean): string[] {
+    return searchEnabled ? [RuleBuilder.searchRules()] : []
   }
 
   // Omitted entirely when no folder holds instructions, so a vault with neither
@@ -66,7 +97,11 @@ export class PromptBuilder {
   // Re-read from the editor every turn. Anything the conversation says about
   // the note is a record of an earlier state, including the user's own manual
   // edits between turns, so this copy is the only current one.
-  static context(note: NoteContext): string {
+  static noteSnapshot(note: NoteDetails): ChatMessage {
+    return ChatMessage.system(PromptBuilder.noteSnapshotText(note))
+  }
+
+  private static noteSnapshotText(note: NoteDetails): string {
     return [
       `Note path: ${note.path}`,
       `Cursor line: ${note.cursor.line}`,

@@ -1,5 +1,5 @@
 import { Editor, EditorPosition } from 'obsidian'
-import { NoteContext } from './models/note-context'
+import { NoteDetails } from './models/note-details'
 import { PositionConverter } from './position-converter'
 
 export type EditOperation =
@@ -17,7 +17,7 @@ type AnchorMatch =
   { unique: true; index: number } | { unique: false; reason: 'noMatch' | 'multipleMatches' }
 
 export class NoteEditor {
-  apply(editor: Editor, note: NoteContext, op: EditOperation): ApplyResult {
+  apply(editor: Editor, note: NoteDetails, op: EditOperation): ApplyResult {
     if (op.kind === 'replace') return this.replaceAnchor(editor, op.anchor, op.replacement)
     if (op.kind === 'insert') return this.insertAtAnchor(editor, op.anchor, op.position, op.content)
     return this.insertAtLocation(editor, note, op.location, op.content)
@@ -48,7 +48,7 @@ export class NoteEditor {
 
   private insertAtLocation(
     editor: Editor,
-    note: NoteContext,
+    note: NoteDetails,
     location: 'noteStart' | 'noteEnd' | 'cursor',
     content: string,
   ): ApplyResult {
@@ -58,7 +58,7 @@ export class NoteEditor {
 
   private locationOffset(
     editor: Editor,
-    note: NoteContext,
+    note: NoteDetails,
     location: 'noteStart' | 'noteEnd' | 'cursor',
   ): number {
     const content = editor.getValue()

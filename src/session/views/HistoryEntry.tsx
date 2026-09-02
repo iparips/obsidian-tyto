@@ -1,11 +1,14 @@
 import { useState } from 'react'
 import { Entry } from '../models/panel-state'
+import { EntrySources } from './EntrySources'
 
 const ENTRY_CLASSES = {
   user: 'owl-entry-user',
   assistant: 'owl-entry-assistant',
   error: 'owl-entry-error',
   instructions: 'owl-entry-instructions',
+  command: 'owl-entry-command',
+  answer: 'owl-entry-answer',
 }
 
 const entryText = (entry: Entry) =>
@@ -24,6 +27,7 @@ export const HistoryEntry = ({ entry }: { entry: Entry }) => {
   return (
     <div className={`owl-entry ${ENTRY_CLASSES[entry.kind]}`}>
       <div className="owl-entry-text">{text}</div>
+      {entry.kind === 'answer' && <EntrySources sources={entry.sources} />}
       <button
         className="owl-entry-copy"
         aria-label={copied ? 'Copied' : 'Copy entry'}

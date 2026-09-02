@@ -19,6 +19,24 @@ See [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) for prerequisites, build comman
 
 If a step fails, the panel shows an error entry naming the failing step: transcription, chat, or apply.
 
+## Commands and Search
+
+Owl can run an Obsidian command and then edit the note it opened, and it can
+search the vault to answer a question.
+
+- Say "open my daily note and add a paragraph under Meetings". The note opens,
+  the session moves to it, and the edit lands there.
+- Say "what did I write about the roofing quote recently". The panel shows a
+  copyable summary naming the notes it drew on. Nothing is written to a note.
+
+Owl runs only the commands you allow. Settings holds one command id or namespace
+pattern per line, such as daily-notes:*, and a collapsed count showing what those
+entries currently resolve to. A pattern's plugin id must be literal, and only a
+trailing wildcard is allowed. Leave the list empty to allow no commands.
+
+Search is a checkbox in settings. With commands off and search off, Owl behaves
+exactly as it did before this release.
+
 ## On Mobile
 
 Installing on a phone needs `./install --copy`, which rebuilds and copies the plugin into the vault. Obsidian Sync does not follow the symlink a normal install creates. See [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md).
@@ -26,6 +44,9 @@ Installing on a phone needs `./install --copy`, which rebuilds and copies the pl
 The session panel opens as a drawer from the right sidebar. To reach it in one tap, add the command to the mobile toolbar: Settings, Mobile, Manage toolbar options, then add "Owl: Start session for active note".
 
 Recording stops if you leave Obsidian. The partial audio is discarded and the panel returns to idle, because a backgrounded recording captures silence.
+
+The allowed-command list is a plain text box, and the resolved list stays
+collapsed, so neither fills a phone screen.
 
 Skills must live in a normal vault folder. Obsidian Sync copies no dot-folder to a phone, so a skills path starting with a dot gives an empty catalogue on mobile.
 

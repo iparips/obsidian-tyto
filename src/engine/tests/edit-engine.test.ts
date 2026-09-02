@@ -1,50 +1,41 @@
 import { beforeEach, describe, expect, it, Mock, vi } from 'vitest'
 import { EditEngine } from '../edit-engine'
-import { NoteEditor } from '../note-editor'
-import { WorkspaceNoteLocator } from '../workspace-note-locator'
 import { Outcomes } from '../../shared/models/outcome'
 import { SkillRepository } from '../../skills/skill-repository'
 import { AgentsMdRepository } from '../../agents/agents-md-repository'
 import { FakeAdapter } from '../../test-support/fake-adapter'
 import { ChatProvider, ChatMessage } from '../../providers/types'
-import { AgentSession } from '../models/agent-session'
-import { App, TFile } from 'obsidian'
-import { aTextTurn, aToolCall, aToolTurn, anOpenNote } from '../../test-support/builders'
+import { aSession, aTextTurn, aToolCall, aToolTurn, anEngine } from '../../test-support/builders'
 import { FakeEditor } from '../../test-support/fake-editor'
+import { FakeNoteLocator } from '../../test-support/fake-note-locator'
+import { SessionRepository } from '../../session/session-repository'
 
 describe('EditEngine', () => {
   let editor: FakeEditor
-  let session: AgentSession
+  let sessions: SessionRepository
   let complete: Mock<Parameters<ChatProvider['complete']>, ReturnType<ChatProvider['complete']>>
   let engine: EditEngine
   let chat: ChatProvider
-  let noteLocator: WorkspaceNoteLocator
+  let noteLocator: FakeNoteLocator
 
   beforeEach(() => {
     vi.clearAllMocks()
     editor = new FakeEditor('# Budget\n\nbody')
-    session = new AgentSession({ path: 'note.md', basename: 'note' } as TFile)
+    sessions = aSession()
     complete = vi.fn()
     chat = { complete }
-    noteLocator = new WorkspaceNoteLocator({} as App, {} as TFile)
-    vi.spyOn(noteLocator, 'locate').mockImplementation(() => Outcomes.success(anOpenNote(editor)))
-    engine = new EditEngine(
-      chat,
-      session,
-      emptySkills(),
-      noInstructions(),
+    noteLocator = new FakeNoteLocator().withOpenNote('note.md', editor)
+    engine = anEngine(chat, {
+      sessions,
       noteLocator,
-      new NoteEditor(),
-      () => undefined,
-    )
+      agentsMdRepository: noInstructions(),
+    })
   })
-
-  const emptySkills = () => new SkillRepository(new FakeAdapter().asAdapter(), '')
 
   const noInstructions = () => new AgentsMdRepository(new FakeAdapter().asAdapter())
 
   const toolResults = () =>
-    session.chatHistory.filter((message: ChatMessage) => message.isToolResult())
+    sessions.chatHistory().filter((message: ChatMessage) => message.isToolResult())
 
   describe('when the model responds with text', () => {
     it('returns the text as summary when the model responds without tool calls', async () => {
@@ -154,7 +145,7 @@ describe('EditEngine', () => {
 
       const outcome = await engine.processUtterance('edit')
 
-      expect(outcome).toEqual(Outcomes.failure('chat', 'edit loop exceeded 6 iterations'))
+      expect(outcome).toEqual(Outcomes.failure('chat', 'edit loop exceeded 10 iterations'))
     })
   })
 
@@ -163,15 +154,12 @@ describe('EditEngine', () => {
     const todoSource = '---\nname: todo\ndescription: Archives ticked items.\n---\n\n1. Split it.'
 
     const engineReading = (adapter: FakeAdapter) =>
-      new EditEngine(
-        chat,
-        session,
-        new SkillRepository(adapter.asAdapter(), SKILLS_PATH),
-        noInstructions(),
+      anEngine(chat, {
+        sessions,
         noteLocator,
-        new NoteEditor(),
-        () => undefined,
-      )
+        agentsMdRepository: noInstructions(),
+        skillRepository: new SkillRepository(adapter.asAdapter(), SKILLS_PATH),
+      })
 
     const engineWithTodoSkill = () =>
       engineReading(new FakeAdapter().withSkill(`${SKILLS_PATH}/todo`, todoSource))

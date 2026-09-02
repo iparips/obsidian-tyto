@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { NoteEditor } from '../note-editor'
-import { NoteContext } from '../models/note-context'
+import { NoteDetails } from '../models/note-details'
 import { FakeEditor } from '../../test-support/fake-editor'
 
 const noteEditor = new NoteEditor()
@@ -8,7 +8,7 @@ const noteEditor = new NoteEditor()
 const applyTo = (editor: FakeEditor, op: Parameters<NoteEditor['apply']>[2]) =>
   noteEditor.apply(
     editor.asEditor(),
-    new NoteContext('note.md', editor.getValue(), editor.getCursor()),
+    new NoteDetails('note.md', editor.getValue(), editor.getCursor()),
     op,
   )
 

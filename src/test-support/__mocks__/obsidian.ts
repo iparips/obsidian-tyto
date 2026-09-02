@@ -3,9 +3,17 @@ export interface EditorPosition {
   ch: number
 }
 
-export interface TFile {
+export interface FileStats {
+  mtime: number
+}
+
+export interface TAbstractFile {
   path: string
+}
+
+export interface TFile extends TAbstractFile {
   basename: string
+  stat: FileStats
 }
 
 export class Plugin {}
@@ -63,3 +71,44 @@ export interface DataAdapter {
 
 export type App = Record<string, unknown>
 export type WorkspaceLeaf = Record<string, unknown>
+
+export interface Command {
+  id: string
+  name: string
+  checkCallback?(checking: boolean): boolean | void
+}
+
+export interface Workspace {
+  getActiveFile(): TFile | null
+}
+
+export type SearchMatchPart = [number, number]
+export type SearchMatches = SearchMatchPart[]
+
+export interface SearchResult {
+  score: number
+  matches: SearchMatches
+}
+
+export interface Vault {
+  getMarkdownFiles(): TFile[]
+  cachedRead(file: TFile): Promise<string>
+  getAbstractFileByPath(path: string): TAbstractFile | null
+}
+
+// Stands in for Obsidian's own scorer: every occurrence of the query scores one
+// point, so a test can assert that two matches outrank one.
+export const prepareSimpleSearch =
+  (query: string) =>
+  (text: string): SearchResult | null => {
+    const matches = occurrencesOf(text.toLowerCase(), query.trim().toLowerCase())
+    return matches.length === 0 ? null : { score: matches.length, matches }
+  }
+
+const occurrencesOf = (text: string, needle: string): SearchMatches => {
+  const matches: SearchMatches = []
+  if (!needle) return matches
+  for (let at = text.indexOf(needle); at !== -1; at = text.indexOf(needle, at + needle.length))
+    matches.push([at, at + needle.length])
+  return matches
+}

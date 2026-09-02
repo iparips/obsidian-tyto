@@ -1,23 +1,22 @@
 import { Notice, Plugin, TFile, WorkspaceLeaf } from 'obsidian'
 import { Recorder } from './capture/recorder'
-import { EditEngine } from './engine/edit-engine'
-import { NoteEditor } from './engine/note-editor'
 import { MistralProvider } from './providers/mistral-provider'
-import { AgentSession } from './engine/models/agent-session'
-import { WorkspaceNoteLocator } from './engine/workspace-note-locator'
 import { RebindModal } from './session/views/rebind-modal'
 import { SessionView, VIEW_TYPE_SESSION } from './session/views/session-view'
 import { SessionPanelProps } from './session/views/SessionPanel'
-import { DEFAULT_SETTINGS, VoiceEditSettings } from './settings/settings'
-import { VoiceEditSettingsTab } from './settings/settings-tab'
+import { DEFAULT_SETTINGS, OwlSettings } from './settings/settings'
+import { OwlSettingsTab } from './settings/settings-tab'
 import { SkillRepository } from './skills/skill-repository'
 import { AgentsMdChain } from './agents/agents-md-chain'
 import { AgentsMdRepository } from './agents/agents-md-repository'
 import { InstructionReport } from './agents/instruction-report'
 import { InstructionListeners } from './session/instruction-listeners'
+import { TurnProgressPublisher } from './engine/turn-progress-publisher'
+import { EngineFactory } from './engine/engine-factory'
+import { SessionListeners } from './session/session-listeners'
 
-export default class VoiceEditPlugin extends Plugin {
-  settings: VoiceEditSettings = DEFAULT_SETTINGS
+export default class OwlPlugin extends Plugin {
+  settings: OwlSettings = DEFAULT_SETTINGS
 
   async onload(): Promise<void> {
     this.settings = { ...DEFAULT_SETTINGS, ...(await this.loadData()) }
@@ -29,10 +28,10 @@ export default class VoiceEditPlugin extends Plugin {
       icon: 'mic',
       callback: () => this.openSession(),
     })
-    this.addSettingTab(new VoiceEditSettingsTab(this.app, this))
+    this.addSettingTab(new OwlSettingsTab(this.app, this))
   }
 
-  async updateSettings(update: Partial<VoiceEditSettings>): Promise<void> {
+  async updateSettings(update: Partial<OwlSettings>): Promise<void> {
     this.settings = { ...this.settings, ...update }
     await this.saveData(this.settings)
   }
@@ -56,17 +55,12 @@ export default class VoiceEditPlugin extends Plugin {
 
   private async buildPanelProps(file: TFile, view: SessionView): Promise<SessionPanelProps> {
     const modelProvider = new MistralProvider(this.settings.mistralApiKey, this.settings.editModel)
-    const session = new AgentSession(file)
-    const noteLocator = new WorkspaceNoteLocator(this.app, file)
     const listeners = new InstructionListeners()
-    const engine = new EditEngine(
+    const sessionListeners = new SessionListeners()
+    const engine = this.engineFactory().build(
       modelProvider,
-      session,
-      this.skillRepository(),
-      this.agentsMdRepository(),
-      noteLocator,
-      new NoteEditor(),
-      (chain) => this.reportInstructions(chain, listeners),
+      file,
+      this.buildTurnProgressPublisher(sessionListeners, listeners),
     )
     return {
       noteName: file.basename,
@@ -76,8 +70,27 @@ export default class VoiceEditPlugin extends Plugin {
       onHidden: (listener) => this.onDocumentHidden(listener),
       notify: (message) => void new Notice(message),
       startNewSession: () => void this.startNewSession(file, view),
+      returnToStartingNote: () => engine.returnToStartingNote(),
       onInstructions: (listener) => listeners.subscribe(listener),
+      onCommandRun: (listener) => sessionListeners.commandRuns.subscribe(listener),
+      onAnswer: (listener) => sessionListeners.answers.subscribe(listener),
+      onTargetNoteChanged: (listener) => sessionListeners.retargets.subscribe(listener),
     }
+  }
+
+  // Each channel lands somewhere different: two become panel entries, one names
+  // the target note in the header (FR19), and the chain also reaches a Notice
+  // and the console.
+  private buildTurnProgressPublisher(
+    sessionListeners: SessionListeners,
+    instructions: InstructionListeners,
+  ): TurnProgressPublisher {
+    return new TurnProgressPublisher(
+      (text) => sessionListeners.commandRuns.publish(text),
+      (text, sources) => sessionListeners.answers.publish({ text, sources }),
+      (path) => sessionListeners.retargets.publish(path),
+      (chain) => this.reportInstructions(chain, instructions),
+    )
   }
 
   // The three channels a drop reaches the user through: the panel entry, one
@@ -88,7 +101,7 @@ export default class VoiceEditPlugin extends Plugin {
     listeners.publish(report.panelText())
     if (!chain.hasDrops()) return
     new Notice(report.noticeText())
-    VoiceEditPlugin.logDrops(chain)
+    OwlPlugin.logDrops(chain)
   }
 
   private static logDrops(chain: AgentsMdChain): void {
@@ -106,6 +119,15 @@ export default class VoiceEditPlugin extends Plugin {
     const handler = () => document.hidden && listener()
     this.registerDomEvent(document, 'visibilitychange', handler)
     return () => document.removeEventListener('visibilitychange', handler)
+  }
+
+  private engineFactory(): EngineFactory {
+    return new EngineFactory(
+      this.app,
+      this.settings,
+      this.skillRepository(),
+      this.agentsMdRepository(),
+    )
   }
 
   private skillRepository(): SkillRepository {

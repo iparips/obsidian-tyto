@@ -216,4 +216,88 @@ describe('SessionPanel', () => {
       expect(screen.getByText(/1 dropped over the size limit/)).toBeTruthy()
     })
   })
+
+  describe('when a command moves the target note', () => {
+    const targetListeners: ((path: string) => void)[] = []
+    const onTargetNoteChanged = (listener: (path: string) => void) => {
+      targetListeners.push(listener)
+      return () => targetListeners.splice(targetListeners.indexOf(listener), 1)
+    }
+    const retargetTo = (path: string) =>
+      act(() => targetListeners.forEach((listener) => listener(path)))
+
+    beforeEach(() => {
+      targetListeners.length = 0
+    })
+
+    it('names the new target note in the header when a change is reported', () => {
+      renderPanel({ onTargetNoteChanged })
+
+      retargetTo('Journal/2026-09-02.md')
+
+      expect(screen.getByText('2026-09-02')).toBeTruthy()
+    })
+
+    it('offers a way back to the starting note when a change is reported', () => {
+      renderPanel({ onTargetNoteChanged, returnToStartingNote: vi.fn() })
+
+      retargetTo('Journal/2026-09-02.md')
+
+      expect(screen.getByRole('button', { name: 'Return to note' })).toBeTruthy()
+    })
+
+    it('hides the way back when the session is still on its starting note', () => {
+      renderPanel({ onTargetNoteChanged, returnToStartingNote: vi.fn() })
+
+      expect(screen.queryByRole('button', { name: 'Return to note' })).toBeNull()
+    })
+
+    it('returns the target note when the way back is clicked', async () => {
+      const returnToStartingNote = vi.fn()
+      renderPanel({ onTargetNoteChanged, returnToStartingNote })
+      retargetTo('Journal/2026-09-02.md')
+
+      await userEvent.click(screen.getByRole('button', { name: 'Return to note' }))
+
+      expect(returnToStartingNote).toHaveBeenCalled()
+    })
+  })
+
+  describe('when a turn runs a command or answers', () => {
+    const commandListeners: ((text: string) => void)[] = []
+    const answerListeners: ((report: { text: string; sources: string[] }) => void)[] = []
+    const onCommandRun = (listener: (text: string) => void) => {
+      commandListeners.push(listener)
+      return () => commandListeners.splice(commandListeners.indexOf(listener), 1)
+    }
+    const onAnswer = (listener: (report: { text: string; sources: string[] }) => void) => {
+      answerListeners.push(listener)
+      return () => answerListeners.splice(answerListeners.indexOf(listener), 1)
+    }
+
+    beforeEach(() => {
+      commandListeners.length = 0
+      answerListeners.length = 0
+    })
+
+    it('renders a command entry when a command run is reported', () => {
+      renderPanel({ onCommandRun })
+
+      act(() => commandListeners.forEach((listener) => listener('ran Open today')))
+
+      expect(screen.getByText('ran Open today')).toBeTruthy()
+    })
+
+    it('renders an answer with its sources when an answer is reported', () => {
+      renderPanel({ onAnswer })
+
+      act(() =>
+        answerListeners.forEach((listener) =>
+          listener({ text: 'It was 12k.', sources: ['Quotes/roofing.md'] }),
+        ),
+      )
+
+      expect(screen.getByLabelText('Answer sources').textContent).toBe('From 1: Quotes/roofing.md')
+    })
+  })
 })

@@ -157,3 +157,60 @@
   color: var(--text-muted);
   font-size: var(--font-ui-small);
 }
+
+.owl-entry-command {
+  color: var(--text-muted);
+  background-color: var(--background-secondary);
+  font-size: var(--font-ui-smaller);
+}
+
+/* An answer wrote nothing, so it must not read like an edit that did (FR29). */
+.owl-entry-answer {
+  background-color: var(--background-primary-alt);
+  border-left: 3px solid var(--interactive-accent);
+}
+
+.owl-entry-sources {
+  margin-top: var(--size-4-1);
+  color: var(--text-muted);
+  font-size: var(--font-ui-smaller);
+  word-break: break-word;
+}
+
+.owl-setting-inline {
+  flex-direction: row;
+  align-items: center;
+  gap: var(--size-4-2);
+}
+
+.owl-settings-error {
+  color: var(--text-error);
+  font-size: var(--font-ui-small);
+}
+
+/* Collapsed by default: a namespace pattern can resolve to dozens of commands,
+   which is unreadable on a phone (FR8). */
+.owl-resolved-commands summary {
+  cursor: pointer;
+  color: var(--text-muted);
+  font-size: var(--font-ui-small);
+}
+
+.owl-resolved-commands ul {
+  max-height: 12em;
+  overflow-y: auto;
+  margin: var(--size-4-1) 0 0;
+  padding-left: var(--size-4-4);
+  font-size: var(--font-ui-smaller);
+  color: var(--text-muted);
+}
+
+.owl-return-note {
+  flex: 0 0 auto;
+  font-size: var(--font-smallest);
+  padding: 0 var(--size-4-2);
+  max-width: 12em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

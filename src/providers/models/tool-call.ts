@@ -1,4 +1,8 @@
 export const LOAD_SKILL = 'load_skill'
+export const RUN_COMMAND = 'run_command'
+export const SEARCH_VAULT = 'search_vault'
+export const READ_NOTE = 'read_note'
+export const ANSWER_FROM_SEARCH = 'answer_from_search'
 
 // One tool call the model asked for. It classifies itself, so callers dispatch
 // on a method rather than comparing the raw name at each site.
@@ -13,8 +17,41 @@ export class ToolCall {
     return this.name === LOAD_SKILL
   }
 
+  isRunCommand(): boolean {
+    return this.name === RUN_COMMAND
+  }
+
+  isSearchVault(): boolean {
+    return this.name === SEARCH_VAULT
+  }
+
+  isReadNote(): boolean {
+    return this.name === READ_NOTE
+  }
+
+  isAnswerFromSearch(): boolean {
+    return this.name === ANSWER_FROM_SEARCH
+  }
+
+  isHarnessTool(): boolean {
+    return (
+      this.isRunCommand() || this.isSearchVault() || this.isReadNote() || this.isAnswerFromSearch()
+    )
+  }
+
   argument(key: string): string {
     const value = this.args[key]
     return typeof value === 'string' ? value : String(value)
+  }
+
+  numberArgument(key: string): number | undefined {
+    const value = this.args[key]
+    return typeof value === 'number' ? value : undefined
+  }
+
+  stringsArgument(key: string): string[] {
+    const value = this.args[key]
+    if (!Array.isArray(value)) return []
+    return value.filter((entry): entry is string => typeof entry === 'string')
   }
 }

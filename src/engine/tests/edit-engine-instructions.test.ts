@@ -1,17 +1,13 @@
 import { beforeEach, describe, expect, it, Mock, vi } from 'vitest'
-import { App, TFile } from 'obsidian'
-import { EditEngine } from '../edit-engine'
-import { NoteEditor } from '../note-editor'
-import { WorkspaceNoteLocator } from '../workspace-note-locator'
-import { AgentSession } from '../models/agent-session'
 import { Outcomes } from '../../shared/models/outcome'
 import { ChatProvider, ChatMessage } from '../../providers/types'
-import { SkillRepository } from '../../skills/skill-repository'
 import { AgentsMdChain } from '../../agents/agents-md-chain'
 import { AgentsMdRepository } from '../../agents/agents-md-repository'
 import { FakeAdapter } from '../../test-support/fake-adapter'
 import { FakeEditor } from '../../test-support/fake-editor'
-import { aTextTurn, anOpenNote } from '../../test-support/builders'
+import { aSession, aTextTurn, anEngine } from '../../test-support/builders'
+import { FakeNoteLocator } from '../../test-support/fake-note-locator'
+import { TurnProgressPublisher } from '../turn-progress-publisher'
 
 const NOTE = 'Journal/2026/today.md'
 
@@ -19,7 +15,6 @@ describe('EditEngine', () => {
   let editor: FakeEditor
   let adapter: FakeAdapter
   let complete: Mock<Parameters<ChatProvider['complete']>, ReturnType<ChatProvider['complete']>>
-  let noteLocator: WorkspaceNoteLocator
   let reported: AgentsMdChain[]
 
   beforeEach(() => {
@@ -27,24 +22,24 @@ describe('EditEngine', () => {
     editor = new FakeEditor('# Today\n\nbody')
     adapter = new FakeAdapter()
     complete = vi.fn().mockResolvedValue(Outcomes.success(aTextTurn('ok')))
-    noteLocator = new WorkspaceNoteLocator({} as App, {} as TFile)
     reported = []
   })
 
-  const engineFor = (notePath: string) => {
-    vi.spyOn(noteLocator, 'locate').mockImplementation(() =>
-      Outcomes.success(anOpenNote(editor, notePath)),
-    )
-    return new EditEngine(
+  const engineFor = (notePath: string) =>
+    anEngine(
       { complete },
-      new AgentSession({ path: notePath, basename: 'today' } as TFile),
-      new SkillRepository(adapter.asAdapter(), ''),
-      new AgentsMdRepository(adapter.asAdapter()),
-      noteLocator,
-      new NoteEditor(),
-      (chain) => reported.push(chain),
+      {
+        sessions: aSession(notePath),
+        noteLocator: new FakeNoteLocator().withOpenNote(notePath, editor),
+        agentsMdRepository: new AgentsMdRepository(adapter.asAdapter()),
+        progress: new TurnProgressPublisher(
+          () => undefined,
+          () => undefined,
+          () => undefined,
+          (chain: AgentsMdChain) => reported.push(chain),
+        ),
+      },
     )
-  }
 
   const systemPrompt = (call = 0) => (complete.mock.calls[call][0] as ChatMessage[])[0].content
 
