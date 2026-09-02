@@ -1,6 +1,6 @@
 # Design: Mobile MVP
 
-Covers release 2 of [2-plan.md](../2-plan.md): the Desktop MVP loop running on iOS and Android. This is a delta design; everything not listed here carries over from [1-desktop-mvp.md](1-desktop-mvp.md) unchanged (FR32). Batch transcription is plain REST, so no auth changes are needed.
+Covers release 2 of [2-plan.md](../spec/2-plan.md): the Desktop MVP loop running on iOS and Android. This is a delta design; everything not listed here carries over from [1-desktop-mvp.md](1-desktop-mvp.md) unchanged (FR32). Batch transcription is plain REST, so no auth changes are needed.
 
 ## Deltas
 

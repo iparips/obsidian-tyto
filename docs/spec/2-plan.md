@@ -64,12 +64,12 @@ Exit test: two notes in sibling folders with different AGENTS.md files produce v
 
 Goal: stop the session being trapped in one note. Two flows, sharing only the agent loop.
 
-- Command catalogue behind a user-editable allow-list, injected into the prompt like the skill catalogue (FR1-FR5).
-- A tool that runs one allowed command, reporting what opened (FR6-FR10).
-- Session rebinds to the note a command opened, so the edit tools target it (FR11-FR15).
-- Search and read tools, bounded by result count, excerpt length and per-turn call count (FR16-FR20).
-- A search answer renders as a copyable panel block citing its source notes, never written into a note (FR21-FR24).
-- Commands beat search when an utterance names a destination; no command match is said plainly rather than guessed at (FR25-FR27).
+- Command catalogue behind a user-editable allow-list, entries being ids or namespace patterns, injected into the prompt like the skill catalogue (FR1-FR11).
+- A tool that runs one allowed command, reporting what opened (FR12-FR16).
+- Session rebinds to the note a command opened, so the edit tools target it (FR17-FR21).
+- Search and read tools, bounded by result count, excerpt length and per-turn call count (FR22-FR26).
+- A search answer renders as a copyable panel block citing its source notes, never written into a note (FR27-FR30).
+- Commands beat search when an utterance names a destination; no command match is said plainly rather than guessed at (FR31-FR33).
 
 The write destination always comes from a command, never from a path the model picked. Search-and-edit waits for a later release, for the same reason cross-file writes do.
 

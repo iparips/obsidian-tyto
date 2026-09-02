@@ -1,6 +1,6 @@
 # Design: Desktop V1
 
-Covers release 5 of [2-plan.md](../2-plan.md): realtime streaming capture, the OpenAI provider, review-first mode, and the remaining settings. Delta design on top of [1-desktop-mvp.md](1-desktop-mvp.md).
+Covers release 5 of [2-plan.md](../spec/2-plan.md): realtime streaming capture, the OpenAI provider, review-first mode, and the remaining settings. Delta design on top of [1-desktop-mvp.md](1-desktop-mvp.md).
 
 ## Streaming Capture
 

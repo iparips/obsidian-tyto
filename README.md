@@ -1,8 +1,8 @@
-# Owl
+# Obsidian Owl
 
 An Obsidian plugin that edits the active note from natural-language instructions, spoken or typed. Speak "rename heading Budget to Costs" or "add a list A, B, C under heading X" and the note changes. Dictated content lands formatted as markdown. Powered by Mistral speech-to-text and chat models, using your own API key.
 
-Specs live in [docs/spec/1-voice-note-editing](docs/spec/1-voice-note-editing/1-requirements.md).
+Specs live in [docs/spec](docs/spec/1-requirements.md).
 
 ## Install for Development
 

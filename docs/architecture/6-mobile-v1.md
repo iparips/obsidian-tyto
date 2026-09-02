@@ -1,6 +1,6 @@
 # Design: Mobile V1
 
-Covers release 6 of [2-plan.md](../2-plan.md): streaming on mobile via ephemeral tokens, graceful fallback, mic lifecycle, and the public release. Delta design on top of [5-desktop-v1.md](5-desktop-v1.md).
+Covers release 6 of [2-plan.md](../spec/2-plan.md): streaming on mobile via ephemeral tokens, graceful fallback, mic lifecycle, and the public release. Delta design on top of [5-desktop-v1.md](5-desktop-v1.md).
 
 ## Ephemeral Token Auth
 

@@ -1,6 +1,6 @@
 # Design: Desktop MVP
 
-Covers release 1 of [2-plan.md](../2-plan.md): the full loop on desktop with record-then-transcribe capture. Modules referenced in brackets: UI, Capture, Providers, Engine, plus the external systems Obsidian and Mistral.
+Covers release 1 of [2-plan.md](../spec/2-plan.md): the full loop on desktop with record-then-transcribe capture. Modules referenced in brackets: UI, Capture, Providers, Engine, plus the external systems Obsidian and Mistral.
 
 ## Module Map
 

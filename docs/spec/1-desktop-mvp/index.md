@@ -1,6 +1,6 @@
 # Desktop MVP: Detailed Design
 
-Implementable spec for release 1 of [2-plan.md](../2-plan.md). High-level design: [high-level-design/1-desktop-mvp.md](../high-level-design/1-desktop-mvp.md). Tech stack: bun, TypeScript, React 19, vitest with happy-dom.
+Implementable spec for release 1 of [2-plan.md](../2-plan.md). High-level design: [architecture/1-desktop-mvp.md](../../architecture/1-desktop-mvp.md). Tech stack: bun, TypeScript, React 19, vitest with happy-dom.
 
 The release is built apart from vault skills (FR34-38). These files describe working code; [6-implementation-order.md](6-implementation-order.md) carries the outstanding delta.
 

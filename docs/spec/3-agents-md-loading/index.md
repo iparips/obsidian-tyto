@@ -1,6 +1,6 @@
 # AGENTS.md Loading: Detailed Design
 
-Implementable spec for release 3 of [2-plan.md](../2-plan.md). High-level design: [high-level-design/3-agents-md-loading.md](../high-level-design/3-agents-md-loading.md). A delta on the
+Implementable spec for release 3 of [2-plan.md](../2-plan.md). High-level design: [architecture/3-agents-md-loading.md](../../architecture/3-agents-md-loading.md). A delta on the
 Mobile MVP; unlisted components are unchanged.
 
 Skills give the vault conditional instructions, matched per utterance. This

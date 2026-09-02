@@ -27,7 +27,7 @@ Drive it by dispatching `visibilitychange` with `document.hidden` stubbed true.
 ## Debugging On Device
 
 Unit tests cannot reach webview behaviour, so a failure on a phone needs a
-console. [mobile-debugging.md](../../../mobile-debugging.md) covers attaching
+console. [mobile-debugging.md](../../mobile-debugging.md) covers attaching
 Chrome DevTools over adb for Android, which is the faster of the two loops. iOS
 needs Safari Web Inspector with a Mac.
 
