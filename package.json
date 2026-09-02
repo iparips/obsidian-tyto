@@ -16,7 +16,7 @@
   },
   "keywords": [],
   "author": "Ilya Paripsa",
-  "license": "AGPL",
+  "license": "AGPL-3.0-or-later",
   "devDependencies": {
     "obsidian": ">=1.5.0",
     "@testing-library/dom": "^10.0.0",
