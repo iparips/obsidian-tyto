@@ -16,4 +16,4 @@ A session starts unbound and binds to the first note the user opens, through the
 active-note wiring that already exists. Search and questions work immediately;
 an edit says no note is open rather than failing obscurely.
 
-Designed, not built.
+Built, and the exit test passes on both surfaces.

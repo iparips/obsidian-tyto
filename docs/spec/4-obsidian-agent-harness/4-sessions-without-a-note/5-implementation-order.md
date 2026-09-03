@@ -2,11 +2,10 @@
 
 ## Status
 
-Not started. Depends on nothing else in this release, but overlaps
-[3-tidy-up-chat-panel](../3-tidy-up-chat-panel/1-index.md) on one method:
-whichever lands second deletes `resetTargetNoteToOriginal`.
+Done. Steps 1 to 6 are built, `bun run build` passes, and the exit test below
+passes by hand on both surfaces.
 
-Verify before starting: `bun run build` passes.
+`resetTargetNoteToOriginal` was already gone: the panel tidy-up landed first.
 
 ## Steps
 
