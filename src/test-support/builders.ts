@@ -2,6 +2,7 @@ import { ChatTurn, ToolCall } from '../providers/types'
 import { App } from 'obsidian'
 import { HarnessTools } from '../engine/harness-tools'
 import { CommandRunner } from '../commands/command-runner'
+import { OpenedNoteWait } from '../commands/opened-note-wait'
 import { CommandCatalogue } from '../commands/command-catalogue'
 import { AllowList } from '../commands/allow-list'
 import { VaultSearch } from '../search/vault-search'
@@ -66,7 +67,11 @@ export const aSession = (path = 'note.md'): SessionRepository =>
 
 export const noHarness = (): HarnessTools =>
   new HarnessTools(
-    new CommandRunner({} as App, new CommandCatalogue({} as App, new AllowList([]))),
+    new CommandRunner(
+      {} as App,
+      new CommandCatalogue({} as App, new AllowList([])),
+      new OpenedNoteWait({} as App),
+    ),
     new VaultSearch(new FakeVault().asVault()),
     new NoteReader(new FakeVault().asVault()),
     new CommandCatalogue({} as App, new AllowList([])),

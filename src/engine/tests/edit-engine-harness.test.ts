@@ -9,6 +9,7 @@ import { AgentsMdRepository } from '../../agents/agents-md-repository'
 import { AllowList } from '../../commands/allow-list'
 import { CommandCatalogue } from '../../commands/command-catalogue'
 import { CommandRunner } from '../../commands/command-runner'
+import { OpenedNoteWait } from '../../commands/opened-note-wait'
 import { VaultSearch } from '../../search/vault-search'
 import { NoteReader } from '../../search/note-reader'
 import { FakeAdapter } from '../../test-support/fake-adapter'
@@ -54,7 +55,7 @@ describe('EditEngine', () => {
   const opensDailyNote = () => {
     registry.executeCommandById = (id: string) => {
       registry.executed.push(id)
-      workspace.opens(DAILY)
+      workspace.finishesOpening(DAILY)
       return true
     }
   }
@@ -66,7 +67,7 @@ describe('EditEngine', () => {
     const app = appOf()
     const catalogue = new CommandCatalogue(app, new AllowList(allowed))
     return new HarnessTools(
-      new CommandRunner(app, catalogue),
+      new CommandRunner(app, catalogue, new OpenedNoteWait(app, 30)),
       new VaultSearch(vault.asVault()),
       new NoteReader(vault.asVault()),
       catalogue,

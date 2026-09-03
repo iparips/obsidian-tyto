@@ -48,9 +48,9 @@ export class HarnessTools {
     return HarnessTools.answer(call)
   }
 
-  private runCommand(call: ToolCall, budget: TurnBudget): HarnessResult {
+  private async runCommand(call: ToolCall, budget: TurnBudget): Promise<HarnessResult> {
     if (!budget.takeCommand()) return { result: TurnBudget.commandCapMessage() }
-    const commandEffectOutcome = this.commandRunner.run(call.argument('command_id'))
+    const commandEffectOutcome = await this.commandRunner.run(call.argument('command_id'))
     if (commandEffectOutcome.hasFailed()) return { result: commandEffectOutcome.message }
     const commandEffect = commandEffectOutcome.value
     return { result: commandEffect.describe(), effect: commandEffect }

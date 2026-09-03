@@ -13,6 +13,7 @@ import { ChatProvider } from '../providers/types'
 import { AllowList } from '../commands/allow-list'
 import { CommandCatalogue } from '../commands/command-catalogue'
 import { CommandRunner } from '../commands/command-runner'
+import { OpenedNoteWait } from '../commands/opened-note-wait'
 import { NoteReader } from '../search/note-reader'
 import { VaultSearch } from '../search/vault-search'
 import { OwlSettings } from '../settings/settings'
@@ -64,7 +65,7 @@ export class EngineFactory {
   private buildHarnessTools(): HarnessTools {
     const catalogue = new CommandCatalogue(this.app, new AllowList(this.settings.commandAllowList))
     return new HarnessTools(
-      new CommandRunner(this.app, catalogue),
+      new CommandRunner(this.app, catalogue, new OpenedNoteWait(this.app)),
       new VaultSearch(this.app.vault),
       new NoteReader(this.app.vault),
       catalogue,
