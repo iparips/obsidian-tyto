@@ -72,4 +72,4 @@ The Notice fires once per resolved chain rather than once per dropped file, and 
 
 ## Out of Scope
 
-Instruction files above the vault root, an include mechanism, and per-note frontmatter instructions. Resolving a chain for a note the model reads is excluded by design, not deferred. Multiple write targets in one turn arrive with the cross-file tools in [7-cross-file-skills/index.md](../spec/7-cross-file-skills/1-index.md), which reuse this resolution unchanged.
+Instruction files above the vault root, an include mechanism, and per-note frontmatter instructions. Resolving a chain for a note the model reads is excluded by design, not deferred. Multiple write targets in one turn arrive with the cross-file tools in [13-cross-file-skills/index.md](../spec/13-cross-file-skills/1-index.md), which reuse this resolution unchanged.

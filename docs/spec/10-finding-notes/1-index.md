@@ -4,7 +4,7 @@ Replaces one fuzzy search with two exact tools: a glob over paths, and a grep
 over content. The model lists what a folder holds before it guesses what a note
 is called.
 
-A delta on [1-harness-mvp](../1-harness-mvp/01-index.md), whose search flow this
+A delta on [4-harness-mvp](../4-harness-mvp/01-index.md), whose search flow this
 retires. That design scored every note's contents and returned the best eight,
 which answers "what did I write about roofing" and cannot answer "what notes are
 in Week-35".

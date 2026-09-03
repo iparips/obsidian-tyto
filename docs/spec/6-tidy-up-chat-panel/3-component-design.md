@@ -1,7 +1,7 @@
 # Tidy Up Chat Panel: Component Design
 
 How six entry kinds become three weights. Delta on the
-[harness MVP](../1-harness-mvp/05-component-design.md); unlisted components are
+[harness MVP](../4-harness-mvp/05-component-design.md); unlisted components are
 unchanged.
 
 ## The Kind Says What, the Weight Says How Much

@@ -5,7 +5,7 @@
 Not started. Depends on nothing else in this release.
 
 Touches the same tool set as
-[6-model-chosen-targets](../6-model-chosen-targets/1-index.md), whose open_note
+[9-model-chosen-targets](../9-model-chosen-targets/1-index.md), whose open_note
 takes its paths from SeenPaths (Search). Both new tools must record there, or a
 note the model can find is a note it cannot open.
 
@@ -106,7 +106,7 @@ Each step leaves the suite green.
 
     Byte-for-byte against git again, as in step 7.
 
-12. `docs/spec/4-obsidian-agent-harness/1-harness-mvp/07-search-and-answering.md`
+12. `docs/spec/4-harness-mvp/07-search-and-answering.md`
     and `03-functional-requirements.md`: mark the search flow superseded.
 
     The MVP spec describes search_vault as the search mechanism. Leaving it

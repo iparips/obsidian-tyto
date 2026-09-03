@@ -1,8 +1,8 @@
 # Design: Obsidian Agent Harness
 
-Covers release 4 of [2-plan.md](../spec/2-plan.md): running Obsidian commands, rebinding the session to the note one opens, and searching the vault to answer a question. Delta design on top of [3-agents-md-loading.md](3-agents-md-loading.md). Requirement IDs refer to [1-harness-mvp/2-functional-requirements.md](../spec/4-obsidian-agent-harness/1-harness-mvp/03-functional-requirements.md).
+Covers release 4 of [2-plan.md](../spec/2-plan.md): running Obsidian commands, rebinding the session to the note one opens, and searching the vault to answer a question. Delta design on top of [3-agents-md-loading.md](3-agents-md-loading.md). Requirement IDs refer to [4-harness-mvp/2-functional-requirements.md](../spec/4-harness-mvp/03-functional-requirements.md).
 
-Designed in [1-harness-mvp/4-component-design.md](../spec/4-obsidian-agent-harness/1-harness-mvp/05-component-design.md). Both feasibility questions are settled: search needs no private API, and the command registry is reachable through a module augmentation with an empty-catalogue fallback.
+Designed in [4-harness-mvp/4-component-design.md](../spec/4-harness-mvp/05-component-design.md). Both feasibility questions are settled: search needs no private API, and the command registry is reachable through a module augmentation with an empty-catalogue fallback.
 
 ## What the Requirements Already Fix
 
@@ -16,7 +16,7 @@ The shape below is settled by the requirements and is not open for the design to
 
 ## What the Design Settled
 
-All five questions are closed, with the reasoning in [04-decisions.md](../spec/4-obsidian-agent-harness/1-harness-mvp/04-decisions.md).
+All five questions are closed, with the reasoning in [04-decisions.md](../spec/4-harness-mvp/04-decisions.md).
 
 | Question              | Answer                                                                    |
 | --------------------- | ------------------------------------------------------------------------- |
@@ -36,4 +36,4 @@ The binding moves as a tool result, never silently. The model is told the target
 
 ## Out of Scope
 
-Search-and-edit, creating a note at a model-chosen path, and multi-file writes. The first two are the same risk: a destination the model picked rather than one Obsidian computed. Multi-file writes arrive in [7-cross-file-skills/index.md](../spec/7-cross-file-skills/1-index.md).
+Search-and-edit, creating a note at a model-chosen path, and multi-file writes. The first two are the same risk: a destination the model picked rather than one Obsidian computed. Multi-file writes arrive in [13-cross-file-skills/index.md](../spec/13-cross-file-skills/1-index.md).

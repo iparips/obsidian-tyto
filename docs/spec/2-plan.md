@@ -73,7 +73,17 @@ Goal: stop the session being trapped in one note. Two flows, sharing only the ag
 
 The write destination always comes from a command, never from a path the model picked. Search-and-edit waits for a later release, for the same reason cross-file writes do.
 
-Detailed design: [4-obsidian-agent-harness/index.md](4-obsidian-agent-harness/1-index.md).
+Detailed design, one folder per feature:
+
+- [4-harness-mvp/01-index.md](4-harness-mvp/01-index.md) - commands, retargeting and search. Built; the exit test is outstanding.
+- [5-settings-command-picker/1-index.md](5-settings-command-picker/1-index.md) - finding a command to allow, without knowing its id. Built.
+- [6-tidy-up-chat-panel/1-index.md](6-tidy-up-chat-panel/1-index.md) - three weights for six entry kinds, and a pending indicator.
+- [7-sessions-without-a-note/1-index.md](7-sessions-without-a-note/1-index.md) - starting a session with no note open.
+- [8-cancelling-a-turn/1-index.md](8-cancelling-a-turn/1-index.md) - stopping a turn that is running, and saying what it left.
+- [9-model-chosen-targets/1-index.md](9-model-chosen-targets/1-index.md) - opening a note the model located itself. Built; exit tests outstanding.
+- [10-finding-notes/1-index.md](10-finding-notes/1-index.md) - a glob over paths and a grep over content, replacing fuzzy search. Designed.
+
+High-level design: [architecture/4-obsidian-agent-harness.md](../architecture/4-obsidian-agent-harness.md).
 
 Exit test: "open my daily note and add a paragraph under Meetings" opens the note and edits it, "what did I write about the roofing quote recently" returns a copyable summary naming its sources and touches no note, and a vault with an empty allow-list behaves byte for byte as release 3.
 
@@ -112,6 +122,6 @@ Goal: lift the single-note limit, so the vault skills that route between files b
 - Each write resolves its own target's AGENTS.md chain, per release 3.
 - Each write resolves its own target's AGENTS.md chain, per release 3.
 
-Detailed design: [7-cross-file-skills/index.md](7-cross-file-skills/1-index.md).
+Detailed design: [13-cross-file-skills/index.md](13-cross-file-skills/1-index.md).
 
 Exit test: with the vault's todo skill present, an instruction to archive done items follows the skill's steps rather than improvising, and the journal skill files an entry at the right computed path.

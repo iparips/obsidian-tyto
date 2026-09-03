@@ -4,7 +4,7 @@ Makes the session panel read as a conversation. Every entry is a padded box
 today, so a spoken instruction, a note about which files were loaded, and the
 agent's reply all carry the same weight.
 
-A delta on [1-harness-mvp](../1-harness-mvp/01-index.md), which added the
+A delta on [4-harness-mvp](../4-harness-mvp/01-index.md), which added the
 command and instruction entries the panel now shows. Presentation only: no
 entry changes what it says, and nothing new is published.
 

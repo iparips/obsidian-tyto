@@ -1,7 +1,7 @@
 # Sessions Without a Note: Component Design
 
 How a session survives having no note. Delta on the
-[harness MVP](../1-harness-mvp/05-component-design.md); unlisted components are
+[harness MVP](../4-harness-mvp/05-component-design.md); unlisted components are
 unchanged.
 
 ## The Binding Becomes Nullable, and Only There
@@ -28,7 +28,7 @@ export class SessionRepository {
 
 `resetTargetNoteToOriginal` goes, rather than gaining a null branch. It exists
 only for the return-to-starting-note button, which
-[3-tidy-up-chat-panel](../3-tidy-up-chat-panel/1-index.md) removes, and an
+[6-tidy-up-chat-panel](../6-tidy-up-chat-panel/1-index.md) removes, and an
 unbound session has no original note to return to. The two specs land in either
 order; whichever is second deletes it.
 

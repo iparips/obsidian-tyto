@@ -1,7 +1,7 @@
 # Model-Chosen Targets: Component Design
 
 How the model opens a note it found, and how a turn pauses to ask. Delta on the
-[harness MVP](../1-harness-mvp/05-component-design.md); unlisted components are
+[harness MVP](../4-harness-mvp/05-component-design.md); unlisted components are
 unchanged.
 
 ## Table of Contents
@@ -221,7 +221,7 @@ a user who dismissed the notice can still read what was asked (FR32).
 
 Cancelling a turn while it waits answers declined. The promise must settle, or
 the loop stays parked and the session never returns to idle. TurnCancellation
-(Engine) from [5-cancelling-a-turn](../5-cancelling-a-turn/1-index.md) is what
+(Engine) from [8-cancelling-a-turn](../8-cancelling-a-turn/1-index.md) is what
 carries that: the pending question races its own answer against whenCancelled.
 
 ## One Way to Park, Two Things to Ask
@@ -348,7 +348,7 @@ Both come from the same retargeted channel, so nothing new publishes. The
 existing subscription sets two pieces of state rather than one.
 
 Styling is the context weight from
-[3-tidy-up-chat-panel](../3-tidy-up-chat-panel/2-requirements.md): smaller and
+[6-tidy-up-chat-panel](../6-tidy-up-chat-panel/2-requirements.md): smaller and
 muted, under the name. A long path truncates with an ellipsis rather than
 wrapping, which keeps the header one line in a narrow drawer (NFR6).
 
@@ -390,7 +390,7 @@ not need the mode to justify it.
 - A chat toggle for the mode. FR9 keeps it in settings.
 - Remembering an approval past the turn that granted it.
 - Cancelling itself, which is
-  [5-cancelling-a-turn](../5-cancelling-a-turn/1-index.md). This design consumes
+  [8-cancelling-a-turn](../8-cancelling-a-turn/1-index.md). This design consumes
   TurnCancellation (Engine) and does not build it.
 - A system notification. The notices here are Obsidian's own, and stop at its
   window.

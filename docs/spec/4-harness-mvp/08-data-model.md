@@ -1,7 +1,7 @@
 # Obsidian Agent Harness: Data Model
 
 New types, written first so the packages can be built in parallel against them.
-Delta on [1-desktop-mvp/2-data-model.md](../../1-desktop-mvp/3-data-model.md).
+Delta on [1-desktop-mvp/2-data-model.md](../1-desktop-mvp/3-data-model.md).
 
 ## Commands (src/commands/models/)
 

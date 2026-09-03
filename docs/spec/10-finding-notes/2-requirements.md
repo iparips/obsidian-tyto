@@ -24,7 +24,7 @@ that path: the year, the week, the day.
 
 The harness MVP gave the model one way to find a note: score every note's
 contents against a query and return the best eight
-([07-search-and-answering.md](../1-harness-mvp/07-search-and-answering.md)). A
+([07-search-and-answering.md](../4-harness-mvp/07-search-and-answering.md)). A
 folder name appears in no note's prose, so that search cannot see it.
 
 Asked for last Friday's note, the model reasons its way to `Week-35`, searches

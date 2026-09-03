@@ -99,7 +99,7 @@ to 3 are independent and can proceed in parallel; the rest are sequential.
 
 ## Exit test
 
-Three scenarios from [2-plan.md](../../2-plan.md), run by hand in a real vault.
+Three scenarios from [2-plan.md](../2-plan.md), run by hand in a real vault.
 Everything else is covered by the suite; these are what the suite cannot reach.
 
 Before starting, check settings holds an allow-list your vault can act on. The

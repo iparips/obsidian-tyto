@@ -2,7 +2,7 @@
 
 How a path pattern becomes a list of notes, and how a regular expression becomes
 a list of matches. Delta on the
-[harness MVP](../1-harness-mvp/05-component-design.md); unlisted components are
+[harness MVP](../4-harness-mvp/05-component-design.md); unlisted components are
 unchanged.
 
 ## Table of Contents
@@ -286,7 +286,7 @@ sequenceDiagram
 Arrows: uses-relationship (client to supplier).
 
 Both tools record their paths on SeenPaths (Search), because
-[6-model-chosen-targets](../6-model-chosen-targets/1-index.md) makes a search hit
+[9-model-chosen-targets](../9-model-chosen-targets/1-index.md) makes a search hit
 the only source of a path open_note accepts. A glob that could not feed open_note
 would leave the model able to find a note and unable to open it.
 
@@ -501,5 +501,5 @@ path, which is FR3 of the spec before this one.
 - Brace expansion and character classes in a glob. Two globs express what braces
   would, and `*` already matches digits.
 - Writing what either tool found into a note, which stays with
-  [7-cross-file-skills](../../7-cross-file-skills/1-index.md).
+  [13-cross-file-skills](../13-cross-file-skills/1-index.md).
 - Searching anything but markdown, since getMarkdownFiles is the one pass.

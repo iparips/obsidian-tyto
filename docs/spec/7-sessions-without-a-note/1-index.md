@@ -3,7 +3,7 @@
 Lets a session start with no note open. Today the command refuses, because the
 session was built when editing one bound note was all the plugin did.
 
-A delta on [1-harness-mvp](../1-harness-mvp/01-index.md), which gave the plugin
+A delta on [4-harness-mvp](../4-harness-mvp/01-index.md), which gave the plugin
 a search flow that needs no bound note at all. The refusal is a leftover from
 before that flow existed.
 

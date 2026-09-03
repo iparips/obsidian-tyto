@@ -26,7 +26,7 @@ open some note, any note, before the panel will start.
 ## Non-goals
 
 - Letting the model choose a note to bind to. That is
-  [6-model-chosen-targets](../6-model-chosen-targets/1-index.md).
+  [9-model-chosen-targets](../9-model-chosen-targets/1-index.md).
 - Creating a note to bind to. An unbound session waits; it does not write.
 - Changing what a bound session does. Once bound, nothing differs.
 - Persisting a session across a reload.

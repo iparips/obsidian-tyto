@@ -3,11 +3,11 @@
 ## Status
 
 Built, exit tests pending. Depends on
-[5-cancelling-a-turn](../5-cancelling-a-turn/1-index.md), which landed first:
+[8-cancelling-a-turn](../8-cancelling-a-turn/1-index.md), which landed first:
 the second commit consumes TurnCancellation (Engine) to settle a parked
 question, and FR29 has no other mechanism.
 
-Depends on [4-sessions-without-a-note](../4-sessions-without-a-note/1-index.md)
+Depends on [7-sessions-without-a-note](../7-sessions-without-a-note/1-index.md)
 only where both touch TurnRepository (Engine), and the two changes are additive
 rather than conflicting.
 

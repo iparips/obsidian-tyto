@@ -1,7 +1,7 @@
 # Settings Command Picker: Component Design
 
 How a name becomes an allow-list entry. Delta on the
-[harness MVP](../1-harness-mvp/05-component-design.md); unlisted components are
+[harness MVP](../4-harness-mvp/05-component-design.md); unlisted components are
 unchanged.
 
 ## The Catalogue Answers One Question, the Picker Another

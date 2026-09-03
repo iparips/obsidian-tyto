@@ -47,7 +47,7 @@ Each step leaves the suite green.
    - `src/engine/edit-engine.ts`: `returnToStartingNote`, which nothing else
      calls.
    - `src/session/session-repository.ts`: `resetTargetNoteToOriginal`, which
-     exists only for it. [4-sessions-without-a-note](../4-sessions-without-a-note/1-index.md)
+     exists only for it. [7-sessions-without-a-note](../7-sessions-without-a-note/1-index.md)
      removes the same method, so whichever spec lands second finds it gone.
 
    Seven test cases go with it, and one nearby case must not: "names the new

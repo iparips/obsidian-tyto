@@ -3,7 +3,7 @@
 ## Status
 
 Built, exit test pending. Depends on nothing else in this release, and
-[6-model-chosen-targets](../6-model-chosen-targets/1-index.md) depends on it:
+[9-model-chosen-targets](../9-model-chosen-targets/1-index.md) depends on it:
 its FR29 settles a parked question when the turn is cancelled.
 
 Verify before starting: `bun run build` passes.

@@ -26,7 +26,7 @@ and a waiting turn opens the panel so the question is seen.
 
 The harness MVP routes every destination through a command, because a command
 resolves a path from the user's own configuration and a model-chosen path is a
-guess ([04-decisions.md](../1-harness-mvp/04-decisions.md)).
+guess ([04-decisions.md](../4-harness-mvp/04-decisions.md)).
 
 That holds for creating a note. It does not hold for opening one that exists.
 
@@ -308,7 +308,7 @@ FR28. Show no notice while a turn is working.
 
 FR29. Settle a pending question when the user cancels the turn, so the loop
 never parks forever. Cancelling itself is
-[5-cancelling-a-turn](../5-cancelling-a-turn/1-index.md).
+[8-cancelling-a-turn](../8-cancelling-a-turn/1-index.md).
 
 FR30. Cap the number of questions one turn may ask.
 
@@ -350,7 +350,7 @@ the notification.
 
 NFR10. The header path is subordinate to the name: smaller and muted, per the
 context weight in
-[3-tidy-up-chat-panel](../3-tidy-up-chat-panel/2-requirements.md). A long path
+[6-tidy-up-chat-panel](../6-tidy-up-chat-panel/2-requirements.md). A long path
 truncates rather than wrapping the header onto a second line.
 
 ## What the design must settle

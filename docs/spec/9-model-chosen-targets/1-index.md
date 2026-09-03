@@ -8,7 +8,7 @@ Where no route resolves the note, the model asks the user rather than guessing.
 A notice says the turn wants them, so a question on a phone is not left behind a
 closed drawer, and the panel is never opened over the note they are reading.
 
-A delta on [1-harness-mvp](../1-harness-mvp/01-index.md), which routes every
+A delta on [4-harness-mvp](../4-harness-mvp/01-index.md), which routes every
 destination through a command. That rule was written before search shipped:
 search makes a path checkable, so opening an existing note is a lookup rather
 than the guess the rule guards against.
@@ -19,7 +19,7 @@ than the guess the rule guards against.
 - [5-implementation-order.md](5-implementation-order.md) - build order in two commits, and an exit test for each
 
 Creating a note at a model-chosen path stays out, with
-[7-cross-file-skills](../../7-cross-file-skills/1-index.md), because a wrong
+[13-cross-file-skills](../13-cross-file-skills/1-index.md), because a wrong
 guess there lands a stray note with no error and needs that release's undo
 story.
 
@@ -34,5 +34,5 @@ comes back. The notices are one collaborator over Obsidian's own Notice, which
 persists at a zero duration.
 
 Built, exit tests pending. It needed
-[5-cancelling-a-turn](../5-cancelling-a-turn/1-index.md) first, since a parked
+[8-cancelling-a-turn](../8-cancelling-a-turn/1-index.md) first, since a parked
 question settles on that spec's cancellation.

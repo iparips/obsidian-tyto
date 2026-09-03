@@ -3,7 +3,7 @@
 Lets the user stop a turn that is running. Today the panel disables its input
 until the turn finishes, so a model heading the wrong way arrives there.
 
-A delta on [1-harness-mvp](../1-harness-mvp/01-index.md), which made a turn long
+A delta on [4-harness-mvp](../4-harness-mvp/01-index.md), which made a turn long
 enough to be worth stopping. A single-note edit was quick and bounded; a turn
 that searches, runs commands and retargets can spend ten iterations, and each one
 may write.
@@ -13,11 +13,11 @@ may write.
 - [4-testing-strategy.md](4-testing-strategy.md) - unit test outline, branch by branch
 - [5-implementation-order.md](5-implementation-order.md) - build order and the exit test
 
-Undo stays out, with [7-cross-file-skills](../../7-cross-file-skills/1-index.md).
+Undo stays out, with [13-cross-file-skills](../13-cross-file-skills/1-index.md).
 The vault keeps what a cancelled turn wrote, and the obligation here is to report
 that rather than repair it.
 
-[6-model-chosen-targets](../6-model-chosen-targets/1-index.md) depends on this:
+[9-model-chosen-targets](../9-model-chosen-targets/1-index.md) depends on this:
 its FR29 says a parked question settles when the turn is cancelled, which needs a
 cancel to exist.
 

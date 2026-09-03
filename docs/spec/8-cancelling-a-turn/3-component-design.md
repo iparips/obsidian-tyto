@@ -1,7 +1,7 @@
 # Cancelling a Turn: Component Design
 
 How a turn stops. Delta on the
-[harness MVP](../1-harness-mvp/05-component-design.md); unlisted components are
+[harness MVP](../4-harness-mvp/05-component-design.md); unlisted components are
 unchanged.
 
 ## Table of Contents
