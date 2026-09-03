@@ -55,9 +55,17 @@ the registry, so the catalogue no longer imports Obsidian at all.
 
 Four call sites construct a catalogue and each gains the registry:
 EngineFactory (Engine), OwlSettingsTab (Settings), and two in builders.ts
-(Test Support). CommandRunner (Commands) reaches the registry through the
-catalogue today; it takes the registry directly instead, since executing a
-command is the other half of what the registry owns.
+(Test Support).
+
+CommandRunner (Commands) gains the registry for `executeCommandById`, which is
+the other half of what the registry owns. It keeps its App, because the
+before-and-after diff reads `app.workspace` for the active file, which the
+registry has no part in.
+
+```typescript
+// command-registry.ts, beside list()
+executeCommandById(id: string): boolean
+```
 
 ```mermaid
 flowchart LR

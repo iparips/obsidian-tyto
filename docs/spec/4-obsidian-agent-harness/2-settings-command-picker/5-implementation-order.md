@@ -15,12 +15,19 @@ Each step leaves the suite green.
    and the availability check out of CommandCatalogue (Commands), which keeps
    only its filtering and stops importing Obsidian.
 
-   Behaviour-preserving, but not confined to one file. CommandCatalogue and
-   CommandRunner (Commands) take a registry rather than an App, and four
-   construction sites follow: EngineFactory (Engine), OwlSettingsTab (Settings)
-   and two in builders.ts (Test Support). The catalogue's and runner's existing
-   tests must pass with no change beyond construction; a test that needs its
-   assertions edited means behaviour moved, which this step must not do.
+   Behaviour-preserving, but not confined to one file. CommandCatalogue
+   (Commands) takes a registry in place of its App. CommandRunner (Commands)
+   keeps its App, because it reads `app.workspace` for the active file, and
+   gains the registry for `executeCommandById`.
+
+   Four construction sites follow: EngineFactory (Engine), OwlSettingsTab
+   (Settings) and two in builders.ts (Test Support). FakeCommandRegistry (Test
+   Support) exposes only `asApp()`; it gains a way to serve as a CommandRegistry
+   so the catalogue and search tests can construct one.
+
+   The catalogue's and runner's existing tests must pass with no change beyond
+   construction. A test needing its assertions edited means behaviour moved,
+   which this step must not do.
 
 2. `src/commands/allow-list.ts`: add `coveringEntry`, returning which entry
    permits an id rather than whether one does. `permits` stays, expressed
@@ -52,6 +59,11 @@ Each step leaves the suite green.
 10. `src/settings/AllowListEditor.tsx`: compose the picker above the table. The
     bulk textarea goes, along with its tests; the cases it covered move to the
     row and the table.
+
+    ResolvedCommands (Settings) goes with it. The collapsed count it renders is
+    what the table now shows per entry, so the `resolvedCommands` prop threaded
+    through OwlSettingsTab (Settings) and SettingsPanel (Settings) is removed
+    rather than left feeding a component nothing renders.
 
 ## Exit test
 

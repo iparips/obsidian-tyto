@@ -5,13 +5,19 @@ the repo's conventions: one dedicated case per branch, named "does X when Y".
 
 FakeCommandRegistry (Test Support) backs every test here. It already holds a
 command list and supports being constructed without its methods, so the probe
-path and the unreachable-registry case need no new double.
+path and the unreachable-registry case need no new double. It exposes only
+`asApp()` today, and gains a way to serve as a CommandRegistry (Commands, new)
+directly.
 
 ## CommandRegistry (Commands, new)
 
 - Lists every registered command, allowed or not.
 - Yields nothing when the registry methods are absent, rather than throwing.
-- Drops a command the registry reports as unavailable (FR12).
+- Drops a command the registry reports as unavailable (FR15).
+- Executes a command by id, and reports whether the registry accepted it.
+
+The catalogue's and runner's existing suites are the real check on this step:
+they must pass with only their construction changed.
 
 ## AllowList (Commands, changed)
 
