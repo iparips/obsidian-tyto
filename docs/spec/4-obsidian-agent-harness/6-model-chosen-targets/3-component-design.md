@@ -44,11 +44,11 @@ private async openNote(call: ToolCall, budget: TurnBudget): Promise<HarnessResul
 
 Three refusals guard it, in order:
 
-| Refusal            | Source of the answer                    | Requirement |
-| ------------------ | --------------------------------------- | ----------- |
-| Budget spent       | TurnBudget                              | FR4         |
-| Path never offered | SeenPaths                               | FR3         |
-| No note there      | NoteReader                              | FR2         |
+| Refusal            | Source of the answer | Requirement |
+| ------------------ | -------------------- | ----------- |
+| Budget spent       | TurnBudget           | FR4         |
+| Path never offered | SeenPaths            | FR3         |
+| No note there      | NoteReader           | FR2         |
 
 SeenPaths (Search, new) is the new value. VaultSearch (Search) returns hits, and
 the paths of those hits are the only paths open_note accepts.
@@ -184,11 +184,11 @@ TurnFactory (Engine) alongside TurnRepository (Engine). Nothing has to expire it
 
 The panel gains one entry kind and one phase.
 
-| Addition            | Shape                                       |
-| ------------------- | ------------------------------------------- |
-| Entry kind          | confirm, carrying the path and two buttons  |
-| Phase               | confirming, so the input row stays disabled |
-| Action              | openRequested, and openAnswered             |
+| Addition   | Shape                                       |
+| ---------- | ------------------------------------------- |
+| Entry kind | confirm, carrying the path and two buttons  |
+| Phase      | confirming, so the input row stays disabled |
+| Action     | openRequested, and openAnswered             |
 
 The entry weighs as a reply. It is what the turn produced, and it is what the
 user is being asked to read, so it sits where they are already looking rather

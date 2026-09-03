@@ -12,7 +12,8 @@ A delta on AGENTS.md Loading; unlisted components are unchanged.
 - [2-settings-command-picker/1-index.md](2-settings-command-picker/1-index.md) - finding a command to allow, without knowing its id. Built.
 - [3-tidy-up-chat-panel/1-index.md](3-tidy-up-chat-panel/1-index.md) - three weights for six entry kinds, and a pending indicator.
 - [4-sessions-without-a-note/1-index.md](4-sessions-without-a-note/1-index.md) - starting a session with no note open.
-- [5-model-chosen-targets/1-index.md](5-model-chosen-targets/1-index.md) - opening a note the model located itself.
+- [5-cancelling-a-turn/1-index.md](5-cancelling-a-turn/1-index.md) - stopping a turn that is running, and saying what it left.
+- [6-model-chosen-targets/1-index.md](6-model-chosen-targets/1-index.md) - opening a note the model located itself.
 
 Related specs
 
