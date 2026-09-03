@@ -1,5 +1,6 @@
 import { EditorPosition } from 'obsidian'
 import { ChatMessage, ChatProvider, ToolCall } from '../providers/types'
+import { ChatTurn } from '../providers/models/chat-turn'
 import { NoteEditor } from './note-editor'
 import { Outcome, Outcomes } from '../shared/models/outcome'
 import { PromptBuilder } from './prompt-builder'
@@ -10,6 +11,7 @@ import { HarnessTools } from './harness-tools'
 import { Turn } from './models/turn'
 import { TurnFactory } from './turn-factory'
 import { SessionRepository } from '../session/session-repository'
+import { TurnProgressPublisher } from './turn-progress-publisher'
 
 const MAX_ITERATIONS = 10
 
@@ -24,10 +26,19 @@ export class EditEngine {
     private noteEditor: NoteEditor,
     private harnessTools: HarnessTools,
     private turnFactory: TurnFactory,
+    private turnProgressPublisher: TurnProgressPublisher,
   ) {}
 
   returnToStartingNote(): void {
     this.sessionRepository.resetTargetNoteToOriginal()
+  }
+
+  // A note the user opened themselves is as much a retarget as one a command
+  // opened, so the session follows rather than editing the note behind them.
+  followActiveNote(path: string): void {
+    if (path === this.sessionRepository.targetNote()) return
+    this.sessionRepository.changeTargetNote(path)
+    this.turnProgressPublisher.retargeted(path)
   }
 
   processUtterance(text: string): Promise<Outcome<string>> {
@@ -57,6 +68,7 @@ export class EditEngine {
         this.sessionRepository.chatHistory(),
       )
       if (answer.hasFailed()) return Outcomes.failure(answer.step, answer.message)
+      EditEngine.logIteration(iteration, answer.value, turnRepository.targetNote().path)
       if (answer.value.isText())
         return this.concludeUtterance(
           answer.value.content,
@@ -66,6 +78,13 @@ export class EditEngine {
       await this.executeToolCalls(answer.value.calls, turn)
     }
     return Outcomes.failure('chat', `edit loop exceeded ${MAX_ITERATIONS} iterations`)
+  }
+
+  // The only record of why a turn spent its iterations: the panel shows commands
+  // and answers, but not the edits the model retried or the note it aimed at.
+  private static logIteration(iteration: number, turn: ChatTurn, path: string): void {
+    const calls = turn.isText() ? 'text' : turn.calls.map((call) => call.name).join(', ')
+    console.debug(`[owl] iteration ${iteration + 1} on ${path}:`, calls)
   }
 
   private askModel(

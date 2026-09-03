@@ -35,6 +35,7 @@ describe('EditEngine', () => {
   let sessions: SessionRepository
   let commands: string[]
   let answers: { text: string; sources: string[] }[]
+  let retargets: string[]
 
   beforeEach(() => {
     vi.clearAllMocks()
@@ -47,6 +48,7 @@ describe('EditEngine', () => {
     adapter = new FakeAdapter()
     commands = []
     answers = []
+    retargets = []
     sessions = aSession()
     noteLocator = new FakeNoteLocator()
       .withOpenNote('note.md', editor)
@@ -88,7 +90,7 @@ describe('EditEngine', () => {
         progress: new TurnProgressPublisher(
           (text) => commands.push(text),
           (text, sources) => answers.push({ text, sources }),
-          () => undefined,
+          (path) => retargets.push(path),
           () => undefined,
         ),
       },
@@ -313,23 +315,76 @@ describe('EditEngine', () => {
       noteLocator.closeNote(DAILY)
     })
 
-    it('tells the model the target did not move when the opened note has no editor', async () => {
+    it('tells the model the note is not editable when the opened note has no editor', async () => {
       respondsWith(runCommand())
 
       await engineOf().processUtterance('open my daily note')
 
       const results = complete.mock.calls[1][0].filter((m: ChatMessage) => m.isToolResult())
       expect(results[0]).toMatchObject({
-        content: 'ran Open today; no note opened, still editing the same note',
+        content: `ran Open today; ${DAILY} opened but is not editable yet, so no edit was made`,
       })
     })
 
-    it('leaves the target on the original note when the opened note has no editor', async () => {
+    it('moves the target to the opened note when the opened note has no editor', async () => {
       respondsWith(runCommand())
 
       await engineOf().processUtterance('open my daily note')
 
+      expect(sessions.targetNote()).toBe(DAILY)
+    })
+
+    it('refuses a following edit when the opened note has no editor', async () => {
+      respondsWith(
+        runCommand(),
+        aToolTurn(aToolCall('insert_at', { location: 'note_end', content: '\n- plates' })),
+      )
+
+      await engineOf().processUtterance('open my daily note and add a line')
+
+      const results = complete.mock.calls[2][0].filter((m: ChatMessage) => m.isToolResult())
+      expect(results[1]).toMatchObject({
+        content: `${DAILY} is not editable yet; stop and tell the user to open it`,
+      })
+    })
+
+    // The anchor matches the note the turn still holds, so an unguarded edit
+    // would land in it rather than being refused.
+    it('leaves the note the turn still holds untouched when an edit is refused', async () => {
+      respondsWith(
+        runCommand(),
+        aToolTurn(aToolCall('insert_at', { location: 'note_end', content: '\n- plates' })),
+      )
+
+      await engineOf().processUtterance('open my daily note and add a line')
+
+      expect(editor.getValue()).toBe('# Budget\n\nbody')
+    })
+  })
+
+  describe('when the user opens a note themselves', () => {
+    it('moves the target when the user opens a different note', () => {
+      engineOf().followActiveNote(DAILY)
+
+      expect(sessions.targetNote()).toBe(DAILY)
+    })
+
+    it('reports the move when the user opens a different note', () => {
+      engineOf().followActiveNote(DAILY)
+
+      expect(retargets).toEqual([DAILY])
+    })
+
+    it('keeps the target when the user opens the note already targeted', () => {
+      engineOf().followActiveNote('note.md')
+
       expect(sessions.targetNote()).toBe('note.md')
+    })
+
+    it('reports nothing when the user opens the note already targeted', () => {
+      engineOf().followActiveNote('note.md')
+
+      expect(retargets).toEqual([])
     })
   })
 

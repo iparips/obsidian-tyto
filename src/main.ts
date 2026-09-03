@@ -12,11 +12,14 @@ import { AgentsMdRepository } from './agents/agents-md-repository'
 import { InstructionReport } from './agents/instruction-report'
 import { InstructionListeners } from './session/instruction-listeners'
 import { TurnProgressPublisher } from './engine/turn-progress-publisher'
+import { EditEngine } from './engine/edit-engine'
 import { EngineFactory } from './engine/engine-factory'
 import { SessionListeners } from './session/session-listeners'
 
 export default class OwlPlugin extends Plugin {
   settings: OwlSettings = DEFAULT_SETTINGS
+  private activeEngine: EditEngine | null = null
+  private followsActiveNote = false
 
   async onload(): Promise<void> {
     this.settings = { ...DEFAULT_SETTINGS, ...(await this.loadData()) }
@@ -62,6 +65,7 @@ export default class OwlPlugin extends Plugin {
       file,
       this.buildTurnProgressPublisher(sessionListeners, listeners),
     )
+    this.followActiveNoteWith(engine)
     return {
       noteName: file.basename,
       recorder: new Recorder(),
@@ -76,6 +80,21 @@ export default class OwlPlugin extends Plugin {
       onAnswer: (listener) => sessionListeners.answers.subscribe(listener),
       onTargetNoteChanged: (listener) => sessionListeners.retargets.subscribe(listener),
     }
+  }
+
+  // Only the newest engine follows the user: an earlier session's engine keeps
+  // the note it was bound to rather than trailing every note opened since.
+  private followActiveNoteWith(engine: EditEngine): void {
+    this.activeEngine = engine
+    if (this.followsActiveNote) return
+    this.followsActiveNote = true
+    this.registerEvent(
+      this.app.workspace.on('file-open', (file) => this.retargetActiveEngine(file)),
+    )
+  }
+
+  private retargetActiveEngine(file: TFile | null): void {
+    if (file) this.activeEngine?.followActiveNote(file.path)
   }
 
   // Each channel lands somewhere different: two become panel entries, one names

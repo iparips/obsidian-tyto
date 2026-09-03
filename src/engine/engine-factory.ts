@@ -44,6 +44,7 @@ export class EngineFactory {
       new NoteEditor(),
       harnessTools,
       this.buildTurnFactory(sessions, targetNote, harnessTools, progress),
+      progress,
     )
   }
 

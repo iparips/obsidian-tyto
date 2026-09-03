@@ -60,7 +60,14 @@ export const anEngine = (modelProvider: ChatProvider, options: EnginePartsOption
     harness,
     progress,
   )
-  return new EditEngine(modelProvider, options.sessions, new NoteEditor(), harness, turnFactory)
+  return new EditEngine(
+    modelProvider,
+    options.sessions,
+    new NoteEditor(),
+    harness,
+    turnFactory,
+    progress,
+  )
 }
 
 export const aSession = (path = 'note.md'): SessionRepository =>

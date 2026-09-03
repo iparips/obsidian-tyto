@@ -34,6 +34,15 @@ export class ToolDispatcher {
   async execute(call: ToolCall): Promise<ToolCallOutcome> {
     if (call.isLoadSkill()) return { result: await this.loadSkill(call) }
     if (call.isHarnessTool()) return this.callHarnessTool(call)
+    return this.editTargetNote(call)
+  }
+
+  // Refused rather than applied to the note the turn still holds: that note is
+  // no longer the target, and editing it would write to the wrong file.
+  private editTargetNote(call: ToolCall): ToolCallOutcome {
+    const unwritable = this.turnRepository.unwritableNote()
+    if (unwritable)
+      return { result: `${unwritable} is not editable yet; stop and tell the user to open it` }
     return this.callToolOnNote(call, this.turnRepository.targetNote())
   }
 
@@ -53,13 +62,11 @@ export class ToolDispatcher {
     return { result: await this.publishCommand(harnessResult.effect) }
   }
 
-  // The model is told what actually happened: a note that opened but has no
-  // editor did not move the target, so the next anchor must not assume it did.
+  // The model is told what actually happened: a note that opened without an
+  // editor is the target, but cannot be written to yet.
   private async publishCommand(effect: CommandEffect): Promise<string> {
     const moved = await this.moveTarget(effect)
-    const text = moved
-      ? effect.describe()
-      : CommandEffect.openedNothing(effect.commandName).describe()
+    const text = moved ? effect.describe() : effect.describeUneditable()
     this.turnProgressPublisher.commandRan(text)
     return text
   }
@@ -70,21 +77,19 @@ export class ToolDispatcher {
     return this.moveTargetTo(opened)
   }
 
-  // The target moves only once the turn can resolve it, so a note nothing has
-  // open leaves the session pointing where it was.
+  // The target follows the note that opened even when it will not resolve:
+  // the note it moved from is the one mobile just detached, so keeping it
+  // strands the session on a note no retry can reach.
   private async moveTargetTo(path: string): Promise<boolean> {
-    const wasTargeting = this.sessionRepository.targetNote()
     this.sessionRepository.changeTargetNote(path)
     const resolvedNoteOutcome = await this.targetNoteResolver.resolve()
-    if (resolvedNoteOutcome.hasFailed()) return this.abandonMove(wasTargeting)
+    if (resolvedNoteOutcome.hasFailed()) {
+      this.turnRepository.cannotWriteTo(path)
+      return false
+    }
     this.turnRepository.retargetTo(resolvedNoteOutcome.value)
     this.turnProgressPublisher.retargeted(path)
     return true
-  }
-
-  private abandonMove(wasTargeting: string): boolean {
-    this.sessionRepository.changeTargetNote(wasTargeting)
-    return false
   }
 
   private callToolOnNote(call: ToolCall, note: OpenNote): ToolCallOutcome {
