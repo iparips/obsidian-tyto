@@ -2,10 +2,19 @@
 
 ## Status
 
-Not started. The harness MVP is built and its suite passes; this is a delta on
-that codebase, touching the settings surface and one command package split.
+Built, and revised after using it in a real vault. `bun run build` passes; the
+exit test below is by hand and has not been run.
 
-Verify before starting: `bun run build` passes.
+What the build settled that the design did not:
+
+- SearchResults (Commands, new) sits in models/ rather than beside CommandSearch
+  (Commands), following the repo's rule that value objects live in models/.
+- The pattern suggestion and its positional warning are gone, and with them the
+  per-entry reach resolver the design named. What the entries reach is resolved
+  once for the whole list, through the catalogue that already answers it.
+- The allow-list rule changed: a colon is required of a pattern, not of every
+  entry. Obsidian's core plugins register unnamespaced ids, so daily-notes is a
+  whole command id and the old rule refused the picker's own output.
 
 ## Steps
 
@@ -40,49 +49,49 @@ Each step leaves the suite green.
    flag, and the empty-query rule. No Obsidian dependency beyond the registry,
    so it tests against the existing fake.
 
-5. `src/settings/CommandMatchRow.tsx`: one result row, its id, and its add
-   control or covered marker.
+5. `src/settings/CommandMatchRow.tsx`: one result row, its id, and the covered
+   marker. The row itself is the control, so there is no separate add button.
 
-6. `src/settings/CommandPicker.tsx`: the query field, the results, the overflow
-   line, and the pattern suggestion.
+6. `src/settings/CommandPicker.tsx`: the query field, the results and the
+   overflow line. Choosing a row clears the query, so the results close.
 
-7. `src/commands/models/entry-reach.ts` and
-   `src/commands/entry-reach-resolver.ts`: what each stored entry reaches, and
-   the "reaches nothing" case.
+7. `src/settings/ResolvedCommands.tsx`: the collapsed section naming every
+   command the allow-list reaches. CommandCatalogue (Commands) already answers
+   that, so no per-entry resolver is built.
 
-8. `src/settings/AllowedEntryRow.tsx`: one entry, editable in place, beside what
-   it reaches. Carries the draft state that keeps a half-typed entry from being
-   discarded, as the textarea does today.
+8. `src/settings/AllowedEntryRow.tsx`: one entry, editable in place, with its
+   remove control. Carries the draft state that keeps a half-typed entry from
+   being discarded, as the textarea does today.
 
-9. `src/settings/AllowedEntries.tsx`: the table, and removal.
+9. `src/settings/AllowedEntries.tsx`: the list, and removal.
 
-10. `src/settings/AllowListEditor.tsx`: compose the picker above the table. The
-    bulk textarea goes, along with its tests; the cases it covered move to the
-    row and the table.
+10. `src/settings/AllowListEditor.tsx`: compose the picker above the list, and
+    the resolved section below it. The bulk textarea goes, along with its tests;
+    the cases it covered move to the row and the list.
 
-    ResolvedCommands (Settings) goes with it. The collapsed count it renders is
-    what the table now shows per entry, so the `resolvedCommands` prop threaded
-    through OwlSettingsTab (Settings) and SettingsPanel (Settings) is removed
-    rather than left feeding a component nothing renders.
+    ResolvedCommands (Settings) stays, rewritten: it resolves the whole
+    allow-list rather than collapsing a count, so the `resolvedCommands` prop
+    threaded through OwlSettingsTab (Settings) and SettingsPanel (Settings)
+    stays with it.
 
 ## Exit test
 
 By hand in a real vault, since the registry is what the suite fakes.
 
-1. Search a name from the palette, add it, and confirm the stored entry is the
-   id. The reference case is a positional plugin: search "shopping", add it, and
-   check the warning names the reordering risk.
-2. Add a second command from the same plugin, accept the pattern, and confirm
-   the two ids collapse to one entry covering both.
-3. Turn every command plugin off, open settings, and confirm the picker is empty,
-   every entry reads "reaches nothing", and rows are still editable.
-
-4. Type a wildcard over an id the picker added, and confirm the row validates as
-   you type and the count updates when it becomes valid.
+1. Search a name from the palette, choose it, and confirm the stored entry is
+   the id and the results close. The reference case is a positional plugin:
+   search "shopping" and check the entry reads open-or-create-file-command with
+   an index.
+2. Type a wildcard over an id the picker added, and confirm the row validates as
+   you type and the resolved count updates when it becomes valid.
+3. Allow a core command such as daily-notes, whose id carries no colon, and
+   confirm it is accepted and resolves to its palette name.
+4. Turn every command plugin off, open settings, and confirm the picker is
+   empty, the resolved section reads zero, and rows are still editable.
 
 ## What to decide while building
 
-Nothing outstanding. The pattern suggestion is settled in
-[3-component-design.md](3-component-design.md): adding always stores the exact
-id, and the suggestion appears beside the entry it would replace, ignorable
-without dismissing.
+Nothing outstanding. The wildcard question is settled in
+[3-component-design.md](3-component-design.md): choosing a command stores its
+exact id, nothing is suggested, and a user wanting a pattern types it over an
+entry.

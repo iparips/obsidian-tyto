@@ -1,12 +1,20 @@
 const WILDCARD = '*'
 
-// Entries are ids or namespace patterns. The plugin id before the colon is
-// literal, so a pattern can only ever reach what one plugin registered (FR4).
+// Entries are ids or namespace patterns. Only a pattern needs the colon: the
+// plugin id before it is literal, so a wildcard can only ever reach what one
+// plugin registered (FR4). An exact id matches one command and cannot
+// over-reach, and Obsidian's core commands are not namespaced at all.
 export class AllowList {
   constructor(private readonly entries: readonly string[]) {}
 
   permits(commandId: string): boolean {
-    return this.entries.some((entry) => AllowList.matches(entry, commandId))
+    return this.coveringEntry(commandId) !== null
+  }
+
+  // Which entry permitted, not whether one did: the picker renders a
+  // pattern-covered command differently from an exactly-listed one (FR6).
+  coveringEntry(commandId: string): string | null {
+    return this.entries.find((entry) => AllowList.matches(entry, commandId)) ?? null
   }
 
   private static matches(entry: string, commandId: string): boolean {
@@ -18,8 +26,9 @@ export class AllowList {
   // Refused at save time rather than at match time: a pattern that cannot be
   // expressed is a settings error the user can see, not a silent no-match.
   static validate(entry: string): string | null {
+    if (!entry.includes(WILDCARD)) return null
     const colon = entry.indexOf(':')
-    if (colon === -1) return 'an entry must name a plugin, as plugin-id:command-id'
+    if (colon === -1) return 'a pattern must name a plugin, as plugin-id:*'
     if (entry.slice(0, colon).includes(WILDCARD)) return 'a wildcard cannot appear in the plugin id'
     return AllowList.validateSuffix(entry.slice(colon + 1))
   }

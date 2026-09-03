@@ -3,7 +3,9 @@ import { createRoot, Root } from 'react-dom/client'
 import { SettingsPanel } from './SettingsPanel'
 import { OwlSettings } from './settings'
 import { AllowList } from '../commands/allow-list'
+import { CommandRegistry } from '../commands/command-registry'
 import { CommandCatalogue } from '../commands/command-catalogue'
+import { CommandSearch } from '../commands/command-search'
 
 export interface SettingsHost {
   settings: OwlSettings
@@ -32,20 +34,16 @@ export class OwlSettingsTab extends PluginSettingTab {
   }
 
   private renderPanel(): void {
+    const registry = new CommandRegistry(this.app)
+    const allowList = new AllowList(this.host.settings.commandAllowList)
     this.root?.render(
       <SettingsPanel
         settings={this.host.settings}
         onChange={(update) => this.applyUpdate(update)}
-        resolvedCommands={this.resolvedCommands()}
+        search={new CommandSearch(registry, allowList)}
+        resolvedCommands={new CommandCatalogue(registry, allowList).resolve()}
       />,
     )
-  }
-
-  // Resolved on every render, so an edited pattern shows its new reach at once
-  // rather than after a reload (FR7).
-  private resolvedCommands() {
-    const allowList = new AllowList(this.host.settings.commandAllowList)
-    return new CommandCatalogue(this.app, allowList).resolve()
   }
 
   private async applyUpdate(update: Partial<OwlSettings>): Promise<void> {

@@ -46,10 +46,10 @@ renders the list is unusable; one that searches it is not.
   list", and allow it without typing an id.
 - As a user, I see the id an entry resolves to, so what I allowed is legible
   later.
-- As a user allowing a second command from the same plugin, I see the namespace
-  pattern suggested beside it, with what it would cover, and can ignore it.
-- As a user whose picked command has a positional id, I am told that entry will
-  shift if I reorder that plugin's configs, with the pattern suggested instead.
+- As a user wanting a whole plugin, I type a pattern over an entry and see the
+  count change to confirm what it reaches.
+- As a user checking my allow-list, I expand one section and see every command
+  it currently reaches, by name and id.
 - As a user on a phone, I search and tap rather than typing a colon-separated id.
 
 ## Names are the search key, never the match key
@@ -82,17 +82,15 @@ A picker adds one command. A pattern covers many, and the harness MVP made
 patterns necessary rather than convenient, because positional ids shift when the
 user reorders their configs.
 
-The two meet in a suggestion, settled in
-[3-component-design.md](3-component-design.md).
+The picker does not resolve this, and does not raise it. Choosing a command
+stores its exact id, and nothing else happens.
 
-- Adding always stores the exact id. The pattern appears beside the entry it
-  would replace, and is ignorable without dismissing, so a user who does not
-  want to think about namespaces is never stopped to.
-- A pattern's reach changes without the user editing it (FR6), so the count is
-  shown with the suggestion rather than discovered after accepting it.
-- Positional ids warn rather than refuse. Detecting them is a heuristic about a
-  plugin convention, not a rule Obsidian enforces, so a false positive should
-  cost one extra line and nothing else.
+- A suggestion is a second decision raised at the moment the user has just made
+  a first one. Deferring it costs nothing, so it is deferred entirely.
+- A user who wants a pattern types it over an entry, which the row already
+  supports (FR12), and the resolved count confirms what it reaches.
+- Positional ids need no warning once the reach is visible. A user who allows
+  nine entries from one plugin sees nine entries and a count agreeing with them.
 
 ## Requirements
 
@@ -113,20 +111,19 @@ FR5. Add a listed command to the allow-list as its exact id, in one action.
 FR6. Show which listed commands the allow-list already covers, so the same
 command is not added twice and a pattern's reach is visible in context.
 
-FR7. Suggest the namespace pattern when a picked command's plugin already has an
-entry, showing how many commands it covers. The suggestion needs no dismissing:
-the command is added as its exact id either way.
+FR7. Close the results when a command is chosen, so the list does not sit open
+over the entries it just changed.
 
-FR8. Warn when a picked command's id is positional, naming the risk that the
-entry shifts when the user reorders that plugin's configuration.
+FR8. Show what the whole allow-list currently reaches, on demand, so a user can
+check an entry without a per-row explanation crowding the list.
 
 FR9. Remove an entry from the allow-list without editing text.
 
-FR10. Show each entry beside what it currently reaches: the display name for an
-exact id, and the count for a pattern.
+FR10. Resolve the whole allow-list to the commands it reaches, naming each with
+its id, in a section that starts collapsed.
 
-FR11. Say when an entry reaches nothing, so an id whose plugin was disabled or
-renamed is visible rather than silently inert.
+FR11. Make an entry that reaches nothing detectable, so an id whose plugin was
+disabled or renamed does not sit in settings looking live.
 
 FR12. Keep every entry editable in place, so a pattern can be typed over an id
 the picker added and an entry pasted from elsewhere still works.

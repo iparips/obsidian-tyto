@@ -16,7 +16,9 @@ are each either one command id or a pattern.
 
 FR4. Match a pattern against command ids, where the plugin id before the colon
 is literal and a trailing wildcard may follow it. Reject any pattern without a
-colon, and any with a wildcard in the plugin id.
+colon, and any with a wildcard in the plugin id. An exact id needs no colon:
+Obsidian's core commands are registered unnamespaced, as daily-notes, and an
+exact id matches one command so it cannot reach across plugins.
 
 FR5. Default the allow-list to commands that open or create a note, and to no
 others.

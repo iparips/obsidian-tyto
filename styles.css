@@ -188,8 +188,156 @@
   font-size: var(--font-ui-small);
 }
 
-/* Collapsed by default: a namespace pattern can resolve to dozens of commands,
-   which is unreadable on a phone (FR8). */
+.owl-command-picker {
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-4-2);
+}
+
+/* The picker finds a command; the table holds what is allowed. A rule between
+   them stops the two lists reading as one. */
+.owl-allow-list-editor {
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-4-3);
+}
+
+.owl-allow-list-heading {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: var(--font-ui-small);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Capped rather than paged: a query matching more than the cap is too broad to
+   pick from, and the list has to scroll on a phone (FR3, FR14). */
+.owl-command-matches {
+  max-height: 14em;
+  overflow-y: auto;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Its own surface, so results read as a panel over the page rather than as more
+   settings rows. Empty before a query is typed, so it collapses to nothing.
+
+   form-field, not primary-alt or secondary: against the settings background of
+   #1e1e1e those are #242424 and #262626, which do not separate in a dark theme.
+   This is #2a2a2a, and it is the surface the fields beside it already use. */
+.owl-command-matches:not(:empty) {
+  padding: var(--size-4-1);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: var(--radius-m);
+  background-color: var(--background-modifier-form-field);
+  box-shadow: var(--shadow-s);
+}
+
+.owl-command-match + .owl-command-match {
+  border-top: 1px solid var(--background-modifier-border);
+}
+
+/* A button styled as a row: the whole option is the tap target, so it must not
+   carry the chrome a button would. */
+.owl-command-match-choice {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--size-4-1);
+  width: 100%;
+  /* Obsidian gives a button a fixed height, which a stacked row overflows and
+     paints over the row below. */
+  height: auto;
+  padding: var(--size-4-2);
+  border: none;
+  border-radius: var(--radius-s);
+  background-color: transparent;
+  box-shadow: none;
+  text-align: left;
+  white-space: normal;
+  cursor: pointer;
+}
+
+.owl-command-match-choice:hover:not(:disabled) {
+  background-color: var(--background-modifier-hover);
+}
+
+.owl-command-match-choice:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.owl-command-match-name {
+  color: var(--text-normal);
+  font-weight: var(--font-medium);
+}
+
+.owl-command-match-id {
+  color: var(--text-muted);
+  font-size: var(--font-ui-smaller);
+  word-break: break-all;
+}
+
+.owl-command-match-covered {
+  color: var(--text-muted);
+  font-size: var(--font-ui-small);
+}
+
+.owl-allowed-entries {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.owl-allowed-entry {
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-4-1);
+  padding: var(--size-4-1) 0;
+}
+
+.owl-allowed-entry-line {
+  display: flex;
+  align-items: center;
+  gap: var(--size-4-2);
+}
+
+.owl-allowed-entry + .owl-allowed-entry {
+  border-top: 1px solid var(--background-modifier-border);
+}
+
+.owl-allowed-entry input {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-family: var(--font-monospace);
+  font-size: var(--font-ui-smaller);
+}
+
+.owl-allowed-entry button {
+  flex: 0 0 auto;
+}
+
+/* Removal is destructive and sits beside an editable field, so it reads as a
+   quiet action rather than the row's primary one. */
+.owl-allowed-entry button {
+  background-color: transparent;
+  border: 1px solid var(--background-modifier-border);
+  color: var(--text-muted);
+  box-shadow: none;
+}
+
+.owl-allowed-entry button:hover {
+  background-color: var(--background-modifier-error-hover);
+  color: var(--text-on-accent);
+}
+
+/* Collapsed by default: the entries are the setting, and what they resolve to
+   is a check the user opens when they want it (FR10). */
+.owl-resolved-commands {
+  margin-top: var(--size-4-2);
+}
+
 .owl-resolved-commands summary {
   cursor: pointer;
   color: var(--text-muted);
@@ -199,10 +347,25 @@
 .owl-resolved-commands ul {
   max-height: 12em;
   overflow-y: auto;
-  margin: var(--size-4-1) 0 0;
-  padding-left: var(--size-4-4);
-  font-size: var(--font-ui-smaller);
+  margin: var(--size-4-2) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.owl-resolved-commands li {
+  display: flex;
+  flex-direction: column;
+  padding: var(--size-4-1) 0;
+}
+
+.owl-resolved-name {
+  font-size: var(--font-ui-small);
+}
+
+.owl-resolved-id {
   color: var(--text-muted);
+  font-size: var(--font-ui-smaller);
+  word-break: break-all;
 }
 
 .owl-return-note {

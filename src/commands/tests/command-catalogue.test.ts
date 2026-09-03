@@ -11,7 +11,7 @@ describe('CommandCatalogue', () => {
   })
 
   const catalogueOf = (...entries: string[]) =>
-    new CommandCatalogue(registry.asApp(), new AllowList(entries))
+    new CommandCatalogue(registry.asRegistry(), new AllowList(entries))
 
   describe('when entries resolve against the registry', () => {
     beforeEach(() => {

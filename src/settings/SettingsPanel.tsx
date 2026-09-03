@@ -1,17 +1,20 @@
 import { OwlSettings } from './settings'
 import { AllowListEditor } from './AllowListEditor'
+import { CommandSearch } from '../commands/command-search'
 import { AllowedCommand } from '../commands/models/allowed-command'
 
 export interface SettingsPanelProps {
   settings: OwlSettings
   onChange(update: Partial<OwlSettings>): void
-  resolvedCommands?: readonly AllowedCommand[]
+  search: CommandSearch
+  resolvedCommands: readonly AllowedCommand[]
 }
 
 export const SettingsPanel = ({
   settings,
   onChange,
-  resolvedCommands = [],
+  search,
+  resolvedCommands,
 }: SettingsPanelProps) => (
   <div className="owl-settings">
     <label className="owl-setting">
@@ -47,12 +50,13 @@ export const SettingsPanel = ({
     </p>
     <AllowListEditor
       entries={settings.commandAllowList}
+      search={search}
       resolved={resolvedCommands}
       onChange={(commandAllowList) => onChange({ commandAllowList })}
     />
     <p className="owl-settings-note">
-      One command id or namespace pattern per line, such as daily-notes:*. Owl can run these and no
-      others. Leave empty to allow none.
+      Search for a command by the name shown in the command palette, or type an id or namespace
+      pattern such as daily-notes:*. Owl can run these and no others.
     </p>
     <label className="owl-setting owl-setting-inline">
       <input

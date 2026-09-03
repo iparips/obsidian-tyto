@@ -1,4 +1,5 @@
 import { App, Command } from 'obsidian'
+import { CommandRegistry } from '../commands/command-registry'
 
 // Stands in for app.commands, the registry Obsidian does not type. Supports
 // being constructed without its methods, so the probe path has something to
@@ -10,6 +11,10 @@ export class FakeCommandRegistry {
 
   asApp(): App {
     return { commands: this.registry() } as unknown as App
+  }
+
+  asRegistry(): CommandRegistry {
+    return new CommandRegistry(this.asApp())
   }
 
   withCommand(id: string, name: string): this {

@@ -17,16 +17,16 @@ can find one to add. Same registry, different question.
 src/commands/
   command-registry.ts      # every registered command, one read
   command-search.ts        # name matching, capped
-  entry-reach-resolver.ts  # what each stored entry currently reaches
   models/
     command-match.ts       # a command, and whether the list already covers it
-    entry-reach.ts         # one entry, and the commands behind it
+    search-results.ts      # the capped matches, and whether more matched
 
 src/settings/
   CommandPicker.tsx        # query field and results
-  CommandMatchRow.tsx      # one result, with its id and add control
-  AllowedEntries.tsx       # the entry table
-  AllowedEntryRow.tsx      # one entry, editable, beside what it reaches
+  CommandMatchRow.tsx      # one result: the whole row is the control
+  AllowedEntries.tsx       # the entry list
+  AllowedEntryRow.tsx      # one entry, editable, with its remove control
+  ResolvedCommands.tsx     # collapsed: every command the entries reach
 ```
 
 CommandRegistry (Commands, new) holds the module augmentation and the probe that
@@ -74,18 +74,16 @@ flowchart LR
     Registry["CommandRegistry [Commands, new]<br/>Responsibility: owns reading every registered command"]
     Catalogue["CommandCatalogue [Commands]<br/>Responsibility: owns which commands the allow-list permits"]
     AllowList["AllowList [Commands]<br/>Responsibility: owns the entry rule and matching"]
-    Entries["AllowedEntries [Settings, new]<br/>Responsibility: owns the entry table and editing a row"]
-    Reach["EntryReachResolver [Commands, new]<br/>Responsibility: owns what one stored entry currently reaches"]
+    Entries["AllowedEntries [Settings, new]<br/>Responsibility: owns the entry list and editing a row"]
+    Resolved["ResolvedCommands [Settings, new]<br/>Responsibility: owns showing every command the entries reach"]
     Match["CommandMatch [Commands, new]<br/>Holds: a command, and whether an entry covers it"]
 
     Picker --> Search
-    Picker --> AllowList
     Search --> Registry
     Search --> AllowList
     Search --> Match
-    Entries --> Reach
     Entries --> AllowList
-    Reach --> Registry
+    Resolved --> Catalogue
     Catalogue --> Registry
     Catalogue --> AllowList
 ```
@@ -99,26 +97,11 @@ whether it is.
 
 AllowList (Commands) gains one method for the annotation. `permits` answers yes
 or no; the picker needs to know which entry said yes, so a pattern-covered
-command can render differently from an exactly-listed one (FR6, FR7).
+command can render differently from an exactly-listed one (FR6).
 
 ```typescript
 // allow-list.ts, added beside permits
 coveringEntry(commandId: string): string | null
-```
-
-```typescript
-// models/entry-reach.ts - what one stored entry currently reaches
-export class EntryReach {
-  constructor(
-    readonly entry: string,
-    readonly commands: readonly AllowedCommand[],
-  ) {}
-
-  // A single command names itself; a pattern reports a count; neither reports a
-  // name that was stored, because none is (NFR1).
-  describe(): string
-  reachesNothing(): boolean
-}
 ```
 
 ```typescript
@@ -130,9 +113,6 @@ export class CommandMatch {
   ) {}
 
   isCovered(): boolean
-  isCoveredByPattern(): boolean // coveredBy ends with the wildcard
-  pluginId(): string // the part before the first colon
-  hasPositionalId(): boolean // the part after it parses as an integer
 }
 ```
 
@@ -167,18 +147,6 @@ sequenceDiagram
 Arrows: uses-relationship (client to supplier).
 
 ```typescript
-// entry-reach-resolver.ts
-export class EntryReachResolver {
-  constructor(private registry: CommandRegistry) {}
-
-  // One EntryReach per stored entry, in the order the user has them. An entry
-  // matching nothing still yields a row, because a silently inert entry is the
-  // case FR11 exists to surface.
-  reachOf(entries: readonly string[]): readonly EntryReach[]
-}
-```
-
-```typescript
 // command-search.ts
 export class CommandSearch {
   constructor(
@@ -191,6 +159,7 @@ export class CommandSearch {
   matching(query: string): SearchResults
 }
 
+// models/search-results.ts
 // The cap is 20. It fits a desktop panel without scrolling far, and a phone
 // scrolls a short list more readily than it reads a long one. A query matching
 // more than 20 is too broad to pick from, so the overflow line is the signal to
@@ -200,6 +169,8 @@ export class SearchResults {
     readonly matches: readonly CommandMatch[],
     readonly overflowed: boolean,
   ) {}
+
+  static empty(): SearchResults
 }
 ```
 
@@ -211,66 +182,57 @@ registry order.
 Cost is bounded by the cap on rendered rows (FR3), not by the scan. Several
 hundred commands is one pass over an array Obsidian already holds.
 
-## A Pattern Is Suggested, Never Asked
+## A Pattern Is Not Suggested At All
 
 The wildcard question the requirements leave open: a picker adds one command,
 and patterns exist because positional ids shift.
 
-Adding always adds the exact id. The pattern is a suggestion that appears
-afterwards, alongside the entry it would replace, and it needs no dismissing:
-the user who ignores it keeps the ids they picked.
+Choosing a command stores its exact id, and nothing else happens. No suggestion
+appears, and no warning about positional ids.
 
-| The user picks                        | Stored       | Suggested afterwards       |
-| ------------------------------------- | ------------ | -------------------------- |
-| A command whose plugin has no entry   | Its exact id | Nothing                    |
-| A second command from the same plugin | Its exact id | The pattern, and its count |
-| A command whose id is positional      | Its exact id | The pattern, warning why   |
+A suggestion is a second decision raised at the moment the user has just made a
+first one, and it appears exactly when they are least equipped to answer it. A
+user who wants a pattern types it over an entry, which the row already supports
+(FR12), and the resolved section below shows what it reaches. That path costs a
+user who does not want a pattern nothing at all.
 
-A prompt would be wrong here. It stops a user mid-task to answer a question
-about namespace patterns, and the answer that costs nothing to defer is the one
-they are least equipped to give while adding their second command.
+The resolved section is what makes this safe to leave out. A user who allows
+nine commands from one plugin sees nine entries and a count that agrees with
+them, so the case a pattern would collapse is visible without being prompted.
 
-Accepting the suggestion replaces that plugin's individual entries, because
-keeping both leaves the user reading a list where one line already covers
-another. The count is shown with the suggestion (FR7), so the reach is visible
-before it is accepted rather than after.
-
-The suggestion is derived, never stored. It follows from the entries and the
-registry, so it reappears whenever it still applies and vanishes when the user
-adds the pattern by hand instead.
-
-Positional ids are detected structurally: the part after the colon parses as an
-integer. That is a heuristic about a convention, not a rule Obsidian enforces,
-so it warns rather than refuses (FR8). A user whose plugin genuinely names a
-command `1` loses nothing but reads one extra line.
-
-## The Entry List Is a Table, Not a Textarea
+## The Entry List Is a List, and Names Live Below It
 
 The bulk textarea goes. It was one field holding every entry, so a per-entry
-name, a per-entry error and a per-entry remove control had nowhere to live.
+error and a per-entry remove control had nowhere to live.
 
-Each entry becomes a row: the entry itself, editable, beside what it currently
-reaches.
+Each entry becomes a row holding the entry itself, editable, beside a remove
+control. The rows carry ids and patterns only.
 
-| Entry                          | Reaches         |
-| ------------------------------ | --------------- |
-| daily-notes:goto-today         | Open today      |
-| open-or-create-file-command:\* | 9 commands      |
-| shopping:add                   | Reaches nothing |
+What those entries reach is resolved once, for the whole list, into a collapsed
+section beneath it. CommandCatalogue (Commands) already answers exactly that
+question, so no per-entry resolver is needed.
 
-The left column is stored; the right is derived on every render and never
-persisted (NFR1). A retitled command shows its new title, and a pattern shows a
-count because it has no single name (FR10).
+```
+Allowed commands
+  daily-notes                     [Remove]
+  open-or-create-file-command:*   [Remove]
 
-"Reaches nothing" is the case worth surfacing (FR11). An id whose plugin was
-disabled, uninstalled or renamed stays in settings and silently matches nothing,
-which today is invisible until the model fails to find a command.
+  > Reaches 10 commands
+```
+
+Expanding names every command the entries reach, with its id. The list is
+derived on every render and never persisted (NFR1), so a retitled command reads
+with its new title, and an entry whose plugin was uninstalled contributes
+nothing to the count.
+
+A count that disagrees with the entries is the signal FR11 asks for. Two entries
+reaching zero commands is visible in the summary line without expanding it.
 
 Editing a row is how a pattern replaces an id the picker added (FR12). The row
 validates as it is typed, through the AllowList (Commands) rule that already
 exists, and keeps what the user typed while showing why it is refused (FR13) -
 the same draft-state discipline the textarea needed, now per row.
 
-An unreachable registry empties the right column and leaves the left editable
+An unreachable registry resolves to nothing and leaves every row editable
 (NFR3), so a vault where the private API is gone still shows and edits its
 allow-list.

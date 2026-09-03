@@ -21,6 +21,13 @@ count is not: file* is four characters and reaches file-explorer:delete-file,
 while editor:toggle-* is fourteen and reaches nothing but formatting. Length
 does not track danger, so the rule is structural instead.
 
+The colon is required of a pattern, not of every entry. Obsidian's core plugins
+register unnamespaced ids, so daily-notes is the whole id of the command that
+opens today's note. Requiring a colon everywhere refuses those ids, and the
+settings picker surfaces them, so it would refuse its own output. An exact id
+matches one command literally and reaches nothing else, which is the property
+the colon rule exists to guarantee for a wildcard.
+
 Patterns are necessary, not a convenience. Some plugins generate command ids
 positionally rather than from a name: open-or-create-file-command registers its
 commands as an array index, so the ids read as :0, :1, :2 and shift meaning when

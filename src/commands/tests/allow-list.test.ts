@@ -32,17 +32,29 @@ describe('AllowList', () => {
     })
   })
 
+  describe('when an entry is a core command id', () => {
+    it('permits a colon-less id when it is listed exactly', () => {
+      expect(new AllowList(['daily-notes']).permits('daily-notes')).toBe(true)
+    })
+
+    it('refuses a different colon-less id when it is not listed', () => {
+      expect(new AllowList(['daily-notes']).permits('graph')).toBe(false)
+    })
+  })
+
   describe('when an entry is invalid', () => {
-    it('matches nothing when the entry has no colon', () => {
-      expect(new AllowList(['daily-notes']).permits('daily-notes')).toBe(false)
+    it('matches nothing when a pattern has no colon', () => {
+      expect(new AllowList(['daily*']).permits('daily-notes')).toBe(false)
     })
   })
 
   describe('when an entry is validated', () => {
-    it('refuses an entry with no colon', () => {
-      expect(AllowList.validate('daily-notes')).toBe(
-        'an entry must name a plugin, as plugin-id:command-id',
-      )
+    it('refuses a pattern with no colon', () => {
+      expect(AllowList.validate('daily*')).toBe('a pattern must name a plugin, as plugin-id:*')
+    })
+
+    it('accepts a colon-less exact id, as core commands carry no namespace', () => {
+      expect(AllowList.validate('daily-notes')).toBeNull()
     })
 
     it('refuses an entry with a wildcard in the plugin id', () => {
@@ -63,6 +75,26 @@ describe('AllowList', () => {
 
     it('accepts an exact id with no wildcard', () => {
       expect(AllowList.validate('daily-notes:goto-today')).toBeNull()
+    })
+  })
+
+  describe('when the covering entry is asked for', () => {
+    const list = new AllowList(['shopping:add', 'daily-notes:*'])
+
+    it('names the exact entry when an id is listed literally', () => {
+      expect(list.coveringEntry('shopping:add')).toBe('shopping:add')
+    })
+
+    it('names the pattern when a pattern permitted the id', () => {
+      expect(list.coveringEntry('daily-notes:goto-today')).toBe('daily-notes:*')
+    })
+
+    it('names nothing when no entry permits the id', () => {
+      expect(list.coveringEntry('editor:toggle-bold')).toBeNull()
+    })
+
+    it('refuses the id through permits when no entry covers it', () => {
+      expect(list.permits('editor:toggle-bold')).toBe(false)
     })
   })
 })

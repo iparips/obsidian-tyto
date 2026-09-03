@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it } from 'vitest'
 import { App } from 'obsidian'
 import { CommandRunner } from '../command-runner'
 import { CommandCatalogue } from '../command-catalogue'
+import { CommandRegistry } from '../command-registry'
 import { AllowList } from '../allow-list'
 import { FakeCommandRegistry } from '../../test-support/fake-command-registry'
 import { FakeWorkspace } from '../../test-support/fake-workspace'
@@ -21,10 +22,12 @@ describe('CommandRunner', () => {
 
   const runnerOf = (...entries: string[]) => {
     const app = appOf()
+    const commandRegistry = new CommandRegistry(app)
     return new CommandRunner(
       app,
-      new CommandCatalogue(app, new AllowList(entries)),
+      new CommandCatalogue(commandRegistry, new AllowList(entries)),
       new OpenedNoteWait(app, 30),
+      commandRegistry,
     )
   }
 

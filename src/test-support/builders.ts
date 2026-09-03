@@ -4,6 +4,7 @@ import { HarnessTools } from '../engine/harness-tools'
 import { CommandRunner } from '../commands/command-runner'
 import { OpenedNoteWait } from '../commands/opened-note-wait'
 import { CommandCatalogue } from '../commands/command-catalogue'
+import { CommandRegistry } from '../commands/command-registry'
 import { AllowList } from '../commands/allow-list'
 import { VaultSearch } from '../search/vault-search'
 import { NoteReader } from '../search/note-reader'
@@ -69,11 +70,12 @@ export const noHarness = (): HarnessTools =>
   new HarnessTools(
     new CommandRunner(
       {} as App,
-      new CommandCatalogue({} as App, new AllowList([])),
+      new CommandCatalogue(new CommandRegistry({} as App), new AllowList([])),
       new OpenedNoteWait({} as App),
+      new CommandRegistry({} as App),
     ),
     new VaultSearch(new FakeVault().asVault()),
     new NoteReader(new FakeVault().asVault()),
-    new CommandCatalogue({} as App, new AllowList([])),
+    new CommandCatalogue(new CommandRegistry({} as App), new AllowList([])),
     false,
   )

@@ -29,7 +29,8 @@ the editor lookup.
 - Exact ids: an id on the list permits, an id absent refuses.
 - Pattern matching: a namespace pattern permits every id under that plugin, and
   refuses one under a different plugin whose name shares a prefix.
-- Validation, one case each: an entry with no colon is refused, an entry with a
+- Validation, one case each: a pattern with no colon is refused, a colon-less
+  exact id is accepted since core commands carry no namespace, an entry with a
   wildcard in the plugin id is refused, a wildcard after the colon is accepted,
   and an exact id with no wildcard is accepted.
 - Validation happens on save: an invalid entry surfaces as an error rather than

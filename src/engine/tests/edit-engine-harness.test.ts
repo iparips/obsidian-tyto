@@ -8,6 +8,7 @@ import { ChatMessage, ChatProvider } from '../../providers/types'
 import { AgentsMdRepository } from '../../agents/agents-md-repository'
 import { AllowList } from '../../commands/allow-list'
 import { CommandCatalogue } from '../../commands/command-catalogue'
+import { CommandRegistry } from '../../commands/command-registry'
 import { CommandRunner } from '../../commands/command-runner'
 import { OpenedNoteWait } from '../../commands/opened-note-wait'
 import { VaultSearch } from '../../search/vault-search'
@@ -65,9 +66,10 @@ describe('EditEngine', () => {
 
   const harnessOf = (allowed: string[], searchEnabled: boolean): HarnessTools => {
     const app = appOf()
-    const catalogue = new CommandCatalogue(app, new AllowList(allowed))
+    const commandRegistry = new CommandRegistry(app)
+    const catalogue = new CommandCatalogue(commandRegistry, new AllowList(allowed))
     return new HarnessTools(
-      new CommandRunner(app, catalogue, new OpenedNoteWait(app, 30)),
+      new CommandRunner(app, catalogue, new OpenedNoteWait(app, 30), commandRegistry),
       new VaultSearch(vault.asVault()),
       new NoteReader(vault.asVault()),
       catalogue,

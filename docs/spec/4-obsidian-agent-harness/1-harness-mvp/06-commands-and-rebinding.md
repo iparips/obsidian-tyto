@@ -37,7 +37,7 @@ Arrows: uses-relationship (client to supplier).
 
 The pattern rule lives in AllowList and nowhere else. A pattern splits on the
 first colon: the plugin id must be literal, and only a trailing wildcard may
-follow (FR4). An entry without a colon is refused, as is a wildcard in the
+follow (FR4). A pattern without a colon is refused, as is a wildcard in the
 plugin id.
 
 Refusal happens when the entry is saved, not when it is matched. A pattern that

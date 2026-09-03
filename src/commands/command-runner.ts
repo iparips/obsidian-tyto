@@ -1,5 +1,6 @@
 import { App, Workspace } from 'obsidian'
 import { CommandCatalogue } from './command-catalogue'
+import { CommandRegistry } from './command-registry'
 import { OpenedNoteWait } from './opened-note-wait'
 import { CommandEffect } from './models/command-effect'
 import { Outcome, Outcomes } from '../shared/models/outcome'
@@ -12,6 +13,7 @@ export class CommandRunner {
     private app: App,
     private catalogue: CommandCatalogue,
     private openedNoteWait: OpenedNoteWait,
+    private registry: CommandRegistry,
   ) {}
 
   async run(commandId: string): Promise<Outcome<CommandEffect>> {
@@ -26,7 +28,7 @@ export class CommandRunner {
   private async runAllowed(commandId: string, commandName: string): Promise<CommandEffect> {
     const before = this.activePath()
     const opened = await this.openedNoteWait.forOpen(() =>
-      this.app.commands.executeCommandById(commandId),
+      this.registry.executeCommandById(commandId),
     )
     return CommandRunner.effectOf(commandName, before, opened ?? this.activePath())
   }

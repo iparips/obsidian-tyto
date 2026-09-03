@@ -12,6 +12,7 @@ import { SkillRepository } from '../skills/skill-repository'
 import { ChatProvider } from '../providers/types'
 import { AllowList } from '../commands/allow-list'
 import { CommandCatalogue } from '../commands/command-catalogue'
+import { CommandRegistry } from '../commands/command-registry'
 import { CommandRunner } from '../commands/command-runner'
 import { OpenedNoteWait } from '../commands/opened-note-wait'
 import { NoteReader } from '../search/note-reader'
@@ -63,9 +64,10 @@ export class EngineFactory {
   }
 
   private buildHarnessTools(): HarnessTools {
-    const catalogue = new CommandCatalogue(this.app, new AllowList(this.settings.commandAllowList))
+    const registry = new CommandRegistry(this.app)
+    const catalogue = new CommandCatalogue(registry, new AllowList(this.settings.commandAllowList))
     return new HarnessTools(
-      new CommandRunner(this.app, catalogue, new OpenedNoteWait(this.app)),
+      new CommandRunner(this.app, catalogue, new OpenedNoteWait(this.app), registry),
       new VaultSearch(this.app.vault),
       new NoteReader(this.app.vault),
       catalogue,

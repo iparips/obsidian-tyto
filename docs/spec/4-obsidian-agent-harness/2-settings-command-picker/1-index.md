@@ -8,19 +8,18 @@ allow-list and its text field. Only the settings surface changes; the matching
 rule, the catalogue and the prompt are untouched.
 
 - [2-requirements.md](2-requirements.md) - problem, why names stay the search key, and the wildcard question
-- [3-component-design.md](3-component-design.md) - the registry split, matching, and how a pattern is suggested
+- [3-component-design.md](3-component-design.md) - the registry split, matching, and where names are resolved
 - [4-testing-strategy.md](4-testing-strategy.md) - unit test outline, reusing the existing registry fake
 - [5-implementation-order.md](5-implementation-order.md) - the build sequence and the exit test
 
 A vault offers several hundred commands, so the picker searches rather than
 lists. Nothing renders before a query is typed.
 
-The allow-list becomes a table: the entry on the left, editable, and what it
-currently reaches on the right. Names are resolved from the registry each render
-and never stored, so a retitled command shows its new name and a pattern shows
-the count it covers.
+The allow-list stays a list of ids and patterns, editable in place. Below it, a
+collapsed section resolves the whole list against the registry: every command
+the entries currently reach, by name and id. Nothing resolved is stored, so a
+retitled command shows its new name on the next render.
 
-Designed, not built. The wildcard question is settled in
-[3-component-design.md](3-component-design.md): adding always stores the exact
-id, and the pattern is suggested beside it with what it reaches. Ignoring the
-suggestion costs nothing; accepting it replaces that plugin's entries.
+Built. The wildcard question is settled by leaving it to the user: choosing a
+command stores its exact id and nothing else happens. A user wanting a pattern
+types it over an entry, and the resolved section shows what it reaches.
