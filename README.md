@@ -1,6 +1,42 @@
 # Obsidian Owl
 
-An Obsidian plugin that edits the active note from natural-language instructions, spoken or typed. Speak "rename heading Budget to Costs" or "add a list A, B, C under heading X" and the note changes. Dictated content lands formatted as markdown. Powered by Mistral speech-to-text and chat models, using your own API key.
+Talk to your notes and they change. Say "rename heading Budget to Costs" or "add apples, bananas and pears under Shopping", and the edit lands in the note you are looking at.
+
+Other voice plugins transcribe what you say into the note. Owl treats what you say as an instruction about the note. There is no fixed command phrasing to learn, and no chat window to copy an answer out of.
+
+## Table of Contents
+
+1. [Why Owl](#why-owl)
+2. [What it does not do](#what-it-does-not-do)
+3. [Install for Development](#install-for-development)
+4. [Test It Out](#test-it-out)
+5. [Commands and Search](#commands-and-search)
+6. [On Mobile](#on-mobile)
+7. [Troubleshooting](#troubleshooting)
+8. [Releasing](#releasing)
+
+## Why Owl
+
+Voice as an instruction, not dictation
+- Speech-to-text plugins capture words. Owl parses intent and edits structure: headings, lists, and blocks.
+
+Edits you can undo
+- Changes go through the editor, so Ctrl+Z and Cmd+Z step back through them one at a time. Owl does not overwrite the file behind your back.
+
+It can open the note first
+- Owl runs an Obsidian command you have allowed, follows the note it opens, and edits there. See [Commands and Search](#commands-and-search).
+
+Built for a phone
+- The panel is a sidebar drawer, one tap from the mobile toolbar. Adding to a shopping list while walking is the case it is designed around.
+
+Small and legible
+- Two runtime dependencies, no database, no embedding index. Vault search reads notes directly.
+
+## What it does not do
+
+- One note at a time. No multi-note refactors.
+- Mistral only, using your own API key.
+- Conversation history lives in memory. Edits are saved to the note, but a reload clears the chat.
 
 Specs live in [docs/spec](docs/spec/1-requirements.md).
 
