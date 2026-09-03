@@ -214,6 +214,37 @@ describe('EditEngine', () => {
     })
   })
 
+  // A turn bound to a file with no editor fails before the loop runs. The
+  // utterance was once appended inside that loop, so a failed turn left nothing
+  // in the history and a following "retry" retried the instruction before it.
+  describe('when the turn cannot open', () => {
+    it('records the utterance when the turn fails to open, so a retry has it', async () => {
+      const stranded = anEngine(chat, {
+        sessions,
+        noteLocator: new FakeNoteLocator(),
+        agentsMdRepository: noInstructions(),
+      })
+
+      await stranded.processUtterance('add ilya under the heading')
+
+      expect(sessions.chatHistory().at(-1)).toMatchObject({
+        content: 'add ilya under the heading',
+      })
+    })
+
+    it('still reports the failure when the turn cannot open', async () => {
+      const stranded = anEngine(chat, {
+        sessions,
+        noteLocator: new FakeNoteLocator(),
+        agentsMdRepository: noInstructions(),
+      })
+
+      const outcome = await stranded.processUtterance('add ilya under the heading')
+
+      expect(outcome.hasFailed()).toBe(true)
+    })
+  })
+
   describe('when the vault defines skills', () => {
     const SKILLS_PATH = '0 - Meta/Skills'
     const todoSource = '---\nname: todo\ndescription: Archives ticked items.\n---\n\n1. Split it.'
@@ -308,6 +339,57 @@ describe('EditEngine', () => {
       // A turn once loaded a skill and then said no skill applied, so the panel
       // showed both. The two answers contradict each other and the second is
       // already answered by the first.
+      // A turn loaded the journal skill twice, spending a step and sending the
+      // whole body again to say what the model had already been told.
+      it('refuses a second load of a skill already loaded this turn', async () => {
+        complete
+          .mockResolvedValueOnce(
+            Outcomes.success(aToolTurn(aToolCall('load_skill', { name: 'todo' }))),
+          )
+          .mockResolvedValueOnce(
+            Outcomes.success(aToolTurn(aToolCall('load_skill', { name: 'todo' }))),
+          )
+          .mockResolvedValue(Outcomes.success(aTextTurn('done')))
+
+        await engineWithTodoSkill().processUtterance('archive my todo')
+
+        const results = complete.mock.calls[2][0].filter((m: ChatMessage) => m.isToolResult())
+        expect(results.at(-1)).toMatchObject({
+          content: 'you already loaded todo this turn; follow the steps you were given',
+        })
+      })
+
+      it('reports the skill once when the model loads it twice', async () => {
+        const loaded: string[] = []
+        const withSkills = anEngine(chat, {
+          sessions,
+          noteLocator,
+          agentsMdRepository: noInstructions(),
+          skillRepository: new SkillRepository(
+            new FakeAdapter().withSkill(`${SKILLS_PATH}/todo`, todoSource).asAdapter(),
+            SKILLS_PATH,
+          ),
+          progress: new TurnProgressPublisher(
+            () => undefined,
+            () => undefined,
+            () => undefined,
+            (name) => loaded.push(name),
+          ),
+        })
+        complete
+          .mockResolvedValueOnce(
+            Outcomes.success(aToolTurn(aToolCall('load_skill', { name: 'todo' }))),
+          )
+          .mockResolvedValueOnce(
+            Outcomes.success(aToolTurn(aToolCall('load_skill', { name: 'todo' }))),
+          )
+          .mockResolvedValue(Outcomes.success(aTextTurn('done')))
+
+        await withSkills.processUtterance('archive my todo')
+
+        expect(loaded).toEqual(['todo'])
+      })
+
       it('refuses no_skill_applies when a skill was already loaded this turn', async () => {
         complete
           .mockResolvedValueOnce(

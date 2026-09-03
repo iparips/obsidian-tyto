@@ -54,21 +54,22 @@ export class EditEngine {
     return run
   }
 
+  // The utterance is recorded before the turn opens, because a turn that cannot
+  // open still had something said to it. Left unrecorded, the history ends at
+  // the last instruction that ran, and a following "retry" retries that one.
   private async runTurn(text: string): Promise<Outcome<string>> {
+    this.sessionRepository.appendChatMessage(ChatMessage.user(text))
     const turnOutcome = await this.turnFactory.openTurn()
     if (turnOutcome.hasFailed()) return Outcomes.failure(turnOutcome.step, turnOutcome.message)
     this.runningTurn = turnOutcome.value
     try {
-      return await this.runAgentLoop(turnOutcome.value, ChatMessage.user(text))
+      return await this.runAgentLoop(turnOutcome.value)
     } finally {
       this.runningTurn = null
     }
   }
 
-  // The utterance is appended here rather than in runTurn, so it lands beside
-  // the loop that reads it back as the tail of the chat history.
-  private async runAgentLoop(turn: Turn, utterance: ChatMessage): Promise<Outcome<string>> {
-    this.sessionRepository.appendChatMessage(utterance)
+  private async runAgentLoop(turn: Turn): Promise<Outcome<string>> {
     const turnRepository = turn.repository
     const iterations = new IterationBudget()
     for (let iteration = 0; !iterations.isSpent(); iteration++) {

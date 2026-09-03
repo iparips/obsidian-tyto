@@ -81,7 +81,9 @@ export class TurnRepository {
   // skill fits: it only holds the model to deciding before it writes.
   private skillsSettled = false
 
-  private skillWasLoaded = false
+  // By name, so a second call for a skill already in the conversation is
+  // refused rather than re-reading the file and sending the body twice.
+  private readonly loadedSkills = new Set<string>()
 
   settleSkills(): void {
     this.skillsSettled = true
@@ -89,13 +91,17 @@ export class TurnRepository {
 
   // Loading a skill settles the question and records that it was answered by
   // loading, so a later "no skill applies" in the same turn contradicts it.
-  recordSkillLoaded(): void {
-    this.skillWasLoaded = true
+  recordSkillLoaded(name: string): void {
+    this.loadedSkills.add(name)
     this.settleSkills()
   }
 
   loadedASkill(): boolean {
-    return this.skillWasLoaded
+    return this.loadedSkills.size > 0
+  }
+
+  hasLoaded(name: string): boolean {
+    return this.loadedSkills.has(name)
   }
 
   // A vault with no skills has nothing to settle, so the check is invisible
