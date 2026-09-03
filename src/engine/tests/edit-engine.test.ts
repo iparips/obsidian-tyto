@@ -305,6 +305,28 @@ describe('EditEngine', () => {
         expect(steps).toContain('No skill applies: plain dictation')
       })
 
+      // A turn once loaded a skill and then said no skill applied, so the panel
+      // showed both. The two answers contradict each other and the second is
+      // already answered by the first.
+      it('refuses no_skill_applies when a skill was already loaded this turn', async () => {
+        complete
+          .mockResolvedValueOnce(
+            Outcomes.success(aToolTurn(aToolCall('load_skill', { name: 'todo' }))),
+          )
+          .mockResolvedValueOnce(
+            Outcomes.success(aToolTurn(aToolCall('no_skill_applies', { reason: 'anything' }))),
+          )
+          .mockResolvedValue(Outcomes.success(aTextTurn('done')))
+
+        await engineWithTodoSkill().processUtterance('archive my todo')
+
+        const results = complete.mock.calls[2][0].filter((m: ChatMessage) => m.isToolResult())
+        expect(results.at(-1)).toMatchObject({
+          content:
+            'you already loaded a skill this turn, which answered this; follow its steps rather than saying none applies',
+        })
+      })
+
       it('applies the edit once the model says no skill applies', async () => {
         complete
           .mockResolvedValueOnce(

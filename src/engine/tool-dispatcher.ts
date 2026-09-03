@@ -17,6 +17,8 @@ import { ChoiceRequest } from './models/choice-request'
 import { TurnStep } from './models/turn-step'
 
 const CANCELLED_RESULT = 'the user stopped the turn; this call did not run'
+const ALREADY_LOADED_RESULT =
+  'you already loaded a skill this turn, which answered this; follow its steps rather than saying none applies'
 const NO_ANSWER_RESULT = 'the user did not answer; stop and say what you were waiting on'
 // The decline names the next move: a model told only "declined" searches again,
 // which is the loop this replaces (FR7).
@@ -69,7 +71,7 @@ export class ToolDispatcher {
     if (!skill) return `no skill named ${name} in this vault`
     const body = await this.skillRepository.readBody(skill)
     if (body === null) return `skill ${skill.name} could not be read`
-    this.turnRepository.settleSkills()
+    this.turnRepository.recordSkillLoaded()
     this.turnProgressPublisher.skillLoaded(skill.name)
     return body
   }
@@ -77,7 +79,11 @@ export class ToolDispatcher {
   // The model's own judgement, recorded rather than checked: the harness never
   // decides which skill fits, only that the question was answered before a
   // write.
+  // Refused rather than recorded when a skill is already loaded: the two
+  // answers contradict each other, and a panel that shows both tells the user
+  // the turn did something it did not.
   private noSkillApplies(call: ToolCall): string {
+    if (this.turnRepository.loadedASkill()) return ALREADY_LOADED_RESULT
     this.turnRepository.settleSkills()
     this.turnProgressPublisher.stepTaken(TurnStep.noSkillApplies(call.argument('reason')))
     return 'noted; no skill applies to this turn'

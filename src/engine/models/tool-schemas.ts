@@ -69,13 +69,14 @@ export const TOOL_SCHEMAS: ToolSchema[] = [
   {
     name: NO_SKILL_APPLIES,
     description:
-      "Say that none of this vault's skills covers what the user asked, then carry on. Call it instead of load_skill when you have read the skill list and none matches. You decide which applies; this is how you say none does.",
+      "Say that none of this vault's skills covers what the user asked, then carry on. Call it INSTEAD of load_skill, never as well: a turn that loaded a skill has already answered this and must not call it. Only when you have read the skill list and none matches.",
     parameters: {
       type: 'object',
       properties: {
         reason: {
           type: 'string',
-          description: 'One short phrase saying what the user asked for that no skill covers.',
+          description:
+            'Why no skill fits, in one short phrase. Say what the skills cover that this is not, such as "no skill for opening a dated note". Never restate the request.',
         },
       },
       required: ['reason'],
@@ -96,7 +97,7 @@ export const TOOL_SCHEMAS: ToolSchema[] = [
   {
     name: GLOB_NOTES,
     description:
-      'List the notes whose path matches a pattern. Use this before guessing a filename: a folder listing shows the naming convention. Returns paths only. Your first call for a note should end in * so it lists the whole folder, because you cannot know how this vault spells a date or a title until you have seen one.',
+      'List the notes whose path matches a pattern. Use this before guessing a filename: a folder listing shows the naming convention. Returns paths only. Your first call for a note should end in * so it lists the whole folder, because you cannot know how this vault spells a date or a title until you have seen one. When you already know a date or a name, match the file itself with **/*NAME* rather than guessing which folder holds it.',
     parameters: {
       type: 'object',
       properties: {

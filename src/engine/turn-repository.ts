@@ -81,8 +81,21 @@ export class TurnRepository {
   // skill fits: it only holds the model to deciding before it writes.
   private skillsSettled = false
 
+  private skillWasLoaded = false
+
   settleSkills(): void {
     this.skillsSettled = true
+  }
+
+  // Loading a skill settles the question and records that it was answered by
+  // loading, so a later "no skill applies" in the same turn contradicts it.
+  recordSkillLoaded(): void {
+    this.skillWasLoaded = true
+    this.settleSkills()
+  }
+
+  loadedASkill(): boolean {
+    return this.skillWasLoaded
   }
 
   // A vault with no skills has nothing to settle, so the check is invisible
