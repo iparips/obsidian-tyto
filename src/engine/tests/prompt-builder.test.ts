@@ -104,11 +104,22 @@ describe('PromptBuilder', () => {
   describe('when the catalogue has entries', () => {
     const catalogue = [aSkill('tidy-notes', 'Tidies a note.'), aSkill('weekly-review', 'Reviews.')]
 
-    it('lists one line per skill when the catalogue has entries', () => {
-      const prompt = standingRulesText(catalogue)
+    // The list travels with the note snapshot rather than the standing rules,
+    // so the trigger phrases sit in the freshest position rather than behind
+    // the whole chat history and the note body.
+    it('lists one line per skill beside the note, where the model reads last', () => {
+      const snapshot = PromptBuilder.noteSnapshot(aNote(), Today.of(), catalogue).content
 
-      expect(prompt).toContain('tidy-notes - Tidies a note.')
-      expect(prompt).toContain('weekly-review - Reviews.')
+      expect(snapshot).toContain('tidy-notes - Tidies a note.')
+      expect(snapshot).toContain('weekly-review - Reviews.')
+    })
+
+    it('names no skill in the standing rules, since the list moved to the note', () => {
+      expect(standingRulesText(catalogue)).not.toContain('tidy-notes - Tidies a note.')
+    })
+
+    it('keeps the rules in the standing rules, since how a skill works is fixed', () => {
+      expect(standingRulesText(catalogue)).toContain('This vault defines the skills below')
     })
 
     it('states the single-note rule when the catalogue has entries', () => {

@@ -46,7 +46,7 @@ export class ToolDispatcher {
     // Between calls rather than inside one, so no edit is left half-applied.
     if (this.turnCancellation.isCancelled()) return { result: CANCELLED_RESULT }
     if (call.isLoadSkill()) return { result: await this.loadSkill(call) }
-    if (call.isNoSkillApplies()) return { result: this.noSkillApplies() }
+    if (call.isNoSkillApplies()) return { result: this.noSkillApplies(call) }
     if (call.isHarnessTool()) return this.callHarnessTool(call)
     return this.publishEdit(this.noteEditTool.execute(call))
   }
@@ -77,8 +77,9 @@ export class ToolDispatcher {
   // The model's own judgement, recorded rather than checked: the harness never
   // decides which skill fits, only that the question was answered before a
   // write.
-  private noSkillApplies(): string {
+  private noSkillApplies(call: ToolCall): string {
     this.turnRepository.settleSkills()
+    this.turnProgressPublisher.stepTaken(TurnStep.noSkillApplies(call.argument('reason')))
     return 'noted; no skill applies to this turn'
   }
 

@@ -23,13 +23,22 @@ export class PromptBuilder {
 
   // Stands where the note snapshot stands in a bound turn, so the model reads
   // what it can do in the freshest position rather than a note that is absent.
-  static noNoteSnapshot(canRunCommands = false, today: Today = Today.of()): ChatMessage {
-    return ChatMessage.system(PromptBuilder.noNoteSnapshotText(canRunCommands, today))
+  static noNoteSnapshot(
+    canRunCommands = false,
+    today: Today = Today.of(),
+    skills: readonly Skill[] = [],
+  ): ChatMessage {
+    return ChatMessage.system(PromptBuilder.noNoteSnapshotText(canRunCommands, today, skills))
   }
 
-  private static noNoteSnapshotText(canRunCommands: boolean, today: Today): string {
+  private static noNoteSnapshotText(
+    canRunCommands: boolean,
+    today: Today,
+    skills: readonly Skill[],
+  ): string {
     return [
       PromptBuilder.dateLine(today),
+      ...PromptBuilder.skillCatalogue(skills),
       'No note is open, so this session is not bound to one yet.',
       'Every tool but the editing ones still works: only writing needs a note.',
       'The editing tools have nothing to write to until a note opens.',
@@ -116,12 +125,27 @@ export class PromptBuilder {
     ].join('\n')
   }
 
+  // The rules only. The list of skills travels with the note snapshot instead,
+  // because a trigger phrase the model reads last is one it still has in mind
+  // when it decides what to do.
   // Omitted entirely when the catalogue is empty, so a vault without skills
   // produces the three-section prompt byte for byte (FR38).
   private static skillSection(skills: readonly Skill[], canLeaveNote: boolean): string[] {
     if (skills.length === 0) return []
+    return [PromptBuilder.skillRules(canLeaveNote)]
+  }
+
+  // Where the skills are actually listed: last, beside the note. The standing
+  // rules say how a skill works and this says which ones exist, so the names
+  // and their triggers sit in the position the note snapshot was given for the
+  // same reason.
+  static skillCatalogue(skills: readonly Skill[]): string[] {
+    if (skills.length === 0) return []
     return [
-      [PromptBuilder.skillRules(canLeaveNote), ...PromptBuilder.skillLines(skills)].join('\n'),
+      '',
+      'This vault defines these skills. Match the user against them before you act:',
+      ...PromptBuilder.skillLines(skills),
+      '',
     ]
   }
 
@@ -175,13 +199,22 @@ export class PromptBuilder {
   // Re-read from the editor every turn. Anything the conversation says about
   // the note is a record of an earlier state, including the user's own manual
   // edits between turns, so this copy is the only current one.
-  static noteSnapshot(note: NoteDetails, today: Today = Today.of()): ChatMessage {
-    return ChatMessage.system(PromptBuilder.noteSnapshotText(note, today))
+  static noteSnapshot(
+    note: NoteDetails,
+    today: Today = Today.of(),
+    skills: readonly Skill[] = [],
+  ): ChatMessage {
+    return ChatMessage.system(PromptBuilder.noteSnapshotText(note, today, skills))
   }
 
-  private static noteSnapshotText(note: NoteDetails, today: Today): string {
+  private static noteSnapshotText(
+    note: NoteDetails,
+    today: Today,
+    skills: readonly Skill[],
+  ): string {
     return [
       PromptBuilder.dateLine(today),
+      ...PromptBuilder.skillCatalogue(skills),
       `Note path: ${note.path}`,
       `Cursor line: ${note.cursor.line}`,
       'This is the note as it is right now, re-read from the editor. It supersedes any',

@@ -171,8 +171,8 @@ export class EditEngine {
     // the model weights recent messages most heavily. So the note goes after it,
     // last of all: freshest content in the freshest position.
     const noteSnapshot = note
-      ? PromptBuilder.noteSnapshot(note.details(), today)
-      : PromptBuilder.noNoteSnapshot(this.harnessTools.allowedCommands().length > 0, today)
+      ? PromptBuilder.noteSnapshot(note.details(), today, skills)
+      : PromptBuilder.noNoteSnapshot(this.harnessTools.allowedCommands().length > 0, today, skills)
     return this.modelProvider.complete(
       [standingRules, ...chatHistory, noteSnapshot],
       this.harnessTools.schemas(skills.length > 0),

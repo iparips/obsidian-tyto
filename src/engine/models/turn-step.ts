@@ -42,6 +42,13 @@ export class TurnStep {
     return new TurnStep('Loaded skill', name)
   }
 
+  // The model's own reason for skipping every skill, shown so a wrong call is
+  // visible rather than silent: the gate makes it decide, and this is how the
+  // user sees what it decided.
+  static noSkillApplies(reason: string): TurnStep {
+    return new TurnStep('No skill applies', reason)
+  }
+
   static commandRan(detail: string): TurnStep {
     return new TurnStep('Ran command', detail)
   }

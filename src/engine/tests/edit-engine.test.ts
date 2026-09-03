@@ -273,6 +273,38 @@ describe('EditEngine', () => {
         expect(editor.content).toBe('hi\n# Budget\n\nbody')
       })
 
+      it('shows the reason in the steps list when the model says no skill applies', async () => {
+        const steps: string[] = []
+        const withSteps = anEngine(chat, {
+          sessions,
+          noteLocator,
+          agentsMdRepository: noInstructions(),
+          skillRepository: new SkillRepository(
+            new FakeAdapter().withSkill(`${SKILLS_PATH}/todo`, todoSource).asAdapter(),
+            SKILLS_PATH,
+          ),
+          progress: new TurnProgressPublisher(
+            () => undefined,
+            () => undefined,
+            () => undefined,
+            () => undefined,
+            () => undefined,
+            (step) => steps.push(`${step.label}: ${step.detail}`),
+          ),
+        })
+        complete
+          .mockResolvedValueOnce(
+            Outcomes.success(
+              aToolTurn(aToolCall('no_skill_applies', { reason: 'plain dictation' })),
+            ),
+          )
+          .mockResolvedValue(Outcomes.success(aTextTurn('done')))
+
+        await withSteps.processUtterance('add a line')
+
+        expect(steps).toContain('No skill applies: plain dictation')
+      })
+
       it('applies the edit once the model says no skill applies', async () => {
         complete
           .mockResolvedValueOnce(
