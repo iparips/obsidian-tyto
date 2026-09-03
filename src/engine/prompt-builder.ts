@@ -90,6 +90,9 @@ export class PromptBuilder {
     return [[RuleBuilder.commandRules(), ...PromptBuilder.commandLines(commands)].join('\n')]
   }
 
+  // The id first and the name after, since the id is what run_command takes.
+  // The separator is wide enough to read as a break rather than as part of
+  // either half.
   private static commandLines(commands: readonly AllowedCommand[]): string[] {
     return commands.map((command) => `${command.id} - ${command.name}`)
   }

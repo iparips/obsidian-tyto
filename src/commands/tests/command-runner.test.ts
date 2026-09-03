@@ -36,7 +36,20 @@ describe('CommandRunner', () => {
       const outcome = await runnerOf('daily-notes:*').run('file-explorer:delete-file')
 
       expect(outcome).toMatchObject({
-        message: 'file-explorer:delete-file is not an allowed command in this vault',
+        message: expect.stringContaining(
+          'file-explorer:delete-file is not an allowed command in this vault',
+        ),
+      })
+    })
+
+    // A model that sent a whole prompt line rather than the id reads "not
+    // allowed" as the command being unavailable, and gives up on a command the
+    // vault does allow.
+    it('names the ids that can be run, so a mistyped id is recoverable', async () => {
+      const outcome = await runnerOf('daily-notes:*').run('file-explorer:delete-file')
+
+      expect(outcome).toMatchObject({
+        message: expect.stringContaining('the ids you can run are daily-notes:goto-today'),
       })
     })
 

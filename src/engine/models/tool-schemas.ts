@@ -89,7 +89,11 @@ export const TOOL_SCHEMAS: ToolSchema[] = [
     parameters: {
       type: 'object',
       properties: {
-        command_id: { type: 'string', description: 'The command id exactly as listed.' },
+        command_id: {
+          type: 'string',
+          description:
+            'The command id only: the part of its line before the first " - ". Never send the whole line, or the name that follows the dash. An id may or may not contain a colon; copy it exactly as it appears.',
+        },
       },
       required: ['command_id'],
     },

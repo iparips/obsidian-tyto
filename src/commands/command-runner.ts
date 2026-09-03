@@ -18,9 +18,17 @@ export class CommandRunner {
 
   async run(commandId: string): Promise<Attempt<CommandEffect>> {
     const allowed = this.catalogue.resolve().find((command) => command.id === commandId)
-    if (!allowed)
-      return Outcomes.failure('apply', `${commandId} is not an allowed command in this vault`)
+    if (!allowed) return Outcomes.failure('apply', this.unknownCommandMessage(commandId))
     return Outcomes.success(await this.runAllowed(commandId, allowed.name))
+  }
+
+  // Names what is allowed rather than only what was refused: a model that sent
+  // a whole prompt line rather than the id can see its mistake and retry,
+  // where "not allowed" reads as the command being unavailable.
+  private unknownCommandMessage(commandId: string): string {
+    const ids = this.catalogue.resolve().map((command) => command.id)
+    if (ids.length === 0) return `${commandId} is not an allowed command in this vault`
+    return `${commandId} is not an allowed command in this vault; the ids you can run are ${ids.join(', ')}`
   }
 
   // The wait is what makes the after-read meaningful: without it the active

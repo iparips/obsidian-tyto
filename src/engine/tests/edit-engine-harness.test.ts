@@ -193,7 +193,9 @@ describe('EditEngine', () => {
       expect(
         complete.mock.calls[1][0].filter((m: ChatMessage) => m.isToolResult())[0],
       ).toMatchObject({
-        content: 'file-explorer:delete-file is not an allowed command in this vault',
+        content: expect.stringContaining(
+          'file-explorer:delete-file is not an allowed command in this vault',
+        ),
       })
     })
   })

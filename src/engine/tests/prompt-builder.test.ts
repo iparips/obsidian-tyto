@@ -6,8 +6,9 @@ import { Skill } from '../../skills/skill'
 import { AgentsMdChain } from '../../agents/agents-md-chain'
 import { AgentsMdFile } from '../../agents/agents-md-file'
 import { AllowedCommand } from '../../commands/models/allowed-command'
-// Stored rather than rebuilt: the point is that release 4 did not move a byte
-// of the prompt a vault without commands or search sees (NFR8).
+// Stored rather than rebuilt, so a change to the prompt a vault without commands
+// or search sees is deliberate rather than drift. Release 4 moved none of it;
+// release 5 adds the heading rule and re-records this.
 import RELEASE_3_PROMPT from './fixtures/release-3-prompt.txt?raw'
 
 const aNote = (): NoteDetails => new NoteDetails('note.md', '# Budget\n\nbody', { line: 2, ch: 0 })
@@ -211,6 +212,14 @@ describe('PromptBuilder', () => {
       const prompt = standingRulesText(catalogue)
 
       expect(prompt).toContain('whatever words the user used')
+    })
+
+    it('tells the model to write under a heading the note already has', () => {
+      expect(standingRulesText([])).toContain('Write under a heading the note already has')
+    })
+
+    it('tells the model loose wording still names the same section', () => {
+      expect(standingRulesText([])).toContain('do not make it a different section')
     })
 
     it('tells the model that reaching the note is not doing the work', () => {
