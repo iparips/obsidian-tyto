@@ -10,12 +10,16 @@ unchanged.
 1. [One Matcher, Two Searchers](#one-matcher-two-searchers)
 2. [The Glob Is a Compiled Pattern](#the-glob-is-a-compiled-pattern)
 3. [Two Searchers Over One Pass](#two-searchers-over-one-pass)
-4. [Behaviour Sequence](#behaviour-sequence)
-5. [Ordering Is a Value, Not a Branch](#ordering-is-a-value-not-a-branch)
-6. [What Replaces VaultSearch](#what-replaces-vaultsearch)
-7. [Two Tools, Two Budgets](#two-tools-two-budgets)
-8. [The Prompt States the Order](#the-prompt-states-the-order)
-9. [Out of Scope](#out-of-scope)
+4. [The Two Schemas](#the-two-schemas)
+5. [What the Model Reads Back](#what-the-model-reads-back)
+6. [Behaviour Sequence](#behaviour-sequence)
+7. [Ordering Is a Value, Not a Branch](#ordering-is-a-value-not-a-branch)
+8. [What Replaces VaultSearch](#what-replaces-vaultsearch)
+9. [Feeding an Opened Note](#feeding-an-opened-note)
+10. [Two Tools, Two Budgets](#two-tools-two-budgets)
+11. [The Prompt States the Order](#the-prompt-states-the-order)
+12. [Retiring search_vault](#retiring-search_vault)
+13. [Out of Scope](#out-of-scope)
 
 ## One Matcher, Two Searchers
 
@@ -59,11 +63,16 @@ it, rather than walking segments per path.
 // the three wildcards are a translation, and a walk would reimplement
 // backtracking for `**`.
 export class PathPattern {
-  static compile(pattern: string): Attempt<PathPattern>
+  static compile(pattern: string): PathPattern
 
   matches(path: string): boolean
 }
 ```
+
+compile returns a pattern rather than an Attempt. Every character that is not
+one of the three wildcards is escaped, so no input can fail to compile: an
+Attempt here would be a branch no test could reach and no caller could trigger.
+A pattern that matches nothing is an answer, not an error (NFR5).
 
 The translation is three rules and one escape:
 
@@ -80,6 +89,16 @@ with no folder would not match a pattern the user reads as "anywhere".
 
 Every other regular-expression character is escaped, so a vault folder named
 `1 - Journal` or `Notes (old)` is matched literally rather than parsed.
+
+The compiled expression is anchored at both ends. `Week-35/*.md` therefore does
+not match `1 - Journal/Weekly/Week-35/04-09-Fri.md`, and reaching it mid-path
+needs `**/Week-35/*.md`. Anchoring is what makes a pattern mean one thing: an
+unanchored `*.md` would match every note in the vault, which is never what the
+model meant by it.
+
+The pattern matches the whole path including the extension, and nothing is
+appended. `Week-35/*` and `Week-35/*.md` both match a markdown note, because the
+candidate set is getMarkdownFiles and holds nothing else.
 
 Matching is case-insensitive. Obsidian's own search is, macOS vault paths are
 case-insensitive on disk, and a model that recalls `week-35` should not miss
@@ -112,6 +131,36 @@ GrepRequest (Search, new) carries the expression, the optional path pattern, and
 whether paths alone are wanted. A value rather than four arguments, because
 HarnessTools builds it from the tool call and nothing else constructs one.
 
+Both results carry their rows and whether the cap trimmed them:
+
+```typescript
+// glob-result.ts and grep-result.ts
+// The total is held beside the rows rather than derived from them, because the
+// rows are what survived the cap and the total is what the model must be told
+// about (FR13).
+export class GlobResult {
+  constructor(
+    readonly paths: readonly string[],
+    readonly total: number,
+  ) {}
+
+  wasTrimmed(): boolean
+}
+
+export class GrepResult {
+  constructor(
+    readonly hits: readonly SearchHit[],
+    readonly total: number,
+    readonly pathsOnly: boolean,
+  ) {}
+
+  wasTrimmed(): boolean
+}
+```
+
+Glob holds paths and grep holds SearchHits, which is the same asymmetry the
+result format has: a path match has no excerpt to carry.
+
 The regular expression is the model's, so it is compiled inside a try and a
 failure becomes a refusal naming the expression (FR9). It is compiled once per
 call, like the path pattern.
@@ -119,6 +168,91 @@ call, like the path pattern.
 Both results carry whether the cap trimmed them (FR13). A model told it saw
 everything behaves differently from one told it saw the first fifty, and the
 difference matters when the answer is "there are no others".
+
+## The Two Schemas
+
+Written out because the argument names are the contract: the prompt, the schema
+and the parser must agree, and a name invented at build time drifts from every
+later reader.
+
+```typescript
+// tool-schemas.ts, beside the existing entries
+{
+  name: GLOB_NOTES,
+  description:
+    'List the notes whose path matches a pattern. Use this before guessing a filename: a folder listing shows the naming convention. Returns paths only.',
+  parameters: {
+    type: 'object',
+    properties: {
+      pattern: {
+        type: 'string',
+        description:
+          'A path pattern from the vault root. * matches within one folder, ** across folders, ? one character. Example: 1 - Journal/Weekly/Week-35/*.md',
+      },
+      sort: { type: 'string', enum: ['path', 'modified'] },
+      order: { type: 'string', enum: ['ascending', 'descending'] },
+    },
+    required: ['pattern'],
+  },
+},
+{
+  name: GREP_NOTES,
+  description:
+    'Find notes whose contents match a regular expression, with an excerpt around each match. Narrow it with path_pattern when you know roughly where to look.',
+  parameters: {
+    type: 'object',
+    properties: {
+      pattern: { type: 'string', description: 'A JavaScript regular expression.' },
+      path_pattern: {
+        type: 'string',
+        description: 'Only read notes whose path matches this glob. Same syntax as glob_notes.',
+      },
+      paths_only: {
+        type: 'boolean',
+        description: 'Return paths without excerpts, when the answer is which note rather than what it says.',
+      },
+      sort: { type: 'string', enum: ['path', 'modified', 'matches'] },
+      order: { type: 'string', enum: ['ascending', 'descending'] },
+    },
+    required: ['pattern'],
+  },
+},
+```
+
+`pattern` is the first argument of both, because it is the same idea in both: what
+to match. Grep's path filter is `path_pattern` rather than a second `pattern`.
+
+`ascending` and `descending` in full, rather than `asc` and `desc`. The model
+writes these, and a truncation is one more thing to get exactly right for no
+gain.
+
+Both `sort` and `order` are optional and neither is in `required`, so the common
+call is `glob_notes({ pattern })`.
+
+## What the Model Reads Back
+
+The result string is what the model acts on, so it is specified rather than left
+to the searcher.
+
+| Case                | Glob returns                                  | Grep returns                                    |
+| ------------------- | --------------------------------------------- | ----------------------------------------------- |
+| Nothing matched     | `no notes match <pattern>`                     | `no notes contain <pattern>`                     |
+| Matched             | One path per line                              | `<path> (<n> matches): <excerpt>` per line       |
+| Matched, paths only | One path per line                              | One path per line                                |
+| Cap trimmed         | A trailing line, below                         | A trailing line, below                           |
+
+The trailing line is `showing the first <cap> of <total>; narrow the pattern to
+see the rest`. It names the cap and the total, because a model told it saw
+everything answers "are there others?" differently from one told it saw ten of
+forty (FR13).
+
+Grep's line reuses SearchHit (Search) with the match count as its score, which is
+what that field always effectively held. Its describe() gains a form without the
+decimal, since a count is not a score.
+
+A glob returns bare paths rather than SearchHit lines. There is no score to
+report and no excerpt to carry, and a format that renders both as empty invites
+the model to read meaning into them.
 
 ## Behaviour Sequence
 
@@ -156,6 +290,29 @@ Both tools record their paths on SeenPaths (Search), because
 the only source of a path open_note accepts. A glob that could not feed open_note
 would leave the model able to find a note and unable to open it.
 
+## Feeding an Opened Note
+
+SeenPaths (Search) is what open_note checks before it moves the session, so a
+note either tool found must be recorded there or the model can find a note it
+cannot open.
+
+Its record takes SearchHit values today, which a glob has none of. It gains a
+second method rather than a fabricated hit:
+
+```typescript
+// seen-paths.ts, beside record
+// Paths rather than hits, because a glob has no score and no excerpt and a hit
+// carrying empty ones would invite the model to read meaning into them.
+recordPaths(paths: readonly string[]): void
+```
+
+record keeps its signature and delegates: it only ever read hit.path, so the two
+methods are one behaviour with two shapes of argument.
+
+HarnessTools records after each call, as it already does for a search. A glob
+records its paths; a grep records the paths of its hits, including when
+paths_only left them without excerpts.
+
 ## Ordering Is a Value, Not a Branch
 
 ResultOrder (Search, new) holds the field and the direction, and knows the
@@ -169,17 +326,30 @@ default direction for each field.
 export class ResultOrder {
   static of(sort?: string, order?: string): ResultOrder
 
-  comparing<T>(keyOf: (item: T) => string | number): (left: T, right: T) => number
+  // The caller supplies one key per field it supports, and the value picks the
+  // one its field names. A searcher therefore states what it can sort by
+  // without branching on which was asked for.
+  sorted<T>(items: readonly T[], keys: SortKeys<T>): T[]
+}
+
+// Every field a caller can offer. modified and matches are optional, so a glob
+// declares no match count and a caller that omits a key the order asks for
+// falls back to path.
+export interface SortKeys<T> {
+  path(item: T): string
+  modified?(item: T): number
+  matches?(item: T): number
 }
 ```
 
-An unrecognised sort field falls back to path rather than refusing. The field is
-the model's, the set is small, and a turn should not end because it asked for an
-ordering that does not exist.
+An unrecognised sort field falls back to path, and so does a recognised field the
+caller supplied no key for. The field is the model's, the set is small, and a
+turn should not end because it asked for an ordering that does not exist.
 
-matches is grep's alone, and the design keeps that in the schema rather than in
-ResultOrder: the value sorts by whatever key it is handed, and only grep hands it
-a match count.
+That fallback is how matches stays grep's alone without ResultOrder knowing which
+tool called it. A glob passes no matches key, so `sort: matches` on a glob orders
+by path rather than refusing. The schema does not offer the model that value, and
+the fallback is what makes the schema advisory rather than load-bearing.
 
 ## What Replaces VaultSearch
 
@@ -206,6 +376,33 @@ number for.
 SearchHit (Search) stays, since a grep hit is still a path, a relevance figure
 and an excerpt. Its score becomes the match count, which is what it always
 effectively was.
+
+## Caps and Steps
+
+Two caps, different numbers, because the rows cost differently.
+
+| Cap                | Value | Why                                             |
+| ------------------ | ----- | ----------------------------------------------- |
+| Glob results       | 50    | A row is a path, and a folder listing wants all of it |
+| Grep results       | 10    | A row carries a 200-character excerpt            |
+| Grep, paths only   | 50    | The rows are paths again                         |
+
+Fifty is enough that a real folder listing is never trimmed, which matters
+because a trimmed listing is exactly the case where the model starts guessing
+again. Ten matches the eight the deleted search returned, rounded to a number
+the cap message can state plainly.
+
+TurnStep (Engine) gains two factories beside its six:
+
+```typescript
+// turn-step.ts, beside searched
+static globbed(pattern: string, found: number): TurnStep
+static grepped(pattern: string, found: number): TurnStep
+```
+
+Labelled `Globbed` and `Grepped`. Reusing searched would render a folder listing
+as "3 matches", which reads as relevance where it is an enumeration; the detail
+reads `<pattern> — 3 notes` for a glob and `<pattern> — 3 notes` for a grep.
 
 ## Two Tools, Two Budgets
 
@@ -234,7 +431,7 @@ Four ways to reach a note need a stated order, or the model reaches for the most
 general (NFR6). RuleBuilder (Engine) replaces searchRules with a sequence:
 
 ```typescript
-// rule-builder.ts, replacing the search rules
+// rule-builder.ts, replacing the first two lines of searchRules
 'Reach a note in this order: run a listed command that opens it; glob for its',
 'path when you know roughly where it lives; grep for text you expect it to',
 'contain; read it only once you know which note you mean.',
@@ -245,6 +442,55 @@ general (NFR6). RuleBuilder (Engine) replaces searchRules with a sequence:
 The second rule is the one the failing turn needed. A model that globs
 `1 - Journal/Weekly/Week-35/*.md` reads the convention off the result; a model
 that greps for a guessed name learns only that its guess was wrong.
+
+Three of the five lines searchRules holds today survive verbatim, and only the
+first two go:
+
+| Line today                                          | Fate                      |
+| --------------------------------------------------- | ------------------------- |
+| You can search the vault and read the notes...       | Replaced by the order     |
+| ...no tool writes a search result into a note        | Kept: still true          |
+| Answer a question with answer_from_search...         | Kept: FR17                |
+| When a search finds nothing, say so...               | Kept: load-bearing        |
+
+The last is the one to be careful with. It is what stops the model answering a
+vault question from its own knowledge, and an exact search makes it matter more
+rather than less: a grep that finds nothing is now proof, and the model must say
+so rather than fill the silence.
+
+Commit one ships the order line naming only the command, the glob and the read,
+since grep does not exist yet. Commit two adds the grep clause. Both are prompt
+changes, and both verify the rest byte for byte against git.
+
+## Retiring search_vault
+
+Deleting a tool reaches further than deleting its class, and the compile errors
+are the smaller half.
+
+| File                                    | Change                                        |
+| --------------------------------------- | --------------------------------------------- |
+| `providers/models/tool-call.ts`          | Drop SEARCH_VAULT and isSearchVault; add the two new names and predicates to isHarnessTool |
+| `engine/engine-factory.ts`               | Construct NoteGlob and NoteGrep where VaultSearch was constructed |
+| `test-support/builders.ts`               | noHarness builds the two searchers instead    |
+| `test-support/__mocks__/obsidian.ts`     | prepareSimpleSearch and the SearchResult types go with their only consumer |
+| `search/vault-search.ts` and its test    | Deleted                                       |
+
+Four test files call search_vault to reach a note, and each needs the same
+substitution rather than deletion:
+
+| Test file                          | What it uses search_vault for              |
+| ---------------------------------- | ------------------------------------------ |
+| `edit-engine-model-chosen.test.ts` | findsTodo, which feeds SeenPaths for every open test |
+| `harness-tools-open.test.ts`       | search, the same helper at unit level      |
+| `edit-engine-harness.test.ts`      | Six sites, including the offered-set and search-cap assertions |
+| `edit-engine-unbound.test.ts`      | One site                                   |
+| `turn-budget.test.ts`              | Asserts spentTools names search_vault      |
+
+The first two are the ones to get right. Their helpers exist to put a path in
+SeenPaths so open_note will accept it, and a glob does that as well as a search
+did: findsTodo becomes a glob_notes call for the note's own folder. A test suite
+that deletes them instead loses the coverage that open_note refuses an unseen
+path, which is FR3 of the spec before this one.
 
 ## Out of Scope
 

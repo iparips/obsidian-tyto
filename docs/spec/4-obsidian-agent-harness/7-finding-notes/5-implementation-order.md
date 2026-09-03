@@ -30,7 +30,7 @@ leaving both would let the model keep choosing the tool this design replaces.
 Each step leaves the suite green.
 
 1. `src/search/models/path-pattern.ts`: the compiled matcher, its three
-   wildcards and its escaping.
+   wildcards, its escaping and its anchoring.
 
    Nothing calls it yet, so this step is the matching rules with no tool
    attached. Get `**/` matching zero segments right here: it is the rule a later
@@ -41,8 +41,8 @@ Each step leaves the suite green.
 
    Also unused at this point. Both searchers take it, so it lands before either.
 
-3. `src/search/note-glob.ts`: the pass over getMarkdownFiles, the cap, and the
-   trimmed flag.
+3. `src/search/note-glob.ts` and `src/search/models/glob-result.ts`: the pass
+   over getMarkdownFiles, the cap of 50, and the trimmed flag.
 
    Assert it calls no cachedRead. FakeVault records every read, so NFR2 is one
    assertion rather than a convention.
@@ -53,17 +53,26 @@ Each step leaves the suite green.
    The grep counter lands here rather than in the second commit, so the budget
    is one change rather than two.
 
-5. `src/engine/harness-tools.ts` and `src/engine/models/tool-schemas.ts`:
-   glob_notes, its schema, and its place in the offered set.
+5. `src/engine/harness-tools.ts`, `src/engine/models/tool-schemas.ts`,
+   `src/providers/models/tool-call.ts`, `src/search/models/seen-paths.ts` and
+   `src/engine/models/turn-step.ts`: glob_notes, its schema, its predicate, its
+   step and its recording.
 
-   Record the paths on SeenPaths, or open_note refuses everything the glob
-   found. Report the step, or the panel shows a turn doing nothing.
+   SeenPaths gains recordPaths, or open_note refuses everything the glob found.
+   tool-call.ts gains the predicate and isHarnessTool, or ToolDispatcher routes
+   the call to the note editor and it fails as an unknown edit.
 
-6. `src/engine/models/tool-schemas.ts` and `src/search/vault-search.ts`: remove
-   search_vault and delete VaultSearch.
+6. Remove search_vault and delete VaultSearch, per the table in
+   [3-component-design.md](3-component-design.md#retiring-search_vault).
 
-   Its tests go with it. The path-scoring branch it grew is what PathPattern now
-   does exactly, so nothing is lost that step 1 did not replace.
+   Five production files and five test files, and the two that matter are
+   `edit-engine-model-chosen.test.ts` and `harness-tools-open.test.ts`: their
+   helpers put a path in SeenPaths so open_note will accept it, and each becomes
+   a glob rather than being deleted. Deleting them loses the coverage that
+   open_note refuses an unseen path.
+
+   The path-scoring branch VaultSearch grew is what PathPattern now does exactly,
+   so nothing is lost that step 1 did not replace.
 
 7. `src/engine/rule-builder.ts`: the order to try, replacing the search rules.
 
@@ -73,8 +82,9 @@ Each step leaves the suite green.
 
 ## Steps, second commit
 
-8. `src/search/note-grep.ts`: the expression, the optional path filter, the
-   excerpt and the match count.
+8. `src/search/note-grep.ts` and `src/search/models/grep-result.ts`: the
+   expression, the optional path filter, the excerpt, the match count, and the
+   cap of 10 with excerpts or 50 without.
 
    The path filter runs before the read. A grep narrowed to a folder that reads
    every note in the vault passes its tests and fails NFR1.
@@ -143,8 +153,6 @@ By hand in a real vault, on both surfaces.
 
 ## What to decide while building
 
-- Whether the glob cap and the grep cap should differ. A glob's rows are paths
-  and a grep's carry excerpts, so the same number costs very differently.
 - Whether grep's excerpt should be lines either side of the match rather than
   NoteExcerpt's fixed character width. Prose reads better by line; the fixed
   width is already built and bounded.

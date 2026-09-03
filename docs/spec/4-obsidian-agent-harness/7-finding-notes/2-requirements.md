@@ -179,8 +179,8 @@ descending for modified and matches.
 
 ### Bounding the cost
 
-FR13. Cap the number of results each tool returns, and say when the cap trimmed
-them.
+FR13. Cap the number of results each tool returns, and say how many were found
+when the cap trimmed them.
 
 FR14. Cap each tool's calls per turn, counted separately from each other and
 from the existing search budget.
@@ -224,21 +224,13 @@ the most general.
 
 ## What the design must settle
 
-- Whether the glob matcher compiles to a regular expression or walks the
-  segments. A regex is shorter; a walk gives better refusals.
-- Whether `**` matches zero segments as well as many, since `**/*.md` should
-  probably reach a note at the vault root.
-- Whether matching is case-sensitive. Obsidian's own search is not, and vault
-  paths on macOS are case-insensitive on disk.
 - What grep does with a pattern matching a note thousands of times, given the
-  excerpt is per match rather than per note.
+  excerpt is per match rather than per note. The count is wanted for sorting;
+  every offset is not.
 - Whether the excerpt for grep reuses NoteExcerpt's fixed width or takes lines
   either side of the match, which reads better for prose.
-- Whether the result cap is shared or per tool. A glob's paths are far cheaper
-  per row than a grep's excerpts.
-- What replaces VaultSearch, which currently owns the one pass and the recency
-  filter both tools still need.
-- Whether modified_within_days survives as an argument on grep, or whether
-  sorting by modified makes it redundant.
 - How the two caps interact with the iteration cap, since a turn that globs
   three times and greps four has spent seven of ten steps.
+- Whether the read budget of four should fall now that read_note no longer
+  shares it with a search, and whether its cap message should stop saying
+  "searched or read".
