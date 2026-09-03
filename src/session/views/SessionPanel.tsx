@@ -120,6 +120,15 @@ export const SessionPanel = (props: SessionPanelProps) => {
     [],
   )
 
+  // A suggestion is a whole answer, so clicking one submits it rather than
+  // filling the box: the user picked it to avoid typing, and leaving it as a
+  // draft asks them to press send to confirm a choice they already made.
+  const pickSuggestion = async (suggestion: string) => {
+    if (asking) return settleQuestion(suggestion)
+    setDraft('')
+    await runTurn(suggestion)
+  }
+
   // The input row answers the question rather than starting a turn while one is
   // asking, which is the one place a running phase accepts typing (FR18).
   const sendDraft = async () => {
@@ -142,7 +151,7 @@ export const SessionPanel = (props: SessionPanelProps) => {
         entries={state.entries}
         phase={state.phase}
         onChooseNote={settleChoice}
-        onPickSuggestion={setDraft}
+        onPickSuggestion={pickSuggestion}
       />
       <InputRow
         phase={state.phase}

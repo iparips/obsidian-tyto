@@ -561,22 +561,23 @@ describe('SessionPanel', () => {
       expect(screen.getByLabelText('Instruction').hasAttribute('disabled')).toBe(false)
     })
 
-    it('fills the input when a suggestion is clicked', async () => {
+    // A suggestion is a whole answer and FR19 is that the user picks one
+    // without typing. Filling the box still asks them to press send, which is
+    // typing-adjacent work to confirm a choice they already made.
+    it('answers the question when a suggestion is clicked', async () => {
+      const answer = askQuestion()
+
+      await userEvent.click(screen.getByRole('button', { name: 'Lists/a.md' }))
+
+      expect(await answer).toBe('Lists/a.md')
+    })
+
+    it('leaves the input empty when a suggestion is clicked, since it was sent', async () => {
       askQuestion()
 
       await userEvent.click(screen.getByRole('button', { name: 'Lists/a.md' }))
 
-      expect(screen.getByLabelText<HTMLInputElement>('Instruction').value).toBe('Lists/a.md')
-    })
-
-    it('sends nothing on its own when a suggestion is clicked', async () => {
-      const answer = askQuestion()
-      let settled = false
-      void answer.then(() => (settled = true))
-
-      await userEvent.click(screen.getByRole('button', { name: 'Lists/a.md' }))
-
-      expect(settled).toBe(false)
+      expect(screen.getByLabelText<HTMLInputElement>('Instruction').value).toBe('')
     })
 
     it('answers with the typed text when the user sends while asking', async () => {
