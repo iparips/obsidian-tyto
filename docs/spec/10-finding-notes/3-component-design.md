@@ -127,9 +127,34 @@ export class NoteGrep {
 }
 ```
 
-GrepRequest (Search, new) carries the expression, the optional path pattern, and
+GrepRequest (Search, new) carries the expression, the two narrowings, and
 whether paths alone are wanted. A value rather than four arguments, because
 HarnessTools builds it from the tool call and nothing else constructs one.
+
+```typescript
+// grep-request.ts
+export class GrepRequest {
+  constructor(
+    readonly pattern: string,
+    readonly pathPattern: string | null,
+    readonly paths: readonly string[],
+    readonly pathsOnly: boolean,
+  ) {}
+
+  // Both narrowings apply where both are given, so a model that passes each
+  // gets the intersection. One silently overriding the other is how a search
+  // returns a confident answer to a question it did not ask.
+  admits(path: string): boolean
+}
+```
+
+An empty paths array is no filter rather than no notes. A model sending one
+almost certainly has no list to offer, and reading it literally returns "no notes
+contain X" for a search that never looked at one.
+
+paths filters the vault's own file list rather than reading what it names, so a
+path with no note behind it is dropped rather than raising. That matches
+SeenPaths, where a stale path is a miss and not a failure.
 
 Both results carry their rows and whether the cap trimmed them:
 
@@ -161,9 +186,31 @@ export class GrepResult {
 Glob holds paths and grep holds SearchHits, which is the same asymmetry the
 result format has: a path match has no excerpt to carry.
 
-The regular expression is the model's, so it is compiled inside a try and a
-failure becomes a refusal naming the expression (FR9). It is compiled once per
-call, like the path pattern.
+The regular expression is the model's, compiled with `new RegExp(pattern, 'gi')`
+inside a try. A failure becomes a refusal naming the expression and the reason
+the engine gave, so the model can correct the pattern rather than guess at it
+(FR9). It is compiled once per call, like the path pattern.
+
+Three properties of that compile are the model's contract, so they are stated in
+the schema rather than left to be discovered:
+
+| Property        | Value                | Why                                        |
+| --------------- | -------------------- | ------------------------------------------ |
+| Case            | Insensitive          | Matches the path matcher, and prose varies  |
+| Scope           | The whole note       | A match may cross lines, as prose does      |
+| Global          | Yes                  | The match count is what `sort: matches` orders by |
+
+Case-insensitivity is the one worth stating in the tool description, because a
+model that assumes otherwise writes `[Rr]oofing` and gets the same answer for
+more effort.
+
+The expression runs against the note's full text rather than line by line. A
+grep over prose is not a grep over code: a sentence wraps, and a pattern that
+must match within one line would miss what the user is looking for. The excerpt
+is then cut around the match offset, which is what NoteExcerpt already does.
+
+The global flag is not optional. Without it the count is always one, and
+`sort: matches` orders by nothing.
 
 Both results carry whether the cap trimmed them (FR13). A model told it saw
 everything behaves differently from one told it saw the first fifty, and the
@@ -198,14 +245,24 @@ later reader.
 {
   name: GREP_NOTES,
   description:
-    'Find notes whose contents match a regular expression, with an excerpt around each match. Narrow it with path_pattern when you know roughly where to look.',
+    'Find notes whose contents match a regular expression, with an excerpt around each match. Narrow it with path_pattern when you know roughly where to look, or with paths when a listing already showed you which notes matter.',
   parameters: {
     type: 'object',
     properties: {
-      pattern: { type: 'string', description: 'A JavaScript regular expression.' },
+      pattern: {
+        type: 'string',
+        description:
+          'A JavaScript regular expression, matched case-insensitively across the whole note. Plain text works: most searches need no special characters.',
+      },
       path_pattern: {
         type: 'string',
         description: 'Only read notes whose path matches this glob. Same syntax as glob_notes.',
+      },
+      paths: {
+        type: 'array',
+        items: { type: 'string' },
+        description:
+          'Only read these exact notes, as a previous call returned them. Use it to look inside the few a listing showed were relevant.',
       },
       paths_only: {
         type: 'boolean',
@@ -237,6 +294,7 @@ to the searcher.
 | Case                | Glob returns                                  | Grep returns                                    |
 | ------------------- | --------------------------------------------- | ----------------------------------------------- |
 | Nothing matched     | `no notes match <pattern>`                     | `no notes contain <pattern>`                     |
+| Nothing to read     | n/a                                            | `no notes to search: <narrowing> matched none`   |
 | Matched             | One path per line                              | `<path> (<n> matches): <excerpt>` per line       |
 | Matched, paths only | One path per line                              | One path per line                                |
 | Cap trimmed         | A trailing line, below                         | A trailing line, below                           |
@@ -245,6 +303,12 @@ The trailing line is `showing the first <cap> of <total>; narrow the pattern to
 see the rest`. It names the cap and the total, because a model told it saw
 everything answers "are there others?" differently from one told it saw ten of
 forty (FR13).
+
+The "nothing to read" case is grep's alone and it is not the same as no match
+(FR6c). A path_pattern naming a folder that does not exist reads no notes at all,
+and reporting that as "no notes contain X" tells the model its text is absent
+when what is wrong is its scope. The distinction costs one branch and prevents
+the model concluding something false about the vault.
 
 Grep's line reuses SearchHit (Search) with the match count as its score, which is
 what that field always effectively held. Its describe() gains a form without the

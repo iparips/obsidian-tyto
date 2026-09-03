@@ -72,6 +72,10 @@ it. Guessing is the step to remove.
   the alphabetically last.
 - As a user, a search that matches nothing says so, rather than the model
   answering from its own knowledge.
+- As a user, the model lists a folder, sees which notes look relevant, and reads
+  inside those rather than every note in the vault.
+- As a user, a search scoped to a folder that does not exist tells the model its
+  scope was wrong, rather than reporting that the text is absent.
 - As a user, a turn that spends its search budget stops searching rather than
   retrying the call it just lost.
 - As a user with search turned off, neither tool is offered and the model says
@@ -154,10 +158,18 @@ so the model reads it as an answer.
 ### Finding notes by content
 
 FR5. Give the model a tool that returns the notes whose contents match a regular
-expression.
+expression, matched case-insensitively over each note's full text.
 
 FR6. Let that tool take a path pattern as well, so a search can be narrowed to a
 folder before it reads anything.
+
+FR6b. Let it take an explicit list of paths, so a model that has listed a folder
+can look inside the few notes that matter rather than restating them as a
+pattern. Apply both narrowings where both are given.
+
+FR6c. Say when a narrowing admitted no notes at all, distinctly from a search
+that read notes and found nothing. A scope that matched nothing and a text that
+is absent are different answers to different questions.
 
 FR7. Return an excerpt around each match, so the model can tell a real hit from
 an incidental one.

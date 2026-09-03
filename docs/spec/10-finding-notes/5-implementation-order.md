@@ -90,10 +90,13 @@ Each step leaves the suite green.
    every note in the vault passes its tests and fails NFR1.
 
 9. `src/search/models/grep-request.ts`: the value HarnessTools builds from the
-   tool call.
+   tool call, and its admits.
 
-   Worth its own file rather than four arguments, since paths_only and the path
-   pattern are both optional and a positional list of four would read wrongly.
+   Worth its own file rather than four arguments, since both narrowings and
+   paths_only are optional and a positional list would read wrongly.
+
+   Get the empty paths list right here: it means no filter, not no notes. Read
+   literally it makes every grep that sends one report the text as absent.
 
 10. `src/engine/harness-tools.ts` and `src/engine/models/tool-schemas.ts`:
     grep_notes, its schema, its arguments and its step.

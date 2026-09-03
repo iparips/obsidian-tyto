@@ -63,9 +63,16 @@ match a real vault's paths, so the fixtures use the shape that failed:
 - Returns an excerpt around the match when excerpts are wanted.
 - Returns no excerpt when paths alone are asked for.
 - Counts every match in a note, not only the first.
+- Matches whatever the case, so `Roofing` finds `roofing`.
+- Matches across a line break, since prose wraps and a sentence is one match.
 - Orders by match count when matches is asked for.
 - Reads only the notes the path pattern admits, so narrowing costs no read.
-- Reads every note when no path pattern is given.
+- Reads only the notes the paths list names, when a list is given.
+- Reads the notes both narrowings admit, when both are given.
+- Reads every note when neither narrowing is given.
+- Reads every note when the paths list is empty, so an empty list is no filter.
+- Ignores a listed path with no note behind it, rather than failing.
+- Says the narrowing admitted nothing, distinctly from finding no match.
 - Returns an empty result when the expression matches nothing.
 - Refuses an invalid expression by saying so, rather than failing the turn.
 - Caps the results when more notes match than the cap.
