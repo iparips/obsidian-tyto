@@ -17,6 +17,12 @@ visible anywhere in the app.
 So the current surface asks for a value the user cannot look up, to configure the
 mechanism that keeps destructive commands out of reach.
 
+Scale rules out browsing. A vault with the core plugins on and a handful of
+community ones offers several hundred commands, most of them editor operations
+nobody would allow. The reference vault runs 24 core plugins and three community
+ones, and one of those three contributes nine commands by itself. A picker that
+renders the list is unusable; one that searches it is not.
+
 ## Goals
 
 - Find a command by the name shown in the palette, and allow it in one action.
@@ -48,7 +54,13 @@ mechanism that keeps destructive commands out of reach.
 
 ## Names are the search key, never the match key
 
-The picker searches names. The allow-list continues to store and match ids.
+The picker searches names, and the entry list shows them. The allow-list
+continues to store and match ids.
+
+A name shown beside an entry is resolved from the registry each time it renders,
+never stored. Storing one would go stale on a plugin update, and a pattern has no
+single name to store: `daily-notes:*` covers many commands, so what it reaches is
+a count rather than a title.
 
 Ids are the stable identifier. A plugin author retitling a command in an update
 would silently narrow an allow-list matched on names, and the user would find a
@@ -84,36 +96,54 @@ The two have to meet somewhere, and this is the part the design must settle.
 
 ## Requirements
 
-FR1. List every command Obsidian currently offers, with its display name and id.
+FR1. Search every command Obsidian currently offers. A vault runs to several
+hundred, so the full list is the search space, never the rendered list.
 
-FR2. Filter that list by a typed query, matching on the display name.
+FR2. Narrow by a typed query, matching on the display name, and render only
+what matches.
 
-FR3. Add a listed command to the allow-list as its exact id, in one action.
+FR3. Cap the rendered results, and say when a query matched more than the cap,
+so a broad query stays readable rather than painting hundreds of rows.
 
-FR4. Show which listed commands the allow-list already covers, so the same
+FR4. Render nothing before a query is typed, apart from what the allow-list
+already covers. An unfiltered picker is the case FR1 exists to avoid.
+
+FR5. Add a listed command to the allow-list as its exact id, in one action.
+
+FR6. Show which listed commands the allow-list already covers, so the same
 command is not added twice and a pattern's reach is visible in context.
 
-FR5. Offer the namespace pattern when a picked command's plugin already has an
+FR7. Offer the namespace pattern when a picked command's plugin already has an
 entry, and show how many commands that pattern covers.
 
-FR6. Warn when a picked command's id is positional, naming the risk that the
+FR8. Warn when a picked command's id is positional, naming the risk that the
 entry shifts when the user reorders that plugin's configuration.
 
-FR7. Remove an entry from the allow-list without editing text.
+FR9. Remove an entry from the allow-list without editing text.
 
-FR8. Keep the hand-editable text field, so a pattern can be written directly and
-an entry pasted from elsewhere still works.
+FR10. Show each entry beside what it currently reaches: the display name for an
+exact id, and the count for a pattern.
 
-FR9. Keep the surface usable on a phone: the picker is search-first, and the
+FR11. Say when an entry reaches nothing, so an id whose plugin was disabled or
+renamed is visible rather than silently inert.
+
+FR12. Keep every entry editable in place, so a pattern can be typed over an id
+the picker added and an entry pasted from elsewhere still works.
+
+FR13. Validate an edited entry as it is typed, showing the reason it is refused
+without discarding what the user typed.
+
+FR14. Keep the surface usable on a phone: the picker is search-first, and the
 results list scrolls rather than filling the screen.
 
-FR10. Exclude commands Obsidian reports as unavailable, matching the catalogue
+FR15. Exclude commands Obsidian reports as unavailable, matching the catalogue
 the model is offered (FR10 of the harness MVP).
 
 ## Non-functional requirements
 
-NFR1. The allow-list stores ids only. No name reaches settings storage, so a
-renamed command changes nothing about what is allowed.
+NFR1. The allow-list stores ids and patterns only. A name is resolved from the
+registry for display and never persisted, so a retitled command shows its new
+name and a stale one cannot accumulate in settings.
 
 NFR2. The picker reads the same command list the catalogue resolves against, so
 what a user sees is what the model would be offered.
