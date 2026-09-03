@@ -9,6 +9,9 @@ that searches, runs commands and retargets can spend ten iterations, and each on
 may write.
 
 - [2-requirements.md](2-requirements.md) - where a turn can be stopped, and what it leaves behind
+- [3-component-design.md](3-component-design.md) - the cancellation value, and the three places that read it
+- [4-testing-strategy.md](4-testing-strategy.md) - unit test outline, branch by branch
+- [5-implementation-order.md](5-implementation-order.md) - build order and the exit test
 
 Undo stays out, with [7-cross-file-skills](../../7-cross-file-skills/1-index.md).
 The vault keeps what a cancelled turn wrote, and the obligation here is to report
@@ -18,5 +21,8 @@ that rather than repair it.
 its FR29 says a parked question settles when the turn is cancelled, which needs a
 cancel to exist.
 
-Not designed yet. The open question is what carries the cancellation to the loop,
-the provider request and a parked question, which are three different places.
+The cancellation is one value held for the turn, rather than a flag passed to
+each. The loop reads whether it happened, the provider takes its signal, and a
+parked question races its own answer against it.
+
+Designed, not built.
