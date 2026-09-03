@@ -12,9 +12,12 @@ unchanged.
 4. [Behaviour Sequence](#behaviour-sequence)
 5. [The Approval Is Held for the Turn](#the-approval-is-held-for-the-turn)
 6. [The Panel Asks and Answers](#the-panel-asks-and-answers)
-7. [The Header Gains a Path](#the-header-gains-a-path)
-8. [The Prompt Ranks the Two Routes](#the-prompt-ranks-the-two-routes)
-9. [Out of Scope](#out-of-scope)
+7. [One Way to Park, Two Things to Ask](#one-way-to-park-two-things-to-ask)
+8. [A Sixth Tool, for the Cases No Route Resolves](#a-sixth-tool-for-the-cases-no-route-resolves)
+9. [Notices Carry a Waiting Turn to a Closed Panel](#notices-carry-a-waiting-turn-to-a-closed-panel)
+10. [The Header Gains a Path](#the-header-gains-a-path)
+11. [The Prompt Ranks the Two Routes](#the-prompt-ranks-the-two-routes)
+12. [Out of Scope](#out-of-scope)
 
 ## The Turn Already Pauses
 
@@ -104,15 +107,22 @@ flowchart LR
     Factory["TurnFactory [Engine]<br/>Responsibility: owns opening a turn"]
     Main["OwlPlugin [Main]<br/>Responsibility: owns wiring the engine to the panel"]
     Panel["SessionPanel [Session]<br/>Responsibility: owns the conversation on screen"]
+    Question["UserQuestion [Engine, new]<br/>Responsibility: owns asking the user a question the model wrote"]
+    Pending["PendingAnswer [Engine, new]<br/>Responsibility: owns parking a turn until an answer or a cancellation"]
+    Notices["TurnNotices [Session, new]<br/>Responsibility: owns telling a user whose panel is closed"]
 
     Factory --> Approval
     Factory --> Turn
     Dispatcher --> Approval
+    Dispatcher --> Question
     Dispatcher --> Harness
     Dispatcher --> Turn
+    Approval --> Pending
+    Question --> Pending
     Harness --> Seen
     Turn --> Seen
     Main --> Approval
+    Main --> Notices
     Main --> Panel
 ```
 
@@ -182,25 +192,147 @@ TurnFactory (Engine) alongside TurnRepository (Engine). Nothing has to expire it
 
 ## The Panel Asks and Answers
 
-The panel gains one entry kind and one phase.
+The panel gains two entry kinds and one phase.
 
-| Addition   | Shape                                       |
-| ---------- | ------------------------------------------- |
-| Entry kind | confirm, carrying the path and two buttons  |
-| Phase      | confirming, so the input row stays disabled |
-| Action     | openRequested, and openAnswered             |
+| Addition   | Shape                                              |
+| ---------- | -------------------------------------------------- |
+| Entry kind | confirm, carrying the path and two buttons         |
+| Entry kind | question, carrying the text and any suggestions    |
+| Phase      | asking, so the input row answers rather than sends |
+| Action     | answerRequested, and answered                      |
+
+One phase for both, since the panel is doing the same thing either way: holding
+a turn open while it waits on the user.
+
+The input row stays live while asking, rather than disabled as it is for a
+running turn. A free-text answer is typed there, and the suggestions sit above
+it as buttons that fill it in (FR18, FR19).
 
 The entry weighs as a reply. It is what the turn produced, and it is what the
 user is being asked to read, so it sits where they are already looking rather
 than muted with the context lines.
 
-PanelReducer (Session) resolves the pending question when openAnswered arrives,
-and replaces the entry with a line saying which way it went. A confirm entry
-left on screen after the turn ends would be a button that no longer does
-anything.
+PanelReducer (Session) resolves the pending question when answered arrives, and
+replaces the entry with a line saying which way it went. A confirm entry left on
+screen after the turn ends would be a button that no longer does anything.
+
+An unanswered question is the exception. Its buttons go, but its text stays, so
+a user who dismissed the notice can still read what was asked (FR32).
 
 Cancelling a turn while it waits answers declined. The promise must settle, or
-the loop stays parked and the session never returns to idle.
+the loop stays parked and the session never returns to idle. TurnCancellation
+(Engine) from [5-cancelling-a-turn](../5-cancelling-a-turn/1-index.md) is what
+carries that: the pending question races its own answer against whenCancelled.
+
+## One Way to Park, Two Things to Ask
+
+A confirmation and a question both stop the turn on an answer. NFR6 wants one
+mechanism, and the two differ only in what comes back.
+
+```typescript
+// pending-answer.ts
+// One parked question, settled by the panel or by a cancellation. Generic over
+// what the answer is, because parking is the same work whether the reply is a
+// yes or a sentence (NFR6).
+export class PendingAnswer<T> {
+  constructor(
+    private ask: (request: AnswerRequest) => Promise<T>,
+    private cancellation: TurnCancellation,
+  ) {}
+
+  // Resolves with the fallback when the turn is cancelled rather than answered,
+  // so a cancelled turn never leaves the loop parked (FR29).
+  async awaiting(request: AnswerRequest, whenCancelled: T): Promise<T>
+}
+```
+
+PendingAnswer (Engine, new) is the shared part. OpenApproval (Engine, new) keeps
+its own name and its per-path hold, and delegates the parking.
+
+| Asker        | Answer  | Cancelled gives |
+| ------------ | ------- | --------------- |
+| OpenApproval | boolean | false, declined |
+| UserQuestion | string  | an empty answer |
+
+Two askers rather than one, because what they hold differs. OpenApproval
+remembers which paths were approved for the turn; a question remembers nothing,
+since each is asked once and answered once.
+
+AnswerRequest (Engine, new) is what the panel renders: the text to show, and the
+suggestions to offer.
+
+```typescript
+// answer-request.ts
+// A value: what to ask and what to offer. Holds no collaborator, so the panel
+// renders it without reaching back into the engine.
+export class AnswerRequest {
+  constructor(
+    readonly question: string,
+    readonly suggestions: readonly string[] = [],
+  ) {}
+}
+```
+
+## A Sixth Tool, for the Cases No Route Resolves
+
+HarnessTools (Engine) gains ask_user beside open_note and the four before it.
+
+```typescript
+// harness-tools.ts, beside openNote
+// The answer is the tool result, so the model reads it in the same turn rather
+// than the user restating the instruction (FR15, FR16).
+private async askUser(call: ToolCall, budget: TurnBudget): Promise<HarnessResult>
+```
+
+Its arguments are the question and, optionally, the suggestions. TurnBudget
+(Engine) gains a question counter beside the command, search and open ones, so
+FR30 costs no new mechanism.
+
+The parking happens in ToolDispatcher (Engine) rather than in HarnessTools
+(Engine), matching where the open confirmation parks. HarnessTools stays the
+place that runs a tool, not the place that waits on a person.
+
+A cancelled question returns an empty answer as its tool result, and the loop
+then ends on the cancellation rather than feeding the emptiness back to the
+model.
+
+## Notices Carry a Waiting Turn to a Closed Panel
+
+Three notices, and the difference between them is duration and wording, not
+mechanism.
+
+| Turn state | Duration       | Says                                   |
+| ---------- | -------------- | -------------------------------------- |
+| Waiting    | Until answered | what is being asked, and tap to answer |
+| Finished   | Fades          | what the turn did, and tap to view     |
+| Failed     | Fades          | that it failed, and tap to view        |
+
+Notice (Obsidian) takes a duration of zero to persist and exposes messageEl, so
+one collaborator covers all three.
+
+```typescript
+// turn-notices.ts
+// Owns telling a user whose panel is closed. Holds the open notice so a waiting
+// one is dismissed when its answer arrives rather than on a timer (FR21).
+export class TurnNotices {
+  waiting(text: string): void
+  finished(summary: string): void
+  failed(message: string): void
+  dismiss(): void
+}
+```
+
+TurnNotices (Session, new) sits in the plugin, beside the existing Notice calls
+for instruction drops and discarded recordings. It asks the workspace whether
+the session leaf is visible, and shows nothing when it is (NFR9).
+
+Clicking one reveals the session leaf. That is the same revealLeaf the
+start-session command already calls, so nothing new opens a panel: the user's
+click does, which is what separates this from opening the drawer for them
+(FR25).
+
+The call to action is part of the text rather than styling, so it reads the same
+on both surfaces and needs no CSS to be understood (FR25, FR26).
 
 ## The Header Gains a Path
 
@@ -257,3 +389,8 @@ not need the mode to justify it.
   rather than making one.
 - A chat toggle for the mode. FR9 keeps it in settings.
 - Remembering an approval past the turn that granted it.
+- Cancelling itself, which is
+  [5-cancelling-a-turn](../5-cancelling-a-turn/1-index.md). This design consumes
+  TurnCancellation (Engine) and does not build it.
+- A system notification. The notices here are Obsidian's own, and stop at its
+  window.

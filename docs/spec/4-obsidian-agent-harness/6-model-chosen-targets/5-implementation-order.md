@@ -3,9 +3,13 @@
 ## Status
 
 Not started. Depends on
-[4-sessions-without-a-note](../4-sessions-without-a-note/1-index.md) only where
-both touch TurnRepository (Engine), and the two changes are additive rather than
-conflicting.
+[5-cancelling-a-turn](../5-cancelling-a-turn/1-index.md), which must land first:
+steps 12 onward consume TurnCancellation (Engine) to settle a parked question,
+and FR29 has no other mechanism.
+
+Depends on [4-sessions-without-a-note](../4-sessions-without-a-note/1-index.md)
+only where both touch TurnRepository (Engine), and the two changes are additive
+rather than conflicting.
 
 Verify before starting: `bun run build` passes.
 
@@ -75,10 +79,50 @@ Each step leaves the suite green.
 
 11. `src/session/views/SessionPanel.tsx`: the note path under the header name.
 
-    Last because it is the only step no other step depends on, and the only one
-    that changes nothing about what a turn can do.
+    The last of the open-note steps, and the only one that changes nothing about
+    what a turn can do.
 
-## Exit test
+12. `src/engine/models/answer-request.ts` and `src/engine/pending-answer.ts`: the
+    value, and the parking that races an answer against a cancellation.
+
+    OpenApproval (Engine) moves onto PendingAnswer (Engine) here, so the two
+    askers share one mechanism before the second one exists. Its tests from step
+    4 must pass unchanged, which is what proves the move was behaviour-preserving.
+
+13. `src/engine/user-question.ts` and `src/engine/models/turn-budget.ts`: the
+    second asker, and a question counter beside the other three.
+
+14. `src/engine/harness-tools.ts` and `src/engine/models/tool-schemas.ts`:
+    ask_user, its schema, and its arguments.
+
+    The parking stays in ToolDispatcher (Engine), where the open confirmation
+    parks. HarnessTools runs a tool; it does not wait on a person.
+
+15. `src/session/models/panel-state.ts`: the question entry, the asking phase,
+    and keeping an unanswered question's text when the turn ends.
+
+16. `src/session/views/SessionPanel.tsx`: render the question and its
+    suggestions, and answer from the input row.
+
+    The input row stays live while asking, unlike while thinking. That is the
+    one place this differs from every other running phase.
+
+17. `src/session/turn-notices.ts`: the three notices, and the visibility check
+    that shows none when the panel is open.
+
+18. `src/main.ts`: build UserQuestion (Engine) wired to the panel, and
+    TurnNotices (Session) wired to the workspace.
+
+    The notice needs to know whether the session leaf is visible, which only the
+    plugin can answer.
+
+19. `src/engine/rule-builder.ts`: the line telling the model to ask only where no
+    command and no search resolves the destination.
+
+    A prompt change is a behaviour change: verify the rest byte-for-byte against
+    git, as in step 10.
+
+## Exit test, opening a note
 
 By hand in a real vault, on both surfaces.
 
@@ -99,6 +143,25 @@ By hand in a real vault, on both surfaces.
    says it cannot reach the destination.
 8. On mobile, run step 1 in the drawer. Confirm the question is answerable
    without a dialog, and the header path truncates rather than wrapping.
+
+## Exit test, asking the user
+
+By hand in a real vault, on both surfaces.
+
+1. With two notes that match equally, ask for an edit naming them ambiguously.
+   Confirm the model asks which, rather than guessing or giving up.
+2. Answer in your own words. Confirm the edit lands on the note you named,
+   within the same turn.
+3. Repeat and answer with a suggestion button. Confirm it fills the input rather
+   than sending on its own.
+4. Cancel a turn while it waits on a question. Confirm the panel returns to idle
+   and the question's text stays on screen.
+5. With the panel closed on mobile, ask something ambiguous. Confirm a notice
+   appears, stays, and opens the panel when tapped.
+6. Let a turn finish with the panel closed. Confirm the notice fades on its own.
+7. Fail a turn with the panel closed, by using a bad API key. Confirm the notice
+   reads as a failure.
+8. With the panel open, run all of the above. Confirm no notice appears.
 
 ## What to decide while building
 

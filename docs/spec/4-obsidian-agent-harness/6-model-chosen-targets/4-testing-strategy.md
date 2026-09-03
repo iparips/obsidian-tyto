@@ -12,13 +12,17 @@ second is tested by running the same refusal cases with a granted approval.
 
 1. [SeenPaths (Search, new)](#seenpaths-search-new)
 2. [OpenApproval (Engine, new)](#openapproval-engine-new)
-3. [HarnessTools (Engine, changed)](#harnesstools-engine-changed)
-4. [ToolDispatcher (Engine, changed)](#tooldispatcher-engine-changed)
-5. [TurnBudget (Engine, changed)](#turnbudget-engine-changed)
-6. [RuleBuilder (Engine, changed)](#rulebuilder-engine-changed)
-7. [PanelReducer (Session, changed)](#panelreducer-session-changed)
-8. [SessionPanel (Session, changed)](#sessionpanel-session-changed)
-9. [EditEngine (Engine, changed)](#editengine-engine-changed)
+3. [PendingAnswer (Engine, new)](#pendinganswer-engine-new)
+4. [UserQuestion (Engine, new)](#userquestion-engine-new)
+5. [AnswerRequest (Engine, new)](#answerrequest-engine-new)
+6. [TurnNotices (Session, new)](#turnnotices-session-new)
+7. [HarnessTools (Engine, changed)](#harnesstools-engine-changed)
+8. [ToolDispatcher (Engine, changed)](#tooldispatcher-engine-changed)
+9. [TurnBudget (Engine, changed)](#turnbudget-engine-changed)
+10. [RuleBuilder (Engine, changed)](#rulebuilder-engine-changed)
+11. [PanelReducer (Session, changed)](#panelreducer-session-changed)
+12. [SessionPanel (Session, changed)](#sessionpanel-session-changed)
+13. [EditEngine (Engine, changed)](#editengine-engine-changed)
 
 ## SeenPaths (Search, new)
 
@@ -36,6 +40,35 @@ second is tested by running the same refusal cases with a granted approval.
   again.
 - Asks again for a different path, so one approval does not waive the next.
 - Grants without asking when constructed granted, which is auto mode.
+
+## PendingAnswer (Engine, new)
+
+- Resolves with the answer when the panel answers.
+- Resolves with the fallback when the turn is cancelled instead.
+- Resolves once when an answer and a cancellation arrive together.
+- Passes the question and its suggestions to whoever asks.
+
+## UserQuestion (Engine, new)
+
+- Returns the user's answer when one is given.
+- Returns an empty answer when the turn is cancelled.
+- Holds nothing between questions, so a second question asks again.
+
+## AnswerRequest (Engine, new)
+
+- Carries the question text.
+- Carries no suggestions when none are offered.
+- Carries the suggestions when some are offered.
+
+## TurnNotices (Session, new)
+
+- Shows a waiting notice that does not fade.
+- Shows a finished notice that fades.
+- Shows a failed notice that fades, worded as a failure.
+- Shows nothing when the session panel is already visible.
+- Dismisses the waiting notice when the answer arrives.
+- Reveals the session leaf when a notice is acted on.
+- Opens no panel on its own.
 
 ## HarnessTools (Engine, changed)
 
@@ -78,6 +111,12 @@ second is tested by running the same refusal cases with a granted approval.
 
 ## PanelReducer (Session, changed)
 
+- Moves to the asking phase when a question is requested.
+- Returns to the previous phase when the question is answered.
+- Renders a question entry carrying its suggestions.
+- Keeps a question's text when the turn ends unanswered.
+- Drops a question's buttons when the turn ends unanswered.
+
 - Adds a confirm entry when an open is requested.
 - Enters the confirming phase when an open is requested.
 - Replaces the confirm entry with its outcome when answered yes.
@@ -87,6 +126,13 @@ second is tested by running the same refusal cases with a granted approval.
 - Weighs a confirm entry as a reply, not as context.
 
 ## SessionPanel (Session, changed)
+
+- Renders the question text when a question is asked.
+- Renders a button per suggestion when suggestions are offered.
+- Renders no suggestion buttons when none are offered.
+- Fills the input when a suggestion is clicked.
+- Answers with the typed text when the user sends while asking.
+- Leaves the input live while asking, unlike while thinking.
 
 - Renders the note path beneath the note name.
 - Updates both the name and the path when the target note changes.

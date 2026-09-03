@@ -14,7 +14,7 @@ search makes a path checkable, so opening an existing note is a lookup rather
 than the guess the rule guards against.
 
 - [2-requirements.md](2-requirements.md) - problem, the two modes, asking the user, and what the design must settle
-- [3-component-design.md](3-component-design.md) - the open tool, the approval, and how a turn pauses
+- [3-component-design.md](3-component-design.md) - the open tool, the two askers, and the notices
 - [4-testing-strategy.md](4-testing-strategy.md) - unit test outline, branch by branch
 - [5-implementation-order.md](5-implementation-order.md) - build order and the exit test
 
@@ -28,6 +28,11 @@ dispatcher that settles on a click parks the turn where it stands. The design's
 work is a channel that carries an answer back, since the progress publisher is
 one-way by design.
 
-The design covers the open tool and its approval. The question tool, the two
-notices and their requirements (FR15 to FR32) are specified but not yet
-designed.
+A confirmation and a question park a turn the same way, so PendingAnswer
+(Engine, new) is the shared mechanism and the two askers differ only in what
+comes back. The notices are one collaborator over Obsidian's own Notice, which
+persists at a zero duration.
+
+Designed, not built. It needs
+[5-cancelling-a-turn](../5-cancelling-a-turn/1-index.md) first, since a parked
+question settles on that spec's cancellation.
