@@ -29,7 +29,11 @@ export class EngineFactory {
     private agentsMdRepository: AgentsMdRepository,
   ) {}
 
-  build(modelProvider: ChatProvider, file: TFile, progress: TurnProgressPublisher): EditEngine {
+  build(
+    modelProvider: ChatProvider,
+    file: TFile | null,
+    progress: TurnProgressPublisher,
+  ): EditEngine {
     const sessions = new SessionRepository(file)
     const targetNote = new TargetNoteResolver(
       sessions,

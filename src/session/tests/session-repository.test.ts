@@ -18,6 +18,44 @@ describe('SessionRepository', () => {
     it('holds no conversation before an utterance', () => {
       expect(sessions.chatHistory()).toEqual([])
     })
+
+    it('reports itself bound when it was opened on a note', () => {
+      expect(sessions.isBound()).toBe(true)
+    })
+  })
+
+  describe('when the session starts with no note open', () => {
+    beforeEach(() => {
+      sessions = new SessionRepository(null)
+    })
+
+    it('reports itself unbound when it was opened on no note', () => {
+      expect(sessions.isBound()).toBe(false)
+    })
+
+    it('targets no note when unbound', () => {
+      expect(sessions.targetNote()).toBeNull()
+    })
+
+    it('keeps its conversation when unbound', () => {
+      sessions.appendChatMessage(ChatMessage.user('what is in my vault'))
+
+      expect(sessions.chatHistory().map((message) => message.content)).toEqual([
+        'what is in my vault',
+      ])
+    })
+
+    it('binds to the note when the target changes', () => {
+      sessions.changeTargetNote('Journal/day.md')
+
+      expect(sessions.isBound()).toBe(true)
+    })
+
+    it('targets the opened note when the target changes', () => {
+      sessions.changeTargetNote('Journal/day.md')
+
+      expect(sessions.targetNote()).toBe('Journal/day.md')
+    })
   })
 
   describe('when a command moves the target', () => {

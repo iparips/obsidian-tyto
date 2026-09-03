@@ -20,7 +20,7 @@ describe('TurnRepository', () => {
 
   describe('when the turn opens', () => {
     it('holds the note it was opened on', () => {
-      expect(turn.targetNote().path).toBe('note.md')
+      expect(turn.targetNote()?.path).toBe('note.md')
     })
 
     it('has no edit position before any edit lands', () => {
@@ -30,6 +30,28 @@ describe('TurnRepository', () => {
     it('starts with an unspent budget', () => {
       expect(turn.budget.takeCommand()).toBe(true)
     })
+
+    it('reports itself bound when it holds a note', () => {
+      expect(turn.isBound()).toBe(true)
+    })
+  })
+
+  describe('when the session is unbound', () => {
+    beforeEach(() => {
+      turn = new TurnRepository(null)
+    })
+
+    it('reports itself unbound when it holds no note', () => {
+      expect(turn.isBound()).toBe(false)
+    })
+
+    it('holds no note when the session is unbound', () => {
+      expect(turn.targetNote()).toBeNull()
+    })
+
+    it('holds an empty folder chain when the session is unbound', () => {
+      expect(turn.agentMdChain().isEmpty()).toBe(true)
+    })
   })
 
   describe('when a command moves the target', () => {
@@ -38,7 +60,7 @@ describe('TurnRepository', () => {
     it('holds the new note when the target moves', () => {
       turn.retargetTo(aResolvedNote('Journal/day.md', chain))
 
-      expect(turn.targetNote().path).toBe('Journal/day.md')
+      expect(turn.targetNote()?.path).toBe('Journal/day.md')
     })
 
     it('holds the new folder chain when the target moves', () => {

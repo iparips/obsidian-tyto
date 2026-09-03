@@ -43,7 +43,11 @@ export class ToolDispatcher {
     const unwritable = this.turnRepository.unwritableNote()
     if (unwritable)
       return { result: `${unwritable} is not editable yet; stop and tell the user to open it` }
-    return this.callToolOnNote(call, this.turnRepository.targetNote())
+    const note = this.turnRepository.targetNote()
+    // Told rather than thrown, so the model reports it in the reply instead of
+    // retrying an edit that cannot land.
+    if (!note) return { result: 'no note is open; tell the user to open one before editing' }
+    return this.callToolOnNote(call, note)
   }
 
   // Published once the body is in hand, so the panel names a skill the turn
@@ -87,7 +91,7 @@ export class ToolDispatcher {
   private async moveTargetTo(path: string): Promise<boolean> {
     this.sessionRepository.changeTargetNote(path)
     const resolvedNoteOutcome = await this.targetNoteResolver.resolve()
-    if (resolvedNoteOutcome.hasFailed()) {
+    if (resolvedNoteOutcome.hasFailed() || resolvedNoteOutcome.value === null) {
       this.turnRepository.cannotWriteTo(path)
       return false
     }

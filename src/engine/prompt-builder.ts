@@ -20,6 +20,36 @@ export class PromptBuilder {
     )
   }
 
+  // Stands where the note snapshot stands in a bound turn, so the model reads
+  // what it can do in the freshest position rather than a note that is absent.
+  static noNoteSnapshot(canRunCommands = false): ChatMessage {
+    return ChatMessage.system(PromptBuilder.noNoteSnapshotText(canRunCommands))
+  }
+
+  private static noNoteSnapshotText(canRunCommands: boolean): string {
+    return [
+      'No note is open, so this session is not bound to one yet.',
+      'Every tool but the editing ones still works: only writing needs a note.',
+      'The editing tools have nothing to write to until a note opens.',
+      ...PromptBuilder.noNoteEditRules(canRunCommands),
+      'The session binds to the first note that opens, whether the user opens it or a command does.',
+    ].join('\n')
+  }
+
+  // A note the user names is reachable once a command can open one, so asking
+  // them to open it is stated only while it is still the only move.
+  private static noNoteEditRules(canRunCommands: boolean): string[] {
+    if (!canRunCommands)
+      return [
+        'When the user asks for an edit, say that no note is open and ask them to open one,',
+        'rather than calling an editing tool.',
+      ]
+    return [
+      'When the user asks for an edit, run the command that opens the note they named, then',
+      'edit it. Only ask them to open a note if no listed command reaches it.',
+    ]
+  }
+
   private static standingRulesText(
     skills: readonly Skill[],
     instructions: AgentsMdChain,

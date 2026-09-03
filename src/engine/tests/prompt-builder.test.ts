@@ -25,6 +25,9 @@ const standingRulesText = (...args: Parameters<typeof PromptBuilder.standingRule
 
 const noteSnapshotText = (note: NoteDetails) => PromptBuilder.noteSnapshot(note).content
 
+const noNoteSnapshotText = (canRunCommands = false) =>
+  PromptBuilder.noNoteSnapshot(canRunCommands).content
+
 describe('PromptBuilder', () => {
   describe('when a folder holds instructions', () => {
     it('labels the block with the folder when one file applies', () => {
@@ -252,6 +255,50 @@ describe('PromptBuilder', () => {
 
     it('keeps the note out of the standing rules when both are built', () => {
       expect(standingRulesText()).not.toContain('Note path:')
+    })
+  })
+
+  describe('when the session is unbound', () => {
+    it('states that no note is open when the session is unbound', () => {
+      expect(noNoteSnapshotText()).toContain('No note is open')
+    })
+
+    it('says the other tools still work when the session is unbound', () => {
+      expect(noNoteSnapshotText()).toContain('Every tool but the editing ones still works')
+    })
+
+    it('asks the user to open a note when no command reaches one', () => {
+      expect(noNoteSnapshotText()).toContain('ask them to open one')
+    })
+
+    it('tells the model not to call an editing tool when no command reaches a note', () => {
+      expect(noNoteSnapshotText()).toContain('rather than calling an editing tool')
+    })
+
+    it('runs the command that opens the note when a command is allowed', () => {
+      expect(noNoteSnapshotText(true)).toContain('run the command that opens the note they named')
+    })
+
+    it('asks only as a last resort when a command is allowed', () => {
+      expect(noNoteSnapshotText(true)).toContain(
+        'Only ask them to open a note if no listed command',
+      )
+    })
+
+    it('does not tell the model to ask first when a command is allowed', () => {
+      expect(noNoteSnapshotText(true)).not.toContain('rather than calling an editing tool')
+    })
+
+    it('says the session binds to the first note that opens when it is unbound', () => {
+      expect(noNoteSnapshotText()).toContain('binds to the first note that opens')
+    })
+
+    it('names no note when the session is unbound', () => {
+      expect(noNoteSnapshotText()).not.toContain('Note path:')
+    })
+
+    it('leaves the standing rules unchanged when the session is unbound', () => {
+      expect(standingRulesText()).not.toContain('No note is open')
     })
   })
 

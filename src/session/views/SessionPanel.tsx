@@ -12,7 +12,9 @@ export interface RecorderPort {
 }
 
 export interface SessionPanelProps {
-  noteName: string
+  // Null while the session is unbound, which the header says rather than naming
+  // a note.
+  noteName: string | null
   recorder: RecorderPort
   transcribe(blob: Blob, mimeType: string): Promise<Outcome<string>>
   processUtterance(text: string): Promise<Outcome<string>>
@@ -100,7 +102,7 @@ export const SessionPanel = (props: SessionPanelProps) => {
   return (
     <div className="owl-panel">
       <div className="owl-header">
-        <span className="owl-header-name">{targetName}</span>
+        <span className="owl-header-name">{targetName ?? NO_NOTE_BOUND}</span>
         {props.startNewSession && (
           <button
             className="owl-new-session"
@@ -140,6 +142,8 @@ export const SessionPanel = (props: SessionPanelProps) => {
     </div>
   )
 }
+
+const NO_NOTE_BOUND = 'No note open'
 
 const noteNameOf = (path: string): string =>
   path.slice(path.lastIndexOf('/') + 1).replace(/\.md$/, '')

@@ -4,15 +4,20 @@ import { ChatMessage } from '../providers/types'
 // The state one session carries across its turns. Queried and updated only
 // through here, so no tool moves the target note in passing.
 export class SessionRepository {
-  private targetPath: string
+  private targetPath: string | null
   private readonly messages: ChatMessage[] = []
 
-  constructor(originalNote: TFile) {
-    this.targetPath = originalNote.path
+  constructor(originalNote: TFile | null) {
+    this.targetPath = originalNote?.path ?? null
   }
 
-  targetNote(): string {
+  // Null until the user opens a note, which is what an unbound session is.
+  targetNote(): string | null {
     return this.targetPath
+  }
+
+  isBound(): boolean {
+    return this.targetPath !== null
   }
 
   changeTargetNote(path: string): void {

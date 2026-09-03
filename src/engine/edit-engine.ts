@@ -10,6 +10,7 @@ import { AgentsMdChain } from '../agents/agents-md-chain'
 import { HarnessTools } from './harness-tools'
 import { Turn } from './models/turn'
 import { TurnFactory } from './turn-factory'
+import { TurnRepository } from './turn-repository'
 import { SessionRepository } from '../session/session-repository'
 import { TurnProgressPublisher } from './turn-progress-publisher'
 
@@ -64,7 +65,7 @@ export class EditEngine {
         this.sessionRepository.chatHistory(),
       )
       if (answer.hasFailed()) return Outcomes.failure(answer.step, answer.message)
-      EditEngine.logIteration(iteration, answer.value, turnRepository.targetNote().path)
+      EditEngine.logIteration(iteration, answer.value, EditEngine.pathOf(turnRepository))
       if (answer.value.isText())
         return this.concludeUtterance(
           answer.value.content,
@@ -83,8 +84,12 @@ export class EditEngine {
     console.debug(`[owl] iteration ${iteration + 1} on ${path}:`, calls)
   }
 
+  private static pathOf(turnRepository: TurnRepository): string {
+    return turnRepository.targetNote()?.path ?? 'no note'
+  }
+
   private askModel(
-    note: OpenNote,
+    note: OpenNote | null,
     skills: readonly Skill[],
     instructions: AgentsMdChain,
     chatHistory: readonly ChatMessage[],
@@ -98,7 +103,9 @@ export class EditEngine {
     // The chat history holds stale copies of the note from earlier turns, and
     // the model weights recent messages most heavily. So the note goes after it,
     // last of all: freshest content in the freshest position.
-    const noteSnapshot = PromptBuilder.noteSnapshot(note.details())
+    const noteSnapshot = note
+      ? PromptBuilder.noteSnapshot(note.details())
+      : PromptBuilder.noNoteSnapshot(this.harnessTools.allowedCommands().length > 0)
     return this.modelProvider.complete(
       [standingRules, ...chatHistory, noteSnapshot],
       this.harnessTools.schemas(),
@@ -107,11 +114,11 @@ export class EditEngine {
 
   private concludeUtterance(
     summary: string,
-    note: OpenNote,
+    note: OpenNote | null,
     lastEditEnd: EditorPosition | null,
   ): Outcome<string> {
     this.sessionRepository.appendChatMessage(ChatMessage.model(summary))
-    if (lastEditEnd) this.noteEditor.focusEdit(note.editor, lastEditEnd)
+    if (note && lastEditEnd) this.noteEditor.focusEdit(note.editor, lastEditEnd)
     return Outcomes.success(summary)
   }
 

@@ -217,6 +217,20 @@ describe('SessionPanel', () => {
     })
   })
 
+  describe('when the header names the target note', () => {
+    it('names the note when the session is bound', () => {
+      renderPanel()
+
+      expect(screen.getByText('note')).toBeTruthy()
+    })
+
+    it('says no note is open when the session is unbound', () => {
+      renderPanel({ noteName: null })
+
+      expect(screen.getByText('No note open')).toBeTruthy()
+    })
+  })
+
   describe('when a command moves the target note', () => {
     const targetListeners: ((path: string) => void)[] = []
     const onTargetNoteChanged = (listener: (path: string) => void) => {
@@ -244,6 +258,14 @@ describe('SessionPanel', () => {
       retargetTo('Journal/2026-09-02.md')
 
       expect(screen.queryByRole('button', { name: /Return to/ })).toBeNull()
+    })
+
+    it('names the opened note when an unbound session binds', () => {
+      renderPanel({ noteName: null, onTargetNoteChanged })
+
+      retargetTo('Journal/2026-09-02.md')
+
+      expect(screen.getByText('2026-09-02')).toBeTruthy()
     })
   })
 

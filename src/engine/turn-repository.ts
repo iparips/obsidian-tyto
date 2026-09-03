@@ -14,17 +14,25 @@ export class TurnRepository {
   private unwritablePath: string | null = null
 
   constructor(
-    private resolved: ResolvedNote,
+    private resolved: ResolvedNote | null,
     private readonly vaultSkills: readonly Skill[] = [],
     readonly budget: TurnBudget = new TurnBudget(),
   ) {}
 
-  targetNote(): OpenNote {
-    return this.resolved.note
+  // Null while the session is unbound, which is a turn that can search but not
+  // write.
+  targetNote(): OpenNote | null {
+    return this.resolved?.note ?? null
   }
 
+  isBound(): boolean {
+    return this.resolved !== null
+  }
+
+  // Empty when unbound: a chain resolves from a note's folders, and there is no
+  // note.
   agentMdChain(): AgentsMdChain {
-    return this.resolved.instructions
+    return this.resolved?.instructions ?? new AgentsMdChain()
   }
 
   skills(): readonly Skill[] {

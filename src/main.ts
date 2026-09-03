@@ -27,7 +27,7 @@ export default class OwlPlugin extends Plugin {
     this.addRibbonIcon('mic', 'Start Owl session', () => this.openSession())
     this.addCommand({
       id: 'start-session',
-      name: 'Start session for active note',
+      name: 'Start session',
       icon: 'mic',
       callback: () => this.openSession(),
     })
@@ -39,24 +39,27 @@ export default class OwlPlugin extends Plugin {
     await this.saveData(this.settings)
   }
 
+  // A session starts whether or not a note is open: unbound, it searches and
+  // answers, and binds to the first note the user opens.
   private async openSession(): Promise<void> {
     const file = this.app.workspace.getActiveFile()
-    if (!file) return void new Notice('Open a note first.')
     const view = await this.revealSessionView()
     if (!view) return
     await this.bindOrAskRebind(view, file)
   }
 
-  private async bindOrAskRebind(view: SessionView, file: TFile): Promise<void> {
+  // The rebind prompt asks only when a bound session would move to another
+  // note; an unbound session has nothing to move away from.
+  private async bindOrAskRebind(view: SessionView, file: TFile | null): Promise<void> {
     const boundName = view.boundNoteName()
-    if (boundName && boundName !== file.basename)
+    if (boundName && file && boundName !== file.basename)
       return new RebindModal(this.app, boundName, file.basename, async () =>
         view.bindSession(await this.buildPanelProps(file, view)),
       ).open()
-    if (!boundName) view.bindSession(await this.buildPanelProps(file, view))
+    if (!view.hasSession()) view.bindSession(await this.buildPanelProps(file, view))
   }
 
-  private async buildPanelProps(file: TFile, view: SessionView): Promise<SessionPanelProps> {
+  private async buildPanelProps(file: TFile | null, view: SessionView): Promise<SessionPanelProps> {
     const modelProvider = new MistralProvider(this.settings.mistralApiKey, this.settings.editModel)
     const listeners = new InstructionListeners()
     const sessionListeners = new SessionListeners()
@@ -67,7 +70,7 @@ export default class OwlPlugin extends Plugin {
     )
     this.followActiveNoteWith(engine)
     return {
-      noteName: file.basename,
+      noteName: file?.basename ?? null,
       recorder: new Recorder(),
       transcribe: (blob, mimeType) => modelProvider.transcribe(blob, mimeType),
       processUtterance: (text) => engine.processUtterance(text),
@@ -141,7 +144,7 @@ export default class OwlPlugin extends Plugin {
   }
 
   // Rebuilds the props, so the model's history and the panel's entries both go.
-  private async startNewSession(file: TFile, view: SessionView): Promise<void> {
+  private async startNewSession(file: TFile | null, view: SessionView): Promise<void> {
     view.bindSession(await this.buildPanelProps(file, view))
   }
 

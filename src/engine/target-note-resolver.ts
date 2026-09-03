@@ -18,8 +18,12 @@ export class TargetNoteResolver {
     private turnProgressPublisher: TurnProgressPublisher,
   ) {}
 
-  async resolve(): Promise<Outcome<ResolvedNote>> {
-    const openNoteOutcome = this.noteLocator.locate(this.sessionRepository.targetNote())
+  // A null note is an unbound session rather than a failure, so the turn opens
+  // and the search tools work.
+  async resolve(): Promise<Outcome<ResolvedNote | null>> {
+    const targetPath = this.sessionRepository.targetNote()
+    if (targetPath === null) return Outcomes.success(null)
+    const openNoteOutcome = this.noteLocator.locate(targetPath)
     if (openNoteOutcome.hasFailed())
       return Outcomes.failure(openNoteOutcome.step, openNoteOutcome.message)
     const openNote = openNoteOutcome.value

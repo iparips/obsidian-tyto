@@ -7,8 +7,8 @@ export const VIEW_TYPE_SESSION = 'owl-session'
 export class SessionView extends ItemView {
   private root: Root | null = null
   private panelProps: SessionPanelProps | null = null
-  // Bumped on every bind, so rebinding the same note still remounts the panel
-  // and clears the entries on screen.
+  // Bumped on every bind, and the panel's whole key, so an unbound session needs
+  // no note name to remount and clear the entries on screen.
   private sessionCount = 0
 
   constructor(leaf: WorkspaceLeaf) {
@@ -37,6 +37,10 @@ export class SessionView extends ItemView {
     return this.panelProps?.noteName ?? null
   }
 
+  hasSession(): boolean {
+    return this.panelProps !== null
+  }
+
   async onOpen(): Promise<void> {
     this.root = createRoot(this.contentEl)
     this.renderPanel()
@@ -51,7 +55,7 @@ export class SessionView extends ItemView {
   private renderPanel(): void {
     if (!this.root) return
     if (!this.panelProps) return
-    const key = `${this.panelProps.noteName}-${this.sessionCount}`
+    const key = `session-${this.sessionCount}`
     this.root.render(<SessionPanel key={key} {...this.panelProps} />)
   }
 }
