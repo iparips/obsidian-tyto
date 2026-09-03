@@ -4,11 +4,16 @@ import { HistoryList } from './HistoryList'
 import { INITIAL_PANEL_STATE, PanelReducer } from '../models/panel-state'
 import { AnswerReport, StepReport } from '../session-listeners'
 import { PanelHeader } from './PanelHeader'
-import { ParkedAnswerPorts, QuestionRequest, useParkedAnswers } from './useParkedAnswers'
+import {
+  ChoiceRequest,
+  ParkedAnswerPorts,
+  QuestionRequest,
+  useParkedAnswers,
+} from './useParkedAnswers'
 import { RecorderPort, RecordingPorts, useRecording } from './useRecording'
 import { InputRow } from './InputRow'
 
-export type { QuestionRequest, RecorderPort }
+export type { ChoiceRequest, QuestionRequest, RecorderPort }
 
 export interface SessionPanelProps extends ParkedAnswerPorts, RecordingPorts {
   // Null while the session is unbound, which the header says rather than naming
@@ -48,7 +53,7 @@ export const SessionPanel = (props: SessionPanelProps) => {
   const [targetPath, setTargetPath] = useState(props.notePath ?? null)
   // The engine asks through these and awaits the answer, so a parked turn is a
   // promise the panel settles rather than a channel the publisher lacks.
-  const { settleOpen, settleQuestion } = useParkedAnswers(props, dispatch)
+  const { settleChoice, settleQuestion } = useParkedAnswers(props, dispatch)
 
   // A cancelled turn tells nobody: the user is the one who stopped it, so they
   // already know (FR28).
@@ -72,7 +77,7 @@ export const SessionPanel = (props: SessionPanelProps) => {
   // keep nothing.
   const cancel = () => {
     if (state.phase === 'recording') return recorded.cancel()
-    settleOpen(false)
+    settleChoice(null)
     settleQuestion('')
     dispatch({ type: 'cancelRequested' })
     props.cancelTurn?.()
@@ -139,7 +144,7 @@ export const SessionPanel = (props: SessionPanelProps) => {
       <HistoryList
         entries={state.entries}
         phase={state.phase}
-        onAnswerOpen={settleOpen}
+        onChooseNote={settleChoice}
         onPickSuggestion={setDraft}
       />
       <InputRow

@@ -1,5 +1,13 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { INITIAL_PANEL_STATE, PanelReducer, PanelState } from '../models/panel-state'
+import { PanelAction } from '../models/panel-action'
+
+// The action the engine's choice sends, so a test states which notes were
+// offered rather than repeating the shape at each case.
+const offering = (
+  candidates = ['Lists/todo.md', 'Lists/shopping.md'],
+  purpose = 'add toilet paper',
+): PanelAction => ({ type: 'choiceRequested', candidates, purpose })
 
 describe('PanelReducer', () => {
   let thinking: PanelState
@@ -79,66 +87,125 @@ describe('PanelReducer', () => {
     })
   })
 
-  describe('when an open is requested', () => {
-    it('enters the confirming phase when an open is requested', () => {
-      const state = PanelReducer.reduce(thinking, { type: 'openRequested', path: 'Lists/todo.md' })
+  describe('when a shortlist is offered', () => {
+    it('enters the choosing phase when a shortlist is offered', () => {
+      const state = PanelReducer.reduce(thinking, offering())
 
-      expect(state.phase).toBe('confirming')
+      expect(state.phase).toBe('choosing')
     })
 
-    it('adds a pending confirm entry naming the path when an open is requested', () => {
-      const state = PanelReducer.reduce(thinking, { type: 'openRequested', path: 'Lists/todo.md' })
+    it('renders a choice entry when a shortlist is offered', () => {
+      const state = PanelReducer.reduce(thinking, offering())
 
-      expect(state.entries.at(-1)).toEqual({
-        kind: 'confirm',
-        path: 'Lists/todo.md',
-        pending: true,
-        text: 'Open Lists/todo.md and edit it?',
+      expect(state.entries.at(-1)).toMatchObject({ kind: 'choice', pending: true })
+    })
+
+    it('holds every candidate in the entry when a shortlist is offered', () => {
+      const state = PanelReducer.reduce(thinking, offering())
+
+      expect(state.entries.at(-1)).toMatchObject({
+        candidates: ['Lists/todo.md', 'Lists/shopping.md'],
       })
+    })
+
+    it('holds the purpose in the entry, so the user reads what they are agreeing to', () => {
+      const state = PanelReducer.reduce(thinking, offering())
+
+      expect(state.entries.at(-1)).toMatchObject({ text: 'add toilet paper' })
     })
   })
 
-  describe('when the open is answered', () => {
-    let confirming: PanelState
+  describe('when the choice is answered', () => {
+    let choosing: PanelState
 
     beforeEach(() => {
-      confirming = PanelReducer.reduce(thinking, { type: 'openRequested', path: 'Lists/todo.md' })
+      choosing = PanelReducer.reduce(thinking, offering())
     })
 
-    it('replaces the confirm entry with its outcome when answered yes', () => {
-      const state = PanelReducer.reduce(confirming, { type: 'openAnswered', granted: true })
+    it('names the picked note when the choice is answered', () => {
+      const state = PanelReducer.reduce(choosing, {
+        type: 'choiceAnswered',
+        chosen: 'Lists/todo.md',
+      })
 
       expect(state.entries.at(-1)).toEqual({
-        kind: 'confirm',
-        path: 'Lists/todo.md',
+        kind: 'choice',
+        candidates: ['Lists/todo.md', 'Lists/shopping.md'],
         pending: false,
-        text: 'Opened Lists/todo.md',
+        text: 'Chose Lists/todo.md',
       })
     })
 
-    it('replaces the confirm entry with its outcome when answered no', () => {
-      const state = PanelReducer.reduce(confirming, { type: 'openAnswered', granted: false })
+    it('says the shortlist was declined when the user declines', () => {
+      const state = PanelReducer.reduce(choosing, { type: 'choiceAnswered', chosen: null })
 
       expect(state.entries.at(-1)).toEqual({
-        kind: 'confirm',
-        path: 'Lists/todo.md',
+        kind: 'choice',
+        candidates: ['Lists/todo.md', 'Lists/shopping.md'],
         pending: false,
-        text: 'Declined Lists/todo.md',
+        text: 'Declined every note offered',
       })
     })
 
     it('returns to the thinking phase when answered, so the turn reads as still running', () => {
-      const state = PanelReducer.reduce(confirming, { type: 'openAnswered', granted: true })
+      const state = PanelReducer.reduce(choosing, {
+        type: 'choiceAnswered',
+        chosen: 'Lists/todo.md',
+      })
 
       expect(state.phase).toBe('thinking')
     })
 
-    it('leaves a settled confirm entry alone when a second open is answered', () => {
-      const settled = PanelReducer.reduce(confirming, { type: 'openAnswered', granted: true })
+    it('leaves a settled choice entry alone when a second choice is answered', () => {
+      const settled = PanelReducer.reduce(choosing, {
+        type: 'choiceAnswered',
+        chosen: 'Lists/todo.md',
+      })
 
-      const state = PanelReducer.reduce(settled, { type: 'openAnswered', granted: false })
+      const state = PanelReducer.reduce(settled, { type: 'choiceAnswered', chosen: null })
 
-      expect(state.entries.at(-1)).toMatchObject({ text: 'Opened Lists/todo.md' })
+      expect(state.entries.at(-1)).toMatchObject({ text: 'Chose Lists/todo.md' })
+    })
+  })
+
+  // The third outcome: neither picked nor declined. A turn that ends with a
+  // live shortlist must leave no rows behind, and must not record a decline the
+  // user never made.
+  describe('when the turn ends with a shortlist unanswered', () => {
+    let choosing: PanelState
+
+    beforeEach(() => {
+      choosing = PanelReducer.reduce(thinking, offering())
+    })
+
+    it('settles a pending choice when the turn ends, so no live list outlives its turn', () => {
+      const state = PanelReducer.reduce(choosing, { type: 'summary', text: 'done' })
+
+      expect(state.entries.at(-2)).toMatchObject({ pending: false })
+    })
+
+    it('says the turn ended rather than that the user declined, when a turn ends unanswered', () => {
+      const state = PanelReducer.reduce(choosing, { type: 'summary', text: 'done' })
+
+      expect(state.entries.at(-2)).toMatchObject({
+        text: 'The turn ended before you picked a note',
+      })
+    })
+
+    it('settles a pending choice when the turn is cancelled', () => {
+      const state = PanelReducer.reduce(choosing, { type: 'turnCancelled', writtenNotes: [] })
+
+      expect(state.entries.at(-2)).toMatchObject({ pending: false })
+    })
+
+    it('settles a pending choice when the turn fails', () => {
+      const state = PanelReducer.reduce(choosing, {
+        type: 'failed',
+        step: 'edit',
+        message: 'broke',
+      })
+
+      expect(state.entries.at(-2)).toMatchObject({ pending: false })
     })
   })
 

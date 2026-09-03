@@ -1,7 +1,8 @@
 import { SearchHit } from './search-hit'
 
-// A turn-scoped record of what the vault offered, so an opened note is one
-// search confirmed rather than one the model recalled (FR3).
+// A session-scoped record of what the vault offered, so an opened note is one a
+// search returned rather than one the model recalled (FR3). Finding a note is
+// knowledge and does not expire the way consent to write to it does.
 export class SeenPaths {
   private readonly paths = new Set<string>()
 

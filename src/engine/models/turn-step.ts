@@ -30,12 +30,32 @@ export class TurnStep {
     return new TurnStep('Opened', path)
   }
 
+  // The count rather than the paths: the panel entry lists them, and a steps
+  // line naming eight notes is a list where the others are one line each.
+  static offered(candidates: number): TurnStep {
+    return new TurnStep('Offered', `${TurnStep.noteCount(candidates)} to choose from`)
+  }
+
+  // A skill and a chain of instructions are things the turn did, so they take
+  // their place in the numbered list rather than floating beside it.
+  static skillLoaded(name: string): TurnStep {
+    return new TurnStep('Loaded skill', name)
+  }
+
+  static commandRan(detail: string): TurnStep {
+    return new TurnStep('Ran command', detail)
+  }
+
+  static instructionsApplied(summary: string): TurnStep {
+    return new TurnStep('Loaded agent instructions', summary)
+  }
+
   static asked(question: string): TurnStep {
     return new TurnStep('Asked', question)
   }
 
   static edited(summary: string): TurnStep {
-    return new TurnStep('Edited', summary)
+    return new TurnStep('Edit', summary)
   }
 
   // A refusal is a step too: it spent an iteration, and it is usually the thing

@@ -3,6 +3,7 @@ import { OpenNote } from './models/open-note'
 import { AgentsMdChain } from '../agents/agents-md-chain'
 import { ResolvedNote } from './models/resolved-note'
 import { TurnBudget } from './models/turn-budget'
+import { ChosenNotes } from './models/chosen-notes'
 import { SeenPaths } from '../search/models/seen-paths'
 import { Skill } from '../skills/skill'
 
@@ -25,6 +26,36 @@ export class TurnRepository {
     readonly seenPaths: SeenPaths = new SeenPaths(),
   ) {}
 
+  // Built here rather than passed in, which is the whole of its turn scope: a
+  // ChosenNotes the session supplied would outlive the write the user consented
+  // to, and a second turn would open the note without asking.
+  readonly chosenNotes = new ChosenNotes()
+
+  // The note the turn inherited, resolved before any tool ran. Editing it needs
+  // no choice: it is the note the user was looking at when they spoke.
+  private readonly startedOn: string | null = this.resolved?.note.path ?? null
+
+  // Set once the model reaches past the note it started on. From then the turn
+  // is working on a note the user has to have chosen and the loop has to have
+  // opened, because the inherited binding may be a path whose editor Obsidian
+  // still reports but no longer shows.
+  private reachedOut = false
+
+  // A glob or grep is the model looking for a note other than the one in front
+  // of the user, which is what makes the inherited binding no longer the target.
+  searchRan(): void {
+    this.reachedOut = true
+  }
+
+  // Whether an edit may land on this note. The note the turn started on is the
+  // one the user was looking at, until the model goes looking for another.
+  mayEdit(path: string): boolean {
+    if (this.openedThisTurn.has(path)) return true
+    return !this.reachedOut && path === this.startedOn
+  }
+
+  private readonly openedThisTurn = new Set<string>()
+
   // Null while the session is unbound, which is a turn that can search but not
   // write.
   targetNote(): OpenNote | null {
@@ -45,6 +76,21 @@ export class TurnRepository {
     return this.vaultSkills
   }
 
+  // Whether the model has settled the skill question this turn, either by
+  // loading one or by saying none applies. The harness never decides which
+  // skill fits: it only holds the model to deciding before it writes.
+  private skillsSettled = false
+
+  settleSkills(): void {
+    this.skillsSettled = true
+  }
+
+  // A vault with no skills has nothing to settle, so the check is invisible
+  // there and the release 3 turn is unchanged.
+  mustSettleSkills(): boolean {
+    return this.vaultSkills.length > 0 && !this.skillsSettled
+  }
+
   skillNamed(name: string): Skill | undefined {
     return this.vaultSkills.find((candidate) => candidate.name === name)
   }
@@ -57,6 +103,12 @@ export class TurnRepository {
   // the user declined does not cost the turn its one open.
   recordOpen(path: string): void {
     this.budget.takeOpen(path)
+  }
+
+  // Separate from recordOpen, which spends the budget: a command's note is
+  // opened without the model choosing to, and must not cost the turn its one.
+  recordOpened(path: string): void {
+    this.openedThisTurn.add(path)
   }
 
   retargetTo(resolved: ResolvedNote): void {

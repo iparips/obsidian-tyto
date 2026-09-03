@@ -1,10 +1,12 @@
 export const LOAD_SKILL = 'load_skill'
+export const NO_SKILL_APPLIES = 'no_skill_applies'
 export const RUN_COMMAND = 'run_command'
 export const GLOB_NOTES = 'glob_notes'
 export const GREP_NOTES = 'grep_notes'
 export const READ_NOTE = 'read_note'
 export const ANSWER_FROM_SEARCH = 'answer_from_search'
 export const OPEN_NOTE = 'open_note'
+export const CHOOSE_NOTE = 'choose_note'
 export const ASK_USER = 'ask_user'
 
 // One tool call the model asked for. It classifies itself, so callers dispatch
@@ -18,6 +20,10 @@ export class ToolCall {
 
   isLoadSkill(): boolean {
     return this.name === LOAD_SKILL
+  }
+
+  isNoSkillApplies(): boolean {
+    return this.name === NO_SKILL_APPLIES
   }
 
   isRunCommand(): boolean {
@@ -44,6 +50,10 @@ export class ToolCall {
     return this.name === OPEN_NOTE
   }
 
+  isChooseNote(): boolean {
+    return this.name === CHOOSE_NOTE
+  }
+
   isAskUser(): boolean {
     return this.name === ASK_USER
   }
@@ -56,6 +66,7 @@ export class ToolCall {
       this.isReadNote() ||
       this.isAnswerFromSearch() ||
       this.isOpenNote() ||
+      this.isChooseNote() ||
       this.isAskUser()
     )
   }

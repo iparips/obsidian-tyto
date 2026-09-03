@@ -23,7 +23,9 @@ import { SessionRepository } from '../session/session-repository'
 import { AgentsMdRepository } from '../agents/agents-md-repository'
 import { SkillRepository } from '../skills/skill-repository'
 import { ChatProvider } from '../providers/types'
-import { OpenApproval } from '../engine/open-approval'
+import { NoteChoice } from '../engine/note-choice'
+import { NoteOpener } from '../engine/note-opener'
+import { ChosenNotes } from '../engine/models/chosen-notes'
 import { TurnCancellation } from '../engine/turn-cancellation'
 import { UserQuestion } from '../engine/user-question'
 
@@ -43,7 +45,8 @@ export interface EnginePartsOptions {
   skillRepository?: SkillRepository
   harnessTools?: HarnessTools
   progress?: TurnProgressPublisher
-  openApproval?: (cancellation: TurnCancellation) => OpenApproval
+  noteOpener?: NoteOpener | null
+  noteChoice?: (cancellation: TurnCancellation, chosen: ChosenNotes) => NoteChoice
   userQuestion?: (cancellation: TurnCancellation) => UserQuestion
 }
 
@@ -66,7 +69,8 @@ export const anEngine = (modelProvider: ChatProvider, options: EnginePartsOption
     new NoteEditor(),
     harness,
     progress,
-    options.openApproval ?? (() => OpenApproval.granted()),
+    options.noteOpener ?? null,
+    options.noteChoice ?? ((_cancellation, chosen) => NoteChoice.automatic(chosen)),
     options.userQuestion ?? (() => UserQuestion.unanswered()),
   )
   return new EditEngine(

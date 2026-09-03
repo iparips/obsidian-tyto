@@ -6,7 +6,6 @@ import { GrepRequest } from '../search/models/grep-request'
 import { GrepResult } from '../search/models/grep-result'
 import { ResultOrder } from '../search/models/result-order'
 import { HarnessResult, Refusal, TurnState } from './harness-result'
-import { TurnBudget } from './models/turn-budget'
 import { TurnStep } from './models/turn-step'
 
 // The two ways the model reaches a note it cannot name: a glob over paths and a
@@ -19,7 +18,7 @@ export class SearchTools {
   ) {}
 
   glob(call: ToolCall, turn: TurnState): HarnessResult {
-    if (!turn.budget.takeGlob()) return Refusal.of(TurnBudget.globCapMessage())
+    turn.searchRan()
     const pattern = call.argument('pattern')
     const result = this.noteGlob.find(pattern, SearchTools.orderOf(call))
     turn.seenPaths.recordPaths(result.paths)
@@ -30,7 +29,7 @@ export class SearchTools {
   }
 
   async grep(call: ToolCall, turn: TurnState): Promise<HarnessResult> {
-    if (!turn.budget.takeGrep()) return Refusal.of(TurnBudget.grepCapMessage())
+    turn.searchRan()
     const outcome = await this.noteGrep.find(SearchTools.requestOf(call), SearchTools.orderOf(call))
     if (outcome.hasFailed()) return Refusal.of(outcome.message)
     return SearchTools.reported(call.argument('pattern'), outcome.value, turn)

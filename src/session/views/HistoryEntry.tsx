@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Entry } from '../models/panel-state'
 import { EntryWeights } from '../models/entry-weight'
 import { EntrySources } from './EntrySources'
-import { EntryConfirm } from './EntryConfirm'
+import { EntryChoice } from './EntryChoice'
 import { EntrySuggestions } from './EntrySuggestions'
 import { EntrySteps } from './EntrySteps'
 
@@ -14,7 +14,7 @@ const ENTRY_CLASSES = {
   command: 'owl-entry-command',
   answer: 'owl-entry-answer',
   cancelled: 'owl-entry-cancelled',
-  confirm: 'owl-entry-confirm-line',
+  choice: 'owl-entry-choice-line',
   question: 'owl-entry-question',
   warning: 'owl-entry-warning',
   steps: 'owl-entry-steps-line',
@@ -29,11 +29,11 @@ export interface HistoryEntryProps {
   entry: Entry
   // Absent once the turn has ended, which is what leaves an unanswered question
   // on screen as a record rather than a live prompt (FR32).
-  onAnswerOpen?(granted: boolean): void
+  onChooseNote?(chosen: string | null): void
   onPickSuggestion?(suggestion: string): void
 }
 
-export const HistoryEntry = ({ entry, onAnswerOpen, onPickSuggestion }: HistoryEntryProps) => {
+export const HistoryEntry = ({ entry, onChooseNote, onPickSuggestion }: HistoryEntryProps) => {
   const [copied, setCopied] = useState(false)
   const text = entryText(entry)
   const weight = EntryWeights.of(entry.kind)
@@ -53,8 +53,8 @@ export const HistoryEntry = ({ entry, onAnswerOpen, onPickSuggestion }: HistoryE
           <div className="owl-entry-text">{text}</div>
         )}
         {entry.kind === 'answer' && <EntrySources sources={entry.sources} />}
-        {entry.kind === 'confirm' && entry.pending && onAnswerOpen && (
-          <EntryConfirm onAnswer={onAnswerOpen} />
+        {entry.kind === 'choice' && entry.pending && onChooseNote && (
+          <EntryChoice candidates={entry.candidates} onChoose={onChooseNote} />
         )}
         {entry.kind === 'question' && entry.pending && onPickSuggestion && (
           <EntrySuggestions suggestions={entry.suggestions} onPick={onPickSuggestion} />

@@ -74,15 +74,15 @@ export const SettingsPanel = ({
     <label className="owl-setting owl-setting-inline">
       <input
         type="checkbox"
-        aria-label="Confirm notes Owl chooses"
+        aria-label="Choose the note Owl opens"
         checked={settings.openMode === 'confirm'}
         onChange={(event) => onChange({ openMode: event.target.checked ? 'confirm' : 'auto' })}
       />
-      Ask before opening a note Owl found itself
+      Ask which note Owl should open
     </label>
     <p className="owl-settings-note">
       Owl can search for the note an instruction names and open it. With this on, it shows you the
-      note and waits for you to approve. A note one of your commands opens never asks.
+      notes it found and waits for you to pick one. A note one of your commands opens never asks.
     </p>
     <p className="owl-settings-note">
       Your key is stored in this vault and only ever sent to the provider. Note content and

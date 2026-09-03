@@ -9,15 +9,19 @@ import { TargetNoteResolver } from './target-note-resolver'
 import { SessionRepository } from '../session/session-repository'
 import { TurnProgressPublisher } from './turn-progress-publisher'
 import { TurnCancellation } from './turn-cancellation'
-import { OpenApproval } from './open-approval'
+import { NoteChoice } from './note-choice'
+import { NoteOpener } from './note-opener'
 import { UserQuestion } from './user-question'
 import { AnswerRequest } from './models/answer-request'
+import { ChoiceRequest } from './models/choice-request'
 import { TurnStep } from './models/turn-step'
 
 const CANCELLED_RESULT = 'the user stopped the turn; this call did not run'
 const NO_ANSWER_RESULT = 'the user did not answer; stop and say what you were waiting on'
+// The decline names the next move: a model told only "declined" searches again,
+// which is the loop this replaces (FR7).
 const DECLINED_RESULT =
-  'the user declined that note; the session did not move and nothing was written'
+  'the user declined every note offered; ask them what they meant rather than searching again'
 
 // One tool call, run and published. The loop owns the conversation; this owns
 // what a call does to the note, the session and the panel.
@@ -31,14 +35,18 @@ export class ToolDispatcher {
     private turnProgressPublisher: TurnProgressPublisher,
     private turnRepository: TurnRepository,
     private turnCancellation: TurnCancellation,
-    private openApproval: OpenApproval,
+    private noteChoice: NoteChoice,
     private userQuestion: UserQuestion,
+    // Absent in tests that exercise the guards rather than the opening, and in a
+    // vault whose notes a command always opens.
+    private noteOpener: NoteOpener | null = null,
   ) {}
 
   async execute(call: ToolCall): Promise<ToolCallOutcome> {
     // Between calls rather than inside one, so no edit is left half-applied.
     if (this.turnCancellation.isCancelled()) return { result: CANCELLED_RESULT }
     if (call.isLoadSkill()) return { result: await this.loadSkill(call) }
+    if (call.isNoSkillApplies()) return { result: this.noSkillApplies() }
     if (call.isHarnessTool()) return this.callHarnessTool(call)
     return this.publishEdit(this.noteEditTool.execute(call))
   }
@@ -61,8 +69,17 @@ export class ToolDispatcher {
     if (!skill) return `no skill named ${name} in this vault`
     const body = await this.skillRepository.readBody(skill)
     if (body === null) return `skill ${skill.name} could not be read`
+    this.turnRepository.settleSkills()
     this.turnProgressPublisher.skillLoaded(skill.name)
     return body
+  }
+
+  // The model's own judgement, recorded rather than checked: the harness never
+  // decides which skill fits, only that the question was answered before a
+  // write.
+  private noSkillApplies(): string {
+    this.turnRepository.settleSkills()
+    return 'noted; no skill applies to this turn'
   }
 
   private async callHarnessTool(call: ToolCall): Promise<ToolCallOutcome> {
@@ -71,6 +88,7 @@ export class ToolDispatcher {
     if (harnessResult.answer)
       this.turnProgressPublisher.answered(harnessResult.answer.text, harnessResult.answer.sources)
     if (harnessResult.question) return this.askUser(harnessResult.question)
+    if (harnessResult.choice) return this.chooseNote(harnessResult.choice)
     if (harnessResult.openPath) return this.openModelChosenNote(harnessResult.openPath)
     if (!harnessResult.effect) return { result: harnessResult.result }
     return { result: await this.publishCommand(harnessResult.effect) }
@@ -84,23 +102,46 @@ export class ToolDispatcher {
     return { result: answer === '' ? NO_ANSWER_RESULT : `the user answered: ${answer}` }
   }
 
-  // A decline is a tool result, not an exception: the model reads that it was
-  // refused and reports what stopped rather than claiming an edit (FR7, NFR1).
+  // The pick is the tool result, so the model reads which note it may open
+  // rather than inferring one from prose (FR4). A decline is a result too, not
+  // an exception (FR6, NFR3).
+  private async chooseNote(request: ChoiceRequest): Promise<ToolCallOutcome> {
+    const chosen = await this.noteChoice.choose(request)
+    if (chosen === null) return { result: DECLINED_RESULT }
+    return { result: `the user chose ${chosen}; open it with open_note` }
+  }
+
+  // A refusal is a tool result, not an exception: the model reads that it was
+  // refused and reports what stopped rather than claiming an edit (NFR1).
   private async openModelChosenNote(path: string): Promise<ToolCallOutcome> {
-    if (!(await this.openApproval.grantFor(path))) return { result: DECLINED_RESULT }
+    if (!this.noteChoice.holds(path)) return this.refuseUnchosen(path)
     this.turnRepository.recordOpen(path)
+    // Opened before the target moves, because retargeting resolves against an
+    // editor: a note the user has never had on screen has none until this runs.
+    await this.noteOpener?.open(path)
     this.turnProgressPublisher.stepTaken(TurnStep.opened(path))
     const moved = await this.moveTargetTo(path)
     return { result: moved ? `opened ${path}` : `opened ${path}, but it is not editable yet` }
   }
 
-  // The model is told what actually happened: a note that opened without an
-  // editor is the target, but cannot be written to yet.
+  // Published as a step like every other refusal, so a turn stalled on it says
+  // why rather than going quiet. Named apart from the seen-path refusal: a path
+  // no search returned is a different mistake from one the user has not picked
+  // (FR9, FR10).
+  private refuseUnchosen(path: string): ToolCallOutcome {
+    const reason = `${path} was not chosen by the user this turn; call choose_note with it now, then open it. Do not ask the user in prose`
+    this.turnProgressPublisher.stepTaken(TurnStep.refused(reason))
+    return { result: reason }
+  }
+
+  // The step goes up before the target moves, so the list reads in the order
+  // things happened: the command ran, then the session followed the note it
+  // opened. The model still reads the fuller text, which has to spell out that
+  // the binding moved.
   private async publishCommand(effect: CommandEffect): Promise<string> {
+    this.turnProgressPublisher.stepTaken(TurnStep.commandRan(effect.stepDetail()))
     const moved = await this.moveTarget(effect)
-    const text = moved ? effect.describe() : effect.describeUneditable()
-    this.turnProgressPublisher.commandRan(text)
-    return text
+    return moved ? effect.describe() : effect.describeUneditable()
   }
 
   private async moveTarget(effect: CommandEffect): Promise<boolean> {
@@ -120,6 +161,10 @@ export class ToolDispatcher {
       return false
     }
     this.turnRepository.retargetTo(resolvedNoteOutcome.value)
+    // The note is live here: it resolved to an editor just now, rather than
+    // from a path the session carried in. A command's own note is authorised by
+    // the allow-list, so this covers both routes onto a note.
+    this.turnRepository.recordOpened(path)
     this.turnProgressPublisher.retargeted(path)
     return true
   }

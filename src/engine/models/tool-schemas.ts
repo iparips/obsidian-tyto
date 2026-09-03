@@ -2,9 +2,11 @@ import { ToolSchema } from '../../providers/types'
 import {
   ANSWER_FROM_SEARCH,
   ASK_USER,
+  CHOOSE_NOTE,
   GLOB_NOTES,
   GREP_NOTES,
   LOAD_SKILL,
+  NO_SKILL_APPLIES,
   OPEN_NOTE,
   READ_NOTE,
   RUN_COMMAND,
@@ -65,6 +67,21 @@ export const TOOL_SCHEMAS: ToolSchema[] = [
     },
   },
   {
+    name: NO_SKILL_APPLIES,
+    description:
+      "Say that none of this vault's skills covers what the user asked, then carry on. Call it instead of load_skill when you have read the skill list and none matches. You decide which applies; this is how you say none does.",
+    parameters: {
+      type: 'object',
+      properties: {
+        reason: {
+          type: 'string',
+          description: 'One short phrase saying what the user asked for that no skill covers.',
+        },
+      },
+      required: ['reason'],
+    },
+  },
+  {
     name: RUN_COMMAND,
     description:
       'Run one Obsidian command from the list above. Use this to open the note an instruction names, then edit that note with the anchor tools.',
@@ -79,14 +96,14 @@ export const TOOL_SCHEMAS: ToolSchema[] = [
   {
     name: GLOB_NOTES,
     description:
-      'List the notes whose path matches a pattern. Use this before guessing a filename: a folder listing shows the naming convention. Returns paths only.',
+      'List the notes whose path matches a pattern. Use this before guessing a filename: a folder listing shows the naming convention. Returns paths only. Your first call for a note should end in * so it lists the whole folder, because you cannot know how this vault spells a date or a title until you have seen one.',
     parameters: {
       type: 'object',
       properties: {
         pattern: {
           type: 'string',
           description:
-            'A path pattern from the vault root. * matches within one folder, ** across folders, ? one character. Example: 1 - Journal/Weekly/Week-35/*.md',
+            'A path pattern from the vault root. * matches within one folder, ** across folders, ? one character. Example: 1 - Journal/Weekly/Week-35/*.md. Prefer a trailing * over a spelled-out filename: nothing matched means your pattern was wrong, so widen it rather than reordering the parts.',
         },
         sort: { type: 'string', enum: ['path', 'modified'] },
         order: { type: 'string', enum: ['ascending', 'descending'] },
@@ -169,9 +186,31 @@ export const TOOL_SCHEMAS: ToolSchema[] = [
     },
   },
   {
+    name: CHOOSE_NOTE,
+    description:
+      'Ask the user which note you mean, from paths a search returned. Their pick is both which note and permission to write to it. Call this before open_note, always: even one candidate is theirs to confirm.',
+    parameters: {
+      type: 'object',
+      properties: {
+        paths: {
+          type: 'array',
+          items: { type: 'string' },
+          description:
+            'The note paths to offer, exactly as a search returned them. Offer every note that plausibly matches; the user picks.',
+        },
+        purpose: {
+          type: 'string',
+          description:
+            'What you will do with the note they pick, in one short phrase. Shown above the list so the user knows what they are agreeing to.',
+        },
+      },
+      required: ['paths', 'purpose'],
+    },
+  },
+  {
     name: ASK_USER,
     description:
-      'Ask the user one question and act on their answer in this same turn. Use it only when no listed command and no search resolves what the instruction named.',
+      'Ask the user one question and act on their answer in this same turn. Use it only when a search found nothing, or the instruction itself is unclear. Never use it to ask which of several notes they meant: search, then offer them with choose_note.',
     parameters: {
       type: 'object',
       properties: {
@@ -194,12 +233,21 @@ export class ToolCatalogue {
   static forCapabilities(
     commandsAllowed: boolean,
     searchEnabled: boolean,
-    spent: readonly string[] = [],
+    // Auto mode opens the first note the model offers, so the tool that asks is
+    // absent rather than answering itself (FR13).
+    choiceOffered = true,
+    // Both skill tools are absent from a vault that defines none, so its prompt
+    // and tool list are unchanged.
+    skillsExist = false,
   ): ToolSchema[] {
-    return TOOL_SCHEMAS.filter(
-      (schema) =>
-        !spent.includes(schema.name) &&
-        ToolCatalogue.isOffered(schema.name, commandsAllowed, searchEnabled),
+    return TOOL_SCHEMAS.filter((schema) =>
+      ToolCatalogue.isOffered(
+        schema.name,
+        commandsAllowed,
+        searchEnabled,
+        choiceOffered,
+        skillsExist,
+      ),
     )
   }
 
@@ -207,8 +255,14 @@ export class ToolCatalogue {
     name: string,
     commandsAllowed: boolean,
     searchEnabled: boolean,
+    choiceOffered: boolean,
+    skillsExist: boolean,
   ): boolean {
+    // load_skill stays offered whatever the vault holds, since release 3's tool
+    // list is a fixed contract. Only the new tool is conditional.
+    if (name === NO_SKILL_APPLIES) return skillsExist
     if (name === RUN_COMMAND) return commandsAllowed
+    if (name === CHOOSE_NOTE) return searchEnabled && choiceOffered
     if (SEARCH_TOOLS.includes(name)) return searchEnabled
     // Asking is what is left once the routes are exhausted, so a vault with no
     // route to exhaust is offered the release 3 tools exactly (NFR7).

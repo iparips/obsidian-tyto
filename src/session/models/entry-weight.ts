@@ -8,7 +8,7 @@ const WEIGHTS: Record<Entry['kind'], EntryWeight> = {
   answer: 'reply',
   error: 'reply',
   cancelled: 'reply',
-  confirm: 'reply',
+  choice: 'reply',
   question: 'reply',
   instructions: 'context',
   command: 'context',

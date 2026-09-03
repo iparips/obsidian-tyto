@@ -6,10 +6,10 @@ import { Entry, PanelState, Phase } from './panel-state'
 export class AskedEntries {
   // Back to thinking rather than idle: the turn is still running, and the panel
   // reads as the turn continuing rather than as one that ended.
-  static openAnswered(state: PanelState, granted: boolean): PanelState {
+  static choiceAnswered(state: PanelState, chosen: string | null): PanelState {
     return new PanelState(
       'thinking',
-      state.entries.map((entry) => AskedEntries.settledConfirm(entry, granted)),
+      state.entries.map((entry) => AskedEntries.settledChoice(entry, chosen)),
     )
   }
 
@@ -25,17 +25,34 @@ export class AskedEntries {
   }
 
   // A turn that ends leaves nothing answerable behind it, so both askers'
-  // entries settle whichever way the turn went.
+  // entries settle whichever way the turn went. A choice the user never made is
+  // the third outcome, and it says the turn ended rather than that they
+  // declined.
   static turnEnded(state: PanelState): PanelState {
-    return AskedEntries.questionAnswered(AskedEntries.openAnswered(state, false), state.phase)
+    return AskedEntries.questionAnswered(AskedEntries.unanswered(state), state.phase)
   }
 
-  private static settledConfirm(entry: Entry, granted: boolean): Entry {
-    if (entry.kind !== 'confirm' || !entry.pending) return entry
-    return { ...entry, pending: false, text: AskedEntries.outcomeText(entry.path, granted) }
+  private static unanswered(state: PanelState): PanelState {
+    return new PanelState(
+      state.phase,
+      state.entries.map((entry) => AskedEntries.settled(entry, UNANSWERED_TEXT)),
+    )
   }
 
-  private static outcomeText(path: string, granted: boolean): string {
-    return granted ? `Opened ${path}` : `Declined ${path}`
+  private static settledChoice(entry: Entry, chosen: string | null): Entry {
+    return AskedEntries.settled(entry, AskedEntries.outcomeText(chosen))
+  }
+
+  private static settled(entry: Entry, text: string): Entry {
+    if (entry.kind !== 'choice' || !entry.pending) return entry
+    return { ...entry, pending: false, text }
+  }
+
+  // The pick is named, so the panel records which note the turn was let into.
+  private static outcomeText(chosen: string | null): string {
+    return chosen === null ? DECLINED_TEXT : `Chose ${chosen}`
   }
 }
+
+const DECLINED_TEXT = 'Declined every note offered'
+const UNANSWERED_TEXT = 'The turn ended before you picked a note'

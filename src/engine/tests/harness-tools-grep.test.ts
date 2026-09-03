@@ -26,7 +26,7 @@ describe('HarnessTools', () => {
     vault = new FakeVault()
       .withNote(QUOTE, 'the roofing quote came to 12k')
       .withNote('Lists/shopping.md', 'milk and bread')
-    turn = { budget: new TurnBudget(), seenPaths: new SeenPaths() }
+    turn = { budget: new TurnBudget(), seenPaths: new SeenPaths(), searchRan: () => undefined }
   })
 
   const toolsOf = (searchEnabled = true): HarnessTools => {
@@ -110,31 +110,6 @@ describe('HarnessTools', () => {
       const harnessResult = await grep('roofing(')
 
       expect(harnessResult.step?.refused).toBe(true)
-    })
-  })
-
-  describe('when the grep budget is spent', () => {
-    beforeEach(async () => {
-      await grep('roofing')
-      await grep('roofing')
-      await grep('roofing')
-      await grep('roofing')
-    })
-
-    it('refuses a grep when the grep budget is spent, naming the cap', async () => {
-      const harnessResult = await grep('roofing')
-
-      expect(harnessResult.result).toBe(
-        'this turn has already searched the text 4 times; answer from what you have',
-      )
-    })
-
-    it('omits grep_notes from the schemas once its budget is spent', () => {
-      expect(namesOf(toolsOf(), turn.budget.spentTools())).not.toContain('grep_notes')
-    })
-
-    it('spends the glob budget separately from the grep budget', () => {
-      expect(namesOf(toolsOf(), turn.budget.spentTools())).toContain('glob_notes')
     })
   })
 

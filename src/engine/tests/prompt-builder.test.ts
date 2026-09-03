@@ -160,6 +160,38 @@ describe('PromptBuilder', () => {
 
       expect(prompt).toContain('Call load_skill')
     })
+
+    // A command opened the right note, so the edit looked like success and the
+    // skill's own steps were skipped without anything saying so.
+    it('tells the model to answer the skill question before its first edit', () => {
+      const prompt = standingRulesText(catalogue)
+
+      expect(prompt).toContain('Answer the skill question before your first edit')
+    })
+
+    it('names no_skill_applies, so the model is never stuck when none fits', () => {
+      const prompt = standingRulesText(catalogue)
+
+      expect(prompt).toContain('no_skill_applies when none does')
+    })
+
+    it('says the model decides which skill applies, not the harness', () => {
+      const prompt = standingRulesText(catalogue)
+
+      expect(prompt).toContain('You decide which applies')
+    })
+
+    it('tells the model the summary says when a skill applies, not how to do it', () => {
+      const prompt = standingRulesText(catalogue)
+
+      expect(prompt).toContain('never how to carry it out')
+    })
+
+    it('tells the model that reaching the note is not doing the work', () => {
+      const prompt = standingRulesText(catalogue)
+
+      expect(prompt).toContain('Reaching the right note is not the same as doing the work.')
+    })
   })
 
   describe('when the catalogue is empty', () => {
@@ -201,6 +233,12 @@ describe('PromptBuilder', () => {
       expect(prompt).toContain('prefer a listed command that opens it')
     })
 
+    it('tells the model a command only opens the note, so a matched skill still leads', () => {
+      const prompt = standingRulesText([], new AgentsMdChain(), catalogue)
+
+      expect(prompt).toContain('A command only opens the note.')
+    })
+
     it('tells the model to search only when no command reaches the destination', () => {
       const prompt = standingRulesText([], new AgentsMdChain(), catalogue)
 
@@ -223,10 +261,25 @@ describe('PromptBuilder', () => {
       )
     })
 
-    it('tells the model to offer suggestions when it has candidates', () => {
+    it('tells the model to offer suggestions when the answer is not a note', () => {
       const prompt = standingRulesText([], new AgentsMdChain(), catalogue)
 
-      expect(prompt).toContain('Offer suggestions when you have candidates')
+      expect(prompt).toContain('Offer suggestions when the answer is not a note')
+    })
+
+    // Asking which of several notes the user meant is what choose_note is for.
+    // Left in the question rules, it routes the model to ask in prose, which is
+    // the second question 14-choosing-the-note exists to remove.
+    it('tells the model never to ask which of several notes the user meant', () => {
+      const prompt = standingRulesText([], new AgentsMdChain(), catalogue)
+
+      expect(prompt).toContain('Never ask which of several notes the user meant.')
+    })
+
+    it('names several matching notes nowhere as a reason to ask, since choosing covers it', () => {
+      const prompt = standingRulesText([], new AgentsMdChain(), catalogue)
+
+      expect(prompt).not.toContain('when several notes match equally')
     })
   })
 
@@ -277,6 +330,79 @@ describe('PromptBuilder', () => {
 
     it('mentions search_vault nowhere, since it no longer exists', () => {
       expect(withSearch()).not.toContain('search_vault')
+    })
+
+    it('states choosing in the order to try, between grepping and opening', () => {
+      expect(withSearch()).toContain('offer what you found with choose_note; open what the user')
+    })
+
+    it('tells the model one candidate is still the user to offer', () => {
+      expect(withSearch()).toContain('Offer even a single candidate:')
+    })
+
+    it('tells the model to open no note the user has not picked', () => {
+      expect(withSearch()).toContain('Never open a note the user has not picked.')
+    })
+
+    it('tells the model to ask what they meant only after a shortlist is declined', () => {
+      expect(withSearch()).toContain(
+        'Only after the user declines every note you offered, ask them what they meant',
+      )
+    })
+
+    // The decline rule once ended "searching again spends the turn", unbound to
+    // the decline. Read as a standing rule, it told the model searching was
+    // costly and it asked rather than searched.
+    it('never calls searching a cost, so the model does not ask rather than search', () => {
+      expect(withSearch()).not.toContain('spends the turn')
+    })
+
+    it('tells the model to search before asking where a note is', () => {
+      expect(withSearch()).toContain('Search first and ask later.')
+    })
+
+    // The model was refused an unchosen open, then asked the user in prose for
+    // permission they had already given by asking. The refusal names the tool;
+    // the prompt has to say that asking is not the alternative.
+    it('tells the model to call choose_note when an open is refused as unchosen', () => {
+      expect(withSearch()).toContain('call\nchoose_note with that path and carry on')
+    })
+
+    it('tells the model a refused open is not a request for permission', () => {
+      expect(withSearch()).toContain('not that you need permission')
+    })
+
+    // Week-* matched nothing, because a glob matches notes and Week-35 is a
+    // folder. The rule that produced it said only "ends in *".
+    it('tells the model its first glob ends in a slash-star, not a partial name', () => {
+      expect(withSearch()).toContain('ends in /* so it lists a whole folder')
+    })
+  })
+
+  describe('when the model might ask instead of acting', () => {
+    it('tells the model a glob matches notes rather than folders', () => {
+      expect(standingRulesText([], new AgentsMdChain(), [], true)).toContain(
+        'A glob matches notes, never folders.',
+      )
+    })
+
+    const withCommands = () =>
+      standingRulesText([], new AgentsMdChain(), [
+        new AllowedCommand('daily-notes:goto-today', 'Open todays daily note'),
+      ])
+
+    it('tells the model never to ask permission for what the user already asked for', () => {
+      expect(withCommands()).toContain(
+        'Never ask permission to do what the user already asked for.',
+      )
+    })
+
+    it('tells the model choose_note is the check, not a question written in prose', () => {
+      expect(withCommands()).toContain('it is not a question you write in prose')
+    })
+
+    it('mentions the retired confirmation nowhere, since that mechanism is gone', () => {
+      expect(standingRulesText([], new AgentsMdChain(), [], true)).not.toContain('confirm')
     })
   })
 

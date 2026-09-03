@@ -23,5 +23,5 @@ finding is knowledge and does not expire. A note the user chose is chosen for
 the turn, since consent is about the write in front of them rather than every
 future write to that note.
 
-Not started. Depends on the SeenPaths and open-budget fixes already in
-[10-finding-notes](../10-finding-notes/1-index.md)'s wake.
+Built. Both commits' steps are implemented and the suite is green. The two exit
+tests below are unrun, since both need a real vault on both surfaces.

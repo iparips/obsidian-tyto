@@ -1,6 +1,7 @@
 import { CommandEffect } from '../commands/models/command-effect'
 import { SeenPaths } from '../search/models/seen-paths'
 import { AnswerRequest } from './models/answer-request'
+import { ChoiceRequest } from './models/choice-request'
 import { TurnBudget } from './models/turn-budget'
 import { TurnStep } from './models/turn-step'
 
@@ -13,6 +14,9 @@ export interface HarnessResult {
   answer?: { text: string; sources: string[] }
   openPath?: string
   question?: AnswerRequest
+  // The shortlist travels back rather than being offered here, the way a
+  // question does: only the loop can park a turn on a person.
+  choice?: ChoiceRequest
   // What the panel shows in the steps list. Present on every call, including
   // the ones that refused, so a turn that went nowhere still says why.
   step?: TurnStep
@@ -23,6 +27,9 @@ export interface HarnessResult {
 export interface TurnState {
   readonly budget: TurnBudget
   readonly seenPaths: SeenPaths
+  // Told when the model looks past the note the turn started on, which is what
+  // makes the inherited binding no longer a safe edit target.
+  searchRan(): void
 }
 
 // Shared by every tool that can refuse, so a cap message and a bad argument

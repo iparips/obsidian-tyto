@@ -400,12 +400,32 @@
   font-style: italic;
 }
 
-/* Beneath the question rather than beside it, so two buttons fit a narrow
-   drawer without either being clipped (NFR5). */
-.owl-entry-confirm {
+/* Stacked rather than laid in a row: two buttons fitted a narrow drawer side by
+   side, and eight paths do not (NFR5). */
+.owl-entry-choice {
   display: flex;
-  gap: var(--size-4-2);
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--size-4-1);
   margin-top: var(--size-4-2);
+}
+
+/* A path wraps rather than truncating, since the segment that tells two
+   candidates apart is as often the folder as the filename, and a middle
+   ellipsis hides exactly the part worth reading (FR3, NFR5). */
+.owl-entry-choice button {
+  height: auto;
+  text-align: left;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  padding: var(--size-4-2);
+}
+
+/* Set apart from the candidates: declining is a different kind of answer from
+   picking one, not a ninth note. */
+.owl-entry-choice-decline {
+  margin-top: var(--size-4-1);
+  color: var(--text-muted);
 }
 
 /* Wrapping rather than a row, since the drawer is narrow and three options do

@@ -26,6 +26,14 @@ export class CommandEffect {
       : `ran ${this.commandName}; no note opened, still editing the same note`
   }
 
+  // What the steps list shows: the command, and the note if it moved the
+  // binding. Shorter than describe(), which is written for the model and has to
+  // spell out that the target moved.
+  stepDetail(): string {
+    if (!this.openedPath) return this.commandName
+    return `${this.commandName} — now editing ${this.openedPath}`
+  }
+
   // Distinct from opening nothing: the note is the target, so a retry reaches
   // it, but no editor is showing it yet and an edit now would fail.
   describeUneditable(): string {

@@ -20,14 +20,16 @@ import { NoteGrep } from '../search/note-grep'
 import { SearchTools } from './search-tools'
 import { NoteReader } from '../search/note-reader'
 import { OwlSettings } from '../settings/settings'
-import { OpenApproval } from './open-approval'
+import { NoteChoice } from './note-choice'
+import { NoteOpener } from './note-opener'
+import { ChosenNotes } from './models/chosen-notes'
 import { TurnCancellation } from './turn-cancellation'
 import { UserQuestion } from './user-question'
 
 // How a session builds what a turn parks on. Both take the turn's cancellation,
 // so a parked question settles on a cancel rather than parking the loop.
 export interface EngineAskers {
-  openApproval?(cancellation: TurnCancellation): OpenApproval
+  noteChoice?(cancellation: TurnCancellation, chosen: ChosenNotes): NoteChoice
   userQuestion?(cancellation: TurnCancellation): UserQuestion
 }
 
@@ -79,7 +81,8 @@ export class EngineFactory {
       new NoteEditor(),
       harnessTools,
       progress,
-      askers.openApproval ?? (() => OpenApproval.granted()),
+      new NoteOpener(this.app, new OpenedNoteWait(this.app)),
+      askers.noteChoice ?? ((_cancellation, chosen) => NoteChoice.automatic(chosen)),
       askers.userQuestion ?? (() => UserQuestion.unanswered()),
     )
   }
@@ -93,6 +96,7 @@ export class EngineFactory {
       catalogue,
       this.settings.searchEnabled,
       new SearchTools(new NoteGlob(this.app.vault), new NoteGrep(this.app.vault)),
+      this.settings.openMode === 'confirm',
     )
   }
 }

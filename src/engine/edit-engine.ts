@@ -73,16 +73,21 @@ export class EditEngine {
     const iterations = new IterationBudget()
     for (let iteration = 0; !iterations.isSpent(); iteration++) {
       if (turn.cancellation.isCancelled()) return this.concludeCancelled(turn)
+      const askedAt = Date.now()
       const answer = await this.askModel(
         turnRepository.targetNote(),
         turnRepository.skills(),
         turnRepository.agentMdChain(),
         this.sessionRepository.chatHistory(),
         turn.cancellation.signal(),
-        turnRepository.budget.spentTools(),
       )
       if (!answer.succeeded()) return this.concludeUnfinished(answer, turn)
-      EditEngine.logIteration(iteration, answer.value, EditEngine.pathOf(turnRepository))
+      EditEngine.logIteration(
+        iteration,
+        answer.value,
+        EditEngine.pathOf(turnRepository),
+        Date.now() - askedAt,
+      )
       if (answer.value.isText())
         return this.concludeUtterance(
           answer.value.content,
@@ -90,19 +95,18 @@ export class EditEngine {
           turnRepository.editEnd(),
         )
       await this.executeToolCalls(answer.value.calls, turn)
-      iterations.spend()
+      iterations.spend(answer.value.calls.length)
       if (iterations.justRanLow()) this.turnProgressPublisher.runningLow(iterations.warning())
     }
-    return EditEngine.concludeExhausted(turnRepository)
+    return EditEngine.concludeExhausted()
   }
 
-  // Names what the steps went on rather than only the cap they hit: a turn that
-  // spent them asking questions and one that spent them retrying an edit fail
-  // identically otherwise.
-  private static concludeExhausted(turnRepository: TurnRepository): Outcome<string> {
+  // Points at the steps list rather than repeating it: every step is numbered
+  // there, so where the turn went is already on screen.
+  private static concludeExhausted(): Outcome<string> {
     return Outcomes.failure(
       'chat',
-      `Owl ran out of steps for this turn after ${IterationBudget.max()} (${turnRepository.budget.describeSpend()}). Try a smaller instruction, or say which note to use.`,
+      `Owl ran out of steps for this turn after ${IterationBudget.max()}. The steps list shows where they went. Try a smaller instruction, or say which note to use.`,
     )
   }
 
@@ -131,9 +135,16 @@ export class EditEngine {
 
   // The only record of why a turn spent its iterations: the panel shows commands
   // and answers, but not the edits the model retried or the note it aimed at.
-  private static logIteration(iteration: number, turn: ChatTurn, path: string): void {
+  // The wait is logged with them, since a turn that feels slow is one model call
+  // taking its time rather than the loop doing work between them.
+  private static logIteration(
+    iteration: number,
+    turn: ChatTurn,
+    path: string,
+    waitedMs: number,
+  ): void {
     const calls = turn.isText() ? 'text' : turn.calls.map((call) => call.name).join(', ')
-    console.debug(`[owl] iteration ${iteration + 1} on ${path}:`, calls)
+    console.debug(`[owl] iteration ${iteration + 1} on ${path}: ${calls} (${waitedMs}ms)`)
   }
 
   private static pathOf(turnRepository: TurnRepository): string {
@@ -146,7 +157,6 @@ export class EditEngine {
     instructions: AgentsMdChain,
     chatHistory: readonly ChatMessage[],
     signal: AbortSignal,
-    spentTools: readonly string[],
   ) {
     const standingRules = PromptBuilder.standingRules(
       skills,
@@ -165,7 +175,7 @@ export class EditEngine {
       : PromptBuilder.noNoteSnapshot(this.harnessTools.allowedCommands().length > 0, today)
     return this.modelProvider.complete(
       [standingRules, ...chatHistory, noteSnapshot],
-      this.harnessTools.schemas(spentTools),
+      this.harnessTools.schemas(skills.length > 0),
       signal,
     )
   }

@@ -1,22 +1,19 @@
 import { Notice } from 'obsidian'
 import { AgentsMdChain } from '../agents/agents-md-chain'
 import { InstructionReport } from '../agents/instruction-report'
-import { InstructionListeners } from './instruction-listeners'
 import { SessionListeners } from './session-listeners'
 import { TurnProgressPublisher } from '../engine/turn-progress-publisher'
+import { TurnStep } from '../engine/models/turn-step'
 
-// Where each thing a turn narrates lands: two become panel entries, one names
-// the target note in the header (FR19), and a resolved chain also reaches a
-// Notice and the console.
+// Where each thing a turn narrates lands. A skill and a resolved chain join the
+// numbered steps rather than sitting beside them, so the list reads in the order
+// the turn actually ran. A drop also reaches a Notice and the console.
 export class SessionProgress {
   // A command that retargets resolves the chain again, so the last report is
   // held to keep an unchanged chain from printing twice.
   private lastReported: InstructionReport | null = null
 
-  constructor(
-    private session: SessionListeners,
-    private instructions: InstructionListeners,
-  ) {}
+  constructor(private session: SessionListeners) {}
 
   publisher(): TurnProgressPublisher {
     return new TurnProgressPublisher(
@@ -24,15 +21,21 @@ export class SessionProgress {
       (text, sources) => this.session.answers.publish({ text, sources }),
       (path) => this.session.retargets.publish(path),
       (chain) => this.reportInstructions(chain),
-      (name) => this.session.commandRuns.publish(`Skill applied: ${name}`),
+      // Published as a step rather than a line beside the list: loading a skill
+      // is one of the things the turn did, and its place in the order is what
+      // says whether it happened before the edit.
+      (name) => this.publishStep(TurnStep.skillLoaded(name)),
       (text) => this.session.warnings.publish(text),
-      (step) =>
-        this.session.steps.publish({
-          label: step.label,
-          detail: step.detail,
-          refused: step.refused,
-        }),
+      (step) => this.publishStep(step),
     )
+  }
+
+  private publishStep(step: TurnStep): void {
+    this.session.steps.publish({
+      label: step.label,
+      detail: step.detail,
+      refused: step.refused,
+    })
   }
 
   // The three channels a drop reaches the user through: the panel entry, one
@@ -41,7 +44,7 @@ export class SessionProgress {
   private reportInstructions(chain: AgentsMdChain): void {
     const report = InstructionReport.of(chain)
     if (report.isEmpty() || report.sameAs(this.lastReported)) return
-    this.instructions.publish(report.panelText())
+    this.publishStep(TurnStep.instructionsApplied(report.stepText()))
     this.lastReported = report
     if (!chain.hasDrops()) return
     new Notice(report.noticeText())

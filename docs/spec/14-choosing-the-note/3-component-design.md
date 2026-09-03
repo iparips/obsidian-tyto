@@ -50,12 +50,12 @@ position in the dispatcher, same construction per turn, same cancellation.
 The tool asks the user to decide which note, so it is named for deciding rather
 than for permitting.
 
-| Candidate name    | Why not                                              |
-| ----------------- | ---------------------------------------------------- |
-| request_approval  | Approval is what the pick implies, not what it is     |
-| confirm_note      | Confirming is judging one guess, which is what goes   |
-| ask_which_note    | Reads as a question, and ask_user already is one      |
-| choose_note       | The user chooses; the model offers                    |
+| Candidate name   | Why not                                             |
+| ---------------- | --------------------------------------------------- |
+| request_approval | Approval is what the pick implies, not what it is   |
+| confirm_note     | Confirming is judging one guess, which is what goes |
+| ask_which_note   | Reads as a question, and ask_user already is one    |
+| choose_note      | The user chooses; the model offers                  |
 
 choose_note it is (FR1). The model offers, the user chooses, and the name says
 which side does which.
@@ -69,10 +69,10 @@ second records consent.
 
 OpenApproval (Engine) goes. Its three pieces land differently.
 
-| OpenApproval held      | Becomes                                           |
-| ---------------------- | ------------------------------------------------- |
-| The parked yes/no       | NoteChoice's parked pick, over the same PendingAnswer |
-| The per-path grant set  | ChosenNotes, turn-scoped rather than session-scoped |
+| OpenApproval held       | Becomes                                                          |
+| ----------------------- | ---------------------------------------------------------------- |
+| The parked yes/no       | NoteChoice's parked pick, over the same PendingAnswer            |
+| The per-path grant set  | ChosenNotes, turn-scoped rather than session-scoped              |
 | The auto-mode granted() | NoteChoice.automatic(), which chooses the first candidate (FR13) |
 
 ```typescript
@@ -110,26 +110,26 @@ shortlist gives it several, and the first is the model's own best guess.
 Deleting the confirmation reaches sixteen production files, and the compile
 errors are the smaller half.
 
-| File                                    | Change                                        |
-| --------------------------------------- | --------------------------------------------- |
-| `engine/open-approval.ts` and its test    | Deleted, replaced by note-choice.ts            |
-| `session/approval-repository.ts` and its test | Deleted; ChosenNotes replaces it at turn scope |
-| `engine/tool-dispatcher.ts`               | Holds NoteChoice; openModelChosenNote checks holds rather than granting |
-| `engine/turn-factory.ts`                  | buildOpenApproval becomes buildNoteChoice; TurnAskers renames its field |
-| `engine/engine-factory.ts`                | EngineAskers renames openApproval to noteChoice |
-| `session/turn-askers.ts`                  | openApproval becomes noteChoice; drops the ApprovalRepository it held |
-| `session/session-builder.ts`              | Renames the asker it wires, and onOpenRequested to onChoiceRequested |
-| `session/models/panel-action.ts`          | openRequested and openAnswered become choiceRequested and choiceAnswered |
-| `session/models/panel-state.ts`           | The confirm entry kind becomes choice; the confirming phase becomes choosing |
-| `session/models/asked-entries.ts`         | settledConfirm becomes settledChoice, naming the pick rather than a yes |
-| `session/models/entry-weight.ts`          | The confirm weight is keyed choice                |
-| `session/views/EntryConfirm.tsx`          | Becomes EntryChoice.tsx: a list of paths and a decline |
-| `session/views/HistoryEntry.tsx`          | Renders EntryChoice; onAnswerOpen becomes onChooseNote |
-| `session/views/HistoryList.tsx`           | Threads the renamed prop                       |
-| `session/views/SessionPanel.tsx`          | settleOpen becomes settleChoice, carrying a path or null |
-| `session/views/useParkedAnswers.ts`       | The held resolver returns a path or null rather than a boolean |
-| `test-support/builders.ts`                | anEngine's openApproval option becomes noteChoice |
-| `styles.css`                              | owl-entry-confirm becomes owl-entry-choice, stacked rather than a row |
+| File                                          | Change                                                                       |
+| --------------------------------------------- | ---------------------------------------------------------------------------- |
+| `engine/open-approval.ts` and its test        | Deleted, replaced by note-choice.ts                                          |
+| `session/approval-repository.ts` and its test | Deleted; ChosenNotes replaces it at turn scope                               |
+| `engine/tool-dispatcher.ts`                   | Holds NoteChoice; openModelChosenNote checks holds rather than granting      |
+| `engine/turn-factory.ts`                      | buildOpenApproval becomes buildNoteChoice; TurnAskers renames its field      |
+| `engine/engine-factory.ts`                    | EngineAskers renames openApproval to noteChoice                              |
+| `session/turn-askers.ts`                      | openApproval becomes noteChoice; drops the ApprovalRepository it held        |
+| `session/session-builder.ts`                  | Renames the asker it wires, and onOpenRequested to onChoiceRequested         |
+| `session/models/panel-action.ts`              | openRequested and openAnswered become choiceRequested and choiceAnswered     |
+| `session/models/panel-state.ts`               | The confirm entry kind becomes choice; the confirming phase becomes choosing |
+| `session/models/asked-entries.ts`             | settledConfirm becomes settledChoice, naming the pick rather than a yes      |
+| `session/models/entry-weight.ts`              | The confirm weight is keyed choice                                           |
+| `session/views/EntryConfirm.tsx`              | Becomes EntryChoice.tsx: a list of paths and a decline                       |
+| `session/views/HistoryEntry.tsx`              | Renders EntryChoice; onAnswerOpen becomes onChooseNote                       |
+| `session/views/HistoryList.tsx`               | Threads the renamed prop                                                     |
+| `session/views/SessionPanel.tsx`              | settleOpen becomes settleChoice, carrying a path or null                     |
+| `session/views/useParkedAnswers.ts`           | The held resolver returns a path or null rather than a boolean               |
+| `test-support/builders.ts`                    | anEngine's openApproval option becomes noteChoice                            |
+| `styles.css`                                  | owl-entry-confirm becomes owl-entry-choice, stacked rather than a row        |
 
 The settling is the piece to get right. AskedEntries (Session) turns a pending
 entry into a record of what happened, and a choice has three outcomes where a
@@ -145,12 +145,12 @@ around the seen-path guard by proposing a fabricated path, having the user pick
 it, and opening it with the pick as consent. The user would be approving a note
 that does not exist.
 
-| Shortlist                        | Shown                | Model told                    |
-| -------------------------------- | -------------------- | ----------------------------- |
-| Every path seen                  | All of them          | The chosen path               |
-| Some paths unseen                | The seen ones        | The chosen path               |
-| No path seen                     | Nothing; no park     | Which paths no search returned |
-| Empty list                       | Nothing; no park     | To search before choosing      |
+| Shortlist         | Shown            | Model told                     |
+| ----------------- | ---------------- | ------------------------------ |
+| Every path seen   | All of them      | The chosen path                |
+| Some paths unseen | The seen ones    | The chosen path                |
+| No path seen      | Nothing; no park | Which paths no search returned |
+| Empty list        | Nothing; no park | To search before choosing      |
 
 An unseen path is dropped rather than refusing the whole call, because a model
 that shortlists four notes and misremembers one should still get its pick. Only
@@ -198,14 +198,14 @@ to something unstated.
 
 ## What the Model Reads Back
 
-| Case                    | Returns                                                    |
-| ----------------------- | ---------------------------------------------------------- |
-| The user picked one     | `the user chose <path>; open it with open_note` (FR4)        |
-| The user declined all    | `the user declined every note offered; ask them what they meant rather than searching again` (FR6, FR7) |
-| No candidate was seen   | `no search returned <paths>; search before offering them`    |
-| The list was empty      | `offer at least one path a search returned`                  |
-| Over the cap            | `offer at most 8 notes; narrow your search first` (FR15)     |
-| The turn was cancelled  | The cancelled result every other tool returns                |
+| Case                   | Returns                                                                                                 |
+| ---------------------- | ------------------------------------------------------------------------------------------------------- |
+| The user picked one    | `the user chose <path>; open it with open_note` (FR4)                                                   |
+| The user declined all  | `the user declined every note offered; ask them what they meant rather than searching again` (FR6, FR7) |
+| No candidate was seen  | `no search returned <paths>; search before offering them`                                               |
+| The list was empty     | `offer at least one path a search returned`                                                             |
+| Over the cap           | `offer at most 8 notes; narrow your search first` (FR15)                                                |
+| The turn was cancelled | The cancelled result every other tool returns                                                           |
 
 The decline line names the next move (FR7). A model told only "declined" retries
 the search, which is the loop this replaces; a model told to ask reaches for
@@ -283,12 +283,12 @@ What changes is the wording the user reads. The checkbox says Owl shows you the
 notes it found and waits for you to pick one, rather than that it shows you the
 note and waits for you to approve.
 
-| Piece                        | Today                          | Becomes                        |
-| ---------------------------- | ------------------------------ | ------------------------------ |
-| Stored value                 | 'confirm' or 'auto'            | Unchanged                      |
-| Default                      | 'confirm'                      | Unchanged                      |
-| Checkbox label               | Ask before opening a note Owl found itself | Ask which note Owl should open |
-| Accessible name              | Confirm notes Owl chooses      | Choose the note Owl opens      |
+| Piece           | Today                                      | Becomes                        |
+| --------------- | ------------------------------------------ | ------------------------------ |
+| Stored value    | 'confirm' or 'auto'                        | Unchanged                      |
+| Default         | 'confirm'                                  | Unchanged                      |
+| Checkbox label  | Ask before opening a note Owl found itself | Ask which note Owl should open |
+| Accessible name | Confirm notes Owl chooses                  | Choose the note Owl opens      |
 
 Renaming the type to ChoiceMode would touch the settings file, the panel and
 every reader for no behaviour change, and a stored value that no longer matches
@@ -310,8 +310,8 @@ remove.
 The confirm entry becomes a choice entry: the purpose line, then one row per
 candidate, then a decline.
 
-| Entry kind today | Becomes                                       |
-| ---------------- | --------------------------------------------- |
+| Entry kind today | Becomes                                               |
+| ---------------- | ----------------------------------------------------- |
 | confirm          | choice, holding the candidates and the purpose (FR12) |
 
 Each row is a full vault-root path (FR3), and every candidate is a row, a

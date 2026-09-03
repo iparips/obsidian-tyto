@@ -1,18 +1,25 @@
 import { useEffect, useRef } from 'react'
 import { PanelAction } from '../models/panel-action'
 
+// What the engine parks on: which notes it found, and what the pick is for.
+export interface ChoiceRequest {
+  candidates: readonly string[]
+  purpose: string
+}
+
 export interface QuestionRequest {
   question: string
   suggestions: readonly string[]
 }
 
 export interface ParkedAnswerPorts {
-  onOpenRequested?(listener: (path: string) => Promise<boolean>): () => void
+  onChoiceRequested?(listener: (request: ChoiceRequest) => Promise<string | null>): () => void
   onQuestionAsked?(listener: (request: QuestionRequest) => Promise<string>): () => void
 }
 
 export interface ParkedAnswers {
-  settleOpen(granted: boolean): void
+  // A path when the user picked one, null when they declined every candidate.
+  settleChoice(chosen: string | null): void
   settleQuestion(answer: string): void
 }
 
@@ -23,14 +30,18 @@ export const useParkedAnswers = (
   ports: ParkedAnswerPorts,
   dispatch: (action: PanelAction) => void,
 ): ParkedAnswers => {
-  const answerOpen = useRef<((granted: boolean) => void) | null>(null)
+  const answerChoice = useRef<((chosen: string | null) => void) | null>(null)
   const answerQuestion = useRef<((answer: string) => void) | null>(null)
 
   useEffect(
     () =>
-      ports.onOpenRequested?.((path) => {
-        dispatch({ type: 'openRequested', path })
-        return new Promise<boolean>((resolve) => (answerOpen.current = resolve))
+      ports.onChoiceRequested?.((request) => {
+        dispatch({
+          type: 'choiceRequested',
+          candidates: [...request.candidates],
+          purpose: request.purpose,
+        })
+        return new Promise<string | null>((resolve) => (answerChoice.current = resolve))
       }),
     [],
   )
@@ -51,8 +62,8 @@ export const useParkedAnswers = (
   // Settled rather than left hanging: an unsettled promise parks the loop and
   // the session never returns to idle (FR29).
   return {
-    settleOpen: (granted) =>
-      settle(answerOpen, granted, () => dispatch({ type: 'openAnswered', granted })),
+    settleChoice: (chosen) =>
+      settle(answerChoice, chosen, () => dispatch({ type: 'choiceAnswered', chosen })),
     settleQuestion: (answer) =>
       settle(answerQuestion, answer, () => dispatch({ type: 'questionAnswered' })),
   }

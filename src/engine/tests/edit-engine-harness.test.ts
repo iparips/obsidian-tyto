@@ -36,6 +36,7 @@ describe('EditEngine', () => {
   let noteLocator: FakeNoteLocator
   let sessions: SessionRepository
   let commands: string[]
+  let steps: string[]
   let answers: { text: string; sources: string[] }[]
   let retargets: string[]
 
@@ -49,6 +50,7 @@ describe('EditEngine', () => {
     vault = new FakeVault()
     adapter = new FakeAdapter()
     commands = []
+    steps = []
     answers = []
     retargets = []
     sessions = aSession()
@@ -94,7 +96,9 @@ describe('EditEngine', () => {
           (text, sources) => answers.push({ text, sources }),
           (path) => retargets.push(path),
           () => undefined,
-          (name) => commands.push(`Skill applied: ${name}`),
+          (name) => steps.push(`Loaded skill: ${name}`),
+          () => undefined,
+          (step) => steps.push(`${step.label}: ${step.detail}`),
         ),
       },
     )
@@ -145,7 +149,20 @@ describe('EditEngine', () => {
 
       await engineOf().processUtterance('open my daily note')
 
-      expect(commands).toEqual([`ran Open today; the session is now editing ${DAILY}`])
+      expect(steps).toContain(`Ran command: Open today — now editing ${DAILY}`)
+    })
+
+    // The command entry once landed after the steps block, so a command that
+    // ran before an edit read as though it came after.
+    it('numbers the command before the edit that followed it', async () => {
+      respondsWith(
+        runCommand(),
+        aToolTurn(aToolCall('insert_at', { location: 'note_end', content: 'x' })),
+      )
+
+      await engineOf().processUtterance('open my daily note and add a line')
+
+      expect(steps.map((step) => step.split(':')[0])).toEqual(['Ran command', 'Edit'])
     })
   })
 
@@ -166,7 +183,7 @@ describe('EditEngine', () => {
 
       await engineOf().processUtterance('run the command')
 
-      expect(commands).toEqual(['ran Open today; no note opened, still editing the same note'])
+      expect(steps).toContain('Ran command: Open today')
     })
   })
 
@@ -331,71 +348,6 @@ describe('EditEngine', () => {
         'insert_at',
         'load_skill',
       ])
-    })
-  })
-
-  describe('when a flow is spent', () => {
-    it('stops offering run_command once the command cap is reached', async () => {
-      respondsWith(runCommand(), runCommand(), runCommand())
-
-      await engineOf().processUtterance('run them all')
-
-      expect(complete.mock.calls[3][1].map((schema) => schema.name)).not.toContain('run_command')
-    })
-
-    it('keeps offering the search tools when only the command cap is reached', async () => {
-      respondsWith(runCommand(), runCommand(), runCommand())
-
-      await engineOf().processUtterance('run them all')
-
-      expect(complete.mock.calls[3][1].map((schema) => schema.name)).toContain('glob_notes')
-    })
-  })
-
-  describe('when the turn exceeds a per-turn cap', () => {
-    it('refuses a fourth command when the command cap is reached', async () => {
-      respondsWith(runCommand(), runCommand(), runCommand(), runCommand())
-
-      await engineOf().processUtterance('run them all')
-
-      const results = complete.mock.calls[4][0].filter((m: ChatMessage) => m.isToolResult())
-      expect(results[3]).toMatchObject({
-        content: 'this turn has already run 3 commands; run no more',
-      })
-    })
-
-    it('stops offering glob_notes once the glob budget is spent', async () => {
-      const glob = () => aToolTurn(aToolCall('glob_notes', { pattern: 'Quotes/*.md' }))
-      respondsWith(glob(), glob(), glob())
-
-      await engineOf().processUtterance('list them over and over')
-
-      expect(complete.mock.calls[3][1].map((schema) => schema.name)).not.toContain('glob_notes')
-    })
-
-    it('refuses a fourth glob when the glob cap is reached', async () => {
-      const glob = () => aToolTurn(aToolCall('glob_notes', { pattern: 'Quotes/*.md' }))
-      respondsWith(glob(), glob(), glob(), glob())
-
-      await engineOf().processUtterance('list them over and over')
-
-      const results = complete.mock.calls[4][0].filter((m: ChatMessage) => m.isToolResult())
-      expect(results[3]).toMatchObject({
-        content: 'this turn has already listed 3 times; work from the paths you have',
-      })
-    })
-
-    it('refuses a fifth read when the search cap is reached', async () => {
-      vault.withNote('Quotes/roofing.md', 'the roofing quote came to 12k')
-      const read = () => aToolTurn(aToolCall('read_note', { path: 'Quotes/roofing.md' }))
-      respondsWith(read(), read(), read(), read(), read())
-
-      await engineOf().processUtterance('read it over and over')
-
-      const results = complete.mock.calls[5][0].filter((m: ChatMessage) => m.isToolResult())
-      expect(results[4]).toMatchObject({
-        content: 'this turn has already searched or read 4 times; answer from what you have',
-      })
     })
   })
 

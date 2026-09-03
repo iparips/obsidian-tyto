@@ -61,18 +61,27 @@ export class RuleBuilder {
       'Decline a command whose effect you cannot determine from its name. Say which command',
       'you declined and why, and run nothing instead.',
       'When an utterance names a destination, prefer a listed command that opens it.',
+      'A command only opens the note. When a skill above matches the utterance, load it',
+      'first and let its steps say what to do once the note is open.',
       'Search for the note only when no listed command reaches it, then open what you found.',
     ].join('\n')
   }
 
   // Stated where the routes are, so the model reads what to exhaust before it
   // reaches for the question rather than treating asking as a first move (FR31).
+  // Which note the user meant is choose_note's question, not this one: a
+  // shortlist offered here would be prose, and nothing would record the consent.
   static questionRules(): string {
     return [
       'You can ask the user one question and act on their answer in the same turn.',
       'Ask only when no listed command and no search resolves what the instruction named:',
-      'when several notes match equally, when none does, or when the instruction itself is unclear.',
-      'Offer suggestions when you have candidates, so the user picks rather than types.',
+      'when a search finds nothing, or when the instruction itself is unclear.',
+      'Never ask which of several notes the user meant. That is choose_note: search,',
+      'then offer what you found. Ask only once they have declined every one.',
+      'Never ask permission to do what the user already asked for. They said what they',
+      'wanted; carry it out. Offering the note with choose_note is how you check which',
+      'note they meant, and it is not a question you write in prose.',
+      'Offer suggestions when the answer is not a note, so the user picks rather than types.',
     ].join('\n')
   }
 
@@ -83,14 +92,34 @@ export class RuleBuilder {
     return [
       'Reach a note in this order: run a listed command that opens it; glob for its',
       'path when you know roughly where it lives; grep for text you expect it to',
-      'contain; read it only once you know which note you mean.',
+      'contain; offer what you found with choose_note; open what the user picked.',
+      'Search first and ask later. Never ask the user where a note is before globbing',
+      'or grepping for it: the search is what gives you something to offer.',
+      'Never open a note the user has not picked. Offer even a single candidate:',
+      'you are asking which note they meant, not whether to proceed.',
+      'When an open is refused because the user has not chosen the note, call',
+      'choose_note with that path and carry on. Do not stop to ask them in prose:',
+      'the refusal is telling you which tool to use, not that you need permission.',
+      'Once the user picks a note you must still call open_note on it. Choosing says',
+      'which note; opening is what makes it the one the edit tools write to. An edit',
+      'before the open lands nowhere, however sure you are the note is already there.',
       'Glob before you guess a filename. A folder listing shows the naming convention,',
       'and a guessed name that matches nothing tells you nothing.',
+      'Your first glob for a note ends in /* so it lists a whole folder: the * goes',
+      'straight after a slash, never after part of a name. Read the names it returns,',
+      'then pick from them. Never spell out a date or a title you have not seen: you do',
+      'not know whether a vault writes 08-28, 28-08 or 2026-08-28.',
+      'A glob matches notes, never folders. To find which folders exist, glob the level',
+      'below with ** and read the folder names out of the paths it returns.',
+      'A glob that matches nothing means the pattern is wrong, not that the note is',
+      'missing. Widen it, never retry the same shape with the parts reordered.',
       'Searching never changes the note you edit, and no tool writes a search result',
       'into a note.',
       'Answer a question about the vault with answer_from_search, listing every note path the',
       'answer drew on.',
       'When a search finds nothing, say so. Never answer such a question from your own knowledge.',
+      'Only after the user declines every note you offered, ask them what they meant',
+      'rather than running the same search again.',
     ].join('\n')
   }
 }

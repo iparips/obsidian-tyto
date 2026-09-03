@@ -240,11 +240,15 @@ claiming an edit.
 
 FR8. Never ask when a command opened the note, in either mode.
 
-FR12. Ask before the first model-chosen open of a turn, so a multi-step
-instruction is approved once rather than at each step.
+FR12. Superseded by
+[14-choosing-the-note](../14-choosing-the-note/1-index.md). Asked before the
+first model-chosen open of a turn. The yes/no confirmation it describes no
+longer exists: the user picks from a shortlist, and the pick is the consent.
 
-FR13. Name the candidate note in that question, with its path from the vault
-root, so the user approves a note rather than a title.
+FR13. Superseded by
+[14-choosing-the-note](../14-choosing-the-note/1-index.md). Named the candidate
+note in that question. The vault-root path survives, as the label on each
+candidate row rather than the subject of a yes/no question.
 
 ### Choosing between the two routes
 

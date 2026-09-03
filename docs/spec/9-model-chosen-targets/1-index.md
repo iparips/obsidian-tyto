@@ -1,8 +1,13 @@
 # Model-Chosen Targets: Spec
 
 Lets the model open a note it located itself, rather than only one a command
-opened. A command is still preferred where one matches, and a confirmation mode
-decides whether the model asks first.
+opened. A command is still preferred where one matches, and a mode decides
+whether the model asks first.
+
+The confirmation this built is retired by
+[14-choosing-the-note](../14-choosing-the-note/1-index.md), which replaces the
+yes/no question with a pick from a shortlist. FR12 and FR13 are the two it
+replaces; everything else here still describes shipped code.
 
 Where no route resolves the note, the model asks the user rather than guessing.
 A notice says the turn wants them, so a question on a phone is not left behind a

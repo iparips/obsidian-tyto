@@ -32,9 +32,9 @@ describe('EntryWeights', () => {
     })
   })
 
-  describe('when the entry asks the user to approve a note', () => {
-    it('weighs a confirm entry as a reply, not as context', () => {
-      expect(EntryWeights.of('confirm')).toBe('reply')
+  describe('when the entry asks the user which note they meant', () => {
+    it('weighs a choice entry as a reply, not as context', () => {
+      expect(EntryWeights.of('choice')).toBe('reply')
     })
 
     it('weighs a question entry as a reply, not as context', () => {

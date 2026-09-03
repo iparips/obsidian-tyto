@@ -28,7 +28,7 @@ describe('TurnRepository', () => {
     })
 
     it('starts with an unspent budget', () => {
-      expect(turn.budget.takeCommand()).toBe(true)
+      expect(turn.budget.canOpen('Journal/todo.md')).toBe(true)
     })
 
     it('reports itself bound when it holds a note', () => {

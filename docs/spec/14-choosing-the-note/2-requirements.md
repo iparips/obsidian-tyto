@@ -69,10 +69,10 @@ no way to let them.
 
 ## One choice, not two questions
 
-| Today                        | Answers          | Leaves open              |
-| ---------------------------- | ---------------- | ------------------------ |
-| Confirmation: "open this?"   | Consent          | Which note the user meant |
-| ask_user: "which one?"       | Identification   | Whether it may be written |
+| Today                      | Answers        | Leaves open               |
+| -------------------------- | -------------- | ------------------------- |
+| Confirmation: "open this?" | Consent        | Which note the user meant |
+| ask_user: "which one?"     | Identification | Whether it may be written |
 
 One tool answers both, because the answer to both is a path. A user who points
 at Week-35's Friday note has said which note and said yes in the same act.
@@ -86,10 +86,10 @@ on it rather than guessing which way the no pointed.
 Two facts with two lifetimes, kept apart because collapsing them is what made
 the failure confusing.
 
-| Fact                  | Scope   | Why                                              |
-| --------------------- | ------- | ------------------------------------------------ |
+| Fact                   | Scope   | Why                                                                       |
+| ---------------------- | ------- | ------------------------------------------------------------------------- |
 | The model found a note | Session | Finding is knowledge, and it does not go stale in a way a re-search fixes |
-| The user chose a note  | Turn    | Consent is about the write in front of them, not every later write |
+| The user chose a note  | Turn    | Consent is about the write in front of them, not every later write        |
 
 A session-scoped choice would let one yes license every future edit to that
 note. A turn-scoped find would make the model re-search a note the user watched

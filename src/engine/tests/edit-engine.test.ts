@@ -231,6 +231,80 @@ describe('EditEngine', () => {
     const engineWithTodoSkill = () =>
       engineReading(new FakeAdapter().withSkill(`${SKILLS_PATH}/todo`, todoSource))
 
+    // Ordering, not relevance: the harness never decides which skill applies. It
+    // refuses the first edit until the model has said which one does, or that
+    // none does. Both answers are the model's own.
+    describe('when the model edits before checking the skills', () => {
+      const edits = () =>
+        aToolTurn(aToolCall('insert_at', { location: 'note_start', content: 'hi\n' }))
+
+      it('refuses the edit until the model has checked the skills', async () => {
+        complete
+          .mockResolvedValueOnce(Outcomes.success(edits()))
+          .mockResolvedValue(Outcomes.success(aTextTurn('done')))
+
+        await engineWithTodoSkill().processUtterance('add a line')
+
+        expect(editor.content).toBe('# Budget\n\nbody')
+      })
+
+      it('names both ways to answer, so the model is never stuck', async () => {
+        complete
+          .mockResolvedValueOnce(Outcomes.success(edits()))
+          .mockResolvedValue(Outcomes.success(aTextTurn('done')))
+
+        await engineWithTodoSkill().processUtterance('add a line')
+
+        const results = complete.mock.calls[1][0].filter((m: ChatMessage) => m.isToolResult())
+        expect(results.at(-1)).toMatchObject({
+          content:
+            'this vault defines skills and you have not checked them; call load_skill for the one that covers this, or no_skill_applies if none does, then edit',
+        })
+      })
+
+      it('applies the edit once a skill has been loaded', async () => {
+        complete
+          .mockResolvedValueOnce(
+            Outcomes.success(aToolTurn(aToolCall('load_skill', { name: 'todo' }))),
+          )
+          .mockResolvedValueOnce(Outcomes.success(edits()))
+          .mockResolvedValue(Outcomes.success(aTextTurn('done')))
+
+        await engineWithTodoSkill().processUtterance('add a line')
+
+        expect(editor.content).toBe('hi\n# Budget\n\nbody')
+      })
+
+      it('applies the edit once the model says no skill applies', async () => {
+        complete
+          .mockResolvedValueOnce(
+            Outcomes.success(
+              aToolTurn(aToolCall('no_skill_applies', { reason: 'plain dictation' })),
+            ),
+          )
+          .mockResolvedValueOnce(Outcomes.success(edits()))
+          .mockResolvedValue(Outcomes.success(aTextTurn('done')))
+
+        await engineWithTodoSkill().processUtterance('add a line')
+
+        expect(editor.content).toBe('hi\n# Budget\n\nbody')
+      })
+
+      it('refuses only once, so a turn is not blocked twice on one question', async () => {
+        complete
+          .mockResolvedValueOnce(Outcomes.success(edits()))
+          .mockResolvedValueOnce(
+            Outcomes.success(aToolTurn(aToolCall('no_skill_applies', { reason: 'none' }))),
+          )
+          .mockResolvedValueOnce(Outcomes.success(edits()))
+          .mockResolvedValue(Outcomes.success(aTextTurn('done')))
+
+        await engineWithTodoSkill().processUtterance('add a line')
+
+        expect(editor.content).toBe('hi\n# Budget\n\nbody')
+      })
+    })
+
     it('returns the skill body as a tool result when load_skill names a skill', async () => {
       const withSkills = engineWithTodoSkill()
       complete

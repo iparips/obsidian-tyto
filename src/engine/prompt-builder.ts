@@ -130,6 +130,12 @@ export class PromptBuilder {
       'This vault defines the skills below. When an utterance matches one, follow its',
       'workflow rather than improvising.',
       "Call load_skill to read a skill's steps before following it; the line below is only a summary.",
+      'Answer the skill question before your first edit: call load_skill for the one',
+      'that covers this, or no_skill_applies when none does. You decide which applies;',
+      'the edit tools refuse until you have said. The summary says when a skill applies,',
+      'never how to carry it out, so editing without loading it skips steps silently.',
+      'Reaching the right note is not the same as doing the work. If a skill matched,',
+      'follow its steps even when a command has already opened the note it names.',
       ...PromptBuilder.skillReachRules(canLeaveNote),
     ].join('\n')
   }

@@ -69,7 +69,7 @@ export class SessionBuilder {
       onStep: (listener) => session.steps.subscribe(listener),
       onAnswer: (listener) => session.answers.subscribe(listener),
       onTargetNoteChanged: (listener) => session.retargets.subscribe(listener),
-      onOpenRequested: (listener) => askers.opens.subscribe(listener),
+      onChoiceRequested: (listener) => askers.choices.subscribe(listener),
       onQuestionAsked: (listener) => askers.questions.subscribe(listener),
       onTurnFinished: (summary) => notices.finished(summary),
       onTurnFailed: (message) => notices.failed(message),
@@ -97,9 +97,9 @@ export class SessionBuilder {
     const engine = this.engineFactory.build(
       modelProvider,
       file,
-      new SessionProgress(session, listeners).publisher(),
+      new SessionProgress(session).publisher(),
       {
-        openApproval: (cancellation) => askers.openApproval(cancellation),
+        noteChoice: (cancellation, chosen) => askers.noteChoice(cancellation, chosen),
         userQuestion: (cancellation) => askers.userQuestion(cancellation),
       },
     )
@@ -120,7 +120,7 @@ type EnginePanelProps = Pick<
   | 'onStep'
   | 'onAnswer'
   | 'onTargetNoteChanged'
-  | 'onOpenRequested'
+  | 'onChoiceRequested'
   | 'onQuestionAsked'
   | 'onTurnFinished'
   | 'onTurnFailed'

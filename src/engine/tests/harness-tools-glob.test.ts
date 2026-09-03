@@ -26,7 +26,7 @@ describe('HarnessTools', () => {
 
   beforeEach(() => {
     vault = new FakeVault().withNote(FRIDAY, 'friday').withNote(THURSDAY, 'thursday')
-    turn = { budget: new TurnBudget(), seenPaths: new SeenPaths() }
+    turn = { budget: new TurnBudget(), seenPaths: new SeenPaths(), searchRan: () => undefined }
   })
 
   const toolsOf = (searchEnabled = true): HarnessTools => {
@@ -100,30 +100,6 @@ describe('HarnessTools', () => {
       expect(harnessResult.result).toContain(
         'showing the first 50 of 55; narrow the pattern to see the rest',
       )
-    })
-  })
-
-  describe('when the glob budget is spent', () => {
-    beforeEach(async () => {
-      await glob(`${WEEK}/*.md`)
-      await glob(`${WEEK}/*.md`)
-      await glob(`${WEEK}/*.md`)
-    })
-
-    it('refuses a glob when the glob budget is spent, naming the cap', async () => {
-      const harnessResult = await glob(`${WEEK}/*.md`)
-
-      expect(harnessResult.result).toBe(
-        'this turn has already listed 3 times; work from the paths you have',
-      )
-    })
-
-    it('omits glob_notes from the schemas once its budget is spent', () => {
-      expect(namesOf(toolsOf(), turn.budget.spentTools())).not.toContain('glob_notes')
-    })
-
-    it('keeps read_note offered when only the glob budget is spent', () => {
-      expect(namesOf(toolsOf(), turn.budget.spentTools())).toContain('read_note')
     })
   })
 

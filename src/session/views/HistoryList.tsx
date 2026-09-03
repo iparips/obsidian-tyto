@@ -5,14 +5,14 @@ import { Entry, Phase } from '../models/panel-state'
 export interface HistoryListProps {
   entries: Entry[]
   phase: Phase
-  onAnswerOpen?(granted: boolean): void
+  onChooseNote?(chosen: string | null): void
   onPickSuggestion?(suggestion: string): void
 }
 
 export const HistoryList = ({
   entries,
   phase,
-  onAnswerOpen,
+  onChooseNote,
   onPickSuggestion,
 }: HistoryListProps) => (
   <div className="owl-history">
@@ -20,7 +20,7 @@ export const HistoryList = ({
       <HistoryEntry
         key={index}
         entry={entry}
-        onAnswerOpen={onAnswerOpen}
+        onChooseNote={onChooseNote}
         onPickSuggestion={onPickSuggestion}
       />
     ))}

@@ -401,19 +401,27 @@ describe('SessionPanel', () => {
     })
   })
 
-  describe('when the model asks to open a note it found', () => {
-    let askPanel: (path: string) => Promise<boolean>
-    const onOpenRequested = (listener: (path: string) => Promise<boolean>) => {
+  describe('when the model asks which note it should open', () => {
+    let askPanel: (request: {
+      candidates: readonly string[]
+      purpose: string
+    }) => Promise<string | null>
+    const onChoiceRequested = (
+      listener: (request: {
+        candidates: readonly string[]
+        purpose: string
+      }) => Promise<string | null>,
+    ) => {
       askPanel = listener
       return () => undefined
     }
 
     // The turn is parked on this promise, so the test holds it the way the
     // engine does and asserts what the panel does while it waits.
-    const requestOpen = (path = 'Lists/todo.md') => {
-      let answer: Promise<boolean> = Promise.resolve(false)
+    const requestChoice = (candidates = ['Lists/todo.md', 'Lists/shopping.md']) => {
+      let answer: Promise<string | null> = Promise.resolve(null)
       act(() => {
-        answer = askPanel(path)
+        answer = askPanel({ candidates, purpose: 'add toilet paper' })
       })
       return answer
     }
@@ -422,66 +430,86 @@ describe('SessionPanel', () => {
     // does while the engine waits on the model.
     beforeEach(() => {
       processUtterance.mockReturnValue(new Promise<Outcome<string>>(() => undefined))
-      renderPanel({ onOpenRequested })
+      renderPanel({ onChoiceRequested })
     })
 
-    it('names the note with its full path when an open is requested', async () => {
-      requestOpen()
+    it('says what the pick is for when a shortlist is offered', async () => {
+      requestChoice()
 
-      expect(screen.getByText('Open Lists/todo.md and edit it?')).toBeTruthy()
+      expect(screen.getByText('add toilet paper')).toBeTruthy()
     })
 
-    it('renders approve and decline controls when an open is requested', async () => {
-      requestOpen()
+    it('names every candidate with its full path when a shortlist is offered', async () => {
+      requestChoice()
 
-      expect(screen.getByRole('button', { name: 'Approve open' })).toBeTruthy()
-      expect(screen.getByRole('button', { name: 'Decline open' })).toBeTruthy()
+      expect(screen.getByRole('button', { name: 'Choose Lists/todo.md' })).toBeTruthy()
+      expect(screen.getByRole('button', { name: 'Choose Lists/shopping.md' })).toBeTruthy()
     })
 
-    it('answers granted when approve is clicked', async () => {
-      const answer = requestOpen()
+    it('offers a decline beside the candidates when a shortlist is offered', async () => {
+      requestChoice()
 
-      await userEvent.click(screen.getByRole('button', { name: 'Approve open' }))
-
-      expect(await answer).toBe(true)
+      expect(screen.getByRole('button', { name: 'Decline every note' })).toBeTruthy()
     })
 
-    it('answers declined when decline is clicked', async () => {
-      const answer = requestOpen()
+    it('offers the one candidate as a row when the shortlist holds one note', async () => {
+      requestChoice(['Lists/todo.md'])
 
-      await userEvent.click(screen.getByRole('button', { name: 'Decline open' }))
-
-      expect(await answer).toBe(false)
+      expect(screen.getByRole('button', { name: 'Choose Lists/todo.md' })).toBeTruthy()
     })
 
-    it('replaces the controls with the outcome once answered', async () => {
-      requestOpen()
+    it('answers the picked path when a candidate is clicked', async () => {
+      const answer = requestChoice()
 
-      await userEvent.click(screen.getByRole('button', { name: 'Approve open' }))
+      await userEvent.click(screen.getByRole('button', { name: 'Choose Lists/shopping.md' }))
 
-      expect(screen.queryByRole('button', { name: 'Approve open' })).toBeNull()
+      expect(await answer).toBe('Lists/shopping.md')
     })
 
-    it('says which way it went once answered', async () => {
-      requestOpen()
+    it('answers null when the decline is clicked', async () => {
+      const answer = requestChoice()
 
-      await userEvent.click(screen.getByRole('button', { name: 'Decline open' }))
+      await userEvent.click(screen.getByRole('button', { name: 'Decline every note' }))
 
-      expect(screen.getByText('Declined Lists/todo.md')).toBeTruthy()
+      expect(await answer).toBeNull()
     })
 
-    it('disables the input row while confirming, so no utterance queues behind it', async () => {
-      requestOpen()
+    it('replaces the rows with the outcome once answered', async () => {
+      requestChoice()
+
+      await userEvent.click(screen.getByRole('button', { name: 'Choose Lists/todo.md' }))
+
+      expect(screen.queryByRole('button', { name: 'Choose Lists/todo.md' })).toBeNull()
+    })
+
+    it('names the note the user picked once answered', async () => {
+      requestChoice()
+
+      await userEvent.click(screen.getByRole('button', { name: 'Choose Lists/todo.md' }))
+
+      expect(screen.getByText('Chose Lists/todo.md')).toBeTruthy()
+    })
+
+    it('says the shortlist was declined once declined', async () => {
+      requestChoice()
+
+      await userEvent.click(screen.getByRole('button', { name: 'Decline every note' }))
+
+      expect(screen.getByText('Declined every note offered')).toBeTruthy()
+    })
+
+    it('disables the input row while choosing, so no utterance queues behind it', async () => {
+      requestChoice()
 
       expect(screen.getByLabelText('Instruction').hasAttribute('disabled')).toBe(true)
     })
 
-    it('answers declined when the turn is cancelled while confirming', async () => {
-      const answer = requestOpen()
+    it('answers null when the turn is cancelled while choosing', async () => {
+      const answer = requestChoice()
 
       await userEvent.click(screen.getByRole('button', { name: 'Cancel' }))
 
-      expect(await answer).toBe(false)
+      expect(await answer).toBeNull()
     })
   })
 

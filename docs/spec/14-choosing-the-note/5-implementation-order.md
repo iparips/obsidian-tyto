@@ -2,18 +2,15 @@
 
 ## Status
 
-Not started. Depends on the session-scoped SeenPaths and the split open budget,
-both already landed alongside
-[10-finding-notes](../10-finding-notes/1-index.md).
-
-Verify before starting: `bun run build` passes.
+Built. Steps 1 to 11 are implemented and `bun run build` passes. The two exit
+tests are unrun: both need a real vault on desktop and mobile.
 
 ## Two commits
 
 The work splits where the user-facing change does, and each half stands alone.
 
-| Commit | Steps | Delivers                                    | Exit test        |
-| ------ | ----- | ------------------------------------------- | ---------------- |
+| Commit | Steps | Delivers                                     | Exit test        |
+| ------ | ----- | -------------------------------------------- | ---------------- |
 | First  | 1-6   | Choosing a note, and retiring the confirm    | Picking a note   |
 | Second | 7-11  | The decline, and what it steers the model to | Declining a list |
 

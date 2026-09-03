@@ -8,6 +8,7 @@ import { FakeEditor } from './fake-editor'
 // the lookup. A path with no editor fails the way a closed tab does.
 export class FakeNoteLocator extends WorkspaceNoteLocator {
   private readonly editors = new Map<string, FakeEditor>()
+  private readonly closed = new Map<string, FakeEditor>()
 
   constructor() {
     super({} as App)
@@ -16,6 +17,21 @@ export class FakeNoteLocator extends WorkspaceNoteLocator {
   withOpenNote(path: string, editor: FakeEditor): this {
     this.editors.set(path, editor)
     return this
+  }
+
+  // A note that exists in the vault but has no editor until something opens it,
+  // which is what a search-found note is before open_note runs.
+  withClosedNote(path: string, editor: FakeEditor): this {
+    this.closed.set(path, editor)
+    return this
+  }
+
+  // What a NoteOpener does to this locator: the editor appears.
+  opens(path: string): boolean {
+    const editor = this.closed.get(path)
+    if (!editor) return false
+    this.editors.set(path, editor)
+    return true
   }
 
   closeNote(path: string): this {

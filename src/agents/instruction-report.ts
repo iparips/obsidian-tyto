@@ -30,6 +30,12 @@ export class InstructionReport {
     return [`Instructions applied: ${this.appliedText()}`, ...this.dropText()].join(' ')
   }
 
+  // The same content without the "Instructions applied" prefix, since the step
+  // carries that in its label.
+  stepText(): string {
+    return [this.appliedText(), ...this.dropText()].join(' ')
+  }
+
   noticeText(): string {
     return `Owl: ${this.droppedCount} instruction file(s) dropped; the chain was over the size limit.`
   }

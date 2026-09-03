@@ -131,53 +131,59 @@ describe('HistoryEntry', () => {
     })
   })
 
-  describe('when the entry asks the user to approve a note', () => {
-    const aPendingConfirm = () => ({
-      kind: 'confirm' as const,
-      path: 'Lists/todo.md',
+  describe('when the entry asks the user which note they meant', () => {
+    const aPendingChoice = () => ({
+      kind: 'choice' as const,
+      candidates: ['Lists/todo.md', 'Lists/shopping.md'],
       pending: true,
-      text: 'Open Lists/todo.md and edit it?',
+      text: 'add toilet paper',
     })
 
-    it('renders the controls when the confirm entry is still pending', () => {
-      render(<HistoryEntry entry={aPendingConfirm()} onAnswerOpen={vi.fn()} />)
+    it('renders the rows when the choice entry is still pending', () => {
+      render(<HistoryEntry entry={aPendingChoice()} onChooseNote={vi.fn()} />)
 
-      expect(screen.getByLabelText('Approve the note')).toBeDefined()
+      expect(screen.getByLabelText('Choose the note')).toBeDefined()
     })
 
-    it('answers granted when approve is clicked', async () => {
-      const onAnswerOpen = vi.fn()
-      render(<HistoryEntry entry={aPendingConfirm()} onAnswerOpen={onAnswerOpen} />)
+    it('renders one row per candidate when the choice entry is still pending', () => {
+      render(<HistoryEntry entry={aPendingChoice()} onChooseNote={vi.fn()} />)
 
-      await userEvent.click(screen.getByRole('button', { name: 'Approve open' }))
-
-      expect(onAnswerOpen).toHaveBeenCalledWith(true)
+      expect(screen.getByRole('button', { name: 'Choose Lists/shopping.md' })).toBeDefined()
     })
 
-    it('answers declined when decline is clicked', async () => {
-      const onAnswerOpen = vi.fn()
-      render(<HistoryEntry entry={aPendingConfirm()} onAnswerOpen={onAnswerOpen} />)
+    it('answers the picked path when a candidate is clicked', async () => {
+      const onChooseNote = vi.fn()
+      render(<HistoryEntry entry={aPendingChoice()} onChooseNote={onChooseNote} />)
 
-      await userEvent.click(screen.getByRole('button', { name: 'Decline open' }))
+      await userEvent.click(screen.getByRole('button', { name: 'Choose Lists/todo.md' }))
 
-      expect(onAnswerOpen).toHaveBeenCalledWith(false)
+      expect(onChooseNote).toHaveBeenCalledWith('Lists/todo.md')
     })
 
-    it('renders no controls once the confirm entry has settled', () => {
+    it('answers null when the decline is clicked', async () => {
+      const onChooseNote = vi.fn()
+      render(<HistoryEntry entry={aPendingChoice()} onChooseNote={onChooseNote} />)
+
+      await userEvent.click(screen.getByRole('button', { name: 'Decline every note' }))
+
+      expect(onChooseNote).toHaveBeenCalledWith(null)
+    })
+
+    it('renders no rows once the choice entry has settled', () => {
       render(
         <HistoryEntry
-          entry={{ ...aPendingConfirm(), pending: false, text: 'Opened Lists/todo.md' }}
-          onAnswerOpen={vi.fn()}
+          entry={{ ...aPendingChoice(), pending: false, text: 'Chose Lists/todo.md' }}
+          onChooseNote={vi.fn()}
         />,
       )
 
-      expect(screen.queryByLabelText('Approve the note')).toBeNull()
+      expect(screen.queryByLabelText('Choose the note')).toBeNull()
     })
 
-    it('renders no controls when the turn has ended and nothing can answer', () => {
-      render(<HistoryEntry entry={aPendingConfirm()} />)
+    it('renders no rows when the turn has ended and nothing can answer', () => {
+      render(<HistoryEntry entry={aPendingChoice()} />)
 
-      expect(screen.queryByLabelText('Approve the note')).toBeNull()
+      expect(screen.queryByLabelText('Choose the note')).toBeNull()
     })
   })
 })

@@ -3,11 +3,11 @@ import { AskedEntries } from './asked-entries'
 import { PanelAction } from './panel-action'
 
 // cancelling sits between the click and the loop stopping, so the button stops
-// offering while the turn is still on its way down. confirming and asking both
-// park the turn on the user, and differ in how the user answers: buttons on the
+// offering while the turn is still on its way down. choosing and asking both
+// park the turn on the user, and differ in how the user answers: rows on the
 // entry, or the input row.
 export type Phase =
-  'idle' | 'recording' | 'transcribing' | 'thinking' | 'cancelling' | 'confirming' | 'asking'
+  'idle' | 'recording' | 'transcribing' | 'thinking' | 'cancelling' | 'choosing' | 'asking'
 
 export type Entry =
   | { kind: 'user'; text: string }
@@ -21,10 +21,11 @@ export type Entry =
   | { kind: 'steps'; steps: PanelStep[] }
   | { kind: 'answer'; text: string; sources: string[] }
   | { kind: 'cancelled'; text: string }
-  // pending while the buttons are live; the outcome replaces them, because a
-  // button that no longer does anything is worse than a line saying what
-  // happened.
-  | { kind: 'confirm'; path: string; pending: boolean; text: string }
+  // pending while the rows are live; the outcome replaces them, because a row
+  // that no longer does anything is worse than a line saying what happened.
+  // The candidates stay once settled, so a turn that went nowhere still records
+  // what was offered.
+  | { kind: 'choice'; candidates: string[]; pending: boolean; text: string }
   // pending while the question is answerable; once the turn ends its text stays
   // as a record of what was asked, and its suggestions go (FR32).
   | { kind: 'question'; pending: boolean; suggestions: string[]; text: string }
@@ -99,15 +100,15 @@ export class PanelReducer {
           kind: 'cancelled',
           text: PanelReducer.cancelledText(action.writtenNotes),
         })
-      case 'openRequested':
-        return state.withEntry('confirming', {
-          kind: 'confirm',
-          path: action.path,
+      case 'choiceRequested':
+        return state.withEntry('choosing', {
+          kind: 'choice',
+          candidates: action.candidates,
           pending: true,
-          text: PanelReducer.confirmText(action.path),
+          text: action.purpose,
         })
-      case 'openAnswered':
-        return AskedEntries.openAnswered(state, action.granted)
+      case 'choiceAnswered':
+        return AskedEntries.choiceAnswered(state, action.chosen)
       case 'questionAsked':
         return state.withEntry('asking', {
           kind: 'question',
@@ -140,12 +141,6 @@ export class PanelReducer {
     const within = state.entries.slice(turnStart + 1)
     const at = within.findLastIndex((entry) => entry.kind === 'steps')
     return at === -1 ? -1 : turnStart + 1 + at
-  }
-
-  // The path from the vault root, so the user approves a note rather than a
-  // title two notes could share (FR13).
-  private static confirmText(path: string): string {
-    return `Open ${path} and edit it?`
   }
 
   // Naming the notes is the whole of what a cancel owes the user: nothing is

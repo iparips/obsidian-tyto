@@ -5,6 +5,8 @@ import { TFile, Workspace } from 'obsidian'
 export class FakeWorkspace {
   private openListeners: ((file: TFile | null) => void)[] = []
   private editorPaths: string[] = []
+  // What the test asserts NoteOpener asked the workspace to open.
+  readonly opened: string[] = []
 
   constructor(private activePath: string | null = null) {
     if (activePath) this.editorPaths.push(activePath)
@@ -53,6 +55,18 @@ export class FakeWorkspace {
   getLeavesOfType(type: string): unknown[] {
     if (type !== 'markdown') return []
     return this.editorPaths.map((path) => ({ view: { file: { path }, editor: {} } }))
+  }
+
+  // openFile is what NoteOpener calls: Obsidian mounts the editor and announces
+  // the open, which is the pair a real open produces.
+  getLeaf(_newLeaf: boolean): { openFile(file: TFile): Promise<void> } {
+    return {
+      openFile: (file: TFile) => {
+        this.opened.push(file.path)
+        this.finishesOpening(file.path)
+        return Promise.resolve()
+      },
+    }
   }
 
   getActiveFile(): TFile | null {

@@ -25,7 +25,7 @@ describe('HarnessTools', () => {
 
   beforeEach(() => {
     vault = new FakeVault().withNote(TODO, '- [ ] milk')
-    turn = { budget: new TurnBudget(), seenPaths: new SeenPaths() }
+    turn = { budget: new TurnBudget(), seenPaths: new SeenPaths(), searchRan: () => undefined }
   })
 
   const toolsOf = (searchEnabled = true): HarnessTools => {

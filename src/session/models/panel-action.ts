@@ -16,7 +16,8 @@ export type PanelAction =
   | { type: 'answer'; text: string; sources: string[] }
   | { type: 'cancelRequested' }
   | { type: 'turnCancelled'; writtenNotes: readonly string[] }
-  | { type: 'openRequested'; path: string }
-  | { type: 'openAnswered'; granted: boolean }
+  | { type: 'choiceRequested'; candidates: string[]; purpose: string }
+  // The path the user picked, or null when they declined every candidate.
+  | { type: 'choiceAnswered'; chosen: string | null }
   | { type: 'questionAsked'; text: string; suggestions: string[] }
   | { type: 'questionAnswered' }
