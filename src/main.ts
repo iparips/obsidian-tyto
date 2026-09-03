@@ -36,7 +36,7 @@ export default class OwlPlugin extends Plugin {
   // A session starts whether or not a note is open: unbound, it searches and
   // answers, and binds to the first note the user opens.
   private async openSession(): Promise<void> {
-    const file = this.app.workspace.getActiveFile()
+    const file = this.activeNote()
     const view = await this.revealSessionView()
     if (!view) return
     this.bindOrAskRebind(view, file)
@@ -54,7 +54,7 @@ export default class OwlPlugin extends Plugin {
   }
 
   private buildPanelProps(file: TFile | null, view: SessionView): SessionPanelProps {
-    return this.sessionBuilder().build(file, this.panelPresence(file, view))
+    return this.sessionBuilder().build(file, this.panelPresence(view))
   }
 
   private sessionBuilder(): SessionBuilder {
@@ -65,12 +65,12 @@ export default class OwlPlugin extends Plugin {
 
   // What only the plugin can answer: whether the leaf is showing, and how to
   // reveal it when the user acts on a notice (FR24, FR27).
-  private panelPresence(file: TFile | null, view: SessionView): PanelPresence {
+  private panelPresence(view: SessionView): PanelPresence {
     return {
       isVisible: () => this.sessionLeafIsVisible(),
       reveal: () => void this.revealSessionView(),
       onHidden: (listener) => this.onDocumentHidden(listener),
-      startNewSession: () => this.startNewSession(file, view),
+      startNewSession: () => this.startNewSession(view),
     }
   }
 
@@ -100,8 +100,20 @@ export default class OwlPlugin extends Plugin {
   }
 
   // Rebuilds the props, so the model's history and the panel's entries both go.
-  private startNewSession(file: TFile | null, view: SessionView): void {
-    view.bindSession(this.buildPanelProps(file, view))
+  // The note is read now rather than taken from the session being replaced: a
+  // reset is what the user reaches for when the binding is wrong, and handing
+  // the new session the same note is what left a stranded one stranded.
+  private startNewSession(view: SessionView): void {
+    view.bindSession(this.buildPanelProps(this.activeNote(), view))
+  }
+
+  // Null for anything but a note, so a reset while a canvas or a Bases file is
+  // in front leaves the session unbound rather than bound to something no
+  // editor can show. An unbound session searches and answers, and binds to the
+  // first note the user opens.
+  private activeNote(): TFile | null {
+    const file = this.app.workspace.getActiveFile()
+    return file?.extension === 'md' ? file : null
   }
 
   private onDocumentHidden(listener: () => void): () => void {
