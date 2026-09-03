@@ -106,4 +106,66 @@ describe('VaultSearch', () => {
       expect(hits.map((hit) => hit.path)).toEqual(['stale.md', 'fresh.md'])
     })
   })
+
+  describe('when the query names a folder or a file rather than content', () => {
+    const WEEKLY = '1 - Journal/Weekly/Week-35/04-09-Fri.md'
+
+    beforeEach(() => {
+      vault.withNote(WEEKLY, '# Friday\n\nnothing about weeks here')
+    })
+
+    it('finds a note by its folder name when no note body holds it', async () => {
+      const hits = await searchOf().search('Week-35')
+
+      expect(hits.map((hit) => hit.path)).toEqual([WEEKLY])
+    })
+
+    it('finds a note by its file name when no note body holds it', async () => {
+      const hits = await searchOf().search('04-09-Fri')
+
+      expect(hits.map((hit) => hit.path)).toEqual([WEEKLY])
+    })
+
+    it('excerpts the head of the note when the match was in the path', async () => {
+      const hits = await searchOf().search('Week-35')
+
+      expect(hits[0].excerpt).toContain('# Friday')
+    })
+
+    it('still finds nothing when neither the path nor the body matches', async () => {
+      const hits = await searchOf().search('Week-99')
+
+      expect(hits).toEqual([])
+    })
+  })
+
+  describe('when the query matches a path and a body', () => {
+    it('ranks the path match above a body that merely mentions it', async () => {
+      vault
+        .withNote('Week-35/notes.md', 'nothing relevant')
+        .withNote('other.md', 'I was busy in Week-35 that week')
+
+      const hits = await searchOf().search('Week-35')
+
+      expect(hits[0].path).toBe('Week-35/notes.md')
+    })
+
+    it('keeps the body match when the body matches far more often', async () => {
+      vault
+        .withNote('Week-35/notes.md', 'nothing relevant')
+        .withNote('other.md', 'Week-35 Week-35 Week-35 Week-35')
+
+      const hits = await searchOf().search('Week-35')
+
+      expect(hits[0].path).toBe('other.md')
+    })
+
+    it('scores a note whose path and body both match on the stronger of the two', async () => {
+      vault.withNote('Week-35/notes.md', 'Week-35 mentioned once')
+
+      const hits = await searchOf().search('Week-35')
+
+      expect(hits[0].score).toBe(2)
+    })
+  })
 })
