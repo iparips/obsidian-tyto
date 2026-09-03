@@ -9,6 +9,8 @@ import { TurnRepository } from './turn-repository'
 import { TurnProgressPublisher } from './turn-progress-publisher'
 import { TurnCancellation } from './turn-cancellation'
 import { OpenApproval } from './open-approval'
+import { SeenPaths } from '../search/models/seen-paths'
+import { TurnBudget } from './models/turn-budget'
 import { UserQuestion } from './user-question'
 import { SessionRepository } from '../session/session-repository'
 import { Attempt, Outcomes } from '../shared/models/outcome'
@@ -23,21 +25,30 @@ export class TurnFactory {
     private noteEditor: NoteEditor,
     private harnessTools: HarnessTools,
     private turnProgressPublisher: TurnProgressPublisher,
-    // Built per turn rather than held, so the per-path hold dies with the turn
-    // and nothing has to expire it (FR12). It takes the turn's cancellation, so
-    // a parked confirmation settles on a cancel rather than parking the loop
-    // forever (FR29).
+    // Built per turn because it takes the turn's cancellation, so a parked
+    // confirmation settles on a cancel rather than parking the loop forever
+    // (FR29). What the user approved is held for the session, not here.
     private buildOpenApproval: (cancellation: TurnCancellation) => OpenApproval = () =>
       OpenApproval.granted(),
     private buildUserQuestion: (cancellation: TurnCancellation) => UserQuestion = () =>
       UserQuestion.unanswered(),
   ) {}
 
+  // Session-scoped, so a note found in one turn can still be opened in the
+  // next. A path that has gone stale fails loudly on the read, which is a
+  // better answer than refusing one the user watched the model find.
+  private readonly seenPaths = new SeenPaths()
+
   async openTurn(): Promise<Attempt<Turn>> {
     const resolved = await this.targetNoteResolver.resolve()
     if (resolved.hasFailed()) return Outcomes.failure(resolved.step, resolved.message)
     const skills = await this.skillRepository.listSkills()
-    const turnRepository = new TurnRepository(resolved.value, skills)
+    const turnRepository = new TurnRepository(
+      resolved.value,
+      skills,
+      new TurnBudget(),
+      this.seenPaths,
+    )
     const cancellation = new TurnCancellation()
     const askers = this.askersFor(cancellation)
     const dispatcher = this.dispatcherFor(turnRepository, cancellation, askers)

@@ -88,6 +88,7 @@ export class ToolDispatcher {
   // refused and reports what stopped rather than claiming an edit (FR7, NFR1).
   private async openModelChosenNote(path: string): Promise<ToolCallOutcome> {
     if (!(await this.openApproval.grantFor(path))) return { result: DECLINED_RESULT }
+    this.turnRepository.recordOpen(path)
     this.turnProgressPublisher.stepTaken(TurnStep.opened(path))
     const moved = await this.moveTargetTo(path)
     return { result: moved ? `opened ${path}` : `opened ${path}, but it is not editable yet` }

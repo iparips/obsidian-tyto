@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, Mock, vi } from 'vitest'
 import { OpenApproval } from '../open-approval'
+import { ApprovalRepository } from '../../session/approval-repository'
 import { TurnCancellation } from '../turn-cancellation'
 
 const TODO = 'Journal/todo.md'
@@ -43,7 +44,7 @@ describe('OpenApproval', () => {
     })
   })
 
-  describe('when a path was already granted this turn', () => {
+  describe('when a path was already granted', () => {
     let approval: OpenApproval
 
     beforeEach(async () => {
@@ -51,18 +52,47 @@ describe('OpenApproval', () => {
       await approval.grantFor(TODO)
     })
 
-    it('asks once for a path already granted this turn', async () => {
+    it('asks once for a path already granted', async () => {
       await approval.grantFor(TODO)
 
       expect(ask).toHaveBeenCalledTimes(1)
     })
 
-    it('grants a path already granted this turn', async () => {
+    it('grants a path already granted', async () => {
       expect(await approval.grantFor(TODO)).toBe(true)
     })
 
     it('asks again for a different path, so one approval does not waive the next', async () => {
       await approval.grantFor('Lists/shopping.md')
+
+      expect(ask).toHaveBeenCalledTimes(2)
+    })
+  })
+
+  // The approval is built per turn but what the user approved is not, so a note
+  // approved in one turn opens without asking again in the next.
+  describe('when a later turn opens a path an earlier turn granted', () => {
+    let approved: ApprovalRepository
+
+    beforeEach(async () => {
+      approved = new ApprovalRepository()
+      await OpenApproval.of(ask, new TurnCancellation(), approved).grantFor(TODO)
+    })
+
+    it('asks nothing when a later turn opens a path already granted', async () => {
+      await OpenApproval.of(ask, new TurnCancellation(), approved).grantFor(TODO)
+
+      expect(ask).toHaveBeenCalledTimes(1)
+    })
+
+    it('grants when a later turn opens a path already granted', async () => {
+      const approval = OpenApproval.of(ask, new TurnCancellation(), approved)
+
+      expect(await approval.grantFor(TODO)).toBe(true)
+    })
+
+    it('asks again for a path no earlier turn granted', async () => {
+      await OpenApproval.of(ask, new TurnCancellation(), approved).grantFor('Lists/shopping.md')
 
       expect(ask).toHaveBeenCalledTimes(2)
     })

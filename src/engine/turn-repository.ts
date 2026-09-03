@@ -19,8 +19,9 @@ export class TurnRepository {
     private resolved: ResolvedNote | null,
     private readonly vaultSkills: readonly Skill[] = [],
     readonly budget: TurnBudget = new TurnBudget(),
-    // Scoped to the turn rather than the session: a path offered three turns ago
-    // has had three turns to go stale, and re-searching is cheap (FR3).
+    // Supplied by the session rather than defaulted per turn: a note the model
+    // found in one turn is one the user watched it find, and refusing to open
+    // it in the next is what drives the model to edit whatever is still bound.
     readonly seenPaths: SeenPaths = new SeenPaths(),
   ) {}
 
@@ -50,6 +51,12 @@ export class TurnRepository {
 
   editEnd(): EditorPosition | null {
     return this.lastEditEnd
+  }
+
+  // Spent once an open is granted rather than when it is asked for, so a note
+  // the user declined does not cost the turn its one open.
+  recordOpen(path: string): void {
+    this.budget.takeOpen(path)
   }
 
   retargetTo(resolved: ResolvedNote): void {

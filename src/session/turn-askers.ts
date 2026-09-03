@@ -1,4 +1,5 @@
 import { Asker } from './session-listeners'
+import { ApprovalRepository } from './approval-repository'
 import { TurnNotices } from './turn-notices'
 import { OpenApproval } from '../engine/open-approval'
 import { UserQuestion } from '../engine/user-question'
@@ -12,6 +13,9 @@ import { OpenMode } from '../settings/settings'
 export class TurnAskers {
   readonly opens = new Asker<string, boolean>(false)
   readonly questions = new Asker<QuestionRequest, string>('')
+  // Held here rather than in the approval, which is built per turn: an approval
+  // the user gave is about a note, and the note outlives the turn.
+  private readonly approved = new ApprovalRepository()
 
   constructor(
     private notices: TurnNotices,
@@ -25,6 +29,7 @@ export class TurnAskers {
     return OpenApproval.of(
       (path) => this.noticed(`Owl wants to open ${path}.`, this.opens.ask(path)),
       cancellation,
+      this.approved,
     )
   }
 
