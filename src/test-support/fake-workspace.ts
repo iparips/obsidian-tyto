@@ -4,8 +4,11 @@ import { TFile, Workspace } from 'obsidian'
 // makes the before-and-after diff around a command run assertable.
 export class FakeWorkspace {
   private openListeners: ((file: TFile | null) => void)[] = []
+  private editorPaths: string[] = []
 
-  constructor(private activePath: string | null = null) {}
+  constructor(private activePath: string | null = null) {
+    if (activePath) this.editorPaths.push(activePath)
+  }
 
   // Obsidian fires file-open once a note is actually showing, which is what a
   // command's after-read has to wait for.
@@ -28,10 +31,28 @@ export class FakeWorkspace {
     this.activePath = path
   }
 
-  // Announces the open, the way Obsidian does once the note is showing.
+  // Announces the open, the way Obsidian does once the note is showing, with
+  // the editor already mounted.
   finishesOpening(path: string): void {
     this.activePath = path
+    this.editorPaths.push(path)
     this.openListeners.forEach((listener) => listener({ path } as TFile))
+  }
+
+  // The mobile case the wait exists for: file-open fires, and the editor is
+  // mounted some time later.
+  announcesOpenWithoutEditor(path: string): void {
+    this.activePath = path
+    this.openListeners.forEach((listener) => listener({ path } as TFile))
+  }
+
+  mountsEditor(path: string): void {
+    this.editorPaths.push(path)
+  }
+
+  getLeavesOfType(type: string): unknown[] {
+    if (type !== 'markdown') return []
+    return this.editorPaths.map((path) => ({ view: { file: { path }, editor: {} } }))
   }
 
   getActiveFile(): TFile | null {

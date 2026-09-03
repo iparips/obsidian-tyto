@@ -49,7 +49,10 @@ export class Setting {
   }
 }
 
-export class MarkdownView {}
+export class MarkdownView {
+  file: TFile | null = null
+  editor!: Editor
+}
 
 export type Editor = {
   getValue(): string
@@ -80,6 +83,7 @@ export interface Command {
 
 export interface Workspace {
   getActiveFile(): TFile | null
+  getLeavesOfType(type: string): unknown[]
 }
 
 export type SearchMatchPart = [number, number]

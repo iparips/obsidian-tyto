@@ -25,4 +25,10 @@ export class CommandEffect {
       ? `ran ${this.commandName}; the session is now editing ${this.openedPath}`
       : `ran ${this.commandName}; no note opened, still editing the same note`
   }
+
+  // Distinct from opening nothing: the note is the target, so a retry reaches
+  // it, but no editor is showing it yet and an edit now would fail.
+  describeUneditable(): string {
+    return `ran ${this.commandName}; ${this.openedPath} opened but is not editable yet, so no edit was made`
+  }
 }
