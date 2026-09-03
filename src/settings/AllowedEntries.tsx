@@ -1,28 +1,59 @@
-import { AllowedEntryRow } from './AllowedEntryRow'
+import { useEffect, useState } from 'react'
+import { AllowList } from '../commands/allow-list'
 
 export interface AllowedEntriesProps {
   entries: readonly string[]
   onChange(entries: string[]): void
 }
 
-// Ids and patterns, editable in place. Names live in the resolution section, so
-// a row stays scannable and nothing resolved is ever stored (NFR1).
+// One entry per line. A textarea adds, edits, removes and reorders with no
+// per-row controls, which a list of inputs needed one of each for.
 export const AllowedEntries = ({ entries, onChange }: AllowedEntriesProps) => {
-  const edit = (index: number, entry: string) =>
-    onChange(entries.map((existing, at) => (at === index ? entry : existing)))
+  // The draft holds what the user typed, blank lines and all. Settings store a
+  // trimmed array, so without this a newline is stripped as soon as it is typed
+  // and a second entry cannot be started.
+  const [draft, setDraft] = useState(entries.join('\n'))
+  const [errors, setErrors] = useState<readonly string[]>([])
 
-  const remove = (index: number) => onChange(entries.filter((_, at) => at !== index))
+  // The picker writes entries too, so the draft follows settings when they
+  // change underneath it.
+  useEffect(() => setDraft(entries.join('\n')), [entries])
+
+  const publish = (text: string) => {
+    setDraft(text)
+    onChange(entriesOf(text))
+  }
+
+  // Validated on blur, not per keystroke: a half-typed entry is invalid on its
+  // way to being valid, and saying so mid-word is noise.
+  const validate = () => setErrors(errorsOf(entriesOf(draft)))
 
   return (
-    <ul className="owl-allowed-entries" aria-label="Allowed commands">
-      {entries.map((entry, index) => (
-        <AllowedEntryRow
-          key={index}
-          entry={entry}
-          onEdit={(edited) => edit(index, edited)}
-          onRemove={() => remove(index)}
-        />
-      ))}
-    </ul>
+    <label className="owl-allowed-entries">
+      Allowed commands
+      <textarea
+        aria-label="Allowed commands"
+        rows={4}
+        value={draft}
+        onChange={(event) => publish(event.target.value)}
+        onBlur={validate}
+      />
+      {errors.length > 0 && (
+        <p className="owl-settings-error" role="alert">
+          {errors.join('; ')}
+        </p>
+      )}
+    </label>
   )
 }
+
+const entriesOf = (value: string): string[] =>
+  value
+    .split('\n')
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0)
+
+const errorsOf = (entries: readonly string[]): string[] =>
+  entries
+    .map((entry) => AllowList.validate(entry))
+    .filter((error): error is string => error !== null)

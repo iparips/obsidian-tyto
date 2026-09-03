@@ -28,10 +28,12 @@ describe('AllowListEditor', () => {
     )
 
   describe('when the surfaces are composed', () => {
-    it('renders a row for an entry the picker added when it is stored', () => {
+    it('shows an entry the picker added in the text field, so the two agree', () => {
       renderEditor(['daily-notes'])
 
-      expect(screen.getByLabelText('Entry daily-notes')).toBeDefined()
+      expect((screen.getByLabelText('Allowed commands') as HTMLTextAreaElement).value).toBe(
+        'daily-notes',
+      )
     })
 
     it('renders the picker above the list when settings open', () => {
@@ -87,6 +89,18 @@ describe('AllowListEditor', () => {
       renderEditor(['daily-notes'], [new AllowedCommand('daily-notes', 'Open today')])
 
       expect(screen.getByText('Reaches 1 command')).toBeDefined()
+    })
+  })
+
+  describe('when the picker adds to what is already typed', () => {
+    it('appends the chosen id to the entries the field holds', async () => {
+      renderEditor(['shopping:add'])
+
+      await userEvent.click(screen.getByLabelText('Find a command'))
+      await userEvent.paste('today')
+      await userEvent.click(screen.getByRole('button', { name: /Open today/ }))
+
+      expect(onChange).toHaveBeenCalledWith(['shopping:add', 'daily-notes'])
     })
   })
 })

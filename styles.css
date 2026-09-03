@@ -202,12 +202,16 @@
   gap: var(--size-4-3);
 }
 
-.owl-allow-list-heading {
-  margin: 0;
-  color: var(--text-muted);
-  font-size: var(--font-ui-small);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+.owl-allow-list-entries {
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-4-1);
+}
+
+.owl-allowed-entries {
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-4-1);
 }
 
 /* Capped rather than paged: a query matching more than the cap is too broad to
@@ -228,10 +232,15 @@
    This is #2a2a2a, and it is the surface the fields beside it already use. */
 .owl-command-matches:not(:empty) {
   padding: var(--size-4-1);
-  border: 1px solid var(--background-modifier-border);
+  /* border-hover, not border: the plain border is base-30 against a base-25
+     panel and disappears. This one is the strongest neutral edge available. */
+  border: 1px solid var(--background-modifier-border-hover);
   border-radius: var(--radius-m);
-  background-color: var(--background-modifier-form-field);
-  box-shadow: var(--shadow-s);
+  /* primary, not form-field: the search input above it is form-field, so
+     matching it made the results read as part of the same control. Depth here
+     comes from the shadow and the border, not from a tint. */
+  background-color: var(--background-primary);
+  box-shadow: var(--shadow-l);
 }
 
 .owl-command-match + .owl-command-match {
@@ -284,52 +293,11 @@
   font-size: var(--font-ui-small);
 }
 
-.owl-allowed-entries {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.owl-allowed-entry {
-  display: flex;
-  flex-direction: column;
-  gap: var(--size-4-1);
-  padding: var(--size-4-1) 0;
-}
-
-.owl-allowed-entry-line {
-  display: flex;
-  align-items: center;
-  gap: var(--size-4-2);
-}
-
-.owl-allowed-entry + .owl-allowed-entry {
-  border-top: 1px solid var(--background-modifier-border);
-}
-
-.owl-allowed-entry input {
-  flex: 1 1 auto;
-  min-width: 0;
+.owl-allowed-entries textarea {
+  width: 100%;
   font-family: var(--font-monospace);
   font-size: var(--font-ui-smaller);
-}
-
-.owl-allowed-entry button {
-  flex: 0 0 auto;
-}
-
-/* Removal is destructive and sits beside an editable field, so it reads as a
-   quiet action rather than the row's primary one. */
-.owl-allowed-entry button {
-  background-color: transparent;
-  border: 1px solid var(--background-modifier-border);
-  color: var(--text-muted);
-  box-shadow: none;
-}
-
-.owl-allowed-entry button:hover {
-  background-color: var(--background-modifier-error-hover);
-  color: var(--text-on-accent);
+  resize: vertical;
 }
 
 /* Collapsed by default: the entries are the setting, and what they resolve to
@@ -344,18 +312,28 @@
   font-size: var(--font-ui-small);
 }
 
+/* The same surface as the results panel: both are a list of commands lifted
+   off the page, so they should not read as two different kinds of thing. */
 .owl-resolved-commands ul {
   max-height: 12em;
   overflow-y: auto;
   margin: var(--size-4-2) 0 0;
-  padding: 0;
+  padding: var(--size-4-1);
+  border: 1px solid var(--background-modifier-border-hover);
+  border-radius: var(--radius-m);
+  background-color: var(--background-primary);
+  box-shadow: var(--shadow-l);
   list-style: none;
 }
 
 .owl-resolved-commands li {
   display: flex;
   flex-direction: column;
-  padding: var(--size-4-1) 0;
+  padding: var(--size-4-2);
+}
+
+.owl-resolved-commands li + li {
+  border-top: 1px solid var(--background-modifier-border);
 }
 
 .owl-resolved-name {

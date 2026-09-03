@@ -14,86 +14,101 @@ describe('AllowedEntries', () => {
   const renderEntries = (entries: string[]) =>
     render(<AllowedEntries entries={entries} onChange={onChange} />)
 
-  describe('when entries are listed', () => {
-    it('renders one row per entry when several are stored', () => {
+  const field = () => screen.getByLabelText('Allowed commands') as HTMLTextAreaElement
+
+  describe('when the entries are rendered', () => {
+    it('shows one entry per line when several are stored', () => {
       renderEntries(['daily-notes', 'shopping:add'])
 
-      expect(screen.getAllByRole('listitem')).toHaveLength(2)
+      expect(field().value).toBe('daily-notes\nshopping:add')
     })
 
-    it('shows the entry itself when a row renders', () => {
+    it('follows the stored entries when the picker adds one', () => {
+      const { rerender } = renderEntries(['daily-notes'])
+
+      rerender(<AllowedEntries entries={['daily-notes', 'shopping:add']} onChange={onChange} />)
+
+      expect(field().value).toBe('daily-notes\nshopping:add')
+    })
+  })
+
+  describe('when the user edits the entries', () => {
+    it('publishes one entry per line when several lines are entered', async () => {
+      renderEntries([])
+
+      await userEvent.click(field())
+      await userEvent.paste('daily-notes\nshopping:add')
+
+      expect(onChange).toHaveBeenLastCalledWith(['daily-notes', 'shopping:add'])
+    })
+
+    it('keeps a newline typed after an entry, so a second can be started', async () => {
       renderEntries(['daily-notes'])
 
-      expect((screen.getByLabelText('Entry daily-notes') as HTMLInputElement).value).toBe(
-        'daily-notes',
-      )
+      await userEvent.click(field())
+      await userEvent.keyboard('{End}{Enter}')
+
+      expect(field().value).toBe('daily-notes\n')
+    })
+
+    it('drops blank lines when the entries are published', async () => {
+      renderEntries([])
+
+      await userEvent.click(field())
+      await userEvent.paste('daily-notes\n  \n')
+
+      expect(onChange).toHaveBeenLastCalledWith(['daily-notes'])
+    })
+
+    it('publishes an empty list when the last entry is deleted', async () => {
+      renderEntries(['daily-notes'])
+
+      await userEvent.clear(field())
+
+      expect(onChange).toHaveBeenLastCalledWith([])
     })
   })
 
-  describe('when an entry is removed', () => {
-    it('publishes the remaining entries when one is removed', async () => {
-      renderEntries(['daily-notes', 'shopping:add'])
+  describe('when an entry is validated', () => {
+    it('shows no error while an entry is still being typed', async () => {
+      renderEntries([])
 
-      await userEvent.click(screen.getByRole('button', { name: 'Remove shopping:add' }))
-
-      expect(onChange).toHaveBeenCalledWith(['daily-notes'])
-    })
-
-    it('publishes an empty list when the only entry is removed', async () => {
-      renderEntries(['shopping:add'])
-
-      await userEvent.click(screen.getByRole('button', { name: 'Remove shopping:add' }))
-
-      expect(onChange).toHaveBeenCalledWith([])
-    })
-  })
-
-  describe('when an entry is edited', () => {
-    it('publishes the edited entry when a wildcard is typed over an id', async () => {
-      renderEntries(['daily-notes:goto-today'])
-
-      await userEvent.clear(screen.getByLabelText('Entry daily-notes:goto-today'))
-      await userEvent.paste('daily-notes:*')
-
-      expect(onChange).toHaveBeenLastCalledWith(['daily-notes:*'])
-    })
-
-    it('leaves the other entries untouched when one is edited', async () => {
-      renderEntries(['shopping:add', 'daily-notes:goto-today'])
-
-      await userEvent.clear(screen.getByLabelText('Entry daily-notes:goto-today'))
-      await userEvent.paste('daily-notes:*')
-
-      expect(onChange).toHaveBeenLastCalledWith(['shopping:add', 'daily-notes:*'])
-    })
-  })
-
-  describe('when an edited entry breaks the rule', () => {
-    it('shows the reason when the edited pattern has no colon', async () => {
-      renderEntries(['daily-notes:goto-today'])
-
-      await userEvent.clear(screen.getByLabelText('Entry daily-notes:goto-today'))
+      await userEvent.click(field())
       await userEvent.paste('daily*')
+
+      expect(screen.queryByRole('alert')).toBeNull()
+    })
+
+    it('shows the reason when an invalid entry is left', async () => {
+      renderEntries([])
+
+      await userEvent.click(field())
+      await userEvent.paste('daily*')
+      await userEvent.tab()
 
       expect(screen.getByRole('alert').textContent).toBe(
         'a pattern must name a plugin, as plugin-id:*',
       )
     })
 
-    it('keeps what the user typed when the edited entry is refused', async () => {
-      renderEntries(['daily-notes:goto-today'])
-      const field = screen.getByLabelText('Entry daily-notes:goto-today') as HTMLInputElement
+    it('shows no error when every entry is valid on leaving', async () => {
+      renderEntries([])
 
-      await userEvent.clear(field)
-      await userEvent.paste('daily*')
-
-      expect(field.value).toBe('daily*')
-    })
-
-    it('shows no alert when every entry is valid', () => {
-      renderEntries(['daily-notes:*'])
+      await userEvent.click(field())
+      await userEvent.paste('daily-notes\nopen-or-create-file-command:*')
+      await userEvent.tab()
 
       expect(screen.queryByRole('alert')).toBeNull()
+    })
+
+    it('keeps what the user typed when an entry is refused', async () => {
+      renderEntries([])
+
+      await userEvent.click(field())
+      await userEvent.paste('daily*')
+      await userEvent.tab()
+
+      expect(field().value).toBe('daily*')
     })
   })
 })

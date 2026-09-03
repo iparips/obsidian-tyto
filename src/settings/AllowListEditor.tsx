@@ -16,8 +16,7 @@ export interface AllowListEditorProps {
 export const AllowListEditor = ({ entries, search, resolved, onChange }: AllowListEditorProps) => (
   <div className="owl-allow-list-editor">
     <CommandPicker entries={entries} search={search} onChange={onChange} />
-    <div>
-      <p className="owl-allow-list-heading">Allowed commands</p>
+    <div className="owl-allow-list-entries">
       <AllowedEntries entries={entries} onChange={onChange} />
       <ResolvedCommands commands={resolved} />
     </div>
