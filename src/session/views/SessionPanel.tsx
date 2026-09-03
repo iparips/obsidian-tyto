@@ -1,5 +1,5 @@
 import { useEffect, useReducer, useRef, useState } from 'react'
-import { Outcome } from '../../shared/models/outcome'
+import { Attempt, Outcome } from '../../shared/models/outcome'
 import { Utterance } from '../../capture/recorder'
 import { HistoryList } from './HistoryList'
 import { INITIAL_PANEL_STATE, PanelReducer } from '../models/panel-state'
@@ -16,8 +16,14 @@ export interface SessionPanelProps {
   // a note.
   noteName: string | null
   recorder: RecorderPort
-  transcribe(blob: Blob, mimeType: string): Promise<Outcome<string>>
+  // An Attempt rather than an Outcome: cancelling a recording discards it here
+  // rather than reaching the transcription, so this call never comes back
+  // cancelled.
+  transcribe(blob: Blob, mimeType: string): Promise<Attempt<string>>
   processUtterance(text: string): Promise<Outcome<string>>
+  // The engine owns the running turn's cancellation, so the panel asks rather
+  // than holding it.
+  cancelTurn?(): void
   // The plugin owns the listener so Obsidian detaches it on unload.
   onHidden?(listener: () => void): () => void
   notify?(message: string): void
@@ -38,9 +44,10 @@ export const SessionPanel = (props: SessionPanelProps) => {
   const runTurn = async (text: string) => {
     dispatch({ type: 'transcript', text })
     const outcome = await props.processUtterance(text)
-    if (outcome.hasFailed())
-      dispatch({ type: 'failed', step: outcome.step, message: outcome.message })
-    else dispatch({ type: 'summary', text: outcome.value })
+    if (outcome.succeeded()) dispatch({ type: 'summary', text: outcome.value })
+    else if (outcome.wasCancelled())
+      dispatch({ type: 'turnCancelled', writtenNotes: outcome.writtenNotes })
+    else dispatch({ type: 'failed', step: outcome.step, message: outcome.message })
   }
 
   const startRecording = async () => {
@@ -62,6 +69,14 @@ export const SessionPanel = (props: SessionPanelProps) => {
   const cancelRecording = () => {
     props.recorder.cancel()
     dispatch({ type: 'cancelled' })
+  }
+
+  // One control for both, because cancel means the same either way: stop, and
+  // keep nothing.
+  const cancel = () => {
+    if (state.phase === 'recording') return cancelRecording()
+    dispatch({ type: 'cancelRequested' })
+    props.cancelTurn?.()
   }
 
   // Read through a ref so the listener subscribes once, not once per render.
@@ -98,7 +113,11 @@ export const SessionPanel = (props: SessionPanelProps) => {
   }
 
   const recording = state.phase === 'recording'
-  const busy = state.phase === 'transcribing' || state.phase === 'thinking'
+  const running = state.phase !== 'idle'
+  const busy = running && !recording
+  // Clickable until it is clicked, which is what stops a second click reaching a
+  // turn that is already stopping.
+  const stoppable = running && state.phase !== 'cancelling'
   return (
     <div className="owl-panel">
       <div className="owl-header">
@@ -107,7 +126,7 @@ export const SessionPanel = (props: SessionPanelProps) => {
           <button
             className="owl-new-session"
             aria-label="Reset session"
-            disabled={recording || busy}
+            disabled={running}
             onClick={props.startNewSession}
           >
             Reset
@@ -123,21 +142,22 @@ export const SessionPanel = (props: SessionPanelProps) => {
         >
           {recording ? 'Stop' : 'Mic'}
         </button>
-        {recording && (
-          <button aria-label="Cancel" onClick={cancelRecording}>
-            Cancel
-          </button>
-        )}
         <input
           aria-label="Instruction"
           value={draft}
-          disabled={recording || busy}
+          disabled={running}
           onChange={(event) => setDraft(event.target.value)}
           onKeyDown={(event) => event.key === 'Enter' && sendDraft()}
         />
-        <button aria-label="Send" disabled={recording || busy} onClick={sendDraft}>
-          Send
-        </button>
+        {running ? (
+          <button aria-label="Cancel" disabled={!stoppable} onClick={cancel}>
+            Cancel
+          </button>
+        ) : (
+          <button aria-label="Send" onClick={sendDraft}>
+            Send
+          </button>
+        )}
       </div>
     </div>
   )

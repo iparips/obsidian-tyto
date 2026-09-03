@@ -1,6 +1,8 @@
 import { FailureStep } from '../../shared/models/outcome'
 
-export type Phase = 'idle' | 'recording' | 'transcribing' | 'thinking'
+// cancelling sits between the click and the loop stopping, so the button stops
+// offering while the turn is still on its way down.
+export type Phase = 'idle' | 'recording' | 'transcribing' | 'thinking' | 'cancelling'
 
 export type Entry =
   | { kind: 'user'; text: string }
@@ -9,6 +11,7 @@ export type Entry =
   | { kind: 'instructions'; text: string }
   | { kind: 'command'; text: string }
   | { kind: 'answer'; text: string; sources: string[] }
+  | { kind: 'cancelled'; text: string }
 
 export class PanelState {
   constructor(
@@ -35,6 +38,8 @@ export type PanelAction =
   | { type: 'instructions'; text: string }
   | { type: 'commandRan'; text: string }
   | { type: 'answer'; text: string; sources: string[] }
+  | { type: 'cancelRequested' }
+  | { type: 'turnCancelled'; writtenNotes: readonly string[] }
 
 export const INITIAL_PANEL_STATE: PanelState = new PanelState('idle', [])
 
@@ -67,6 +72,20 @@ export class PanelReducer {
           text: action.text,
           sources: action.sources,
         })
+      case 'cancelRequested':
+        return state.withPhase('cancelling')
+      case 'turnCancelled':
+        return state.withEntry('idle', {
+          kind: 'cancelled',
+          text: PanelReducer.cancelledText(action.writtenNotes),
+        })
     }
+  }
+
+  // Naming the notes is the whole of what a cancel owes the user: nothing is
+  // reverted, so the panel says where to look.
+  private static cancelledText(writtenNotes: readonly string[]): string {
+    if (writtenNotes.length === 0) return 'Stopped. Nothing was changed.'
+    return `Stopped. Already changed: ${writtenNotes.join(', ')}`
   }
 }

@@ -3,11 +3,11 @@ import { act, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { SessionPanel, RecorderPort, SessionPanelProps } from '../SessionPanel'
 import { Utterance } from '../../../capture/recorder'
-import { Outcome, Outcomes } from '../../../shared/models/outcome'
+import { Attempt, Outcome, Outcomes } from '../../../shared/models/outcome'
 
 describe('SessionPanel', () => {
   let recorder: RecorderPort
-  let transcribe: Mock<[Blob, string], Promise<Outcome<string>>>
+  let transcribe: Mock<[Blob, string], Promise<Attempt<string>>>
   let processUtterance: Mock<[string], Promise<Outcome<string>>>
   let notify: Mock<[string], void>
 
@@ -53,9 +53,9 @@ describe('SessionPanel', () => {
     })
 
     it('transitions to transcribing when the mic is clicked while recording', async () => {
-      let resolveTranscribe: (value: Outcome<string>) => void = () => undefined
+      let resolveTranscribe: (value: Attempt<string>) => void = () => undefined
       transcribe.mockReturnValue(
-        new Promise<Outcome<string>>((resolve) => (resolveTranscribe = resolve)),
+        new Promise<Attempt<string>>((resolve) => (resolveTranscribe = resolve)),
       )
       renderPanel()
       await userEvent.click(screen.getByRole('button', { name: 'Record' }))
@@ -75,6 +75,31 @@ describe('SessionPanel', () => {
 
       expect(recorder.cancel).toHaveBeenCalled()
       expect(screen.getByRole('button', { name: 'Record' }).hasAttribute('disabled')).toBe(false)
+    })
+
+    it('renders Cancel in place of Send while recording', async () => {
+      renderPanel()
+
+      await userEvent.click(screen.getByRole('button', { name: 'Record' }))
+
+      expect(screen.queryByRole('button', { name: 'Send' })).toBeNull()
+    })
+
+    it('offers one cancel button while recording, since one covers both', async () => {
+      renderPanel()
+
+      await userEvent.click(screen.getByRole('button', { name: 'Record' }))
+
+      expect(screen.getAllByRole('button', { name: 'Cancel' })).toHaveLength(1)
+    })
+
+    it('says nothing in the panel when a cancel discarded only a recording', async () => {
+      renderPanel()
+      await userEvent.click(screen.getByRole('button', { name: 'Record' }))
+
+      await userEvent.click(screen.getByRole('button', { name: 'Cancel' }))
+
+      expect(screen.queryByText(/Stopped/)).toBeNull()
     })
 
     it('renders a user entry when the transcript arrives', async () => {
@@ -166,7 +191,7 @@ describe('SessionPanel', () => {
   })
 
   describe('when typing', () => {
-    it('disables the send button while a turn is thinking', async () => {
+    it('offers no send button while a turn is thinking', async () => {
       let resolveTurn: (value: Outcome<string>) => void = () => undefined
       processUtterance.mockReturnValue(
         new Promise<Outcome<string>>((resolve) => (resolveTurn = resolve)),
@@ -176,7 +201,7 @@ describe('SessionPanel', () => {
 
       await userEvent.click(screen.getByRole('button', { name: 'Send' }))
 
-      expect(screen.getByRole('button', { name: 'Send' }).hasAttribute('disabled')).toBe(true)
+      expect(screen.queryByRole('button', { name: 'Send' })).toBeNull()
       resolveTurn(Outcomes.success('ok'))
       await waitFor(() => expect(screen.getByText('ok')).toBeTruthy())
     })
@@ -188,6 +213,93 @@ describe('SessionPanel', () => {
       await userEvent.click(screen.getByRole('button', { name: 'Send' }))
 
       await waitFor(() => expect(processUtterance).toHaveBeenCalledWith('rename heading'))
+    })
+  })
+
+  describe('when cancelling', () => {
+    let cancelTurn: Mock<[], void>
+    let resolveTurn: (value: Outcome<string>) => void
+
+    beforeEach(() => {
+      cancelTurn = vi.fn()
+      resolveTurn = () => undefined
+      processUtterance.mockReturnValue(
+        new Promise<Outcome<string>>((resolve) => (resolveTurn = resolve)),
+      )
+    })
+
+    const startTurn = async () => {
+      renderPanel({ cancelTurn })
+      await userEvent.type(screen.getByRole('textbox', { name: 'Instruction' }), 'do it')
+      await userEvent.click(screen.getByRole('button', { name: 'Send' }))
+    }
+
+    it('renders Cancel in place of Send when a turn is thinking', async () => {
+      await startTurn()
+
+      expect(screen.getByRole('button', { name: 'Cancel' })).toBeTruthy()
+
+      resolveTurn(Outcomes.success('ok'))
+      await waitFor(() => expect(screen.getByText('ok')).toBeTruthy())
+    })
+
+    it('cancels the turn when Cancel is clicked while thinking', async () => {
+      await startTurn()
+
+      await userEvent.click(screen.getByRole('button', { name: 'Cancel' }))
+
+      expect(cancelTurn).toHaveBeenCalled()
+
+      resolveTurn(Outcomes.cancelled('chat'))
+      await waitFor(() => expect(screen.getByText(/Stopped/)).toBeTruthy())
+    })
+
+    it('disables Cancel once clicked, so a second click does nothing', async () => {
+      await startTurn()
+
+      await userEvent.click(screen.getByRole('button', { name: 'Cancel' }))
+
+      expect(screen.getByRole('button', { name: 'Cancel' }).hasAttribute('disabled')).toBe(true)
+
+      resolveTurn(Outcomes.cancelled('chat'))
+      await waitFor(() => expect(screen.getByText(/Stopped/)).toBeTruthy())
+    })
+
+    it('names the notes the turn wrote when the cancellation lands', async () => {
+      await startTurn()
+      await userEvent.click(screen.getByRole('button', { name: 'Cancel' }))
+
+      resolveTurn(Outcomes.cancelled('chat', ['Journal/day.md']))
+
+      await waitFor(() =>
+        expect(screen.getByText('Stopped. Already changed: Journal/day.md')).toBeTruthy(),
+      )
+    })
+
+    it('says nothing changed when the turn wrote no note', async () => {
+      await startTurn()
+      await userEvent.click(screen.getByRole('button', { name: 'Cancel' }))
+
+      resolveTurn(Outcomes.cancelled('chat'))
+
+      await waitFor(() => expect(screen.getByText('Stopped. Nothing was changed.')).toBeTruthy())
+    })
+
+    it('returns to Send once the cancellation lands, so the next utterance can go', async () => {
+      await startTurn()
+      await userEvent.click(screen.getByRole('button', { name: 'Cancel' }))
+
+      resolveTurn(Outcomes.cancelled('chat'))
+
+      await waitFor(() => expect(screen.getByRole('button', { name: 'Send' })).toBeTruthy())
+    })
+  })
+
+  describe('when the panel is idle', () => {
+    it('renders Send rather than Cancel', () => {
+      renderPanel()
+
+      expect(screen.queryByRole('button', { name: 'Cancel' })).toBeNull()
     })
   })
 

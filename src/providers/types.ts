@@ -1,14 +1,20 @@
-import { Outcome } from '../shared/models/outcome'
+import { Attempt, Outcome } from '../shared/models/outcome'
 import { ChatMessage } from './models/chat-message'
 import { ChatTurn } from './models/chat-turn'
 import { ToolCall } from './models/tool-call'
 
 export interface TranscriptionProvider {
-  transcribe(audio: Blob, mimeType: string): Promise<Outcome<string>>
+  // No signal, so an Attempt: a cancel discards the recording before it is sent.
+  transcribe(audio: Blob, mimeType: string): Promise<Attempt<string>>
 }
 
 export interface ChatProvider {
-  complete(messages: ChatMessage[], tools: ToolSchema[]): Promise<Outcome<ChatTurn>>
+  // The signal is optional so a caller with nothing to cancel stays unchanged.
+  complete(
+    messages: ChatMessage[],
+    tools: ToolSchema[],
+    signal?: AbortSignal,
+  ): Promise<Outcome<ChatTurn>>
 }
 
 export { ChatMessage, ChatTurn, ToolCall }

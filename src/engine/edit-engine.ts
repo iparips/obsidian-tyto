@@ -2,7 +2,7 @@ import { EditorPosition } from 'obsidian'
 import { ChatMessage, ChatProvider, ToolCall } from '../providers/types'
 import { ChatTurn } from '../providers/models/chat-turn'
 import { NoteEditor } from './note-editor'
-import { Outcome, Outcomes } from '../shared/models/outcome'
+import { Cancelled, Failure, Outcome, Outcomes } from '../shared/models/outcome'
 import { PromptBuilder } from './prompt-builder'
 import { OpenNote } from './models/open-note'
 import { Skill } from '../skills/skill'
@@ -20,6 +20,8 @@ export class EditEngine {
   // Tail of the single-flight chain: resolves once every utterance queued so
   // far has settled. Seeded resolved so the first utterance starts immediately.
   private queue: Promise<unknown> = Promise.resolve()
+  // Null between turns, so a cancel arriving after one finished reaches nothing.
+  private runningTurn: Turn | null = null
 
   constructor(
     private modelProvider: ChatProvider,
@@ -38,6 +40,12 @@ export class EditEngine {
     this.turnProgressPublisher.retargeted(path)
   }
 
+  // Ignored between turns: a cancel that arrives after the turn finished has
+  // nothing left to stop.
+  cancelTurn(): void {
+    this.runningTurn?.cancellation.cancel()
+  }
+
   processUtterance(text: string): Promise<Outcome<string>> {
     const run = this.queue.then(() => this.runTurn(text))
     // caller needs rejection to propagate to display a failure message -> hence it's returned.
@@ -49,7 +57,12 @@ export class EditEngine {
   private async runTurn(text: string): Promise<Outcome<string>> {
     const turnOutcome = await this.turnFactory.openTurn()
     if (turnOutcome.hasFailed()) return Outcomes.failure(turnOutcome.step, turnOutcome.message)
-    return this.runAgentLoop(turnOutcome.value, ChatMessage.user(text))
+    this.runningTurn = turnOutcome.value
+    try {
+      return await this.runAgentLoop(turnOutcome.value, ChatMessage.user(text))
+    } finally {
+      this.runningTurn = null
+    }
   }
 
   // The utterance is appended here rather than in runTurn, so it lands beside
@@ -58,13 +71,15 @@ export class EditEngine {
     this.sessionRepository.appendChatMessage(utterance)
     const turnRepository = turn.repository
     for (let iteration = 0; iteration < MAX_ITERATIONS; iteration++) {
+      if (turn.cancellation.isCancelled()) return this.concludeCancelled(turn)
       const answer = await this.askModel(
         turnRepository.targetNote(),
         turnRepository.skills(),
         turnRepository.agentMdChain(),
         this.sessionRepository.chatHistory(),
+        turn.cancellation.signal(),
       )
-      if (answer.hasFailed()) return Outcomes.failure(answer.step, answer.message)
+      if (!answer.succeeded()) return this.concludeUnfinished(answer, turn)
       EditEngine.logIteration(iteration, answer.value, EditEngine.pathOf(turnRepository))
       if (answer.value.isText())
         return this.concludeUtterance(
@@ -75,6 +90,29 @@ export class EditEngine {
       await this.executeToolCalls(answer.value.calls, turn)
     }
     return Outcomes.failure('chat', `edit loop exceeded ${MAX_ITERATIONS} iterations`)
+  }
+
+  // An aborted request is the user's cancel arriving mid-flight, so the turn
+  // ends the way a cancel between calls does rather than as a chat failure.
+  private concludeUnfinished(
+    answer: Failure<ChatTurn> | Cancelled<ChatTurn>,
+    turn: Turn,
+  ): Outcome<string> {
+    if (answer.hasFailed()) return Outcomes.failure(answer.step, answer.message)
+    return this.concludeCancelled(turn)
+  }
+
+  // The history keeps the fact rather than the partial results, so the next turn
+  // knows the work stopped without being invited to resume it.
+  private concludeCancelled(turn: Turn): Outcome<string> {
+    const written = turn.repository.writtenNotes()
+    this.sessionRepository.appendChatMessage(ChatMessage.model(EditEngine.cancelledNote(written)))
+    return Outcomes.cancelled('chat', written)
+  }
+
+  private static cancelledNote(written: readonly string[]): string {
+    if (written.length === 0) return 'The user stopped this turn. Nothing was changed.'
+    return `The user stopped this turn. Already changed: ${written.join(', ')}.`
   }
 
   // The only record of why a turn spent its iterations: the panel shows commands
@@ -93,6 +131,7 @@ export class EditEngine {
     skills: readonly Skill[],
     instructions: AgentsMdChain,
     chatHistory: readonly ChatMessage[],
+    signal: AbortSignal,
   ) {
     const standingRules = PromptBuilder.standingRules(
       skills,
@@ -109,6 +148,7 @@ export class EditEngine {
     return this.modelProvider.complete(
       [standingRules, ...chatHistory, noteSnapshot],
       this.harnessTools.schemas(),
+      signal,
     )
   }
 

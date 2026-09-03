@@ -1,8 +1,8 @@
 import { ToolCall } from '../providers/types'
 import { EditOperation } from './note-editor'
-import { Outcome, Outcomes } from '../shared/models/outcome'
+import { Attempt, Outcomes } from '../shared/models/outcome'
 
-export type NoteOperation = Outcome<EditOperation>
+export type NoteOperation = Attempt<EditOperation>
 
 const LOCATIONS: Record<string, 'noteStart' | 'noteEnd' | 'cursor'> = {
   note_start: 'noteStart',

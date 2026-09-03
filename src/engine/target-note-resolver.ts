@@ -4,7 +4,7 @@ import { AgentsMdRepository } from '../agents/agents-md-repository'
 import { AgentsMdChain } from '../agents/agents-md-chain'
 import { ResolvedNote } from './models/resolved-note'
 import { OpenNote } from './models/open-note'
-import { Outcome, Outcomes } from '../shared/models/outcome'
+import { Attempt, Outcomes } from '../shared/models/outcome'
 import { TurnProgressPublisher } from './turn-progress-publisher'
 
 // Turns the session's target path into something writable: the editor showing
@@ -20,7 +20,7 @@ export class TargetNoteResolver {
 
   // A null note is an unbound session rather than a failure, so the turn opens
   // and the search tools work.
-  async resolve(): Promise<Outcome<ResolvedNote | null>> {
+  async resolve(): Promise<Attempt<ResolvedNote | null>> {
     const targetPath = this.sessionRepository.targetNote()
     if (targetPath === null) return Outcomes.success(null)
     const openNoteOutcome = this.noteLocator.locate(targetPath)

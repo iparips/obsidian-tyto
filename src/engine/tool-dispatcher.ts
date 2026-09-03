@@ -10,6 +10,9 @@ import { TurnRepository } from './turn-repository'
 import { TargetNoteResolver } from './target-note-resolver'
 import { SessionRepository } from '../session/session-repository'
 import { TurnProgressPublisher } from './turn-progress-publisher'
+import { TurnCancellation } from './turn-cancellation'
+
+const CANCELLED_RESULT = 'the user stopped the turn; this call did not run'
 
 // editedTo is absent when the call changed nothing, so the turn keeps the
 // position of the last call that did.
@@ -29,9 +32,12 @@ export class ToolDispatcher {
     private harnessTools: HarnessTools,
     private turnProgressPublisher: TurnProgressPublisher,
     private turnRepository: TurnRepository,
+    private turnCancellation: TurnCancellation,
   ) {}
 
   async execute(call: ToolCall): Promise<ToolCallOutcome> {
+    // Between calls rather than inside one, so no edit is left half-applied.
+    if (this.turnCancellation.isCancelled()) return { result: CANCELLED_RESULT }
     if (call.isLoadSkill()) return { result: await this.loadSkill(call) }
     if (call.isHarnessTool()) return this.callHarnessTool(call)
     return this.editTargetNote(call)
@@ -91,7 +97,7 @@ export class ToolDispatcher {
   private async moveTargetTo(path: string): Promise<boolean> {
     this.sessionRepository.changeTargetNote(path)
     const resolvedNoteOutcome = await this.targetNoteResolver.resolve()
-    if (resolvedNoteOutcome.hasFailed() || resolvedNoteOutcome.value === null) {
+    if (!resolvedNoteOutcome.succeeded() || resolvedNoteOutcome.value === null) {
       this.turnRepository.cannotWriteTo(path)
       return false
     }

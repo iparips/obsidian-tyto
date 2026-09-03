@@ -74,6 +74,7 @@ export default class OwlPlugin extends Plugin {
       recorder: new Recorder(),
       transcribe: (blob, mimeType) => modelProvider.transcribe(blob, mimeType),
       processUtterance: (text) => engine.processUtterance(text),
+      cancelTurn: () => engine.cancelTurn(),
       onHidden: (listener) => this.onDocumentHidden(listener),
       notify: (message) => void new Notice(message),
       startNewSession: () => void this.startNewSession(file, view),

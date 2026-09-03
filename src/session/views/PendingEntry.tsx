@@ -5,6 +5,7 @@ import { Phase } from '../models/panel-state'
 const PENDING_LINES: Partial<Record<Phase, string>> = {
   transcribing: 'Transcribing…',
   thinking: 'Thinking…',
+  cancelling: 'Stopping…',
 }
 
 export const PendingEntry = ({ phase }: { phase: Phase }) => {

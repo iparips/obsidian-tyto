@@ -10,6 +10,7 @@ const ENTRY_CLASSES = {
   instructions: 'owl-entry-instructions',
   command: 'owl-entry-command',
   answer: 'owl-entry-answer',
+  cancelled: 'owl-entry-cancelled',
 }
 
 const entryText = (entry: Entry) =>

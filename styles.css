@@ -179,6 +179,12 @@
   font-size: var(--font-ui-small);
 }
 
+/* A cancel is not a failure, so it is muted rather than coloured like one: the
+   turn stopped because the user said so. */
+.owl-entry-cancelled {
+  color: var(--text-muted);
+}
+
 /* An answer wrote nothing, so it must not read like an edit that did (FR29).
    The rule alone says it, now that a reply carries no surface to tint. */
 .owl-entry-answer {

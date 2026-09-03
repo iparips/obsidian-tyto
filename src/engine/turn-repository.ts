@@ -12,6 +12,7 @@ import { Skill } from '../skills/skill'
 export class TurnRepository {
   private lastEditEnd: EditorPosition | null = null
   private unwritablePath: string | null = null
+  private readonly written: string[] = []
 
   constructor(
     private resolved: ResolvedNote | null,
@@ -62,7 +63,20 @@ export class TurnRepository {
     return this.unwritablePath
   }
 
+  // The paths written this turn, in order, so a cancelled turn can say what it
+  // left rather than the user reading the note to find out.
+  writtenNotes(): readonly string[] {
+    return this.written
+  }
+
   recordEdit(editedTo: EditorPosition | undefined): void {
     this.lastEditEnd = editedTo ?? this.lastEditEnd
+    if (editedTo) this.recordWrittenNote()
+  }
+
+  private recordWrittenNote(): void {
+    const path = this.targetNote()?.path
+    if (!path || this.written.includes(path)) return
+    this.written.push(path)
   }
 }

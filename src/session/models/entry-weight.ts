@@ -7,13 +7,14 @@ const WEIGHTS: Record<Entry['kind'], EntryWeight> = {
   assistant: 'reply',
   answer: 'reply',
   error: 'reply',
+  cancelled: 'reply',
   instructions: 'context',
   command: 'context',
 }
 
-// What an entry is worth on screen, which is not what it says. Three kinds are
+// What an entry is worth on screen, which is not what it says. Four kinds are
 // replies and two are context, so the panel reads as a conversation rather than
-// as six kinds of box.
+// as seven kinds of box.
 export class EntryWeights {
   static of(kind: Entry['kind']): EntryWeight {
     return WEIGHTS[kind]

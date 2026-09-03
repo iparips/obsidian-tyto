@@ -4,6 +4,12 @@ import { Outcomes } from '../../shared/models/outcome'
 import { TOOL_SCHEMAS } from '../../engine/models/tool-schemas'
 import { ChatMessage } from '../models/chat-message'
 
+const abortError = (): Error => {
+  const error = new Error('The operation was aborted')
+  error.name = 'AbortError'
+  return error
+}
+
 const jsonResponse = (body: unknown) =>
   new Response(JSON.stringify(body), {
     status: 200,
@@ -40,6 +46,14 @@ describe('MistralProvider', () => {
 
       expect(outcome).toEqual(Outcomes.failure('transcription', 'API responded 401: unauthorised'))
     })
+
+    it('returns a transcription-step failure when the request is abandoned', async () => {
+      fetchMock.mockRejectedValue(abortError())
+
+      const outcome = await provider.transcribe(new Blob(['audio']), 'audio/webm')
+
+      expect(outcome).toEqual(Outcomes.failure('transcription', 'the request was abandoned'))
+    })
   })
 
   describe('when completing chat', () => {
@@ -64,7 +78,7 @@ describe('MistralProvider', () => {
       const outcome = await provider.complete([ChatMessage.user('hi')], TOOL_SCHEMAS)
 
       expect(outcome.hasFailed()).toBe(false)
-      if (outcome.hasFailed()) return
+      if (!outcome.succeeded()) return
       const turn = outcome.value
       expect(turn.isToolCalls()).toBe(true)
       expect(turn.calls).toEqual([{ id: 'c1', name: 'replace_text', args: { anchor_text: 'a' } }])
@@ -76,7 +90,7 @@ describe('MistralProvider', () => {
       const outcome = await provider.complete([ChatMessage.user('hi')], TOOL_SCHEMAS)
 
       expect(outcome.hasFailed()).toBe(false)
-      if (outcome.hasFailed()) return
+      if (!outcome.succeeded()) return
       const turn = outcome.value
       expect(turn.isText()).toBe(true)
       expect(turn.content).toBe('all done')
@@ -88,6 +102,54 @@ describe('MistralProvider', () => {
       const outcome = await provider.complete([ChatMessage.user('hi')], TOOL_SCHEMAS)
 
       expect(outcome).toEqual(Outcomes.failure('chat', 'request failed: Error: network down'))
+    })
+
+    it('passes no signal to fetch when none is given', async () => {
+      fetchMock.mockResolvedValue(jsonResponse({ choices: [{ message: { content: 'ok' } }] }))
+
+      await provider.complete([ChatMessage.user('hi')], TOOL_SCHEMAS)
+
+      expect(fetchMock.mock.calls[0][1].signal).toBeUndefined()
+    })
+  })
+
+  describe('when the chat request is cancelled', () => {
+    let controller: AbortController
+
+    beforeEach(() => {
+      controller = new AbortController()
+    })
+
+    it('passes the signal to fetch when one is given', async () => {
+      fetchMock.mockResolvedValue(jsonResponse({ choices: [{ message: { content: 'ok' } }] }))
+
+      await provider.complete([ChatMessage.user('hi')], TOOL_SCHEMAS, controller.signal)
+
+      expect(fetchMock.mock.calls[0][1].signal).toBe(controller.signal)
+    })
+
+    it('returns a cancelled outcome when the request is aborted', async () => {
+      fetchMock.mockRejectedValue(abortError())
+
+      const outcome = await provider.complete(
+        [ChatMessage.user('hi')],
+        TOOL_SCHEMAS,
+        controller.signal,
+      )
+
+      expect(outcome).toEqual(Outcomes.cancelled('chat'))
+    })
+
+    it('reports an abort as not failed, so the panel does not call it an error', async () => {
+      fetchMock.mockRejectedValue(abortError())
+
+      const outcome = await provider.complete(
+        [ChatMessage.user('hi')],
+        TOOL_SCHEMAS,
+        controller.signal,
+      )
+
+      expect(outcome.hasFailed()).toBe(false)
     })
   })
 })

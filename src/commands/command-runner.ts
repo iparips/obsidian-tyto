@@ -3,7 +3,7 @@ import { CommandCatalogue } from './command-catalogue'
 import { CommandRegistry } from './command-registry'
 import { OpenedNoteWait } from './opened-note-wait'
 import { CommandEffect } from './models/command-effect'
-import { Outcome, Outcomes } from '../shared/models/outcome'
+import { Attempt, Outcomes } from '../shared/models/outcome'
 
 // Records the active note, runs the command, reads the active note again. The
 // difference is the whole report: a command's other effects are unbounded and
@@ -16,7 +16,7 @@ export class CommandRunner {
     private registry: CommandRegistry,
   ) {}
 
-  async run(commandId: string): Promise<Outcome<CommandEffect>> {
+  async run(commandId: string): Promise<Attempt<CommandEffect>> {
     const allowed = this.catalogue.resolve().find((command) => command.id === commandId)
     if (!allowed)
       return Outcomes.failure('apply', `${commandId} is not an allowed command in this vault`)
