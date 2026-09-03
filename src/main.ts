@@ -74,7 +74,6 @@ export default class OwlPlugin extends Plugin {
       onHidden: (listener) => this.onDocumentHidden(listener),
       notify: (message) => void new Notice(message),
       startNewSession: () => void this.startNewSession(file, view),
-      returnToStartingNote: () => engine.returnToStartingNote(),
       onInstructions: (listener) => listeners.subscribe(listener),
       onCommandRun: (listener) => sessionListeners.commandRuns.subscribe(listener),
       onAnswer: (listener) => sessionListeners.answers.subscribe(listener),

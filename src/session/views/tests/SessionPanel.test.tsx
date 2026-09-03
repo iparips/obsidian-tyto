@@ -238,28 +238,12 @@ describe('SessionPanel', () => {
       expect(screen.getByText('2026-09-02')).toBeTruthy()
     })
 
-    it('offers a way back to the starting note when a change is reported', () => {
-      renderPanel({ onTargetNoteChanged, returnToStartingNote: vi.fn() })
+    it('offers no way back to the starting note when a change is reported', () => {
+      renderPanel({ onTargetNoteChanged })
 
       retargetTo('Journal/2026-09-02.md')
 
-      expect(screen.getByRole('button', { name: 'Return to note' })).toBeTruthy()
-    })
-
-    it('hides the way back when the session is still on its starting note', () => {
-      renderPanel({ onTargetNoteChanged, returnToStartingNote: vi.fn() })
-
-      expect(screen.queryByRole('button', { name: 'Return to note' })).toBeNull()
-    })
-
-    it('returns the target note when the way back is clicked', async () => {
-      const returnToStartingNote = vi.fn()
-      renderPanel({ onTargetNoteChanged, returnToStartingNote })
-      retargetTo('Journal/2026-09-02.md')
-
-      await userEvent.click(screen.getByRole('button', { name: 'Return to note' }))
-
-      expect(returnToStartingNote).toHaveBeenCalled()
+      expect(screen.queryByRole('button', { name: /Return to/ })).toBeNull()
     })
   })
 

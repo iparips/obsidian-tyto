@@ -20,7 +20,6 @@ export interface SessionPanelProps {
   onHidden?(listener: () => void): () => void
   notify?(message: string): void
   startNewSession?(): void
-  returnToStartingNote?(): void
   // The plugin owns the subscription, as with onHidden, so the engine reports a
   // resolved chain without knowing the panel.
   onInstructions?(listener: (text: string) => void): () => void
@@ -102,16 +101,6 @@ export const SessionPanel = (props: SessionPanelProps) => {
     <div className="owl-panel">
       <div className="owl-header">
         <span className="owl-header-name">{targetName}</span>
-        {props.returnToStartingNote && targetName !== props.noteName && (
-          <button
-            className="owl-return-note"
-            aria-label={`Return to ${props.noteName}`}
-            disabled={recording || busy}
-            onClick={props.returnToStartingNote}
-          >
-            {`Back to ${props.noteName}`}
-          </button>
-        )}
         {props.startNewSession && (
           <button
             className="owl-new-session"
@@ -123,7 +112,7 @@ export const SessionPanel = (props: SessionPanelProps) => {
           </button>
         )}
       </div>
-      <HistoryList entries={state.entries} />
+      <HistoryList entries={state.entries} phase={state.phase} />
       <div className="owl-input-row">
         <button
           aria-label={recording ? 'Stop recording' : 'Record'}

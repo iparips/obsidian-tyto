@@ -15,6 +15,22 @@ describe('HistoryEntry', () => {
     })
   })
 
+  describe('when the entry carries a weight', () => {
+    it('carries the utterance weight class when the entry is a user entry', () => {
+      const { container } = render(<HistoryEntry entry={{ kind: 'user', text: 'do the thing' }} />)
+
+      expect(container.querySelector('.owl-entry-utterance')).not.toBeNull()
+    })
+
+    it('carries the reply weight class when the entry is an assistant entry', () => {
+      const { container } = render(
+        <HistoryEntry entry={{ kind: 'assistant', text: 'made the edit' }} />,
+      )
+
+      expect(container.querySelector('.owl-entry-reply')).not.toBeNull()
+    })
+  })
+
   describe('when the entry is copied', () => {
     it('writes the entry text to the clipboard when copy is clicked', async () => {
       render(<HistoryEntry entry={{ kind: 'assistant', text: 'made the edit' }} />)
@@ -32,8 +48,14 @@ describe('HistoryEntry', () => {
       expect(writeText).toHaveBeenCalledWith('chat failed: it broke')
     })
 
-    it('confirms the copy when the write succeeds', async () => {
+    it('offers no copy control on an utterance', () => {
       render(<HistoryEntry entry={{ kind: 'user', text: 'do the thing' }} />)
+
+      expect(screen.queryByLabelText('Copy entry')).toBeNull()
+    })
+
+    it('confirms the copy when the write succeeds', async () => {
+      render(<HistoryEntry entry={{ kind: 'assistant', text: 'made the edit' }} />)
 
       await userEvent.click(screen.getByLabelText('Copy entry'))
 
@@ -50,12 +72,18 @@ describe('HistoryEntry', () => {
       expect(container.querySelector('.owl-entry-command')).not.toBeNull()
     })
 
-    it('copies the command text when copy is clicked', async () => {
+    it('carries the context weight class beside the command class', () => {
+      const { container } = render(
+        <HistoryEntry entry={{ kind: 'command', text: 'ran Open today' }} />,
+      )
+
+      expect(container.querySelector('.owl-entry-context')).not.toBeNull()
+    })
+
+    it('offers no copy control on a context line', () => {
       render(<HistoryEntry entry={{ kind: 'command', text: 'ran Open today' }} />)
 
-      await userEvent.click(screen.getByLabelText('Copy entry'))
-
-      expect(writeText).toHaveBeenCalledWith('ran Open today')
+      expect(screen.queryByLabelText('Copy entry')).toBeNull()
     })
   })
 
@@ -72,6 +100,14 @@ describe('HistoryEntry', () => {
       expect(screen.getByLabelText('Answer sources').textContent).toBe(
         'From 2: Quotes/roofing.md, Journal/day.md',
       )
+    })
+
+    it('keeps the sources inside the body, apart from the copy control', () => {
+      const { container } = render(<HistoryEntry entry={anAnswer()} />)
+
+      const body = container.querySelector('.owl-entry-body')
+
+      expect(body?.querySelector('.owl-entry-sources')).not.toBeNull()
     })
 
     it('copies the body alone when copy is clicked on an answer', async () => {

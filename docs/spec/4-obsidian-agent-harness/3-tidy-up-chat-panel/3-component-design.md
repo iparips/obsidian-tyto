@@ -26,14 +26,14 @@ export class EntryWeights {
 }
 ```
 
-| Kind         | Weight    | Why                                             |
-| ------------ | --------- | ----------------------------------------------- |
-| user         | utterance | The only thing the user wrote                   |
-| assistant    | reply     | What the turn produced                          |
-| answer       | reply     | A reply that cites its sources                  |
-| error        | reply     | A failure is the turn's outcome, not context    |
-| instructions | context   | What was loaded before the work started         |
-| command      | context   | What the harness did on the way to the reply    |
+| Kind         | Weight    | Why                                          |
+| ------------ | --------- | -------------------------------------------- |
+| user         | utterance | The only thing the user wrote                |
+| assistant    | reply     | What the turn produced                       |
+| answer       | reply     | A reply that cites its sources               |
+| error        | reply     | A failure is the turn's outcome, not context |
+| instructions | context   | What was loaded before the work started      |
+| command      | context   | What the harness did on the way to the reply |
 
 A separate type rather than a field on Entry: the weight is a presentation
 decision, and Entry crosses from the engine's publishers into the panel. Putting
@@ -94,22 +94,46 @@ weight: it is the only thing on screen with no styling competing for attention,
 which in a list of tinted boxes is the strongest position rather than the
 weakest.
 
-Context is a tight line, muted and smaller, with the gap between consecutive
-lines removed so a turn's notes stack as one block (FR6). The gap belongs
-between turns, not inside one.
+Context is a tight line, muted, smaller and italic, with the gap between
+consecutive lines removed so a turn's notes stack as one block (FR6). The gap
+belongs between turns, not inside one. The italics are what separate a note the
+harness wrote from a reply, once neither carries a background.
+
+Which leaves the list's uniform gap doing the wrong job in two places. A block
+that stacks tightly still needs air around it, or the utterance above and the
+reply below read as part of the same run.
+
+| Boundary            | Gap     | Why                                  |
+| ------------------- | ------- | ------------------------------------ |
+| Context to context  | None    | A turn's notes are one block         |
+| Around an utterance | Widest  | It is the boundary between two turns |
+| Context to reply    | Wider   | The reply is what the notes led to   |
+| Everything else     | Default | The list's own gap already suits it  |
+
+The utterance takes its room on both sides, in equal measure. It is not the top
+of a turn so much as the line between the turn before it and the turn it opens,
+and a margin on one side alone reads as a lean rather than a break.
 
 ## The Copy Control Needs an Anchor It No Longer Has
 
-The copy button is positioned against the entry's padding today. Two of the
-three weights have no padding once this lands, so a button pinned to the corner
-would sit over the text it copies.
+The copy button is positioned against the entry's padding today. A reply has no
+padding once this lands, so a button pinned to the corner would sit over the
+text it copies.
 
 Context lines drop the control entirely. A line naming which instruction files
 loaded is not something a user copies, and a button on every one of them would
 outnumber the text.
 
-Replies and utterances keep it, positioned outside the text rather than over it,
-and still revealed on hover or focus (FR7, FR8).
+Utterances drop it too. The user wrote those words, so the panel is not where
+they go to get them back.
+
+Replies keep it, in a gutter to the right of the text rather than over it or
+beneath it, and still revealed on hover or focus (FR7, FR8). The reply becomes a
+row of two: the body takes the room that is left, and the button holds a column
+it never shares.
+
+The body is what gains a wrapper. An answer's sources sit under its text, so
+without one the row would lay text, sources and button out as three columns.
 
 ## A Pending Line Holds the Reply's Place
 
@@ -126,12 +150,12 @@ array (NFR3).
 export const PendingEntry = ({ phase }: { phase: Phase }) => ...
 ```
 
-| Phase        | Line          | The wait                          |
-| ------------ | ------------- | --------------------------------- |
-| transcribing | Transcribing  | Audio becoming text               |
-| thinking     | Thinking      | The model working                 |
-| recording    | nothing       | The user is speaking, not waiting |
-| idle         | nothing       | Nothing is running                |
+| Phase        | Line         | The wait                          |
+| ------------ | ------------ | --------------------------------- |
+| transcribing | Transcribing | Audio becoming text               |
+| thinking     | Thinking     | The model working                 |
+| recording    | nothing      | The user is speaking, not waiting |
+| idle         | nothing      | Nothing is running                |
 
 Naming the phase is what makes a stall diagnosable (FR10). A transcription that
 hangs and a model that hangs look identical otherwise, and they have different

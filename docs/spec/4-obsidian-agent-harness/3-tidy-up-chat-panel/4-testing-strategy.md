@@ -23,8 +23,8 @@ a wrong panel.
 - Carries the weight class beside the kind class, so both are available to the
   stylesheet.
 - Renders an answer's sources beneath it, as it does today.
-- Offers the copy control on a reply, and on an utterance.
-- Offers no copy control on a context line (FR7).
+- Offers the copy control on a reply.
+- Offers no copy control on an utterance, or on a context line (FR7).
 - Renders the error's step and message, unchanged from today.
 
 The existing suite covers what each kind says. These cases cover only what

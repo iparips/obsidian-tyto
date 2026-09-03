@@ -29,10 +29,6 @@ export class EditEngine {
     private turnProgressPublisher: TurnProgressPublisher,
   ) {}
 
-  returnToStartingNote(): void {
-    this.sessionRepository.resetTargetNoteToOriginal()
-  }
-
   // A note the user opened themselves is as much a retarget as one a command
   // opened, so the session follows rather than editing the note behind them.
   followActiveNote(path: string): void {

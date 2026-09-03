@@ -23,4 +23,5 @@ The return-note button goes, retiring FR20 of the harness MVP. The session
 already rebinds to whatever note the user opens, so opening the starting note is
 the path that survives.
 
-Designed, not built.
+Built. The exit test in
+[5-implementation-order.md](5-implementation-order.md) is by hand and outstanding.

@@ -389,33 +389,6 @@ describe('EditEngine', () => {
     })
   })
 
-  describe('when the user returns the session to its starting note', () => {
-    beforeEach(() => {
-      opensDailyNote()
-    })
-
-    it('moves the target back when the session is returned', async () => {
-      respondsWith(runCommand())
-      const engine = engineOf()
-      await engine.processUtterance('open my daily note')
-
-      engine.returnToStartingNote()
-
-      expect(sessions.targetNote()).toBe('note.md')
-    })
-
-    it('keeps the conversation when the session is returned', async () => {
-      respondsWith(runCommand())
-      const engine = engineOf()
-      await engine.processUtterance('open my daily note')
-
-      engine.returnToStartingNote()
-      await engine.processUtterance('now edit it')
-
-      expect(complete.mock.calls[2][0].filter((m: ChatMessage) => m.isUser())).toHaveLength(2)
-    })
-  })
-
   describe('when search is turned off', () => {
     it('refuses a search when search is disabled in settings', async () => {
       respondsWith(aToolTurn(aToolCall('search_vault', { query: 'roofing' })))

@@ -7,7 +7,7 @@ export class SessionRepository {
   private targetPath: string
   private readonly messages: ChatMessage[] = []
 
-  constructor(private readonly originalNote: TFile) {
+  constructor(originalNote: TFile) {
     this.targetPath = originalNote.path
   }
 
@@ -17,11 +17,6 @@ export class SessionRepository {
 
   changeTargetNote(path: string): void {
     this.targetPath = path
-  }
-
-  // Leaves the conversation intact, unlike a reset (FR20).
-  resetTargetNoteToOriginal(): void {
-    this.targetPath = this.originalNote.path
   }
 
   chatHistory(): readonly ChatMessage[] {

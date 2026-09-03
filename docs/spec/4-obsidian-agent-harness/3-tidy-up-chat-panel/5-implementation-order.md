@@ -2,11 +2,8 @@
 
 ## Status
 
-Not started. The harness MVP and the settings command picker are built and the
-suite passes; this is a delta on that codebase, touching the session views and
-the stylesheet.
-
-Verify before starting: `bun run build` passes.
+Built. All six steps have landed and `bun run build` passes. The exit test below
+is by hand in a real vault, and has not been run.
 
 ## Steps
 
@@ -16,7 +13,7 @@ Each step leaves the suite green.
    mapping. Pure, so it tests without rendering anything.
 
 2. `src/session/views/HistoryEntry.tsx`: carry the weight class beside the kind
-   class, and drop the copy control on a context line.
+   class, and keep the copy control on the replies alone.
 
    One existing case contradicts FR7 and goes: "copies the command text when
    copy is clicked", in `HistoryEntry.test.tsx`, asserts the control this step
@@ -79,8 +76,8 @@ is, and no unit test judges it.
    that width and the context lines have not wrapped into a wall.
 5. Switch the vault to a light theme, and to a community theme. Confirm nothing
    is unreadable and no colour is hard-coded.
-6. Select part of an entry and copy it, on a reply and on an utterance. Confirm
-   the control never covers the text.
+6. Select part of a reply and copy it. Confirm the control never covers the
+   text, and that no other weight offers one.
 
 ## What to decide while building
 

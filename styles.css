@@ -38,9 +38,6 @@
 }
 
 .owl-entry {
-  padding: var(--size-4-2);
-  border-radius: var(--radius-s);
-  position: relative;
   /* Obsidian views default to user-select: none; opt back in so entries can be
      selected and copied. */
   user-select: text;
@@ -48,14 +45,67 @@
   cursor: text;
 }
 
+/* The user's own words, set apart by side and shape rather than by a tint the
+   other entries also carry. Capped as a proportion, since the drawer is resized
+   freely and read on a phone (NFR2).
+
+   An utterance is the boundary between two turns, so it carries equal room on
+   both sides. The list's own gap is the one inside a turn. */
+.owl-entry-utterance {
+  align-self: flex-end;
+  max-width: 80%;
+  padding: var(--size-4-2);
+  border-radius: var(--radius-m);
+  background-color: var(--background-modifier-hover);
+  margin-block: var(--size-4-3);
+}
+
+/* Plain text at full width. Removing the background is what gives the reply its
+   weight: nothing competes with it in a list that has stopped tinting boxes.
+
+   The copy control sits in a gutter beside the text rather than beneath it, so
+   it never displaces the reply or covers it (FR8). */
+.owl-entry-reply {
+  padding: 0;
+  background-color: transparent;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--size-4-2);
+}
+
+.owl-entry-reply .owl-entry-body {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Context is smaller and muted, and consecutive lines stack with no gap so a
+   turn's notes read as one block. The gap belongs between turns, not inside
+   one. */
+.owl-entry-context {
+  padding: 0;
+  background-color: transparent;
+  color: var(--text-muted);
+  font-size: var(--font-ui-smaller);
+  line-height: var(--line-height-tight);
+  font-style: italic;
+}
+
+.owl-entry-context + .owl-entry-context {
+  margin-top: calc(-1 * var(--size-4-2));
+}
+
+/* A reply is what the notes above it were leading to, so it needs the room the
+   stacked context lines gave up. */
+.owl-entry-context + .owl-entry-reply {
+  margin-top: var(--size-4-2);
+}
+
 .owl-entry-text {
   white-space: pre-wrap;
 }
 
 .owl-entry-copy {
-  position: absolute;
-  top: var(--size-4-1);
-  right: var(--size-4-1);
+  flex: 0 0 auto;
   padding: 0 var(--size-4-1);
   font-size: var(--font-smallest);
   box-shadow: none;
@@ -67,23 +117,10 @@
   opacity: 1;
 }
 
-.owl-entry-user {
-  background-color: var(--background-secondary);
-}
-
-.owl-entry-assistant {
-  background-color: var(--background-primary-alt);
-}
-
+/* A failure is what the turn produced, so the colour marks it rather than a box
+   (FR3). */
 .owl-entry-error {
   color: var(--text-error);
-  background-color: var(--background-secondary);
-}
-
-.owl-entry-instructions {
-  color: var(--text-muted);
-  background-color: var(--background-secondary);
-  font-size: var(--font-ui-smaller);
 }
 
 .owl-input-row {
@@ -118,26 +155,10 @@
   white-space: nowrap;
 }
 
-/* Touch has no hover, so the copy button stays visible on mobile (FR33).
-   Taking it out of the corner overlay and into the entry's own row stops it
-   sitting on top of the text it copies. */
-.is-mobile .owl-entry {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--size-4-2);
-}
-
-.is-mobile .owl-entry-text {
-  flex: 1;
-  min-width: 0;
-}
-
+/* Touch has no hover, so the copy button stays visible on mobile (FR33). */
 .is-mobile .owl-entry-copy {
-  position: static;
   opacity: 1;
-  flex: 0 0 auto;
   min-height: 32px;
-  align-self: center;
 }
 
 .owl-settings {
@@ -158,16 +179,11 @@
   font-size: var(--font-ui-small);
 }
 
-.owl-entry-command {
-  color: var(--text-muted);
-  background-color: var(--background-secondary);
-  font-size: var(--font-ui-smaller);
-}
-
-/* An answer wrote nothing, so it must not read like an edit that did (FR29). */
+/* An answer wrote nothing, so it must not read like an edit that did (FR29).
+   The rule alone says it, now that a reply carries no surface to tint. */
 .owl-entry-answer {
-  background-color: var(--background-primary-alt);
   border-left: 3px solid var(--interactive-accent);
+  padding-left: var(--size-4-2);
 }
 
 .owl-entry-sources {
@@ -346,12 +362,10 @@
   word-break: break-all;
 }
 
-.owl-return-note {
-  flex: 0 0 auto;
-  font-size: var(--font-smallest);
-  padding: 0 var(--size-4-2);
-  max-width: 12em;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+/* The pending line reads as context, since a turn in progress has not produced
+   anything yet. It sits where the reply will land (FR9). */
+.owl-pending {
+  color: var(--text-muted);
+  font-size: var(--font-ui-smaller);
+  font-style: italic;
 }

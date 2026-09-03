@@ -28,20 +28,6 @@ describe('SessionRepository', () => {
     it('targets the new note when the target changes', () => {
       expect(sessions.targetNote()).toBe('Journal/day.md')
     })
-
-    it('returns to the original note when the target is reset', () => {
-      sessions.resetTargetNoteToOriginal()
-
-      expect(sessions.targetNote()).toBe('note.md')
-    })
-
-    it('keeps the conversation when the target is reset', () => {
-      sessions.appendChatMessage(ChatMessage.user('hello'))
-
-      sessions.resetTargetNoteToOriginal()
-
-      expect(sessions.chatHistory()).toHaveLength(1)
-    })
   })
 
   describe('when the conversation grows', () => {

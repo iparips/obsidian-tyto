@@ -47,12 +47,12 @@ open some note, any note, before the panel will start.
 The two flows the harness added differ in what they need. Search reads the
 vault; editing needs somewhere to write.
 
-| Flow                | Unbound  | Why                                       |
-| ------------------- | -------- | ----------------------------------------- |
-| Search and answer   | Works    | Reads the vault, writes nothing           |
-| Run a command       | Works    | Its effect is to open a note, which binds |
-| Edit the note       | Refused  | There is no note to edit                  |
-| Load a skill        | Works    | Reading instructions writes nothing       |
+| Flow              | Unbound | Why                                       |
+| ----------------- | ------- | ----------------------------------------- |
+| Search and answer | Works   | Reads the vault, writes nothing           |
+| Run a command     | Works   | Its effect is to open a note, which binds |
+| Edit the note     | Refused | There is no note to edit                  |
+| Load a skill      | Works   | Reading instructions writes nothing       |
 
 Running a command is the interesting case. A command that opens a note binds the
 session to it, so an unbound session can reach a bound state on its own, through

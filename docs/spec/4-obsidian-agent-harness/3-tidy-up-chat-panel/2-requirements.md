@@ -92,7 +92,8 @@ with no padding or background.
 FR6. Stack consecutive context lines with no gap between them, so a turn's notes
 read as one block rather than separate entries.
 
-FR7. Keep every entry selectable, and keep the copy control reachable on each.
+FR7. Keep every entry selectable, and keep the copy control on the replies. The
+user's own words and the harness notes are not what a user copies back out.
 
 FR8. Keep the copy control from covering an entry's text, including in a narrow
 drawer.
