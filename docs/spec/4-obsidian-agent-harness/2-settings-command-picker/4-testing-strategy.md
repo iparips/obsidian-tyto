@@ -50,10 +50,13 @@ they must pass with only their construction changed.
 
 - Typing a query renders the matches; clearing it renders nothing.
 - Adding a command publishes its exact id, and no name (NFR1).
-- Adding a second command from a plugin already listed offers the pattern, with
-  the count it reaches (FR7).
-- Accepting a pattern replaces that plugin's individual entries.
-- Declining the pattern keeps both ids.
+- Adding a second command from a plugin already listed stores its exact id, and
+  suggests the pattern with the count it reaches (FR7).
+- Accepting the suggestion replaces that plugin's individual entries.
+- Ignoring it keeps both ids, and needs no dismissal to add a third command.
+- The suggestion goes when the user types the pattern by hand, since it is
+  derived from the entries rather than stored.
+- No suggestion when the picked command's plugin has no other entry.
 - A positional id shows the warning; an ordinary id does not (FR8).
 - A command already covered renders as covered, with no add control.
 - The overflow line appears only when the search reported more than the cap.

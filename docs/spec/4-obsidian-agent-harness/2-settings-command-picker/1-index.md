@@ -8,7 +8,7 @@ allow-list and its text field. Only the settings surface changes; the matching
 rule, the catalogue and the prompt are untouched.
 
 - [2-requirements.md](2-requirements.md) - problem, why names stay the search key, and the wildcard question
-- [3-component-design.md](3-component-design.md) - the registry split, matching, and how a pattern is offered
+- [3-component-design.md](3-component-design.md) - the registry split, matching, and how a pattern is suggested
 - [4-testing-strategy.md](4-testing-strategy.md) - unit test outline, reusing the existing registry fake
 - [5-implementation-order.md](5-implementation-order.md) - the build sequence and the exit test
 
@@ -21,6 +21,6 @@ and never stored, so a retitled command shows its new name and a pattern shows
 the count it covers.
 
 Designed, not built. The wildcard question is settled in
-[3-component-design.md](3-component-design.md): the picker offers the pattern
-when a second command from the same plugin is added, shows what it reaches, and
-replaces that plugin's individual entries when accepted.
+[3-component-design.md](3-component-design.md): adding always stores the exact
+id, and the pattern is suggested beside it with what it reaches. Ignoring the
+suggestion costs nothing; accepting it replaces that plugin's entries.

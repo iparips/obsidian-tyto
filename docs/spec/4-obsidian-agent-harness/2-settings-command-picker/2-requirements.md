@@ -46,10 +46,10 @@ renders the list is unusable; one that searches it is not.
   list", and allow it without typing an id.
 - As a user, I see the id an entry resolves to, so what I allowed is legible
   later.
-- As a user allowing a second command from the same plugin, I am offered the
-  namespace pattern instead, and shown the commands it would cover.
+- As a user allowing a second command from the same plugin, I see the namespace
+  pattern suggested beside it, with what it would cover, and can ignore it.
 - As a user whose picked command has a positional id, I am told that entry will
-  shift if I reorder that plugin's configs, and offered the pattern instead.
+  shift if I reorder that plugin's configs, with the pattern suggested instead.
 - As a user on a phone, I search and tap rather than typing a colon-separated id.
 
 ## Names are the search key, never the match key
@@ -82,17 +82,17 @@ A picker adds one command. A pattern covers many, and the harness MVP made
 patterns necessary rather than convenient, because positional ids shift when the
 user reorders their configs.
 
-The two have to meet somewhere, and this is the part the design must settle.
+The two meet in a suggestion, settled in
+[3-component-design.md](3-component-design.md).
 
-- Picking a second command from a plugin already represented is the moment to
-  offer the pattern. What that offer looks like, and whether accepting it
-  replaces the individual entries, is a design question.
-- A pattern's reach changes without the user editing it (FR6). The picker is
-  where that reach is most visible, so showing it at the moment of choosing is
-  worth more than showing it afterwards.
-- Positional ids are the case where an exact entry is actively wrong. Detecting
-  them is heuristic: an id whose command-part is an integer. Whether to warn, to
-  refuse, or to silently prefer the pattern is a design question.
+- Adding always stores the exact id. The pattern appears beside the entry it
+  would replace, and is ignorable without dismissing, so a user who does not
+  want to think about namespaces is never stopped to.
+- A pattern's reach changes without the user editing it (FR6), so the count is
+  shown with the suggestion rather than discovered after accepting it.
+- Positional ids warn rather than refuse. Detecting them is a heuristic about a
+  plugin convention, not a rule Obsidian enforces, so a false positive should
+  cost one extra line and nothing else.
 
 ## Requirements
 
@@ -113,8 +113,9 @@ FR5. Add a listed command to the allow-list as its exact id, in one action.
 FR6. Show which listed commands the allow-list already covers, so the same
 command is not added twice and a pattern's reach is visible in context.
 
-FR7. Offer the namespace pattern when a picked command's plugin already has an
-entry, and show how many commands that pattern covers.
+FR7. Suggest the namespace pattern when a picked command's plugin already has an
+entry, showing how many commands it covers. The suggestion needs no dismissing:
+the command is added as its exact id either way.
 
 FR8. Warn when a picked command's id is positional, naming the risk that the
 entry shifts when the user reorders that plugin's configuration.

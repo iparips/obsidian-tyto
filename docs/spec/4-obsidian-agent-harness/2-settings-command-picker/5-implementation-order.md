@@ -44,7 +44,7 @@ Each step leaves the suite green.
    control or covered marker.
 
 6. `src/settings/CommandPicker.tsx`: the query field, the results, the overflow
-   line, and the pattern offer.
+   line, and the pattern suggestion.
 
 7. `src/commands/models/entry-reach.ts` and
    `src/commands/entry-reach-resolver.ts`: what each stored entry reaches, and
@@ -82,6 +82,7 @@ By hand in a real vault, since the registry is what the suite fakes.
 
 ## What to decide while building
 
-Whether the pattern offer is a prompt or a suggestion the user can ignore
-without dismissing. The design says offer, and shows the reach with it; the
-control's shape is the open part.
+Nothing outstanding. The pattern suggestion is settled in
+[3-component-design.md](3-component-design.md): adding always stores the exact
+id, and the suggestion appears beside the entry it would replace, ignorable
+without dismissing.

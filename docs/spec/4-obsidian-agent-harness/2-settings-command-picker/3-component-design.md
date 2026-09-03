@@ -211,23 +211,33 @@ registry order.
 Cost is bounded by the cap on rendered rows (FR3), not by the scan. Several
 hundred commands is one pass over an array Obsidian already holds.
 
-## A Pattern Is Offered, Never Imposed
+## A Pattern Is Suggested, Never Asked
 
 The wildcard question the requirements leave open: a picker adds one command,
 and patterns exist because positional ids shift.
 
-The answer is to offer, and to show the reach before the user commits.
+Adding always adds the exact id. The pattern is a suggestion that appears
+afterwards, alongside the entry it would replace, and it needs no dismissing:
+the user who ignores it keeps the ids they picked.
 
-| The user picks                        | The picker offers        |
-| ------------------------------------- | ------------------------ |
-| A command whose plugin has no entry   | Its exact id             |
-| A second command from the same plugin | The pattern, or the id   |
-| A command whose id is positional      | The pattern, warning why |
+| The user picks                        | Stored       | Suggested afterwards       |
+| ------------------------------------- | ------------ | -------------------------- |
+| A command whose plugin has no entry   | Its exact id | Nothing                    |
+| A second command from the same plugin | Its exact id | The pattern, and its count |
+| A command whose id is positional      | Its exact id | The pattern, warning why   |
 
-Accepting a pattern replaces the individual entries for that plugin, because
-keeping both would leave the user reading a list where one line already covers
-another. The count of what the pattern reaches is shown with the offer (FR7), so
-the reach is visible at the moment of choosing rather than afterwards.
+A prompt would be wrong here. It stops a user mid-task to answer a question
+about namespace patterns, and the answer that costs nothing to defer is the one
+they are least equipped to give while adding their second command.
+
+Accepting the suggestion replaces that plugin's individual entries, because
+keeping both leaves the user reading a list where one line already covers
+another. The count is shown with the suggestion (FR7), so the reach is visible
+before it is accepted rather than after.
+
+The suggestion is derived, never stored. It follows from the entries and the
+registry, so it reappears whenever it still applies and vanishes when the user
+adds the pattern by hand instead.
 
 Positional ids are detected structurally: the part after the colon parses as an
 integer. That is a heuristic about a convention, not a rule Obsidian enforces,
