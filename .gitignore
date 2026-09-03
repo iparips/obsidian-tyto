@@ -31,4 +31,4 @@ coverage
 .DS_Store
 
 # AI assistants
-.claude/settings.local.json
+.claude/

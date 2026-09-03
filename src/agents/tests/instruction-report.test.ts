@@ -39,4 +39,26 @@ describe('InstructionReport', () => {
       expect(report.noticeText()).toContain('1 instruction file(s) dropped')
     })
   })
+
+  describe('when a retarget resolves the chain again', () => {
+    const reportOf = (...labels: string[]) => new InstructionReport(labels, 0)
+
+    it('reports itself the same when the applied files are unchanged', () => {
+      expect(reportOf('vault root').sameAs(reportOf('vault root'))).toBe(true)
+    })
+
+    it('reports itself different when the retarget picked up another file', () => {
+      expect(reportOf('vault root').sameAs(reportOf('vault root', 'Journal'))).toBe(false)
+    })
+
+    it('reports itself different when nothing was reported before', () => {
+      expect(reportOf('vault root').sameAs(null)).toBe(false)
+    })
+
+    it('reports itself different when the drop count changed', () => {
+      expect(
+        new InstructionReport(['Journal'], 0).sameAs(new InstructionReport(['Journal'], 1)),
+      ).toBe(false)
+    })
+  })
 })

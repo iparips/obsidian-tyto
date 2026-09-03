@@ -92,6 +92,7 @@ describe('EditEngine', () => {
           (text, sources) => answers.push({ text, sources }),
           (path) => retargets.push(path),
           () => undefined,
+          (name) => commands.push(`Skill applied: ${name}`),
         ),
       },
     )

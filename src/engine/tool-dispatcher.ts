@@ -46,12 +46,16 @@ export class ToolDispatcher {
     return this.callToolOnNote(call, this.turnRepository.targetNote())
   }
 
+  // Published once the body is in hand, so the panel names a skill the turn
+  // actually followed rather than one the model asked for and did not get.
   private async loadSkill(call: ToolCall): Promise<string> {
     const name = call.argument('name')
     const skill = this.turnRepository.skillNamed(name)
     if (!skill) return `no skill named ${name} in this vault`
     const body = await this.skillRepository.readBody(skill)
-    return body ?? `skill ${skill.name} could not be read`
+    if (body === null) return `skill ${skill.name} could not be read`
+    this.turnProgressPublisher.skillLoaded(skill.name)
+    return body
   }
 
   private async callHarnessTool(call: ToolCall): Promise<ToolCallOutcome> {

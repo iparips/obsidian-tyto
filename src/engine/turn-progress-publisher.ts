@@ -10,10 +10,12 @@ export class TurnProgressPublisher {
     readonly answered: (text: string, sources: string[]) => void,
     readonly retargeted: (path: string) => void,
     readonly instructionsResolved: (chain: AgentsMdChain) => void,
+    readonly skillLoaded: (name: string) => void,
   ) {}
 
   static silent(): TurnProgressPublisher {
     return new TurnProgressPublisher(
+      () => undefined,
       () => undefined,
       () => undefined,
       () => undefined,

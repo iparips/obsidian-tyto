@@ -20,6 +20,12 @@ export class InstructionReport {
     return this.applied.length === 0 && this.droppedCount === 0
   }
 
+  // A retarget resolves the chain again, so an unchanged report is not worth a
+  // second panel entry.
+  sameAs(other: InstructionReport | null): boolean {
+    return other !== null && this.panelText() === other.panelText()
+  }
+
   panelText(): string {
     return [`Instructions applied: ${this.appliedText()}`, ...this.dropText()].join(' ')
   }

@@ -37,6 +37,7 @@ describe('EditEngine', () => {
           () => undefined,
           () => undefined,
           (chain: AgentsMdChain) => reported.push(chain),
+          () => undefined,
         ),
       },
     )

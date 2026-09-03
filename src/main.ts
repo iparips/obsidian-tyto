@@ -104,23 +104,35 @@ export default class OwlPlugin extends Plugin {
     sessionListeners: SessionListeners,
     instructions: InstructionListeners,
   ): TurnProgressPublisher {
+    // A command that retargets resolves the chain again, so the last report is
+    // held to keep an unchanged chain from printing twice.
+    let lastReported: InstructionReport | null = null
     return new TurnProgressPublisher(
       (text) => sessionListeners.commandRuns.publish(text),
       (text, sources) => sessionListeners.answers.publish({ text, sources }),
       (path) => sessionListeners.retargets.publish(path),
-      (chain) => this.reportInstructions(chain, instructions),
+      (chain) => {
+        lastReported = this.reportInstructions(chain, instructions, lastReported)
+      },
+      (name) => sessionListeners.commandRuns.publish(`Skill applied: ${name}`),
     )
   }
 
   // The three channels a drop reaches the user through: the panel entry, one
   // Notice per resolved chain, and a console line naming every file (FR10, FR14-16).
-  private reportInstructions(chain: AgentsMdChain, listeners: InstructionListeners): void {
+  // Returns what was reported, so an identical chain is not reported again.
+  private reportInstructions(
+    chain: AgentsMdChain,
+    listeners: InstructionListeners,
+    lastReported: InstructionReport | null,
+  ): InstructionReport | null {
     const report = InstructionReport.of(chain)
-    if (report.isEmpty()) return
+    if (report.isEmpty() || report.sameAs(lastReported)) return lastReported
     listeners.publish(report.panelText())
-    if (!chain.hasDrops()) return
+    if (!chain.hasDrops()) return report
     new Notice(report.noticeText())
     OwlPlugin.logDrops(chain)
+    return report
   }
 
   private static logDrops(chain: AgentsMdChain): void {

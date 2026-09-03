@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, Mock, vi } from 'vitest'
 import { EditEngine } from '../edit-engine'
 import { Outcomes } from '../../shared/models/outcome'
 import { SkillRepository } from '../../skills/skill-repository'
+import { TurnProgressPublisher } from '../turn-progress-publisher'
 import { AgentsMdRepository } from '../../agents/agents-md-repository'
 import { FakeAdapter } from '../../test-support/fake-adapter'
 import { ChatProvider, ChatMessage } from '../../providers/types'
@@ -188,6 +189,95 @@ describe('EditEngine', () => {
       await withSkills.processUtterance('archive')
 
       expect(toolResults()[0]).toMatchObject({ content: 'no skill named nope in this vault' })
+    })
+
+    it('publishes a panel entry naming the skill when one is loaded', async () => {
+      const loaded: string[] = []
+      const withSkills = anEngine(chat, {
+        sessions,
+        noteLocator,
+        agentsMdRepository: noInstructions(),
+        skillRepository: new SkillRepository(
+          new FakeAdapter().withSkill(`${SKILLS_PATH}/todo`, todoSource).asAdapter(),
+          SKILLS_PATH,
+        ),
+        progress: new TurnProgressPublisher(
+          () => undefined,
+          () => undefined,
+          () => undefined,
+          () => undefined,
+          (name) => loaded.push(name),
+        ),
+      })
+      complete
+        .mockResolvedValueOnce(
+          Outcomes.success(aToolTurn(aToolCall('load_skill', { name: 'todo' }))),
+        )
+        .mockResolvedValueOnce(Outcomes.success(aTextTurn('done')))
+
+      await withSkills.processUtterance('archive my todo')
+
+      expect(loaded).toEqual(['todo'])
+    })
+
+    it('publishes nothing when load_skill names a skill the vault lacks', async () => {
+      const loaded: string[] = []
+      const withSkills = anEngine(chat, {
+        sessions,
+        noteLocator,
+        agentsMdRepository: noInstructions(),
+        skillRepository: new SkillRepository(
+          new FakeAdapter().withSkill(`${SKILLS_PATH}/todo`, todoSource).asAdapter(),
+          SKILLS_PATH,
+        ),
+        progress: new TurnProgressPublisher(
+          () => undefined,
+          () => undefined,
+          () => undefined,
+          () => undefined,
+          (name) => loaded.push(name),
+        ),
+      })
+      complete
+        .mockResolvedValueOnce(
+          Outcomes.success(aToolTurn(aToolCall('load_skill', { name: 'nope' }))),
+        )
+        .mockResolvedValueOnce(Outcomes.success(aTextTurn('done')))
+
+      await withSkills.processUtterance('archive')
+
+      expect(loaded).toEqual([])
+    })
+
+    it('publishes nothing when the skill file cannot be read', async () => {
+      const loaded: string[] = []
+      const withSkills = anEngine(chat, {
+        sessions,
+        noteLocator,
+        agentsMdRepository: noInstructions(),
+        skillRepository: new SkillRepository(
+          new FakeAdapter()
+            .withSkillDeletedAfterListing(`${SKILLS_PATH}/todo`, todoSource)
+            .asAdapter(),
+          SKILLS_PATH,
+        ),
+        progress: new TurnProgressPublisher(
+          () => undefined,
+          () => undefined,
+          () => undefined,
+          () => undefined,
+          (name) => loaded.push(name),
+        ),
+      })
+      complete
+        .mockResolvedValueOnce(
+          Outcomes.success(aToolTurn(aToolCall('load_skill', { name: 'todo' }))),
+        )
+        .mockResolvedValueOnce(Outcomes.success(aTextTurn('done')))
+
+      await withSkills.processUtterance('archive my todo')
+
+      expect(loaded).toEqual([])
     })
 
     it('says so when the skill file cannot be read', async () => {
