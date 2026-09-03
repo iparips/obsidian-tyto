@@ -15,8 +15,10 @@ import { CommandCatalogue } from '../commands/command-catalogue'
 import { CommandRegistry } from '../commands/command-registry'
 import { CommandRunner } from '../commands/command-runner'
 import { OpenedNoteWait } from '../commands/opened-note-wait'
+import { NoteGlob } from '../search/note-glob'
+import { NoteGrep } from '../search/note-grep'
+import { SearchTools } from './search-tools'
 import { NoteReader } from '../search/note-reader'
-import { VaultSearch } from '../search/vault-search'
 import { OwlSettings } from '../settings/settings'
 import { OpenApproval } from './open-approval'
 import { TurnCancellation } from './turn-cancellation'
@@ -87,10 +89,10 @@ export class EngineFactory {
     const catalogue = new CommandCatalogue(registry, new AllowList(this.settings.commandAllowList))
     return new HarnessTools(
       new CommandRunner(this.app, catalogue, new OpenedNoteWait(this.app), registry),
-      new VaultSearch(this.app.vault),
       new NoteReader(this.app.vault),
       catalogue,
       this.settings.searchEnabled,
+      new SearchTools(new NoteGlob(this.app.vault), new NoteGrep(this.app.vault)),
     )
   }
 }

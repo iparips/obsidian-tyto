@@ -14,7 +14,9 @@ import { CommandCatalogue } from '../../commands/command-catalogue'
 import { CommandRegistry } from '../../commands/command-registry'
 import { CommandRunner } from '../../commands/command-runner'
 import { OpenedNoteWait } from '../../commands/opened-note-wait'
-import { VaultSearch } from '../../search/vault-search'
+import { NoteGlob } from '../../search/note-glob'
+import { NoteGrep } from '../../search/note-grep'
+import { SearchTools } from '../search-tools'
 import { NoteReader } from '../../search/note-reader'
 import { FakeAdapter } from '../../test-support/fake-adapter'
 import { FakeEditor } from '../../test-support/fake-editor'
@@ -63,10 +65,10 @@ describe('EditEngine', () => {
     const catalogue = new CommandCatalogue(registry, new AllowList([]))
     return new HarnessTools(
       new CommandRunner(app, catalogue, new OpenedNoteWait(app, 30), registry),
-      new VaultSearch(vault.asVault()),
       new NoteReader(vault.asVault()),
       catalogue,
       true,
+      new SearchTools(new NoteGlob(vault.asVault()), new NoteGrep(vault.asVault())),
     )
   }
 
@@ -110,7 +112,10 @@ describe('EditEngine', () => {
     complete.mockResolvedValue(Outcomes.success(aTextTurn('done')))
   }
 
-  const findsTodo = () => aToolTurn(aToolCall('search_vault', { query: 'milk' }))
+  // A glob rather than a search: this helper exists to put a path in SeenPaths
+  // so open_note will accept it, and a glob does that as well as a search did.
+  const findsTodo = () =>
+    aToolTurn(aToolCall('glob_notes', { pattern: 'Journal/Weekly/Week-36/*.md' }))
 
   const opensTodo = () => aToolTurn(aToolCall('open_note', { path: TODO }))
 
@@ -316,12 +321,12 @@ describe('EditEngine', () => {
   })
 
   describe('when the panel asks what the turn did', () => {
-    it('reports a search with its query and match count', async () => {
+    it('reports a glob with its pattern and note count', async () => {
       respondsWith(findsTodo())
 
       await engineOf().processUtterance('add toilet paper to my todo')
 
-      expect(steps).toEqual(['Searched: milk — 1 match'])
+      expect(steps).toEqual(['Globbed: Journal/Weekly/Week-36/*.md — 1 note'])
     })
 
     it('reports the open when a model-chosen note opens', async () => {
@@ -332,7 +337,7 @@ describe('EditEngine', () => {
       expect(steps.at(-1)).toBe(`Opened: ${TODO}`)
     })
 
-    it('reports a refusal when a path was never searched, so a stuck turn says why', async () => {
+    it('reports a refusal when a path was never offered, so a stuck turn says why', async () => {
       respondsWith(opensTodo())
 
       await engineOf().processUtterance('add toilet paper to my todo')

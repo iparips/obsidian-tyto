@@ -6,7 +6,9 @@ import { OpenedNoteWait } from '../commands/opened-note-wait'
 import { CommandCatalogue } from '../commands/command-catalogue'
 import { CommandRegistry } from '../commands/command-registry'
 import { AllowList } from '../commands/allow-list'
-import { VaultSearch } from '../search/vault-search'
+import { NoteGlob } from '../search/note-glob'
+import { NoteGrep } from '../search/note-grep'
+import { SearchTools } from '../engine/search-tools'
 import { NoteReader } from '../search/note-reader'
 import { FakeVault } from './fake-vault'
 import { FakeAdapter } from './fake-adapter'
@@ -88,8 +90,11 @@ export const noHarness = (): HarnessTools =>
       new OpenedNoteWait({} as App),
       new CommandRegistry({} as App),
     ),
-    new VaultSearch(new FakeVault().asVault()),
     new NoteReader(new FakeVault().asVault()),
     new CommandCatalogue(new CommandRegistry({} as App), new AllowList([])),
     false,
+    new SearchTools(
+      new NoteGlob(new FakeVault().asVault()),
+      new NoteGrep(new FakeVault().asVault()),
+    ),
   )

@@ -74,8 +74,13 @@ release 3.
 
 ## Searching the vault
 
+Superseded by [10-finding-notes](../10-finding-notes/1-index.md). The one fuzzy
+search FR22 and FR25 describe is retired, replaced by a glob over paths and a
+grep over content. FR23, FR24 and FR26 still hold, against the two new tools.
+
 FR22. Give the model a tool that searches note content and returns matching
-paths with surrounding excerpts.
+paths with surrounding excerpts. Now grep_notes, matching a regular expression
+exactly rather than scoring relevance.
 
 FR23. Bound the result set, by match count and by excerpt length, so one search
 cannot fill the context window.
@@ -84,7 +89,8 @@ FR24. Give the model a tool that reads one named note in full, without binding
 the session to it.
 
 FR25. Narrow a query by modification time, so "recently" changes the result set
-rather than being ignored.
+rather than being ignored. Retired: both new tools sort by modification time
+instead, so "recently" orders the results rather than filtering them.
 
 FR26. Cap the number of searches and reads one turn may perform.
 

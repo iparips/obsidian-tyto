@@ -12,7 +12,9 @@ import { CommandRegistry } from '../../commands/command-registry'
 import { CommandRunner } from '../../commands/command-runner'
 import { OpenedNoteWait } from '../../commands/opened-note-wait'
 import { SkillRepository } from '../../skills/skill-repository'
-import { VaultSearch } from '../../search/vault-search'
+import { NoteGlob } from '../../search/note-glob'
+import { NoteGrep } from '../../search/note-grep'
+import { SearchTools } from '../search-tools'
 import { NoteReader } from '../../search/note-reader'
 import { FakeAdapter } from '../../test-support/fake-adapter'
 import { FakeEditor } from '../../test-support/fake-editor'
@@ -70,10 +72,10 @@ describe('EditEngine', () => {
     const catalogue = new CommandCatalogue(commandRegistry, new AllowList(['daily-notes:*']))
     return new HarnessTools(
       new CommandRunner(app, catalogue, new OpenedNoteWait(app, 30), commandRegistry),
-      new VaultSearch(vault.asVault()),
       new NoteReader(vault.asVault()),
       catalogue,
       true,
+      new SearchTools(new NoteGlob(vault.asVault()), new NoteGrep(vault.asVault())),
     )
   }
 
@@ -139,10 +141,10 @@ describe('EditEngine', () => {
       expect(complete.mock.calls[0][1].map((schema) => schema.name)).toContain('insert_at')
     })
 
-    it('answers from a search when no note is open', async () => {
+    it('answers from a listing when no note is open', async () => {
       vault.withNote('Quotes/roofing.md', 'the roofing quote came to 12k')
       respondsWith(
-        aToolTurn(aToolCall('search_vault', { query: 'roofing' })),
+        aToolTurn(aToolCall('glob_notes', { pattern: 'Quotes/*.md' })),
         aToolTurn(
           aToolCall('answer_from_search', {
             answer: 'It was 12k.',

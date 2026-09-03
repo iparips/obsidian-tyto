@@ -1,14 +1,21 @@
 import {
   ASK_USER,
-  OPEN_NOTE,
+  GLOB_NOTES,
+  GREP_NOTES,
   READ_NOTE,
   RUN_COMMAND,
-  SEARCH_VAULT,
 } from '../../providers/models/tool-call'
 
 const MAX_COMMANDS = 3
 const MAX_SEARCHES = 4
+// Separate from each other and from the searches, because a glob costs no read
+// and a grep costs one per candidate. Sharing them would let cheap
+// reconnaissance starve the reads it exists to inform.
+const MAX_GLOBS = 3
+const MAX_GREPS = 4
 // One, because a turn writes to one note and the note it opens is that note.
+// Counted per distinct note: returning to one already opened is not a second
+// note, and a command can move the target off it without the model choosing to.
 const MAX_OPENS = 1
 // Four, because a real clarification chains: a date, then which note, then a
 // correction to the date. The iteration cap bounds it anyway, so this only has
@@ -20,7 +27,9 @@ const MAX_QUESTIONS = 4
 export class TurnBudget {
   private commandsRun = 0
   private searchesRun = 0
-  private opensRun = 0
+  private globsRun = 0
+  private grepsRun = 0
+  private readonly opened = new Set<string>()
   private questionsAsked = 0
 
   takeCommand(): boolean {
@@ -35,21 +44,40 @@ export class TurnBudget {
     return true
   }
 
-  takeOpen(): boolean {
-    if (this.opensRun >= MAX_OPENS) return false
-    this.opensRun += 1
+  takeGlob(): boolean {
+    if (this.globsRun >= MAX_GLOBS) return false
+    this.globsRun += 1
     return true
+  }
+
+  takeGrep(): boolean {
+    if (this.grepsRun >= MAX_GREPS) return false
+    this.grepsRun += 1
+    return true
+  }
+
+  // Asked before the user is, so a note the cap forbids is refused without a
+  // pointless question. The spend is separate, because a declined open is not
+  // a note opened and must not cost the turn its one.
+  canOpen(path: string): boolean {
+    return this.opened.has(path) || this.opened.size < MAX_OPENS
+  }
+
+  takeOpen(path: string): void {
+    this.opened.add(path)
   }
 
   // Which flows are spent, so the schemas can drop a tool the turn can no
   // longer use. A refused call still costs an iteration, and a model that reads
   // "run no more" as advice will spend the rest of the turn on refusals.
+  // open_note is never here: the note already opened can always be reopened,
+  // and dropping the tool strands a turn a command moved off that note.
   spentTools(): readonly string[] {
     return [
       this.commandsRun >= MAX_COMMANDS ? RUN_COMMAND : '',
-      this.searchesRun >= MAX_SEARCHES ? SEARCH_VAULT : '',
       this.searchesRun >= MAX_SEARCHES ? READ_NOTE : '',
-      this.opensRun >= MAX_OPENS ? OPEN_NOTE : '',
+      this.globsRun >= MAX_GLOBS ? GLOB_NOTES : '',
+      this.grepsRun >= MAX_GREPS ? GREP_NOTES : '',
       this.questionsAsked >= MAX_QUESTIONS ? ASK_USER : '',
     ].filter(Boolean)
   }
@@ -67,7 +95,9 @@ export class TurnBudget {
     const spent = [
       TurnBudget.countOf(this.commandsRun, 'command', 'commands'),
       TurnBudget.countOf(this.searchesRun, 'search', 'searches'),
-      TurnBudget.countOf(this.opensRun, 'note opened', 'notes opened'),
+      TurnBudget.countOf(this.globsRun, 'listing', 'listings'),
+      TurnBudget.countOf(this.grepsRun, 'text search', 'text searches'),
+      TurnBudget.countOf(this.opened.size, 'note opened', 'notes opened'),
       TurnBudget.countOf(this.questionsAsked, 'question', 'questions'),
     ].filter((entry) => entry !== null)
     return spent.length === 0 ? 'no tools ran' : spent.join(', ')
@@ -86,6 +116,14 @@ export class TurnBudget {
 
   static searchCapMessage(): string {
     return `this turn has already searched or read ${MAX_SEARCHES} times; answer from what you have`
+  }
+
+  static globCapMessage(): string {
+    return `this turn has already listed ${MAX_GLOBS} times; work from the paths you have`
+  }
+
+  static grepCapMessage(): string {
+    return `this turn has already searched the text ${MAX_GREPS} times; answer from what you have`
   }
 
   static openCapMessage(): string {

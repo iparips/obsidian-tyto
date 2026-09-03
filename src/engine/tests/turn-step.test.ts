@@ -20,6 +20,34 @@ describe('TurnStep', () => {
     })
   })
 
+  describe('when a glob is recorded', () => {
+    it('names the pattern and how many matched when notes come back', () => {
+      expect(TurnStep.globbed('Week-35/*.md', 3).detail).toBe('Week-35/*.md — 3 notes')
+    })
+
+    it('uses the singular when one note matched', () => {
+      expect(TurnStep.globbed('Week-35/*.md', 1).detail).toBe('Week-35/*.md — 1 note')
+    })
+
+    it('says nothing matched when the glob found none', () => {
+      expect(TurnStep.globbed('Week-35/*.md', 0).detail).toBe('Week-35/*.md — nothing matched')
+    })
+
+    it('labels it as a glob, so a listing reads apart from a search', () => {
+      expect(TurnStep.globbed('Week-35/*.md', 3).label).toBe('Globbed')
+    })
+  })
+
+  describe('when a grep is recorded', () => {
+    it('names the expression and how many matched when notes come back', () => {
+      expect(TurnStep.grepped('roofing', 2).detail).toBe('roofing — 2 notes')
+    })
+
+    it('labels it as a grep', () => {
+      expect(TurnStep.grepped('roofing', 2).label).toBe('Grepped')
+    })
+  })
+
   describe('when a note is reached', () => {
     it('names the path when a note is read', () => {
       expect(TurnStep.read('Lists/todo.md').detail).toBe('Lists/todo.md')

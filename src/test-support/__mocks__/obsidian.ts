@@ -101,33 +101,8 @@ export interface Workspace {
   getLeavesOfType(type: string): unknown[]
 }
 
-export type SearchMatchPart = [number, number]
-export type SearchMatches = SearchMatchPart[]
-
-export interface SearchResult {
-  score: number
-  matches: SearchMatches
-}
-
 export interface Vault {
   getMarkdownFiles(): TFile[]
   cachedRead(file: TFile): Promise<string>
   getAbstractFileByPath(path: string): TAbstractFile | null
-}
-
-// Stands in for Obsidian's own scorer: every occurrence of the query scores one
-// point, so a test can assert that two matches outrank one.
-export const prepareSimpleSearch =
-  (query: string) =>
-  (text: string): SearchResult | null => {
-    const matches = occurrencesOf(text.toLowerCase(), query.trim().toLowerCase())
-    return matches.length === 0 ? null : { score: matches.length, matches }
-  }
-
-const occurrencesOf = (text: string, needle: string): SearchMatches => {
-  const matches: SearchMatches = []
-  if (!needle) return matches
-  for (let at = text.indexOf(needle); at !== -1; at = text.indexOf(needle, at + needle.length))
-    matches.push([at, at + needle.length])
-  return matches
 }

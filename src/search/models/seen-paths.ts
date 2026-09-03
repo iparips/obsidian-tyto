@@ -6,7 +6,13 @@ export class SeenPaths {
   private readonly paths = new Set<string>()
 
   record(hits: readonly SearchHit[]): void {
-    hits.forEach((hit) => this.paths.add(hit.path))
+    this.recordPaths(hits.map((hit) => hit.path))
+  }
+
+  // Paths rather than hits, because a glob has no score and no excerpt and a
+  // hit carrying empty ones would invite the model to read meaning into them.
+  recordPaths(paths: readonly string[]): void {
+    paths.forEach((path) => this.paths.add(path))
   }
 
   includes(path: string): boolean {

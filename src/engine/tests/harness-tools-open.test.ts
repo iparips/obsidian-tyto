@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { App } from 'obsidian'
-import { HarnessTools, TurnState } from '../harness-tools'
+import { HarnessTools } from '../harness-tools'
+import { TurnState } from '../harness-result'
 import { TurnBudget } from '../models/turn-budget'
 import { SeenPaths } from '../../search/models/seen-paths'
 import { SearchHit } from '../../search/models/search-hit'
@@ -9,7 +10,9 @@ import { CommandRegistry } from '../../commands/command-registry'
 import { CommandRunner } from '../../commands/command-runner'
 import { OpenedNoteWait } from '../../commands/opened-note-wait'
 import { AllowList } from '../../commands/allow-list'
-import { VaultSearch } from '../../search/vault-search'
+import { NoteGlob } from '../../search/note-glob'
+import { NoteGrep } from '../../search/note-grep'
+import { SearchTools } from '../search-tools'
 import { NoteReader } from '../../search/note-reader'
 import { FakeVault } from '../../test-support/fake-vault'
 import { aToolCall } from '../../test-support/builders'
@@ -30,20 +33,23 @@ describe('HarnessTools', () => {
     const catalogue = new CommandCatalogue(new CommandRegistry(app), new AllowList([]))
     return new HarnessTools(
       new CommandRunner(app, catalogue, new OpenedNoteWait(app), new CommandRegistry(app)),
-      new VaultSearch(vault.asVault()),
       new NoteReader(vault.asVault()),
       catalogue,
       searchEnabled,
+      new SearchTools(new NoteGlob(vault.asVault()), new NoteGrep(vault.asVault())),
     )
   }
 
   const openNote = (path: string) => toolsOf().execute(aToolCall('open_note', { path }), turn)
 
-  const search = (query: string) => toolsOf().execute(aToolCall('search_vault', { query }), turn)
+  // A glob rather than a search: this helper exists to put a path in SeenPaths
+  // so open_note will accept it, and a glob does that as well as a search did.
+  const findsTodo = () =>
+    toolsOf().execute(aToolCall('glob_notes', { pattern: 'Journal/Weekly/Week-36/*.md' }), turn)
 
-  describe('when a search has offered the path', () => {
+  describe('when a glob has offered the path', () => {
     beforeEach(async () => {
-      await search('milk')
+      await findsTodo()
     })
 
     it('yields the path to open when every guard passes', async () => {
@@ -80,7 +86,7 @@ describe('HarnessTools', () => {
       const harnessResult = await openNote(TODO)
 
       expect(harnessResult.result).toBe(
-        `${TODO} was not returned by a search this turn; search for it before opening it`,
+        `${TODO} was not returned by a search this session; search for it before opening it`,
       )
     })
 
@@ -93,23 +99,38 @@ describe('HarnessTools', () => {
 
   describe('when the open budget is spent', () => {
     beforeEach(async () => {
-      await search('milk')
+      await findsTodo()
       await openNote(TODO)
+      // The dispatcher spends the cap once an open is granted; at this level
+      // nothing has granted one, so the test states what a granted open left.
+      turn.budget.takeOpen(TODO)
     })
 
-    it('refuses the open when the cap is reached, naming it', async () => {
-      const harnessResult = await openNote(TODO)
+    it('refuses a second note when the cap is reached, naming it', async () => {
+      turn.seenPaths.recordPaths(['Journal/Weekly/Week-36/other.md'])
+
+      const harnessResult = await openNote('Journal/Weekly/Week-36/other.md')
 
       expect(harnessResult.result).toBe(
         'this turn has already opened 1 note; edit that note rather than opening another',
       )
     })
 
-    it('reports the cap rather than the path when the path was never offered', async () => {
+    // A command can move the target off the approved note without the model
+    // choosing to, so returning to it must not cost a second open.
+    it('reopens the same note when the cap is reached, since it is not a second note', async () => {
+      const harnessResult = await openNote(TODO)
+
+      expect(harnessResult.openPath).toBe(TODO)
+    })
+
+    // The seen-path check comes first now, so a path the model never found is
+    // told that rather than being blamed on the cap.
+    it('reports the unseen path rather than the cap when the path was never offered', async () => {
       const harnessResult = await openNote('Never/searched.md')
 
       expect(harnessResult.result).toBe(
-        'this turn has already opened 1 note; edit that note rather than opening another',
+        'Never/searched.md was not returned by a search this session; search for it before opening it',
       )
     })
   })
@@ -135,7 +156,7 @@ describe('HarnessTools', () => {
 
   describe('when a search returns hits', () => {
     it('records the paths of a search when hits come back', async () => {
-      await search('milk')
+      await findsTodo()
 
       expect(turn.seenPaths.includes(TODO)).toBe(true)
     })

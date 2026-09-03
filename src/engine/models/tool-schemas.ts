@@ -2,11 +2,12 @@ import { ToolSchema } from '../../providers/types'
 import {
   ANSWER_FROM_SEARCH,
   ASK_USER,
+  GLOB_NOTES,
+  GREP_NOTES,
   LOAD_SKILL,
   OPEN_NOTE,
   READ_NOTE,
   RUN_COMMAND,
-  SEARCH_VAULT,
 } from '../../providers/models/tool-call'
 
 const ANCHOR_DESCRIPTION =
@@ -76,19 +77,54 @@ export const TOOL_SCHEMAS: ToolSchema[] = [
     },
   },
   {
-    name: SEARCH_VAULT,
+    name: GLOB_NOTES,
     description:
-      'Search every note in the vault for a query, returning matching paths with an excerpt around each match.',
+      'List the notes whose path matches a pattern. Use this before guessing a filename: a folder listing shows the naming convention. Returns paths only.',
     parameters: {
       type: 'object',
       properties: {
-        query: { type: 'string' },
-        modified_within_days: {
-          type: 'number',
-          description: 'Only consider notes modified within this many days. Use it for "recently".',
+        pattern: {
+          type: 'string',
+          description:
+            'A path pattern from the vault root. * matches within one folder, ** across folders, ? one character. Example: 1 - Journal/Weekly/Week-35/*.md',
         },
+        sort: { type: 'string', enum: ['path', 'modified'] },
+        order: { type: 'string', enum: ['ascending', 'descending'] },
       },
-      required: ['query'],
+      required: ['pattern'],
+    },
+  },
+  {
+    name: GREP_NOTES,
+    description:
+      'Find notes whose contents match a regular expression, with an excerpt around each match. Narrow it with path_pattern when you know roughly where to look, or with paths when a listing already showed you which notes matter.',
+    parameters: {
+      type: 'object',
+      properties: {
+        pattern: {
+          type: 'string',
+          description:
+            'A JavaScript regular expression, matched case-insensitively across the whole note. Plain text works: most searches need no special characters.',
+        },
+        path_pattern: {
+          type: 'string',
+          description: 'Only read notes whose path matches this glob. Same syntax as glob_notes.',
+        },
+        paths: {
+          type: 'array',
+          items: { type: 'string' },
+          description:
+            'Only read these exact notes, as a previous call returned them. Use it to look inside the few a listing showed were relevant.',
+        },
+        paths_only: {
+          type: 'boolean',
+          description:
+            'Return paths without excerpts, when the answer is which note rather than what it says.',
+        },
+        sort: { type: 'string', enum: ['path', 'modified', 'matches'] },
+        order: { type: 'string', enum: ['ascending', 'descending'] },
+      },
+      required: ['pattern'],
     },
   },
   {
@@ -183,4 +219,4 @@ export class ToolCatalogue {
 
 // open_note joins them because a search hit is the only source of a path it
 // accepts, so a vault with search off can never offer it one (NFR4).
-const SEARCH_TOOLS: string[] = [SEARCH_VAULT, READ_NOTE, ANSWER_FROM_SEARCH, OPEN_NOTE]
+const SEARCH_TOOLS: string[] = [GLOB_NOTES, GREP_NOTES, READ_NOTE, ANSWER_FROM_SEARCH, OPEN_NOTE]

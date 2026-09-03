@@ -266,13 +266,25 @@ describe('PromptBuilder', () => {
     it('states that an empty search is reported rather than answered', () => {
       expect(withSearch()).toContain('When a search finds nothing, say so.')
     })
+
+    it('states the order to try when search is enabled', () => {
+      expect(withSearch()).toContain('Reach a note in this order:')
+    })
+
+    it('tells the model to glob before guessing a filename', () => {
+      expect(withSearch()).toContain('Glob before you guess a filename.')
+    })
+
+    it('mentions search_vault nowhere, since it no longer exists', () => {
+      expect(withSearch()).not.toContain('search_vault')
+    })
   })
 
   describe('when search is disabled', () => {
     it('omits the search section when search is disabled', () => {
       const prompt = standingRulesText([], new AgentsMdChain(), [], false)
 
-      expect(prompt).not.toContain('You can search the vault')
+      expect(prompt).not.toContain('Reach a note in this order:')
     })
   })
 

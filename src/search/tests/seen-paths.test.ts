@@ -31,6 +31,20 @@ describe('SeenPaths', () => {
     })
   })
 
+  describe('when a glob has returned paths', () => {
+    beforeEach(() => {
+      seen.recordPaths(['1 - Journal/Weekly/Week-35/04-09-Fri.md'])
+    })
+
+    it('includes a path when a glob returned it', () => {
+      expect(seen.includes('1 - Journal/Weekly/Week-35/04-09-Fri.md')).toBe(true)
+    })
+
+    it('excludes a path when no glob returned it', () => {
+      expect(seen.includes('1 - Journal/Weekly/Week-35/03-09-Thu.md')).toBe(false)
+    })
+  })
+
   describe('when a second search refines the first', () => {
     beforeEach(() => {
       seen.record([aHit('Journal/todo.md')])

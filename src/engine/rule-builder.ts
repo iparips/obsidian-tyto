@@ -76,10 +76,18 @@ export class RuleBuilder {
     ].join('\n')
   }
 
+  // Four ways to reach a note need a stated order, or the model reaches for the
+  // most general (NFR6). Globbing before guessing is the rule the failing turn
+  // needed: a listing shows the naming convention, a guessed name shows nothing.
   static searchRules(): string {
     return [
-      'You can search the vault and read the notes a search returns. Searching never changes',
-      'the note you edit, and no tool writes a search result into a note.',
+      'Reach a note in this order: run a listed command that opens it; glob for its',
+      'path when you know roughly where it lives; grep for text you expect it to',
+      'contain; read it only once you know which note you mean.',
+      'Glob before you guess a filename. A folder listing shows the naming convention,',
+      'and a guessed name that matches nothing tells you nothing.',
+      'Searching never changes the note you edit, and no tool writes a search result',
+      'into a note.',
       'Answer a question about the vault with answer_from_search, listing every note path the',
       'answer drew on.',
       'When a search finds nothing, say so. Never answer such a question from your own knowledge.',

@@ -1,6 +1,7 @@
 export const LOAD_SKILL = 'load_skill'
 export const RUN_COMMAND = 'run_command'
-export const SEARCH_VAULT = 'search_vault'
+export const GLOB_NOTES = 'glob_notes'
+export const GREP_NOTES = 'grep_notes'
 export const READ_NOTE = 'read_note'
 export const ANSWER_FROM_SEARCH = 'answer_from_search'
 export const OPEN_NOTE = 'open_note'
@@ -23,8 +24,12 @@ export class ToolCall {
     return this.name === RUN_COMMAND
   }
 
-  isSearchVault(): boolean {
-    return this.name === SEARCH_VAULT
+  isGlobNotes(): boolean {
+    return this.name === GLOB_NOTES
+  }
+
+  isGrepNotes(): boolean {
+    return this.name === GREP_NOTES
   }
 
   isReadNote(): boolean {
@@ -46,7 +51,8 @@ export class ToolCall {
   isHarnessTool(): boolean {
     return (
       this.isRunCommand() ||
-      this.isSearchVault() ||
+      this.isGlobNotes() ||
+      this.isGrepNotes() ||
       this.isReadNote() ||
       this.isAnswerFromSearch() ||
       this.isOpenNote() ||
@@ -57,6 +63,17 @@ export class ToolCall {
   argument(key: string): string {
     const value = this.args[key]
     return typeof value === 'string' ? value : String(value)
+  }
+
+  // Absent rather than the string "undefined", so an optional argument the
+  // model omitted reads as omitted at the call site.
+  optionalArgument(key: string): string | undefined {
+    const value = this.args[key]
+    return typeof value === 'string' ? value : undefined
+  }
+
+  booleanArgument(key: string): boolean {
+    return this.args[key] === true
   }
 
   numberArgument(key: string): number | undefined {

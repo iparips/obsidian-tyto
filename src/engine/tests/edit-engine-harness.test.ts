@@ -11,7 +11,9 @@ import { CommandCatalogue } from '../../commands/command-catalogue'
 import { CommandRegistry } from '../../commands/command-registry'
 import { CommandRunner } from '../../commands/command-runner'
 import { OpenedNoteWait } from '../../commands/opened-note-wait'
-import { VaultSearch } from '../../search/vault-search'
+import { NoteGlob } from '../../search/note-glob'
+import { NoteGrep } from '../../search/note-grep'
+import { SearchTools } from '../search-tools'
 import { NoteReader } from '../../search/note-reader'
 import { FakeAdapter } from '../../test-support/fake-adapter'
 import { FakeEditor } from '../../test-support/fake-editor'
@@ -72,10 +74,10 @@ describe('EditEngine', () => {
     const catalogue = new CommandCatalogue(commandRegistry, new AllowList(allowed))
     return new HarnessTools(
       new CommandRunner(app, catalogue, new OpenedNoteWait(app, 30), commandRegistry),
-      new VaultSearch(vault.asVault()),
       new NoteReader(vault.asVault()),
       catalogue,
       searchEnabled,
+      new SearchTools(new NoteGlob(vault.asVault()), new NoteGrep(vault.asVault())),
     )
   }
 
@@ -200,14 +202,14 @@ describe('EditEngine', () => {
     })
   })
 
-  describe('when the turn answers from a search', () => {
+  describe('when the turn answers from a listing', () => {
     beforeEach(() => {
       vault.withNote('Quotes/roofing.md', 'the roofing quote came to 12k')
     })
 
     it('reports the answer with its sources when answer_from_search is called', async () => {
       respondsWith(
-        aToolTurn(aToolCall('search_vault', { query: 'roofing' })),
+        aToolTurn(aToolCall('glob_notes', { pattern: 'Quotes/*.md' })),
         aToolTurn(
           aToolCall('answer_from_search', {
             answer: 'The roofing quote was 12k.',
@@ -223,9 +225,9 @@ describe('EditEngine', () => {
       ])
     })
 
-    it('applies no edit when the turn answers from a search', async () => {
+    it('applies no edit when the turn answers from a listing', async () => {
       respondsWith(
-        aToolTurn(aToolCall('search_vault', { query: 'roofing' })),
+        aToolTurn(aToolCall('glob_notes', { pattern: 'Quotes/*.md' })),
         aToolTurn(
           aToolCall('answer_from_search', {
             answer: 'It was 12k.',
@@ -239,13 +241,60 @@ describe('EditEngine', () => {
       expect(editor.content).toBe('# Budget\n\nbody')
     })
 
-    it('says nothing matched when the search finds nothing', async () => {
-      respondsWith(aToolTurn(aToolCall('search_vault', { query: 'plumbing' })))
+    it('says nothing matched when the glob finds nothing', async () => {
+      respondsWith(aToolTurn(aToolCall('glob_notes', { pattern: 'Plumbing/*.md' })))
 
       await engineOf().processUtterance('what did I write about plumbing')
 
       const results = complete.mock.calls[1][0].filter((m: ChatMessage) => m.isToolResult())
-      expect(results[0]).toMatchObject({ content: 'no notes matched that search' })
+      expect(results[0]).toMatchObject({ content: 'no notes match Plumbing/*.md' })
+    })
+  })
+
+  describe('when the turn greps for a phrase', () => {
+    beforeEach(() => {
+      vault.withNote('Quotes/roofing.md', 'the roofing quote came to 12k')
+    })
+
+    it('names the note and its excerpt when a grep finds a phrase', async () => {
+      respondsWith(aToolTurn(aToolCall('grep_notes', { pattern: 'roofing' })))
+
+      await engineOf().processUtterance('what did I write about roofing')
+
+      const results = complete.mock.calls[1][0].filter((m: ChatMessage) => m.isToolResult())
+      expect(results[0]).toMatchObject({
+        content: 'Quotes/roofing.md (1 match): the roofing quote came to 12k',
+      })
+    })
+
+    it('answers a question about the vault from what a grep returned', async () => {
+      respondsWith(
+        aToolTurn(aToolCall('grep_notes', { pattern: 'roofing' })),
+        aToolTurn(
+          aToolCall('answer_from_search', {
+            answer: 'The roofing quote was 12k.',
+            sources: ['Quotes/roofing.md'],
+          }),
+        ),
+      )
+
+      await engineOf().processUtterance('what did I write about the roofing quote')
+
+      expect(answers).toEqual([
+        { text: 'The roofing quote was 12k.', sources: ['Quotes/roofing.md'] },
+      ])
+    })
+
+    it('reads the note a grep held when the model follows it with a read', async () => {
+      respondsWith(
+        aToolTurn(aToolCall('grep_notes', { pattern: 'roofing', paths_only: true })),
+        aToolTurn(aToolCall('read_note', { path: 'Quotes/roofing.md' })),
+      )
+
+      await engineOf().processUtterance('find the roofing note and read it')
+
+      const results = complete.mock.calls[2][0].filter((m: ChatMessage) => m.isToolResult())
+      expect(results[1]).toMatchObject({ content: 'the roofing quote came to 12k' })
     })
   })
 
@@ -299,7 +348,7 @@ describe('EditEngine', () => {
 
       await engineOf().processUtterance('run them all')
 
-      expect(complete.mock.calls[3][1].map((schema) => schema.name)).toContain('search_vault')
+      expect(complete.mock.calls[3][1].map((schema) => schema.name)).toContain('glob_notes')
     })
   })
 
@@ -315,11 +364,33 @@ describe('EditEngine', () => {
       })
     })
 
-    it('refuses a fifth search when the search cap is reached', async () => {
-      const search = () => aToolTurn(aToolCall('search_vault', { query: 'roofing' }))
-      respondsWith(search(), search(), search(), search(), search())
+    it('stops offering glob_notes once the glob budget is spent', async () => {
+      const glob = () => aToolTurn(aToolCall('glob_notes', { pattern: 'Quotes/*.md' }))
+      respondsWith(glob(), glob(), glob())
 
-      await engineOf().processUtterance('search over and over')
+      await engineOf().processUtterance('list them over and over')
+
+      expect(complete.mock.calls[3][1].map((schema) => schema.name)).not.toContain('glob_notes')
+    })
+
+    it('refuses a fourth glob when the glob cap is reached', async () => {
+      const glob = () => aToolTurn(aToolCall('glob_notes', { pattern: 'Quotes/*.md' }))
+      respondsWith(glob(), glob(), glob(), glob())
+
+      await engineOf().processUtterance('list them over and over')
+
+      const results = complete.mock.calls[4][0].filter((m: ChatMessage) => m.isToolResult())
+      expect(results[3]).toMatchObject({
+        content: 'this turn has already listed 3 times; work from the paths you have',
+      })
+    })
+
+    it('refuses a fifth read when the search cap is reached', async () => {
+      vault.withNote('Quotes/roofing.md', 'the roofing quote came to 12k')
+      const read = () => aToolTurn(aToolCall('read_note', { path: 'Quotes/roofing.md' }))
+      respondsWith(read(), read(), read(), read(), read())
+
+      await engineOf().processUtterance('read it over and over')
 
       const results = complete.mock.calls[5][0].filter((m: ChatMessage) => m.isToolResult())
       expect(results[4]).toMatchObject({
@@ -408,8 +479,8 @@ describe('EditEngine', () => {
   })
 
   describe('when search is turned off', () => {
-    it('refuses a search when search is disabled in settings', async () => {
-      respondsWith(aToolTurn(aToolCall('search_vault', { query: 'roofing' })))
+    it('refuses a glob when search is disabled in settings', async () => {
+      respondsWith(aToolTurn(aToolCall('glob_notes', { pattern: 'Quotes/*.md' })))
 
       await engineOf(['daily-notes:*'], false).processUtterance('what did I write')
 

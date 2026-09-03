@@ -12,6 +12,16 @@ export class TurnStep {
     return new TurnStep('Searched', `${query} — ${TurnStep.hitCount(hits)}`)
   }
 
+  // Labelled apart from a search, since reusing it would render a folder
+  // listing as "3 matches", which reads as relevance where it is an enumeration.
+  static globbed(pattern: string, found: number): TurnStep {
+    return new TurnStep('Globbed', `${pattern} — ${TurnStep.noteCount(found)}`)
+  }
+
+  static grepped(pattern: string, found: number): TurnStep {
+    return new TurnStep('Grepped', `${pattern} — ${TurnStep.noteCount(found)}`)
+  }
+
   static read(path: string): TurnStep {
     return new TurnStep('Read', path)
   }
@@ -37,5 +47,10 @@ export class TurnStep {
   private static hitCount(hits: number): string {
     if (hits === 0) return 'nothing matched'
     return `${hits} ${hits === 1 ? 'match' : 'matches'}`
+  }
+
+  private static noteCount(found: number): string {
+    if (found === 0) return 'nothing matched'
+    return `${found} ${found === 1 ? 'note' : 'notes'}`
   }
 }
