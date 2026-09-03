@@ -14,7 +14,7 @@ Owl is an Obsidian plugin built with [Bun](https://bun.sh/) and TypeScript. Bun 
 2. Clone this repository
 3. Run `bun install` to install dependencies
 4. Copy `.env.example` to `.env` and set `OBSIDIAN_VAULT_PATH`
-5. Run `./install` to build the plugin and symlink it into that vault
+5. Run `./install` to build the plugin and copy it into that vault
 
 ## Install Into a Vault
 
@@ -36,33 +36,31 @@ Then run the installer:
 ./install
 ```
 
-It links the repo to `<vault>/.obsidian/plugins/<manifest id>`. The link name must match the `id` in manifest.json (`obsidian-owl`), not the repository name, because Obsidian keys plugin settings and sync off that id. The script reads the id from the manifest, so it stays correct if the id changes.
+It copies `main.js`, `manifest.json` and `styles.css` into `<vault>/.obsidian/plugins/<manifest id>`. Those three files are the plugin. The directory name must match the `id` in manifest.json (`obsidian-owl`), not the repository name, because Obsidian keys plugin settings and sync off that id. The script reads the id from the manifest, so it stays correct if the id changes.
 
-Re-running it is safe. It refuses to clobber a real directory, so remove a Community Plugins install first:
+Re-running it is safe. Your `data.json`, which holds the API key, is left where it is.
+
+It builds first, so an install is never a stale bundle. A failing build aborts the install and leaves the previous one in place. Pass `--skip-tests` to build without the test suite when you want a faster loop.
+
+Copying is the default because Obsidian Sync does not follow symlinks, so a linked install never reaches a phone. The vault gets the plugin's id through `community-plugins.json` but none of its files, which shows on mobile as a plugin that lists but will not enable, with nothing in the console. Check Settings, Sync on the phone has installed plugins enabled, or the files still will not travel.
+
+A copy is a snapshot, not a link, so run `./install` again whenever the vault needs the current code.
+
+## Install For Desktop Development
+
+To skip that reinstall on every rebuild, link the repo instead:
+
+```bash
+./install --link
+```
+
+The link points at the repo itself, so a rebuild is picked up without reinstalling. It never reaches mobile.
+
+Linking refuses to clobber a real directory, so remove a copied or Community Plugins install first:
 
 ```bash
 rm -rf /path/to/vault/.obsidian/plugins/obsidian-owl
 ```
-
-It builds first, so an install is never a stale bundle. A failing build aborts the install and leaves the previous one in place. Pass `--skip-tests` to build without the test suite when you want a faster loop.
-
-Those three files, main.js, manifest.json and styles.css, are the plugin.
-
-The link points at the repo itself, so a rebuild is picked up without reinstalling.
-
-## Install For Mobile
-
-Obsidian Sync does not follow symlinks, so a linked install never reaches a phone. The vault gets the plugin's id through `community-plugins.json` but none of its files, which shows on mobile as a plugin that lists but will not enable, with nothing in the console.
-
-Install the built files as a real directory instead:
-
-```bash
-./install --copy
-```
-
-Sync then carries `main.js`, `manifest.json` and `styles.css` to the phone. Check Settings, Sync on the phone has installed plugins enabled, or the files still will not travel.
-
-A copy is a snapshot, not a link, so run `./install --copy` again whenever the phone needs the current code. Your `data.json`, which holds the API key, is left alone by the copy.
 
 Then in Obsidian: turn off Restricted mode, refresh installed plugins, enable Owl, and paste your Mistral API key into its settings.
 

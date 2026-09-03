@@ -5,9 +5,9 @@
 # Builds first, so an install is never a stale bundle. --skip-tests builds
 # without the test suite, for a faster loop while debugging on a device.
 #
-# Default mode symlinks, so a rebuild is picked up without reinstalling.
-# --copy installs the built files as a real directory instead, because
-# Obsidian Sync does not follow symlinks and so never reaches mobile.
+# Default mode copies the built files as a real directory, because Obsidian
+# Sync does not follow symlinks and so never reaches mobile. --link symlinks
+# the repo instead, so a rebuild is picked up without reinstalling.
 #
 # Reads OBSIDIAN_VAULT_PATH from .env. Copy .env.example to .env and set it.
 
@@ -71,7 +71,7 @@ plugin_id() {
 }
 
 # Obsidian loads a plugin from these three files. Without all of them the
-# symlinked directory loads as a broken plugin.
+# installed directory loads as a broken plugin.
 PLUGIN_FILES=(main.js manifest.json styles.css)
 
 build_plugin() {
@@ -146,17 +146,17 @@ link_plugin() {
 			fail "Cannot install: a real plugin directory already exists at" \
 				"  $target" \
 				"" \
-				"This is either a ./install --copy install or one from the" \
-				"Community Plugins store. It may contain data.json, which holds" \
-				"your API key and settings." \
+				"This is either a ./install install or one from the Community" \
+				"Plugins store. It may contain data.json, which holds your API" \
+				"key and settings." \
 				"" \
 				"To keep copying (the mode Obsidian Sync needs for mobile):" \
-				"  ./install --copy" \
+				"  ./install" \
 				"" \
 				"To replace it with a link to this repo:" \
 				"  1. Back up data.json if you want to keep your settings" \
 				"  2. rm -rf \"$target\"" \
-				"  3. ./install"
+				"  3. ./install --link"
 		fi
 
 		fail "Cannot install: a file is in the way at" \
@@ -165,7 +165,7 @@ link_plugin() {
 			"A plugin lives in a directory, so this file is not an install." \
 			"Check it is not something you meant to keep, then:" \
 			"  1. rm \"$target\"" \
-			"  2. ./install"
+			"  2. ./install --link"
 	fi
 
 	# Already linked here: nothing to do. Compared by inode, because macOS
@@ -198,7 +198,7 @@ copy_plugin() {
 			"A plugin lives in a directory, so this file is not an install." \
 			"Check it is not something you meant to keep, then:" \
 			"  1. rm \"$target\"" \
-			"  2. ./install --copy"
+			"  2. ./install"
 	fi
 
 	if [[ -L "$target" ]]; then
@@ -216,20 +216,20 @@ usage() {
 	fail "Unknown option: $1" \
 		"" \
 		"Usage:" \
-		"  ./install               symlink the repo, for desktop development" \
-		"  ./install --copy        copy the built files, so Sync reaches mobile" \
+		"  ./install               copy the built files, so Sync reaches mobile" \
+		"  ./install --link        symlink the repo, for desktop development" \
 		"  ./install --skip-tests  build without running the test suite" \
 		"" \
-		"--copy and --skip-tests can be combined."
+		"--link and --skip-tests can be combined."
 }
 
 main() {
-	local mode="link"
+	local mode="copy"
 	local script="build"
 
 	for arg in "$@"; do
 		case "$arg" in
-		--copy) mode="copy" ;;
+		--link) mode="link" ;;
 		--skip-tests) script="build:no-tests" ;;
 		*) usage "$arg" ;;
 		esac
@@ -242,10 +242,10 @@ main() {
 
 	local target
 	target="$OBSIDIAN_VAULT_PATH/.obsidian/plugins/$(plugin_id)"
-	if [[ "$mode" == "copy" ]]; then
-		copy_plugin "$target"
-	else
+	if [[ "$mode" == "link" ]]; then
 		link_plugin "$target"
+	else
+		copy_plugin "$target"
 	fi
 }
 

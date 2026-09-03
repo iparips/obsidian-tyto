@@ -39,7 +39,7 @@ exactly as it did before this release.
 
 ## On Mobile
 
-Installing on a phone needs `./install --copy`, which rebuilds and copies the plugin into the vault. Obsidian Sync does not follow the symlink a normal install creates. See [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md).
+`./install` rebuilds and copies the plugin into the vault, which is what a phone needs: Obsidian Sync does not follow symlinks. See [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md).
 
 The session panel opens as a drawer from the right sidebar. To reach it in one tap, add the command to the mobile toolbar: Settings, Mobile, Manage toolbar options, then add "Owl: Start session for active note".
 
