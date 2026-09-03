@@ -14,6 +14,7 @@ A delta on AGENTS.md Loading; unlisted components are unchanged.
 - [4-sessions-without-a-note/1-index.md](4-sessions-without-a-note/1-index.md) - starting a session with no note open.
 - [5-cancelling-a-turn/1-index.md](5-cancelling-a-turn/1-index.md) - stopping a turn that is running, and saying what it left.
 - [6-model-chosen-targets/1-index.md](6-model-chosen-targets/1-index.md) - opening a note the model located itself.
+- [7-finding-notes/1-index.md](7-finding-notes/1-index.md) - a glob over paths and a grep over content, replacing fuzzy search.
 
 Related specs
 
