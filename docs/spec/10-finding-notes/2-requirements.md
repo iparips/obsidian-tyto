@@ -83,10 +83,10 @@ it. Guessing is the step to remove.
 
 ## Two tools, one job each
 
-| Tool       | Matches            | Returns                    | Answers                        |
-| ---------- | ------------------ | -------------------------- | ------------------------------ |
-| glob_notes | A path pattern     | Paths                      | What notes are in Week-35?     |
-| grep_notes | Exact text or regex| Paths, with excerpts       | Which notes mention roofing?   |
+| Tool       | Matches             | Returns              | Answers                      |
+| ---------- | ------------------- | -------------------- | ---------------------------- |
+| glob_notes | A path pattern      | Paths                | What notes are in Week-35?   |
+| grep_notes | Exact text or regex | Paths, with excerpts | Which notes mention roofing? |
 
 The split is between locating a note and looking inside one. A model that knows
 where a note lives should not have to read prose to confirm it, and a model
@@ -122,11 +122,11 @@ text and paths the model supplies, and never read the scores.
 Both tools take a sort field and a direction, because the right order depends on
 the instruction rather than on the tool.
 
-| Sort       | Offered by | Orders by                        | Default direction |
-| ---------- | ---------- | -------------------------------- | ----------------- |
-| path       | Both       | The path, alphabetically         | Ascending         |
-| modified   | Both       | The note's modification time     | Descending        |
-| matches    | grep only  | How many times the pattern hit   | Descending        |
+| Sort     | Offered by | Orders by                      | Default direction |
+| -------- | ---------- | ------------------------------ | ----------------- |
+| path     | Both       | The path, alphabetically       | Ascending         |
+| modified | Both       | The note's modification time   | Descending        |
+| matches  | grep only  | How many times the pattern hit | Descending        |
 
 Path is the default, because a listing read in path order shows a naming
 convention and a listing read in date order does not.

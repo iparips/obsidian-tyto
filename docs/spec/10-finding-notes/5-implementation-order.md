@@ -15,10 +15,10 @@ Verify before starting: `bun run build` passes.
 
 The work splits where the tools do, and each half stands on its own.
 
-| Commit | Steps | Delivers                                  | Exit test        |
-| ------ | ----- | ----------------------------------------- | ---------------- |
-| First  | 1-7   | Listing notes by path, and retiring search | Finding a note   |
-| Second | 8-12  | Finding notes by content                  | Reading a note   |
+| Commit | Steps | Delivers                                   | Exit test      |
+| ------ | ----- | ------------------------------------------ | -------------- |
+| First  | 1-7   | Listing notes by path, and retiring search | Finding a note |
+| Second | 8-12  | Finding notes by content                   | Reading a note |
 
 The first commit ships a working feature and removes the old one in the same
 breath: the model globs for a note, opens it and edits it, and search_vault is

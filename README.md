@@ -18,18 +18,23 @@ Other voice plugins transcribe what you say into the note. Owl treats what you s
 ## Why Owl
 
 Voice as an instruction, not dictation
+
 - Speech-to-text plugins capture words. Owl parses intent and edits structure: headings, lists, and blocks.
 
 Edits you can undo
+
 - Changes go through the editor, so Ctrl+Z and Cmd+Z step back through them one at a time. Owl does not overwrite the file behind your back.
 
 It can open the note first
+
 - Owl runs an Obsidian command you have allowed, follows the note it opens, and edits there. See [Commands and Search](#commands-and-search).
 
 Built for a phone
+
 - The panel is a sidebar drawer, one tap from the mobile toolbar. Adding to a shopping list while walking is the case it is designed around.
 
 Small and legible
+
 - Two runtime dependencies, no database, no embedding index. Vault search reads notes directly.
 
 ## What it does not do

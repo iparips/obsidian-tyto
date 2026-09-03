@@ -76,12 +76,12 @@ A pattern that matches nothing is an answer, not an error (NFR5).
 
 The translation is three rules and one escape:
 
-| Pattern | Becomes      | Means                            |
-| ------- | ------------ | -------------------------------- |
-| `**/`   | `(?:.*/)?`   | Any folders, or none             |
-| `**`    | `.*`         | Anything, folder separators too  |
-| `*`     | `[^/]*`      | Anything within one segment      |
-| `?`     | `[^/]`       | One character, not a separator   |
+| Pattern | Becomes    | Means                           |
+| ------- | ---------- | ------------------------------- |
+| `**/`   | `(?:.*/)?` | Any folders, or none            |
+| `**`    | `.*`       | Anything, folder separators too |
+| `*`     | `[^/]*`    | Anything within one segment     |
+| `?`     | `[^/]`     | One character, not a separator  |
 
 `**/` collapsing to an optional group is what makes `**/*.md` reach a note at the
 vault root. Treating `**` as `.*` alone would require the separator, and a note
@@ -194,11 +194,11 @@ the engine gave, so the model can correct the pattern rather than guess at it
 Three properties of that compile are the model's contract, so they are stated in
 the schema rather than left to be discovered:
 
-| Property        | Value                | Why                                        |
-| --------------- | -------------------- | ------------------------------------------ |
-| Case            | Insensitive          | Matches the path matcher, and prose varies  |
-| Scope           | The whole note       | A match may cross lines, as prose does      |
-| Global          | Yes                  | The match count is what `sort: matches` orders by |
+| Property | Value          | Why                                               |
+| -------- | -------------- | ------------------------------------------------- |
+| Case     | Insensitive    | Matches the path matcher, and prose varies        |
+| Scope    | The whole note | A match may cross lines, as prose does            |
+| Global   | Yes            | The match count is what `sort: matches` orders by |
 
 Case-insensitivity is the one worth stating in the tool description, because a
 model that assumes otherwise writes `[Rr]oofing` and gets the same answer for
@@ -291,13 +291,13 @@ call is `glob_notes({ pattern })`.
 The result string is what the model acts on, so it is specified rather than left
 to the searcher.
 
-| Case                | Glob returns                                  | Grep returns                                    |
-| ------------------- | --------------------------------------------- | ----------------------------------------------- |
-| Nothing matched     | `no notes match <pattern>`                     | `no notes contain <pattern>`                     |
-| Nothing to read     | n/a                                            | `no notes to search: <narrowing> matched none`   |
-| Matched             | One path per line                              | `<path> (<n> matches): <excerpt>` per line       |
-| Matched, paths only | One path per line                              | One path per line                                |
-| Cap trimmed         | A trailing line, below                         | A trailing line, below                           |
+| Case                | Glob returns               | Grep returns                                   |
+| ------------------- | -------------------------- | ---------------------------------------------- |
+| Nothing matched     | `no notes match <pattern>` | `no notes contain <pattern>`                   |
+| Nothing to read     | n/a                        | `no notes to search: <narrowing> matched none` |
+| Matched             | One path per line          | `<path> (<n> matches): <excerpt>` per line     |
+| Matched, paths only | One path per line          | One path per line                              |
+| Cap trimmed         | A trailing line, below     | A trailing line, below                         |
 
 The trailing line is `showing the first <cap> of <total>; narrow the pattern to
 see the rest`. It names the cap and the total, because a model told it saw
@@ -420,12 +420,12 @@ the fallback is what makes the schema advisory rather than load-bearing.
 VaultSearch (Search) goes. NoteGlob and NoteGrep take what it owned, and its
 three pieces land differently.
 
-| VaultSearch held        | Becomes                                          |
-| ----------------------- | ------------------------------------------------ |
-| The one pass over files | Both searchers, each walking getMarkdownFiles     |
-| prepareSimpleSearch     | Gone. Exact matching replaces scoring             |
-| The recency filter      | ResultOrder's modified sort                       |
-| Path scoring            | Gone. PathPattern replaces it exactly             |
+| VaultSearch held        | Becomes                                       |
+| ----------------------- | --------------------------------------------- |
+| The one pass over files | Both searchers, each walking getMarkdownFiles |
+| prepareSimpleSearch     | Gone. Exact matching replaces scoring         |
+| The recency filter      | ResultOrder's modified sort                   |
+| Path scoring            | Gone. PathPattern replaces it exactly         |
 
 The path scoring added to VaultSearch was a narrowing of this design onto the
 wrong tool: it made a folder name reachable by fuzzy score when what the model
@@ -445,11 +445,11 @@ effectively was.
 
 Two caps, different numbers, because the rows cost differently.
 
-| Cap                | Value | Why                                             |
-| ------------------ | ----- | ----------------------------------------------- |
-| Glob results       | 50    | A row is a path, and a folder listing wants all of it |
-| Grep results       | 10    | A row carries a 200-character excerpt            |
-| Grep, paths only   | 50    | The rows are paths again                         |
+| Cap              | Value | Why                                                   |
+| ---------------- | ----- | ----------------------------------------------------- |
+| Glob results     | 50    | A row is a path, and a folder listing wants all of it |
+| Grep results     | 10    | A row carries a 200-character excerpt                 |
+| Grep, paths only | 50    | The rows are paths again                              |
 
 Fifty is enough that a real folder listing is never trimmed, which matters
 because a trimmed listing is exactly the case where the model starts guessing
@@ -472,14 +472,14 @@ reads `<pattern> — 3 notes` for a glob and `<pattern> — 3 notes` for a grep.
 
 TurnBudget (Engine) gains two counters beside the four it has.
 
-| Flow      | Cap | Spent by                     |
-| --------- | --- | ---------------------------- |
-| Commands  | 3   | run_command                  |
-| Searches  | 4   | read_note                    |
-| Globs     | 3   | glob_notes                   |
-| Greps     | 4   | grep_notes                   |
-| Opens     | 1   | open_note                    |
-| Questions | 4   | ask_user                     |
+| Flow      | Cap | Spent by    |
+| --------- | --- | ----------- |
+| Commands  | 3   | run_command |
+| Searches  | 4   | read_note   |
+| Globs     | 3   | glob_notes  |
+| Greps     | 4   | grep_notes  |
+| Opens     | 1   | open_note   |
+| Questions | 4   | ask_user    |
 
 Separate counters, because a glob costs no read and a grep costs one per
 candidate. Sharing them would let cheap reconnaissance starve the reads it exists
@@ -510,12 +510,12 @@ that greps for a guessed name learns only that its guess was wrong.
 Three of the five lines searchRules holds today survive verbatim, and only the
 first two go:
 
-| Line today                                          | Fate                      |
-| --------------------------------------------------- | ------------------------- |
-| You can search the vault and read the notes...       | Replaced by the order     |
-| ...no tool writes a search result into a note        | Kept: still true          |
-| Answer a question with answer_from_search...         | Kept: FR17                |
-| When a search finds nothing, say so...               | Kept: load-bearing        |
+| Line today                                     | Fate                  |
+| ---------------------------------------------- | --------------------- |
+| You can search the vault and read the notes... | Replaced by the order |
+| ...no tool writes a search result into a note  | Kept: still true      |
+| Answer a question with answer_from_search...   | Kept: FR17            |
+| When a search finds nothing, say so...         | Kept: load-bearing    |
 
 The last is the one to be careful with. It is what stops the model answering a
 vault question from its own knowledge, and an exact search makes it matter more
@@ -531,24 +531,24 @@ changes, and both verify the rest byte for byte against git.
 Deleting a tool reaches further than deleting its class, and the compile errors
 are the smaller half.
 
-| File                                    | Change                                        |
-| --------------------------------------- | --------------------------------------------- |
-| `providers/models/tool-call.ts`          | Drop SEARCH_VAULT and isSearchVault; add the two new names and predicates to isHarnessTool |
-| `engine/engine-factory.ts`               | Construct NoteGlob and NoteGrep where VaultSearch was constructed |
-| `test-support/builders.ts`               | noHarness builds the two searchers instead    |
-| `test-support/__mocks__/obsidian.ts`     | prepareSimpleSearch and the SearchResult types go with their only consumer |
-| `search/vault-search.ts` and its test    | Deleted                                       |
+| File                                  | Change                                                                                     |
+| ------------------------------------- | ------------------------------------------------------------------------------------------ |
+| `providers/models/tool-call.ts`       | Drop SEARCH_VAULT and isSearchVault; add the two new names and predicates to isHarnessTool |
+| `engine/engine-factory.ts`            | Construct NoteGlob and NoteGrep where VaultSearch was constructed                          |
+| `test-support/builders.ts`            | noHarness builds the two searchers instead                                                 |
+| `test-support/__mocks__/obsidian.ts`  | prepareSimpleSearch and the SearchResult types go with their only consumer                 |
+| `search/vault-search.ts` and its test | Deleted                                                                                    |
 
 Four test files call search_vault to reach a note, and each needs the same
 substitution rather than deletion:
 
-| Test file                          | What it uses search_vault for              |
-| ---------------------------------- | ------------------------------------------ |
-| `edit-engine-model-chosen.test.ts` | findsTodo, which feeds SeenPaths for every open test |
-| `harness-tools-open.test.ts`       | search, the same helper at unit level      |
+| Test file                          | What it uses search_vault for                                  |
+| ---------------------------------- | -------------------------------------------------------------- |
+| `edit-engine-model-chosen.test.ts` | findsTodo, which feeds SeenPaths for every open test           |
+| `harness-tools-open.test.ts`       | search, the same helper at unit level                          |
 | `edit-engine-harness.test.ts`      | Six sites, including the offered-set and search-cap assertions |
-| `edit-engine-unbound.test.ts`      | One site                                   |
-| `turn-budget.test.ts`              | Asserts spentTools names search_vault      |
+| `edit-engine-unbound.test.ts`      | One site                                                       |
+| `turn-budget.test.ts`              | Asserts spentTools names search_vault                          |
 
 The first two are the ones to get right. Their helpers exist to put a path in
 SeenPaths so open_note will accept it, and a glob does that as well as a search
