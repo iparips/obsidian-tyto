@@ -9,7 +9,10 @@ Release 4 of [2-plan.md](../2-plan.md). High-level design:
 A delta on AGENTS.md Loading; unlisted components are unchanged.
 
 - [1-harness-mvp/01-index.md](1-harness-mvp/01-index.md) - commands, retargeting and search. Built; the exit test is outstanding.
-- [2-settings-command-picker/1-index.md](2-settings-command-picker/1-index.md) - finding a command to allow, without knowing its id.
+- [2-settings-command-picker/1-index.md](2-settings-command-picker/1-index.md) - finding a command to allow, without knowing its id. Built.
+- [3-tidy-up-chat-panel/1-index.md](3-tidy-up-chat-panel/1-index.md) - three weights for six entry kinds, and a pending indicator.
+- [4-model-chosen-targets/1-index.md](4-model-chosen-targets/1-index.md) - opening a note the model located itself.
+- [5-sessions-without-a-note/1-index.md](5-sessions-without-a-note/1-index.md) - starting a session with no note open.
 
 Related specs
 
