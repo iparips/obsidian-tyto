@@ -198,6 +198,21 @@ describe('PromptBuilder', () => {
       expect(prompt).toContain('never how to carry it out')
     })
 
+    // A skill saying "MUST load before editing any file under the journal root"
+    // was declined as "no skill for opening a dated note", for a note under
+    // that root.
+    it('tells the model a MUST-load skill is not a judgement call', () => {
+      const prompt = standingRulesText(catalogue)
+
+      expect(prompt).toContain('is not a judgement call')
+    })
+
+    it('tells the model the note it is about to edit can be the match', () => {
+      const prompt = standingRulesText(catalogue)
+
+      expect(prompt).toContain('whatever words the user used')
+    })
+
     it('tells the model that reaching the note is not doing the work', () => {
       const prompt = standingRulesText(catalogue)
 
@@ -336,7 +351,7 @@ describe('PromptBuilder', () => {
     })
 
     it('tells the model to glob before guessing a filename', () => {
-      expect(withSearch()).toContain('Glob before you guess a filename.')
+      expect(withSearch()).toContain('Never spell out a date or title you have not seen')
     })
 
     it('mentions search_vault nowhere, since it no longer exists', () => {
@@ -357,7 +372,7 @@ describe('PromptBuilder', () => {
 
     it('tells the model to ask what they meant only after a shortlist is declined', () => {
       expect(withSearch()).toContain(
-        'Only after the user declines every note you offered, ask them what they meant',
+        'Only after the user declines every note you offered, ask what they meant',
       )
     })
 
@@ -369,28 +384,50 @@ describe('PromptBuilder', () => {
     })
 
     it('tells the model to search before asking where a note is', () => {
-      expect(withSearch()).toContain('Search first and ask later.')
+      expect(withSearch()).toContain('Search before you ask.')
     })
 
     // The model was refused an unchosen open, then asked the user in prose for
     // permission they had already given by asking. The refusal names the tool;
     // the prompt has to say that asking is not the alternative.
     it('tells the model to call choose_note when an open is refused as unchosen', () => {
-      expect(withSearch()).toContain('call\nchoose_note with that path and carry on')
+      expect(withSearch()).toContain('Call choose_note with that path and')
     })
 
     it('tells the model a refused open is not a request for permission', () => {
-      expect(withSearch()).toContain('not that you need permission')
+      expect(withSearch()).toContain('not telling you to ask the user in prose')
     })
 
     // Week-* matched nothing, because a glob matches notes and Week-35 is a
     // folder. The rule that produced it said only "ends in *".
     it('tells the model its first glob ends in a slash-star, not a partial name', () => {
-      expect(withSearch()).toContain('ends in /* so it lists a whole folder')
+      expect(withSearch()).toContain(
+        'A glob matches notes, never folders. Listing a folder ends in /*.',
+      )
     })
   })
 
   describe('when the model might ask instead of acting', () => {
+    // A turn globbed Week-*/Week-*.md, then walked archived week folders and
+    // asked the user which week held a date it had already resolved.
+    it('tells the model to glob for the file once it knows the name', () => {
+      expect(standingRulesText([], new AgentsMdChain(), [], true)).toContain(
+        'Name the file, not the folder.',
+      )
+    })
+
+    it('tells the model never to ask which folder or week a note is in', () => {
+      expect(standingRulesText([], new AgentsMdChain(), [], true)).toContain(
+        'which folder holds it, or',
+      )
+    })
+
+    it('tells the model to read what two globs returned rather than glob again', () => {
+      expect(standingRulesText([], new AgentsMdChain(), [], true)).toContain(
+        'Two globs that returned notes are enough.',
+      )
+    })
+
     it('tells the model a glob matches notes rather than folders', () => {
       expect(standingRulesText([], new AgentsMdChain(), [], true)).toContain(
         'A glob matches notes, never folders.',
