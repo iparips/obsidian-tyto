@@ -8,6 +8,10 @@ which the dispatcher tests directly. And the two scopes must not leak into each
 other: a chosen note expiring with the turn and a found note surviving it are
 one test each, and a suite that shares one fixture between them proves neither.
 
+The second needs two turns to test at all. An engine test that opens one turn
+proves nothing about what the next one asks, and the scope bug this replaces
+passed every test in the suite.
+
 ## Table of Contents
 
 1. [NoteChoice (Engine, new)](#notechoice-engine-new)
@@ -30,6 +34,7 @@ one test each, and a suite that shares one fixture between them proves neither.
 - Asks once for a note already picked this turn.
 - Returns the first candidate without asking when constructed automatic.
 - Holds the first candidate when constructed automatic, so auto mode opens it.
+- Holds no other candidate when constructed automatic, so auto mode opens one note.
 - Declines when the turn is cancelled rather than answered.
 - Settles rather than parking the loop when the turn is cancelled.
 
@@ -46,6 +51,9 @@ one test each, and a suite that shares one fixture between them proves neither.
 - Offers only the candidates a search returned, so an invented path is dropped.
 - Refuses the call when no candidate was returned by a search, naming them.
 - Refuses the call when the paths list is empty.
+- Refuses the call when more notes are offered than the cap, naming the cap.
+- Applies the cap after the filter, so a dropped invented path does not push a
+  valid shortlist over it.
 - Reports the choice as a step, naming how many notes were offered.
 - Omits choose_note from the schemas when search is disabled.
 - Omits choose_note from the schemas in auto mode.
@@ -72,6 +80,14 @@ one test each, and a suite that shares one fixture between them proves neither.
 - Says the shortlist was declined when the user declines.
 - Settles a pending choice when the turn ends, so no live list outlives its turn.
 - Renders no confirm entry, since that kind no longer exists.
+
+## SettingsPanel (Settings, changed)
+
+- Reads the checkbox as on when the stored mode is confirm, so an upgraded vault
+  keeps asking.
+- Reads the checkbox as off when the stored mode is auto.
+- Writes confirm when the checkbox is turned on, so the stored values are unchanged.
+- Names the checkbox for choosing a note rather than approving one.
 
 ## RuleBuilder (Engine, changed)
 

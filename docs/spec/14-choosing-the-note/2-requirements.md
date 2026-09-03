@@ -140,9 +140,18 @@ that moves the target away costs no second question.
 FR12. Remove the yes/no confirmation and its panel entry.
 
 FR13. Offer the choosing tool nowhere when the vault is in auto mode, which
-opens what the model found without asking.
+opens the first note the model offers without asking. Auto mode today opens the
+one note the model named; a shortlist gives it several, and taking the first is
+a decision rather than a translation.
 
 FR14. Keep ask_user for what it is for: a question whose answer is not a note.
+
+FR15. Cap the shortlist, and tell a model that offers more to narrow its search
+first. A glob returns fifty notes, and a picker of fifty is a list rather than a
+choice.
+
+FR16. Keep the mode setting's stored values, so no vault needs migrating and a
+user who chose to be asked is still asked.
 
 ## Non-functional requirements
 
@@ -163,11 +172,8 @@ paths are long.
 ## What the design must settle
 
 - What the tool is called, given it is neither an approval nor a plain question.
-- Whether the shortlist has a cap, and what a model that offers thirty notes is
-  told.
-- Whether a declined shortlist costs the turn's open budget, given a decline
-  leaves nothing opened.
+- What the shortlist cap should be, given a glob returns fifty and a grep ten.
 - How the picker renders a long path on a narrow drawer without truncating the
   part that distinguishes two candidates.
-- Whether the model may offer a path no search returned, or whether the
-  shortlist is checked against SeenPaths before the user sees it.
+- Whether the mode setting's type is renamed with its wording, or left naming a
+  confirmation it no longer describes.

@@ -14,10 +14,11 @@ unlisted components are unchanged.
 6. [What the Model Reads Back](#what-the-model-reads-back)
 7. [Behaviour Sequence](#behaviour-sequence)
 8. [The Two Scopes Are Two Repositories](#the-two-scopes-are-two-repositories)
-9. [A Decline Is an Answer](#a-decline-is-an-answer)
-10. [The Panel Renders a List, Not a Pair](#the-panel-renders-a-list-not-a-pair)
-11. [The Prompt States the Order](#the-prompt-states-the-order)
-12. [Out of Scope](#out-of-scope)
+9. [The Setting Keeps Its Stored Values](#the-setting-keeps-its-stored-values)
+10. [A Decline Is an Answer](#a-decline-is-an-answer)
+11. [The Panel Renders a List, Not a Pair](#the-panel-renders-a-list-not-a-pair)
+12. [The Prompt States the Order](#the-prompt-states-the-order)
+13. [Out of Scope](#out-of-scope)
 
 ## One Picker, Two Scopes
 
@@ -56,8 +57,8 @@ than for permitting.
 | ask_which_note    | Reads as a question, and ask_user already is one      |
 | choose_note       | The user chooses; the model offers                    |
 
-choose_note it is. The model offers, the user chooses, and the name says which
-side does which.
+choose_note it is (FR1). The model offers, the user chooses, and the name says
+which side does which.
 
 That distinction is the whole of why ask_user survives beside it (FR14).
 ask_user asks a question whose answer is prose; choose_note asks one whose
@@ -72,7 +73,7 @@ OpenApproval (Engine) goes. Its three pieces land differently.
 | ---------------------- | ------------------------------------------------- |
 | The parked yes/no       | NoteChoice's parked pick, over the same PendingAnswer |
 | The per-path grant set  | ChosenNotes, turn-scoped rather than session-scoped |
-| The auto-mode granted() | NoteChoice.automatic(), which chooses the first candidate |
+| The auto-mode granted() | NoteChoice.automatic(), which chooses the first candidate (FR13) |
 
 ```typescript
 // note-choice.ts
@@ -102,6 +103,38 @@ choose returns the path rather than a boolean, so the caller learns which note
 without having proposed one. A null is the decline, and it is a value rather
 than a failure because the user answering "none of these" is the tool working.
 
+automatic() choosing the first candidate is a change, not a translation. Auto
+mode today grants the one path the model named, because the model named one; a
+shortlist gives it several, and the first is the model's own best guess.
+
+Deleting the confirmation reaches sixteen production files, and the compile
+errors are the smaller half.
+
+| File                                    | Change                                        |
+| --------------------------------------- | --------------------------------------------- |
+| `engine/open-approval.ts` and its test    | Deleted, replaced by note-choice.ts            |
+| `session/approval-repository.ts` and its test | Deleted; ChosenNotes replaces it at turn scope |
+| `engine/tool-dispatcher.ts`               | Holds NoteChoice; openModelChosenNote checks holds rather than granting |
+| `engine/turn-factory.ts`                  | buildOpenApproval becomes buildNoteChoice; TurnAskers renames its field |
+| `engine/engine-factory.ts`                | EngineAskers renames openApproval to noteChoice |
+| `session/turn-askers.ts`                  | openApproval becomes noteChoice; drops the ApprovalRepository it held |
+| `session/session-builder.ts`              | Renames the asker it wires, and onOpenRequested to onChoiceRequested |
+| `session/models/panel-action.ts`          | openRequested and openAnswered become choiceRequested and choiceAnswered |
+| `session/models/panel-state.ts`           | The confirm entry kind becomes choice; the confirming phase becomes choosing |
+| `session/models/asked-entries.ts`         | settledConfirm becomes settledChoice, naming the pick rather than a yes |
+| `session/models/entry-weight.ts`          | The confirm weight is keyed choice                |
+| `session/views/EntryConfirm.tsx`          | Becomes EntryChoice.tsx: a list of paths and a decline |
+| `session/views/HistoryEntry.tsx`          | Renders EntryChoice; onAnswerOpen becomes onChooseNote |
+| `session/views/HistoryList.tsx`           | Threads the renamed prop                       |
+| `session/views/SessionPanel.tsx`          | settleOpen becomes settleChoice, carrying a path or null |
+| `session/views/useParkedAnswers.ts`       | The held resolver returns a path or null rather than a boolean |
+| `test-support/builders.ts`                | anEngine's openApproval option becomes noteChoice |
+| `styles.css`                              | owl-entry-confirm becomes owl-entry-choice, stacked rather than a row |
+
+The settling is the piece to get right. AskedEntries (Session) turns a pending
+entry into a record of what happened, and a choice has three outcomes where a
+confirmation had two: picked, declined, and a turn that ended with neither.
+
 ## The Shortlist Is Checked Before It Is Shown
 
 Every candidate is filtered through SeenPaths (Search) before the user sees it,
@@ -123,6 +156,13 @@ An unseen path is dropped rather than refusing the whole call, because a model
 that shortlists four notes and misremembers one should still get its pick. Only
 a shortlist with nothing left refuses, and it names the paths so the model can
 search rather than guess again.
+
+The cap is eight, applied after the filter (FR15). A glob returns fifty and a
+model that passes all of them has not chosen; eight is what a person reads
+without scrolling a phone drawer, and it matches the hit count the retired
+search returned. Over the cap the call refuses rather than truncating, because
+silently dropping the note the user wanted is the failure this spec exists to
+remove.
 
 ## The Schema
 
@@ -160,17 +200,18 @@ to something unstated.
 
 | Case                    | Returns                                                    |
 | ----------------------- | ---------------------------------------------------------- |
-| The user picked one     | `the user chose <path>; open it with open_note`              |
-| The user declined all    | `the user declined every note offered; ask them what they meant rather than searching again` |
+| The user picked one     | `the user chose <path>; open it with open_note` (FR4)        |
+| The user declined all    | `the user declined every note offered; ask them what they meant rather than searching again` (FR6, FR7) |
 | No candidate was seen   | `no search returned <paths>; search before offering them`    |
 | The list was empty      | `offer at least one path a search returned`                  |
+| Over the cap            | `offer at most 8 notes; narrow your search first` (FR15)     |
 | The turn was cancelled  | The cancelled result every other tool returns                |
 
 The decline line names the next move (FR7). A model told only "declined" retries
 the search, which is the loop this replaces; a model told to ask reaches for
 ask_user, which is what a decline means the turn needs.
 
-open_note's refusal changes to name the new tool:
+open_note's refusal changes to name the new tool (FR9):
 
 ```
 <path> was not chosen by the user this turn; offer it with choose_note first
@@ -222,12 +263,36 @@ export class ChosenNotes {
 ```
 
 ChosenNotes is built where TurnBudget is, in TurnRepository (Engine), and dies
-with it. SeenPaths is passed in by TurnFactory (Engine), which holds one for the
-session.
+with it (FR5). SeenPaths is passed in by TurnFactory (Engine), which holds one
+for the session.
+
+That placement is the whole of the scope. A ChosenNotes passed in by TurnFactory
+would be session-scoped by accident, and the tests that prove a second turn asks
+again would pass against a fixture that never opened a second turn (FR11).
 
 The pair is the fix for the failure that motivated this. A note found last turn
 opens this turn without re-searching, and a note chosen last turn is asked about
 again, because those are the right answers to two different questions.
+
+## The Setting Keeps Its Stored Values
+
+OpenMode (Settings) stays `'confirm' | 'auto'` on disk, so no vault needs
+migrating and a stored `'confirm'` keeps meaning "ask me" (FR16).
+
+What changes is the wording the user reads. The checkbox says Owl shows you the
+notes it found and waits for you to pick one, rather than that it shows you the
+note and waits for you to approve.
+
+| Piece                        | Today                          | Becomes                        |
+| ---------------------------- | ------------------------------ | ------------------------------ |
+| Stored value                 | 'confirm' or 'auto'            | Unchanged                      |
+| Default                      | 'confirm'                      | Unchanged                      |
+| Checkbox label               | Ask before opening a note Owl found itself | Ask which note Owl should open |
+| Accessible name              | Confirm notes Owl chooses      | Choose the note Owl opens      |
+
+Renaming the type to ChoiceMode would touch the settings file, the panel and
+every reader for no behaviour change, and a stored value that no longer matches
+its type is worse than a name that has outlived its wording.
 
 ## A Decline Is an Answer
 
@@ -247,9 +312,10 @@ candidate, then a decline.
 
 | Entry kind today | Becomes                                       |
 | ---------------- | --------------------------------------------- |
-| confirm          | choice, holding the candidates and the purpose |
+| confirm          | choice, holding the candidates and the purpose (FR12) |
 
-Each row is a full vault-root path (FR3). On a narrow drawer a path wraps rather
+Each row is a full vault-root path (FR3), and every candidate is a row, a
+shortlist of one included (FR2). On a narrow drawer a path wraps rather
 than truncating, because the segment that distinguishes two candidates is as
 often the folder as the filename, and a middle ellipsis hides exactly the part
 worth reading (NFR5).

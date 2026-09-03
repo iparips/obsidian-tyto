@@ -15,7 +15,7 @@ The work splits where the user-facing change does, and each half stands alone.
 | Commit | Steps | Delivers                                    | Exit test        |
 | ------ | ----- | ------------------------------------------- | ---------------- |
 | First  | 1-6   | Choosing a note, and retiring the confirm    | Picking a note   |
-| Second | 7-10  | The decline, and what it steers the model to | Declining a list |
+| Second | 7-11  | The decline, and what it steers the model to | Declining a list |
 
 The first commit ships a working feature and removes the old one in the same
 breath: the model offers, the user picks, and the confirmation is gone. Leaving
@@ -46,11 +46,13 @@ Each step leaves the suite green.
    The predicate or ToolDispatcher routes the call to the note editor and it
    fails as an unknown edit.
 
-4. `src/engine/harness-tools.ts`: the call, the SeenPaths filter, and the step.
+4. `src/engine/harness-tools.ts`: the call, the SeenPaths filter, the cap of
+   eight, and the step.
 
    The filter runs before the user sees the list. A shortlist that reaches the
    panel unchecked lets a fabricated path be approved, which is the guard in
-   step 5 routed around.
+   step 5 routed around. The cap applies after the filter, so dropping an
+   invented path cannot push a valid shortlist over it.
 
 5. `src/engine/tool-dispatcher.ts`: the choice, the recording, and open_note's
    new refusal.
@@ -58,12 +60,27 @@ Each step leaves the suite green.
    Both refusals stay, and they say different things. A path no search returned
    names the search; a path not chosen names choose_note.
 
-6. Remove OpenApproval, its panel entry and its action, per the table in
+6. Remove OpenApproval and its panel entry, per the file table in
    [3-component-design.md](3-component-design.md#what-replaces-openapproval).
 
-   `open-approval.ts`, its test, the confirm entry kind, openRequested and
-   openAnswered, and the settling in AskedEntries. The approval repository added
-   for the session scope goes with it.
+   Sixteen production files, and the four to get right are the ones the compiler
+   does not catch:
+
+   - `session/models/asked-entries.ts` settles a pending entry into a record.
+     A choice has three outcomes where a confirmation had two, and the turn that
+     ended with neither is the one no test reaches by accident.
+   - `session/views/useParkedAnswers.ts` holds the resolver the engine awaits.
+     It returns a path or null now, and a resolver left unsettled parks the loop
+     with no error anywhere.
+   - `session/models/panel-state.ts` renames both the entry kind and the phase.
+     The entry kind is the one to watch: the phase is a union the compiler
+     checks, but the entry carries a path today and carries a list now, so a
+     rename that keeps the old shape compiles and renders one candidate.
+   - `styles.css` stacks the rows rather than laying them in a row. Two buttons
+     fitted a narrow drawer side by side; eight paths do not.
+
+   The approval repository added for the session scope goes with it. Its tests
+   go too, and the tests that prove a second turn asks again replace them.
 
 ## Steps, second commit
 
@@ -86,10 +103,18 @@ Each step leaves the suite green.
    unchanged, against git rather than by eye. The release 3 fixture must still
    match exactly.
 
-10. `docs/spec/9-model-chosen-targets/`: mark the confirmation superseded.
+10. `src/settings/settings.ts` and `src/settings/SettingsPanel.tsx`: the
+    checkbox wording and its accessible name.
+
+    The stored values stay `'confirm'` and `'auto'` (FR16), so no vault needs
+    migrating. Only what the user reads changes, and the note beneath the
+    checkbox still says a command's own note never asks.
+
+11. `docs/spec/9-model-chosen-targets/`: mark the confirmation superseded.
 
     That spec describes a yes/no confirmation that no longer exists. Leaving it
     describing a retired mechanism is how a spec folder stops being trusted.
+    Its FR12 and FR13 are the ones this replaces.
 
 ## Exit test, picking a note
 
@@ -125,9 +150,9 @@ By hand in a real vault, on both surfaces.
 
 ## What to decide while building
 
-- Whether the shortlist needs a cap, and what a model offering thirty notes is
-  told. A glob returns fifty, and a picker of fifty is not a choice.
 - Whether purpose should be shown per candidate or once above the list, when
   the model offers notes for different reasons.
 - Whether a declined shortlist should be re-offerable, or whether the same list
   twice should refuse.
+- Whether eight is the right cap once a real vault is picked from, since it is
+  chosen from what reads well rather than from what a turn needs.
