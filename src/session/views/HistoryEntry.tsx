@@ -11,7 +11,6 @@ const ENTRY_CLASSES = {
   assistant: 'owl-entry-assistant',
   error: 'owl-entry-error',
   instructions: 'owl-entry-instructions',
-  command: 'owl-entry-command',
   answer: 'owl-entry-answer',
   cancelled: 'owl-entry-cancelled',
   choice: 'owl-entry-choice-line',

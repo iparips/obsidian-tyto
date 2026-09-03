@@ -99,7 +99,6 @@ describe('EditEngine', () => {
           }),
         progress: new TurnProgressPublisher(
           () => undefined,
-          () => undefined,
           (path) => retargets.push(path),
           () => undefined,
           () => undefined,

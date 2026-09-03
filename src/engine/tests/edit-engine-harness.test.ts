@@ -35,7 +35,6 @@ describe('EditEngine', () => {
   let adapter: FakeAdapter
   let noteLocator: FakeNoteLocator
   let sessions: SessionRepository
-  let commands: string[]
   let steps: string[]
   let answers: { text: string; sources: string[] }[]
   let retargets: string[]
@@ -49,7 +48,6 @@ describe('EditEngine', () => {
     workspace = new FakeWorkspace('note.md')
     vault = new FakeVault()
     adapter = new FakeAdapter()
-    commands = []
     steps = []
     answers = []
     retargets = []
@@ -92,7 +90,6 @@ describe('EditEngine', () => {
         agentsMdRepository: new AgentsMdRepository(adapter.asAdapter()),
         harnessTools: harnessOf(allowed, searchEnabled),
         progress: new TurnProgressPublisher(
-          (text) => commands.push(text),
           (text, sources) => answers.push({ text, sources }),
           (path) => retargets.push(path),
           () => undefined,

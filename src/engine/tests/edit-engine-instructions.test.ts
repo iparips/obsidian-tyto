@@ -35,7 +35,6 @@ describe('EditEngine', () => {
         progress: new TurnProgressPublisher(
           () => undefined,
           () => undefined,
-          () => undefined,
           (chain: AgentsMdChain) => reported.push(chain),
           () => undefined,
         ),

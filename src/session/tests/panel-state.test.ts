@@ -336,7 +336,11 @@ describe('PanelReducer', () => {
 
     it('keeps one entry when another entry came between the steps', () => {
       const first = PanelReducer.reduce(thinking, aStep('Searched', 'milk — 3 matches'))
-      const interrupted = PanelReducer.reduce(first, { type: 'commandRan', text: 'ran Open today' })
+      const interrupted = PanelReducer.reduce(first, {
+        type: 'answer',
+        text: 'an answer',
+        sources: [],
+      })
 
       const state = PanelReducer.reduce(interrupted, aStep('Read', 'Lists/todo.md'))
 
@@ -345,7 +349,11 @@ describe('PanelReducer', () => {
 
     it('appends to the entry that an interleaved entry displaced', () => {
       const first = PanelReducer.reduce(thinking, aStep('Searched', 'milk — 3 matches'))
-      const interrupted = PanelReducer.reduce(first, { type: 'commandRan', text: 'ran Open today' })
+      const interrupted = PanelReducer.reduce(first, {
+        type: 'answer',
+        text: 'an answer',
+        sources: [],
+      })
 
       const state = PanelReducer.reduce(interrupted, aStep('Read', 'Lists/todo.md'))
 

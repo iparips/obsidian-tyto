@@ -64,7 +64,6 @@ export class SessionBuilder {
       processUtterance: (text) => engine.processUtterance(text),
       cancelTurn: () => engine.cancelTurn(),
       onInstructions: (listener) => listeners.subscribe(listener),
-      onCommandRun: (listener) => session.commandRuns.subscribe(listener),
       onWarning: (listener) => session.warnings.subscribe(listener),
       onStep: (listener) => session.steps.subscribe(listener),
       onAnswer: (listener) => session.answers.subscribe(listener),
@@ -115,7 +114,6 @@ type EnginePanelProps = Pick<
   | 'processUtterance'
   | 'cancelTurn'
   | 'onInstructions'
-  | 'onCommandRun'
   | 'onWarning'
   | 'onStep'
   | 'onAnswer'

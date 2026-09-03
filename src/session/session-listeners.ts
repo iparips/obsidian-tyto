@@ -5,12 +5,12 @@ export interface AnswerReport {
   sources: string[]
 }
 
-// The channels release 4 adds beside the instruction channel: a command entry,
-// an answer entry and the header's target, each reaching the panel as its own
-// kind. The open question is not one of them: it reads an answer back, which is
-// what the publisher's one-way channels cannot do.
+// The channels beside the numbered steps: an answer entry and the header's
+// target, each reaching the panel as its own kind. What a turn did reaches the
+// steps list instead, so the order it happened in is the order it reads. The
+// choice is not one of these: it reads an answer back, which is what the
+// publisher's one-way channels cannot do.
 export class SessionListeners {
-  readonly commandRuns = new Listeners<string>()
   readonly answers = new Listeners<AnswerReport>()
   readonly retargets = new Listeners<string>()
   readonly warnings = new Listeners<string>()

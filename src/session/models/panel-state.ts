@@ -14,7 +14,6 @@ export type Entry =
   | { kind: 'assistant'; text: string }
   | { kind: 'error'; step: FailureStep; text: string }
   | { kind: 'instructions'; text: string }
-  | { kind: 'command'; text: string }
   | { kind: 'warning'; text: string }
   // One entry per turn holding every step, so the panel gains a collapsed list
   // rather than a line per tool call.
@@ -77,8 +76,6 @@ export class PanelReducer {
         })
       case 'instructions':
         return state.withEntry(state.phase, { kind: 'instructions', text: action.text })
-      case 'commandRan':
-        return state.withEntry(state.phase, { kind: 'command', text: action.text })
       case 'warned':
         return state.withEntry(state.phase, { kind: 'warning', text: action.text })
       case 'stepTaken':

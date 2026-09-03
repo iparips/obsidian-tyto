@@ -63,25 +63,25 @@ describe('HistoryEntry', () => {
     })
   })
 
-  describe('when the entry records a command', () => {
-    it('renders with the command class when the entry is a command', () => {
+  describe('when the entry is a context line', () => {
+    it('renders with its kind class when the entry is context', () => {
       const { container } = render(
-        <HistoryEntry entry={{ kind: 'command', text: 'ran Open today' }} />,
+        <HistoryEntry entry={{ kind: 'instructions', text: 'Instructions applied: vault root' }} />,
       )
 
-      expect(container.querySelector('.owl-entry-command')).not.toBeNull()
+      expect(container.querySelector('.owl-entry-instructions')).not.toBeNull()
     })
 
-    it('carries the context weight class beside the command class', () => {
+    it('carries the context weight class beside the kind class', () => {
       const { container } = render(
-        <HistoryEntry entry={{ kind: 'command', text: 'ran Open today' }} />,
+        <HistoryEntry entry={{ kind: 'instructions', text: 'Instructions applied: vault root' }} />,
       )
 
       expect(container.querySelector('.owl-entry-context')).not.toBeNull()
     })
 
     it('offers no copy control on a context line', () => {
-      render(<HistoryEntry entry={{ kind: 'command', text: 'ran Open today' }} />)
+      render(<HistoryEntry entry={{ kind: 'instructions', text: 'Instructions applied' }} />)
 
       expect(screen.queryByLabelText('Copy entry')).toBeNull()
     })

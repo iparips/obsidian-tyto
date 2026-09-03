@@ -36,7 +36,7 @@ describe('EditEngine', () => {
   let adapter: FakeAdapter
   let noteLocator: FakeNoteLocator
   let sessions: SessionRepository
-  let commands: string[]
+  let skills: string[]
   let answers: { text: string; sources: string[] }[]
   let retargets: string[]
 
@@ -48,7 +48,7 @@ describe('EditEngine', () => {
     workspace = new FakeWorkspace(null)
     vault = new FakeVault()
     adapter = new FakeAdapter()
-    commands = []
+    skills = []
     answers = []
     retargets = []
     sessions = new SessionRepository(null)
@@ -89,11 +89,10 @@ describe('EditEngine', () => {
         skillRepository: new SkillRepository(adapter.asAdapter(), SKILLS_PATH),
         harnessTools: harnessOf(),
         progress: new TurnProgressPublisher(
-          (text) => commands.push(text),
           (text, sources) => answers.push({ text, sources }),
           (path) => retargets.push(path),
           () => undefined,
-          (name) => commands.push(`Skill applied: ${name}`),
+          (name) => skills.push(name),
         ),
       },
     )
@@ -176,7 +175,7 @@ describe('EditEngine', () => {
 
       await engineOf().processUtterance('tidy my notes')
 
-      expect(commands).toEqual(['Skill applied: tidy-notes'])
+      expect(skills).toEqual(['tidy-notes'])
     })
   })
 

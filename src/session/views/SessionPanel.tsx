@@ -30,7 +30,6 @@ export interface SessionPanelProps extends ParkedAnswerPorts, RecordingPorts {
   // The plugin owns the subscription, as with onHidden, so the engine reports a
   // resolved chain without knowing the panel.
   onInstructions?(listener: (text: string) => void): () => void
-  onCommandRun?(listener: (text: string) => void): () => void
   // Said once as a turn nears its cap, so a user watching can stop it rather
   // than waiting for it to fail.
   onWarning?(listener: (text: string) => void): () => void
@@ -86,8 +85,6 @@ export const SessionPanel = (props: SessionPanelProps) => {
   useEffect(() => props.onHidden?.(() => recorded.discardOnBackground()), [])
 
   useEffect(() => props.onInstructions?.((text) => dispatch({ type: 'instructions', text })), [])
-
-  useEffect(() => props.onCommandRun?.((text) => dispatch({ type: 'commandRan', text })), [])
 
   useEffect(() => props.onWarning?.((text) => dispatch({ type: 'warned', text })), [])
 

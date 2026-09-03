@@ -11,7 +11,6 @@ const WEIGHTS: Record<Entry['kind'], EntryWeight> = {
   choice: 'reply',
   question: 'reply',
   instructions: 'context',
-  command: 'context',
   warning: 'context',
   steps: 'context',
 }

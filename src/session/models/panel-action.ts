@@ -10,7 +10,6 @@ export type PanelAction =
   | { type: 'summary'; text: string }
   | { type: 'failed'; step: FailureStep; message: string }
   | { type: 'instructions'; text: string }
-  | { type: 'commandRan'; text: string }
   | { type: 'warned'; text: string }
   | { type: 'stepTaken'; label: string; detail: string; refused: boolean }
   | { type: 'answer'; text: string; sources: string[] }

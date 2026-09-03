@@ -17,7 +17,6 @@ export class SessionProgress {
 
   publisher(): TurnProgressPublisher {
     return new TurnProgressPublisher(
-      (text) => this.session.commandRuns.publish(text),
       (text, sources) => this.session.answers.publish({ text, sources }),
       (path) => this.session.retargets.publish(path),
       (chain) => this.reportInstructions(chain),

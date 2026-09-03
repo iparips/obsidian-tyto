@@ -646,28 +646,14 @@ describe('SessionPanel', () => {
   })
 
   describe('when a turn runs a command or answers', () => {
-    const commandListeners: ((text: string) => void)[] = []
     const answerListeners: ((report: { text: string; sources: string[] }) => void)[] = []
-    const onCommandRun = (listener: (text: string) => void) => {
-      commandListeners.push(listener)
-      return () => commandListeners.splice(commandListeners.indexOf(listener), 1)
-    }
     const onAnswer = (listener: (report: { text: string; sources: string[] }) => void) => {
       answerListeners.push(listener)
       return () => answerListeners.splice(answerListeners.indexOf(listener), 1)
     }
 
     beforeEach(() => {
-      commandListeners.length = 0
       answerListeners.length = 0
-    })
-
-    it('renders a command entry when a command run is reported', () => {
-      renderPanel({ onCommandRun })
-
-      act(() => commandListeners.forEach((listener) => listener('ran Open today')))
-
-      expect(screen.getByText('ran Open today')).toBeTruthy()
     })
 
     it('renders an answer with its sources when an answer is reported', () => {

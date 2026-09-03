@@ -170,7 +170,6 @@ describe('EditEngine', () => {
           () => undefined,
           () => undefined,
           () => undefined,
-          () => undefined,
           (text) => warnings.push(text),
         ),
       })
@@ -190,7 +189,6 @@ describe('EditEngine', () => {
         noteLocator,
         agentsMdRepository: noInstructions(),
         progress: new TurnProgressPublisher(
-          () => undefined,
           () => undefined,
           () => undefined,
           () => undefined,
@@ -345,7 +343,6 @@ describe('EditEngine', () => {
           () => undefined,
           () => undefined,
           () => undefined,
-          () => undefined,
           (name) => loaded.push(name),
         ),
       })
@@ -371,7 +368,6 @@ describe('EditEngine', () => {
           SKILLS_PATH,
         ),
         progress: new TurnProgressPublisher(
-          () => undefined,
           () => undefined,
           () => undefined,
           () => undefined,
@@ -402,7 +398,6 @@ describe('EditEngine', () => {
           SKILLS_PATH,
         ),
         progress: new TurnProgressPublisher(
-          () => undefined,
           () => undefined,
           () => undefined,
           () => undefined,
