@@ -16,7 +16,7 @@ than the guess the rule guards against.
 - [2-requirements.md](2-requirements.md) - problem, the two modes, asking the user, and what the design must settle
 - [3-component-design.md](3-component-design.md) - the open tool, the two askers, and the notices
 - [4-testing-strategy.md](4-testing-strategy.md) - unit test outline, branch by branch
-- [5-implementation-order.md](5-implementation-order.md) - build order and the exit test
+- [5-implementation-order.md](5-implementation-order.md) - build order in two commits, and an exit test for each
 
 Creating a note at a model-chosen path stays out, with
 [7-cross-file-skills](../../7-cross-file-skills/1-index.md), because a wrong

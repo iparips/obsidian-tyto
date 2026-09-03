@@ -4,8 +4,8 @@
 
 Not started. Depends on
 [5-cancelling-a-turn](../5-cancelling-a-turn/1-index.md), which must land first:
-steps 12 onward consume TurnCancellation (Engine) to settle a parked question,
-and FR29 has no other mechanism.
+the second commit consumes TurnCancellation (Engine) to settle a parked
+question, and FR29 has no other mechanism.
 
 Depends on [4-sessions-without-a-note](../4-sessions-without-a-note/1-index.md)
 only where both touch TurnRepository (Engine), and the two changes are additive
@@ -13,7 +13,23 @@ rather than conflicting.
 
 Verify before starting: `bun run build` passes.
 
-## Steps
+## Two commits
+
+The work splits where the features do, and each half stands on its own.
+
+| Commit | Steps | Delivers                                       | Exit test       |
+| ------ | ----- | ---------------------------------------------- | --------------- |
+| First  | 1-11  | Opening a note the model found, and confirming | Opening a note  |
+| Second | 12-19 | Asking the user, and the notices               | Asking the user |
+
+The first commit ships a working feature: the model opens a note it found, the
+user confirms it, and the panel says which note the turn moved to. Nothing in it
+waits on a question the model wrote.
+
+The second commit adds the question, and step 12 moves the confirmation onto the
+shared parking mechanism before the second asker exists.
+
+## Steps, first commit
 
 Each step leaves the suite green.
 
@@ -81,6 +97,11 @@ Each step leaves the suite green.
 
     The last of the open-note steps, and the only one that changes nothing about
     what a turn can do.
+
+## Steps, second commit
+
+Step 12 is a refactor rather than a feature, so it starts the commit that needs
+it rather than closing the one before.
 
 12. `src/engine/models/answer-request.ts` and `src/engine/pending-answer.ts`: the
     value, and the parking that races an answer against a cancellation.
