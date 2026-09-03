@@ -2,7 +2,7 @@
 
 ## Status
 
-Not started. Depends on nothing else in this release, and
+Built, exit test pending. Depends on nothing else in this release, and
 [6-model-chosen-targets](../6-model-chosen-targets/1-index.md) depends on it:
 its FR29 settles a parked question when the turn is cancelled.
 

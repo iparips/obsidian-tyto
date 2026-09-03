@@ -25,4 +25,4 @@ The cancellation is one value held for the turn, rather than a flag passed to
 each. The loop reads whether it happened, the provider takes its signal, and a
 parked question races its own answer against it.
 
-Designed, not built.
+Built, exit test pending.
