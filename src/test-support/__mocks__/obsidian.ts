@@ -39,8 +39,23 @@ export class Modal {
 }
 
 export class Notice {
-  constructor(public message: string) {}
+  messageEl = document.createElement('div')
+  hidden = false
+
+  constructor(
+    public message: string,
+    public duration?: number,
+  ) {
+    NOTICES.push(this)
+  }
+
+  hide(): void {
+    this.hidden = true
+  }
 }
+
+// What a test reads back, since Obsidian's own notices have no other handle.
+export const NOTICES: Notice[] = []
 
 export class Setting {
   constructor(public containerEl: HTMLElement) {}

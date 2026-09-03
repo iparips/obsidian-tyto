@@ -1,20 +1,14 @@
-import { Notice, Plugin, TFile, WorkspaceLeaf } from 'obsidian'
-import { Recorder } from './capture/recorder'
-import { MistralProvider } from './providers/mistral-provider'
+import { Plugin, TFile, WorkspaceLeaf } from 'obsidian'
 import { RebindModal } from './session/views/rebind-modal'
 import { SessionView, VIEW_TYPE_SESSION } from './session/views/session-view'
 import { SessionPanelProps } from './session/views/SessionPanel'
 import { DEFAULT_SETTINGS, OwlSettings } from './settings/settings'
 import { OwlSettingsTab } from './settings/settings-tab'
 import { SkillRepository } from './skills/skill-repository'
-import { AgentsMdChain } from './agents/agents-md-chain'
 import { AgentsMdRepository } from './agents/agents-md-repository'
-import { InstructionReport } from './agents/instruction-report'
-import { InstructionListeners } from './session/instruction-listeners'
-import { TurnProgressPublisher } from './engine/turn-progress-publisher'
 import { EditEngine } from './engine/edit-engine'
 import { EngineFactory } from './engine/engine-factory'
-import { SessionListeners } from './session/session-listeners'
+import { PanelPresence, SessionBuilder } from './session/session-builder'
 
 export default class OwlPlugin extends Plugin {
   settings: OwlSettings = DEFAULT_SETTINGS
@@ -45,44 +39,46 @@ export default class OwlPlugin extends Plugin {
     const file = this.app.workspace.getActiveFile()
     const view = await this.revealSessionView()
     if (!view) return
-    await this.bindOrAskRebind(view, file)
+    this.bindOrAskRebind(view, file)
   }
 
   // The rebind prompt asks only when a bound session would move to another
   // note; an unbound session has nothing to move away from.
-  private async bindOrAskRebind(view: SessionView, file: TFile | null): Promise<void> {
+  private bindOrAskRebind(view: SessionView, file: TFile | null): void {
     const boundName = view.boundNoteName()
     if (boundName && file && boundName !== file.basename)
-      return new RebindModal(this.app, boundName, file.basename, async () =>
-        view.bindSession(await this.buildPanelProps(file, view)),
+      return new RebindModal(this.app, boundName, file.basename, () =>
+        view.bindSession(this.buildPanelProps(file, view)),
       ).open()
-    if (!view.hasSession()) view.bindSession(await this.buildPanelProps(file, view))
+    if (!view.hasSession()) view.bindSession(this.buildPanelProps(file, view))
   }
 
-  private async buildPanelProps(file: TFile | null, view: SessionView): Promise<SessionPanelProps> {
-    const modelProvider = new MistralProvider(this.settings.mistralApiKey, this.settings.editModel)
-    const listeners = new InstructionListeners()
-    const sessionListeners = new SessionListeners()
-    const engine = this.engineFactory().build(
-      modelProvider,
-      file,
-      this.buildTurnProgressPublisher(sessionListeners, listeners),
+  private buildPanelProps(file: TFile | null, view: SessionView): SessionPanelProps {
+    return this.sessionBuilder().build(file, this.panelPresence(file, view))
+  }
+
+  private sessionBuilder(): SessionBuilder {
+    return new SessionBuilder(this.settings, this.engineFactory(), (engine) =>
+      this.followActiveNoteWith(engine),
     )
-    this.followActiveNoteWith(engine)
+  }
+
+  // What only the plugin can answer: whether the leaf is showing, and how to
+  // reveal it when the user acts on a notice (FR24, FR27).
+  private panelPresence(file: TFile | null, view: SessionView): PanelPresence {
     return {
-      noteName: file?.basename ?? null,
-      recorder: new Recorder(),
-      transcribe: (blob, mimeType) => modelProvider.transcribe(blob, mimeType),
-      processUtterance: (text) => engine.processUtterance(text),
-      cancelTurn: () => engine.cancelTurn(),
+      isVisible: () => this.sessionLeafIsVisible(),
+      reveal: () => void this.revealSessionView(),
       onHidden: (listener) => this.onDocumentHidden(listener),
-      notify: (message) => void new Notice(message),
-      startNewSession: () => void this.startNewSession(file, view),
-      onInstructions: (listener) => listeners.subscribe(listener),
-      onCommandRun: (listener) => sessionListeners.commandRuns.subscribe(listener),
-      onAnswer: (listener) => sessionListeners.answers.subscribe(listener),
-      onTargetNoteChanged: (listener) => sessionListeners.retargets.subscribe(listener),
+      startNewSession: () => this.startNewSession(file, view),
     }
+  }
+
+  // isShown is false when the drawer is closed and when another tab of the
+  // sidebar is in front of it.
+  private sessionLeafIsVisible(): boolean {
+    const leaf = this.app.workspace.getLeavesOfType(VIEW_TYPE_SESSION)[0]
+    return leaf?.view.containerEl.isShown() ?? false
   }
 
   // Only the newest engine follows the user: an earlier session's engine keeps
@@ -100,53 +96,9 @@ export default class OwlPlugin extends Plugin {
     if (file) this.activeEngine?.followActiveNote(file.path)
   }
 
-  // Each channel lands somewhere different: two become panel entries, one names
-  // the target note in the header (FR19), and the chain also reaches a Notice
-  // and the console.
-  private buildTurnProgressPublisher(
-    sessionListeners: SessionListeners,
-    instructions: InstructionListeners,
-  ): TurnProgressPublisher {
-    // A command that retargets resolves the chain again, so the last report is
-    // held to keep an unchanged chain from printing twice.
-    let lastReported: InstructionReport | null = null
-    return new TurnProgressPublisher(
-      (text) => sessionListeners.commandRuns.publish(text),
-      (text, sources) => sessionListeners.answers.publish({ text, sources }),
-      (path) => sessionListeners.retargets.publish(path),
-      (chain) => {
-        lastReported = this.reportInstructions(chain, instructions, lastReported)
-      },
-      (name) => sessionListeners.commandRuns.publish(`Skill applied: ${name}`),
-    )
-  }
-
-  // The three channels a drop reaches the user through: the panel entry, one
-  // Notice per resolved chain, and a console line naming every file (FR10, FR14-16).
-  // Returns what was reported, so an identical chain is not reported again.
-  private reportInstructions(
-    chain: AgentsMdChain,
-    listeners: InstructionListeners,
-    lastReported: InstructionReport | null,
-  ): InstructionReport | null {
-    const report = InstructionReport.of(chain)
-    if (report.isEmpty() || report.sameAs(lastReported)) return lastReported
-    listeners.publish(report.panelText())
-    if (!chain.hasDrops()) return report
-    new Notice(report.noticeText())
-    OwlPlugin.logDrops(chain)
-    return report
-  }
-
-  private static logDrops(chain: AgentsMdChain): void {
-    chain.dropped.forEach((file) =>
-      console.debug('[owl] instruction file dropped:', file.fileName, 'in', file.label()),
-    )
-  }
-
   // Rebuilds the props, so the model's history and the panel's entries both go.
-  private async startNewSession(file: TFile | null, view: SessionView): Promise<void> {
-    view.bindSession(await this.buildPanelProps(file, view))
+  private startNewSession(file: TFile | null, view: SessionView): void {
+    view.bindSession(this.buildPanelProps(file, view))
   }
 
   private onDocumentHidden(listener: () => void): () => void {

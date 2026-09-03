@@ -18,6 +18,16 @@ import { OpenedNoteWait } from '../commands/opened-note-wait'
 import { NoteReader } from '../search/note-reader'
 import { VaultSearch } from '../search/vault-search'
 import { OwlSettings } from '../settings/settings'
+import { OpenApproval } from './open-approval'
+import { TurnCancellation } from './turn-cancellation'
+import { UserQuestion } from './user-question'
+
+// How a session builds what a turn parks on. Both take the turn's cancellation,
+// so a parked question settles on a cancel rather than parking the loop.
+export interface EngineAskers {
+  openApproval?(cancellation: TurnCancellation): OpenApproval
+  userQuestion?(cancellation: TurnCancellation): UserQuestion
+}
 
 // Assembles one session's engine. Every collaborator is explicit, and this is
 // the only place that knows how they fit together.
@@ -33,6 +43,7 @@ export class EngineFactory {
     modelProvider: ChatProvider,
     file: TFile | null,
     progress: TurnProgressPublisher,
+    askers: EngineAskers = {},
   ): EditEngine {
     const sessions = new SessionRepository(file)
     const targetNote = new TargetNoteResolver(
@@ -47,7 +58,7 @@ export class EngineFactory {
       sessions,
       new NoteEditor(),
       harnessTools,
-      this.buildTurnFactory(sessions, targetNote, harnessTools, progress),
+      this.buildTurnFactory(sessions, targetNote, harnessTools, progress, askers),
       progress,
     )
   }
@@ -57,6 +68,7 @@ export class EngineFactory {
     targetNote: TargetNoteResolver,
     harnessTools: HarnessTools,
     progress: TurnProgressPublisher,
+    askers: EngineAskers,
   ): TurnFactory {
     return new TurnFactory(
       sessions,
@@ -65,6 +77,8 @@ export class EngineFactory {
       new NoteEditor(),
       harnessTools,
       progress,
+      askers.openApproval ?? (() => OpenApproval.granted()),
+      askers.userQuestion ?? (() => UserQuestion.unanswered()),
     )
   }
 

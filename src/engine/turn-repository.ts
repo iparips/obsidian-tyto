@@ -3,6 +3,7 @@ import { OpenNote } from './models/open-note'
 import { AgentsMdChain } from '../agents/agents-md-chain'
 import { ResolvedNote } from './models/resolved-note'
 import { TurnBudget } from './models/turn-budget'
+import { SeenPaths } from '../search/models/seen-paths'
 import { Skill } from '../skills/skill'
 
 // What one turn holds, built at its start and discarded with it. Separate from
@@ -18,6 +19,9 @@ export class TurnRepository {
     private resolved: ResolvedNote | null,
     private readonly vaultSkills: readonly Skill[] = [],
     readonly budget: TurnBudget = new TurnBudget(),
+    // Scoped to the turn rather than the session: a path offered three turns ago
+    // has had three turns to go stale, and re-searching is cheap (FR3).
+    readonly seenPaths: SeenPaths = new SeenPaths(),
   ) {}
 
   // Null while the session is unbound, which is a turn that can search but not

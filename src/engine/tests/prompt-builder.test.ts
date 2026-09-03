@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { NoteDetails } from '../models/note-details'
+import { Today } from '../models/today'
 import { PromptBuilder } from '../prompt-builder'
 import { Skill } from '../../skills/skill'
 import { AgentsMdChain } from '../../agents/agents-md-chain'
@@ -194,11 +195,38 @@ describe('PromptBuilder', () => {
       expect(prompt).toContain('Decline a command whose effect you cannot determine')
     })
 
-    it('tells the model to say so when no command reaches a named destination', () => {
+    it('tells the model to prefer a listed command that opens the destination', () => {
       const prompt = standingRulesText([], new AgentsMdChain(), catalogue)
 
-      expect(prompt).toContain('rather than')
-      expect(prompt).toContain('searching the vault for it')
+      expect(prompt).toContain('prefer a listed command that opens it')
+    })
+
+    it('tells the model to search only when no command reaches the destination', () => {
+      const prompt = standingRulesText([], new AgentsMdChain(), catalogue)
+
+      expect(prompt).toContain(
+        'Search for the note only when no listed command reaches it, then open what you found.',
+      )
+    })
+
+    it('states the preference identically whichever mode is on, since the mode is not in the prompt', () => {
+      const prompt = standingRulesText([], new AgentsMdChain(), catalogue)
+
+      expect(prompt).not.toContain('confirm')
+    })
+
+    it('tells the model to ask only when no command and no search resolves the destination', () => {
+      const prompt = standingRulesText([], new AgentsMdChain(), catalogue)
+
+      expect(prompt).toContain(
+        'Ask only when no listed command and no search resolves what the instruction named:',
+      )
+    })
+
+    it('tells the model to offer suggestions when it has candidates', () => {
+      const prompt = standingRulesText([], new AgentsMdChain(), catalogue)
+
+      expect(prompt).toContain('Offer suggestions when you have candidates')
     })
   })
 
@@ -207,6 +235,18 @@ describe('PromptBuilder', () => {
       const prompt = standingRulesText([], new AgentsMdChain(), [])
 
       expect(prompt).not.toContain('You can run the Obsidian commands below')
+    })
+
+    it('omits the question section when no route exists to exhaust', () => {
+      const prompt = standingRulesText([], new AgentsMdChain(), [], false)
+
+      expect(prompt).not.toContain('You can ask the user one question')
+    })
+
+    it('keeps the question section when search alone is available', () => {
+      const prompt = standingRulesText([], new AgentsMdChain(), [], true)
+
+      expect(prompt).toContain('You can ask the user one question')
     })
 
     it('produces the release 3 prompt when commands and search are absent', () => {
@@ -355,6 +395,44 @@ describe('PromptBuilder', () => {
       const prompt = standingRulesText(skills, new AgentsMdChain(), [])
 
       expect(prompt).toContain('editing other files is not supported yet')
+    })
+  })
+
+  describe('when the prompt states what day it is', () => {
+    const THURSDAY = new Today(new Date(2026, 8, 3))
+
+    it('names today in the note snapshot when a note is open', () => {
+      const snapshot = PromptBuilder.noteSnapshot(aNote(), THURSDAY)
+
+      expect(snapshot.content).toContain('Today is 2026-09-03 (Thursday).')
+    })
+
+    it('names today in the unbound snapshot when no note is open', () => {
+      const snapshot = PromptBuilder.noNoteSnapshot(false, THURSDAY)
+
+      expect(snapshot.content).toContain('Today is 2026-09-03 (Thursday).')
+    })
+
+    it('tells the model not to resolve a date against a note name', () => {
+      const snapshot = PromptBuilder.noteSnapshot(aNote(), THURSDAY)
+
+      expect(snapshot.content).toContain(
+        'A note named for a date is not\nevidence of what today is.',
+      )
+    })
+
+    it('states the date before the note, so it is read as context for it', () => {
+      const snapshot = PromptBuilder.noteSnapshot(aNote(), THURSDAY)
+
+      expect(snapshot.content.indexOf('Today is')).toBeLessThan(
+        snapshot.content.indexOf('Note path:'),
+      )
+    })
+
+    it('keeps the note content when the date is added', () => {
+      const snapshot = PromptBuilder.noteSnapshot(aNote(), THURSDAY)
+
+      expect(snapshot.content).toContain('# Budget')
     })
   })
 })

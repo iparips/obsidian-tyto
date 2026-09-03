@@ -1,3 +1,7 @@
+// Confirm is the default: a user who has not thought about this gets the mode
+// that cannot surprise them (FR9).
+export type OpenMode = 'confirm' | 'auto'
+
 export interface OwlSettings {
   provider: 'mistral'
   mistralApiKey: string
@@ -5,6 +9,7 @@ export interface OwlSettings {
   skillsPath: string
   commandAllowList: string[]
   searchEnabled: boolean
+  openMode: OpenMode
 }
 
 export const DEFAULT_SETTINGS: OwlSettings = {
@@ -14,4 +19,5 @@ export const DEFAULT_SETTINGS: OwlSettings = {
   skillsPath: '0 - Meta/Skills',
   commandAllowList: ['daily-notes:*'],
   searchEnabled: true,
+  openMode: 'confirm',
 }

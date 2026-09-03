@@ -1,8 +1,13 @@
 import { FailureStep } from '../../shared/models/outcome'
+import { AskedEntries } from './asked-entries'
+import { PanelAction } from './panel-action'
 
 // cancelling sits between the click and the loop stopping, so the button stops
-// offering while the turn is still on its way down.
-export type Phase = 'idle' | 'recording' | 'transcribing' | 'thinking' | 'cancelling'
+// offering while the turn is still on its way down. confirming and asking both
+// park the turn on the user, and differ in how the user answers: buttons on the
+// entry, or the input row.
+export type Phase =
+  'idle' | 'recording' | 'transcribing' | 'thinking' | 'cancelling' | 'confirming' | 'asking'
 
 export type Entry =
   | { kind: 'user'; text: string }
@@ -10,8 +15,25 @@ export type Entry =
   | { kind: 'error'; step: FailureStep; text: string }
   | { kind: 'instructions'; text: string }
   | { kind: 'command'; text: string }
+  | { kind: 'warning'; text: string }
+  // One entry per turn holding every step, so the panel gains a collapsed list
+  // rather than a line per tool call.
+  | { kind: 'steps'; steps: PanelStep[] }
   | { kind: 'answer'; text: string; sources: string[] }
   | { kind: 'cancelled'; text: string }
+  // pending while the buttons are live; the outcome replaces them, because a
+  // button that no longer does anything is worse than a line saying what
+  // happened.
+  | { kind: 'confirm'; path: string; pending: boolean; text: string }
+  // pending while the question is answerable; once the turn ends its text stays
+  // as a record of what was asked, and its suggestions go (FR32).
+  | { kind: 'question'; pending: boolean; suggestions: string[]; text: string }
+
+export interface PanelStep {
+  label: string
+  detail: string
+  refused: boolean
+}
 
 export class PanelState {
   constructor(
@@ -28,19 +50,6 @@ export class PanelState {
   }
 }
 
-export type PanelAction =
-  | { type: 'recordingStarted' }
-  | { type: 'stopRequested' }
-  | { type: 'cancelled' }
-  | { type: 'transcript'; text: string }
-  | { type: 'summary'; text: string }
-  | { type: 'failed'; step: FailureStep; message: string }
-  | { type: 'instructions'; text: string }
-  | { type: 'commandRan'; text: string }
-  | { type: 'answer'; text: string; sources: string[] }
-  | { type: 'cancelRequested' }
-  | { type: 'turnCancelled'; writtenNotes: readonly string[] }
-
 export const INITIAL_PANEL_STATE: PanelState = new PanelState('idle', [])
 
 export class PanelReducer {
@@ -55,9 +64,12 @@ export class PanelReducer {
       case 'transcript':
         return state.withEntry('thinking', { kind: 'user', text: action.text })
       case 'summary':
-        return state.withEntry('idle', { kind: 'assistant', text: action.text })
+        return AskedEntries.turnEnded(state).withEntry('idle', {
+          kind: 'assistant',
+          text: action.text,
+        })
       case 'failed':
-        return state.withEntry('idle', {
+        return AskedEntries.turnEnded(state).withEntry('idle', {
           kind: 'error',
           step: action.step,
           text: action.message,
@@ -66,6 +78,14 @@ export class PanelReducer {
         return state.withEntry(state.phase, { kind: 'instructions', text: action.text })
       case 'commandRan':
         return state.withEntry(state.phase, { kind: 'command', text: action.text })
+      case 'warned':
+        return state.withEntry(state.phase, { kind: 'warning', text: action.text })
+      case 'stepTaken':
+        return PanelReducer.withStep(state, {
+          label: action.label,
+          detail: action.detail,
+          refused: action.refused,
+        })
       case 'answer':
         return state.withEntry(state.phase, {
           kind: 'answer',
@@ -75,11 +95,57 @@ export class PanelReducer {
       case 'cancelRequested':
         return state.withPhase('cancelling')
       case 'turnCancelled':
-        return state.withEntry('idle', {
+        return AskedEntries.turnEnded(state).withEntry('idle', {
           kind: 'cancelled',
           text: PanelReducer.cancelledText(action.writtenNotes),
         })
+      case 'openRequested':
+        return state.withEntry('confirming', {
+          kind: 'confirm',
+          path: action.path,
+          pending: true,
+          text: PanelReducer.confirmText(action.path),
+        })
+      case 'openAnswered':
+        return AskedEntries.openAnswered(state, action.granted)
+      case 'questionAsked':
+        return state.withEntry('asking', {
+          kind: 'question',
+          pending: true,
+          suggestions: action.suggestions,
+          text: action.text,
+        })
+      case 'questionAnswered':
+        return AskedEntries.questionAnswered(state, 'thinking')
     }
+  }
+
+  // Appended to the turn's steps entry wherever it sits, rather than only when
+  // it is last: a skill or command entry landing between two steps must not
+  // split one turn's record into two lists.
+  private static withStep(state: PanelState, step: PanelStep): PanelState {
+    const at = PanelReducer.openStepsAt(state)
+    if (at === -1) return state.withEntry(state.phase, { kind: 'steps', steps: [step] })
+    const open = state.entries[at] as { kind: 'steps'; steps: PanelStep[] }
+    return new PanelState(
+      state.phase,
+      state.entries.with(at, { kind: 'steps', steps: [...open.steps, step] }),
+    )
+  }
+
+  // The last steps entry after the last utterance, since an utterance is where
+  // one turn ends and the next begins.
+  private static openStepsAt(state: PanelState): number {
+    const turnStart = state.entries.findLastIndex((entry) => entry.kind === 'user')
+    const within = state.entries.slice(turnStart + 1)
+    const at = within.findLastIndex((entry) => entry.kind === 'steps')
+    return at === -1 ? -1 : turnStart + 1 + at
+  }
+
+  // The path from the vault root, so the user approves a note rather than a
+  // title two notes could share (FR13).
+  private static confirmText(path: string): string {
+    return `Open ${path} and edit it?`
   }
 
   // Naming the notes is the whole of what a cancel owes the user: nothing is

@@ -285,6 +285,24 @@ describe('EditEngine', () => {
     })
   })
 
+  describe('when a flow is spent', () => {
+    it('stops offering run_command once the command cap is reached', async () => {
+      respondsWith(runCommand(), runCommand(), runCommand())
+
+      await engineOf().processUtterance('run them all')
+
+      expect(complete.mock.calls[3][1].map((schema) => schema.name)).not.toContain('run_command')
+    })
+
+    it('keeps offering the search tools when only the command cap is reached', async () => {
+      respondsWith(runCommand(), runCommand(), runCommand())
+
+      await engineOf().processUtterance('run them all')
+
+      expect(complete.mock.calls[3][1].map((schema) => schema.name)).toContain('search_vault')
+    })
+  })
+
   describe('when the turn exceeds a per-turn cap', () => {
     it('refuses a fourth command when the command cap is reached', async () => {
       respondsWith(runCommand(), runCommand(), runCommand(), runCommand())

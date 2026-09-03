@@ -379,6 +379,242 @@ describe('SessionPanel', () => {
 
       expect(screen.getByText('2026-09-02')).toBeTruthy()
     })
+
+    it('renders the note path beneath the note name when the session is bound', () => {
+      renderPanel({ notePath: 'Journal/note.md' })
+
+      expect(screen.getByLabelText('Note path').textContent).toBe('Journal/note.md')
+    })
+
+    it('renders no path when the session is unbound', () => {
+      renderPanel({ noteName: null, notePath: null })
+
+      expect(screen.queryByLabelText('Note path')).toBeNull()
+    })
+
+    it('updates the path as well as the name when the target note changes', () => {
+      renderPanel({ notePath: 'note.md', onTargetNoteChanged })
+
+      retargetTo('Journal/2026-09-02.md')
+
+      expect(screen.getByLabelText('Note path').textContent).toBe('Journal/2026-09-02.md')
+    })
+  })
+
+  describe('when the model asks to open a note it found', () => {
+    let askPanel: (path: string) => Promise<boolean>
+    const onOpenRequested = (listener: (path: string) => Promise<boolean>) => {
+      askPanel = listener
+      return () => undefined
+    }
+
+    // The turn is parked on this promise, so the test holds it the way the
+    // engine does and asserts what the panel does while it waits.
+    const requestOpen = (path = 'Lists/todo.md') => {
+      let answer: Promise<boolean> = Promise.resolve(false)
+      act(() => {
+        answer = askPanel(path)
+      })
+      return answer
+    }
+
+    // The turn never settles, so the panel stays in a running phase the way it
+    // does while the engine waits on the model.
+    beforeEach(() => {
+      processUtterance.mockReturnValue(new Promise<Outcome<string>>(() => undefined))
+      renderPanel({ onOpenRequested })
+    })
+
+    it('names the note with its full path when an open is requested', async () => {
+      requestOpen()
+
+      expect(screen.getByText('Open Lists/todo.md and edit it?')).toBeTruthy()
+    })
+
+    it('renders approve and decline controls when an open is requested', async () => {
+      requestOpen()
+
+      expect(screen.getByRole('button', { name: 'Approve open' })).toBeTruthy()
+      expect(screen.getByRole('button', { name: 'Decline open' })).toBeTruthy()
+    })
+
+    it('answers granted when approve is clicked', async () => {
+      const answer = requestOpen()
+
+      await userEvent.click(screen.getByRole('button', { name: 'Approve open' }))
+
+      expect(await answer).toBe(true)
+    })
+
+    it('answers declined when decline is clicked', async () => {
+      const answer = requestOpen()
+
+      await userEvent.click(screen.getByRole('button', { name: 'Decline open' }))
+
+      expect(await answer).toBe(false)
+    })
+
+    it('replaces the controls with the outcome once answered', async () => {
+      requestOpen()
+
+      await userEvent.click(screen.getByRole('button', { name: 'Approve open' }))
+
+      expect(screen.queryByRole('button', { name: 'Approve open' })).toBeNull()
+    })
+
+    it('says which way it went once answered', async () => {
+      requestOpen()
+
+      await userEvent.click(screen.getByRole('button', { name: 'Decline open' }))
+
+      expect(screen.getByText('Declined Lists/todo.md')).toBeTruthy()
+    })
+
+    it('disables the input row while confirming, so no utterance queues behind it', async () => {
+      requestOpen()
+
+      expect(screen.getByLabelText('Instruction').hasAttribute('disabled')).toBe(true)
+    })
+
+    it('answers declined when the turn is cancelled while confirming', async () => {
+      const answer = requestOpen()
+
+      await userEvent.click(screen.getByRole('button', { name: 'Cancel' }))
+
+      expect(await answer).toBe(false)
+    })
+  })
+
+  describe('when the model asks the user a question', () => {
+    let askPanel: (request: { question: string; suggestions: readonly string[] }) => Promise<string>
+    const onQuestionAsked = (
+      listener: (request: { question: string; suggestions: readonly string[] }) => Promise<string>,
+    ) => {
+      askPanel = listener
+      return () => undefined
+    }
+
+    // The turn is parked on this promise, so the test holds it the way the
+    // engine does and asserts what the panel does while it waits.
+    const askQuestion = (suggestions: readonly string[] = ['Lists/a.md', 'Lists/b.md']) => {
+      let answer: Promise<string> = Promise.resolve('')
+      act(() => {
+        answer = askPanel({ question: 'Which shopping list?', suggestions })
+      })
+      return answer
+    }
+
+    beforeEach(() => {
+      processUtterance.mockReturnValue(new Promise<Outcome<string>>(() => undefined))
+      renderPanel({ onQuestionAsked })
+    })
+
+    it('renders the question text when a question is asked', () => {
+      askQuestion()
+
+      expect(screen.getByText('Which shopping list?')).toBeTruthy()
+    })
+
+    it('renders a button per suggestion when suggestions are offered', () => {
+      askQuestion()
+
+      expect(screen.getByLabelText('Suggested answers').querySelectorAll('button')).toHaveLength(2)
+    })
+
+    it('renders no suggestion buttons when none are offered', () => {
+      askQuestion([])
+
+      expect(screen.getByLabelText('Suggested answers').querySelectorAll('button')).toHaveLength(0)
+    })
+
+    it('leaves the input live while asking, unlike while thinking', () => {
+      askQuestion()
+
+      expect(screen.getByLabelText('Instruction').hasAttribute('disabled')).toBe(false)
+    })
+
+    it('fills the input when a suggestion is clicked', async () => {
+      askQuestion()
+
+      await userEvent.click(screen.getByRole('button', { name: 'Lists/a.md' }))
+
+      expect(screen.getByLabelText<HTMLInputElement>('Instruction').value).toBe('Lists/a.md')
+    })
+
+    it('sends nothing on its own when a suggestion is clicked', async () => {
+      const answer = askQuestion()
+      let settled = false
+      void answer.then(() => (settled = true))
+
+      await userEvent.click(screen.getByRole('button', { name: 'Lists/a.md' }))
+
+      expect(settled).toBe(false)
+    })
+
+    it('answers with the typed text when the user sends while asking', async () => {
+      const answer = askQuestion()
+
+      await userEvent.type(screen.getByLabelText('Instruction'), 'the one in Lists{Enter}')
+
+      expect(await answer).toBe('the one in Lists')
+    })
+
+    it('starts no new turn when the user sends while asking', async () => {
+      askQuestion()
+
+      await userEvent.type(screen.getByLabelText('Instruction'), 'the one in Lists{Enter}')
+
+      expect(processUtterance).not.toHaveBeenCalled()
+    })
+
+    it('answers with an empty answer when the turn is cancelled while asking', async () => {
+      const answer = askQuestion()
+
+      await userEvent.click(screen.getByRole('button', { name: 'Cancel' }))
+
+      expect(await answer).toBe('')
+    })
+
+    it('keeps the question text on screen when the turn is cancelled while asking', async () => {
+      askQuestion()
+
+      await userEvent.click(screen.getByRole('button', { name: 'Cancel' }))
+
+      expect(screen.getByText('Which shopping list?')).toBeTruthy()
+    })
+  })
+
+  describe('when a turn ends with the panel closed', () => {
+    it('reports the summary when a turn finishes', async () => {
+      const onTurnFinished = vi.fn()
+      renderPanel({ onTurnFinished })
+
+      await userEvent.type(screen.getByLabelText('Instruction'), 'do it{Enter}')
+
+      expect(onTurnFinished).toHaveBeenCalledWith('made the edit')
+    })
+
+    it('reports the message when a turn fails', async () => {
+      const onTurnFailed = vi.fn()
+      processUtterance.mockResolvedValue(Outcomes.failure('chat', 'it broke'))
+      renderPanel({ onTurnFailed })
+
+      await userEvent.type(screen.getByLabelText('Instruction'), 'do it{Enter}')
+
+      expect(onTurnFailed).toHaveBeenCalledWith('it broke')
+    })
+
+    it('reports nothing when the turn is cancelled, since the user stopped it', async () => {
+      const onTurnFinished = vi.fn()
+      const onTurnFailed = vi.fn()
+      processUtterance.mockResolvedValue(Outcomes.cancelled('chat', []))
+      renderPanel({ onTurnFinished, onTurnFailed })
+
+      await userEvent.type(screen.getByLabelText('Instruction'), 'do it{Enter}')
+
+      expect(onTurnFinished).not.toHaveBeenCalled()
+      expect(onTurnFailed).not.toHaveBeenCalled()
+    })
   })
 
   describe('when a turn runs a command or answers', () => {
@@ -416,6 +652,24 @@ describe('SessionPanel', () => {
       )
 
       expect(screen.getByLabelText('Answer sources').textContent).toBe('From 1: Quotes/roofing.md')
+    })
+  })
+
+  describe('when a turn runs low on steps', () => {
+    it('renders a warning entry when a warning is reported', () => {
+      let warn: (text: string) => void = () => undefined
+      renderPanel({
+        onWarning: (listener) => {
+          warn = listener
+          return () => undefined
+        },
+      })
+
+      act(() => warn('Owl is taking longer than usual: 3 steps left this turn.'))
+
+      expect(
+        screen.getByText('Owl is taking longer than usual: 3 steps left this turn.'),
+      ).toBeTruthy()
     })
   })
 })

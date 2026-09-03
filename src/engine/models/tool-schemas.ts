@@ -1,7 +1,9 @@
 import { ToolSchema } from '../../providers/types'
 import {
   ANSWER_FROM_SEARCH,
+  ASK_USER,
   LOAD_SKILL,
+  OPEN_NOTE,
   READ_NOTE,
   RUN_COMMAND,
   SEARCH_VAULT,
@@ -118,15 +120,50 @@ export const TOOL_SCHEMAS: ToolSchema[] = [
       required: ['answer', 'sources'],
     },
   },
+  {
+    name: OPEN_NOTE,
+    description:
+      'Open an existing note by a path a search returned, making it the note the edit tools write to. Use this only when no listed command opens the note the user named.',
+    parameters: {
+      type: 'object',
+      properties: {
+        path: { type: 'string', description: 'The note path exactly as a search returned it.' },
+      },
+      required: ['path'],
+    },
+  },
+  {
+    name: ASK_USER,
+    description:
+      'Ask the user one question and act on their answer in this same turn. Use it only when no listed command and no search resolves what the instruction named.',
+    parameters: {
+      type: 'object',
+      properties: {
+        question: { type: 'string', description: "One question, in the user's own terms." },
+        suggestions: {
+          type: 'array',
+          items: { type: 'string' },
+          description: 'Answers the user can pick without typing. Omit when none fit.',
+        },
+      },
+      required: ['question'],
+    },
+  },
 ]
 
 // The two flows are independent, so each set is offered only where it can act:
 // a vault allowing no commands and disabling search is offered the release 3
 // tools exactly (NFR8).
 export class ToolCatalogue {
-  static forCapabilities(commandsAllowed: boolean, searchEnabled: boolean): ToolSchema[] {
-    return TOOL_SCHEMAS.filter((schema) =>
-      ToolCatalogue.isOffered(schema.name, commandsAllowed, searchEnabled),
+  static forCapabilities(
+    commandsAllowed: boolean,
+    searchEnabled: boolean,
+    spent: readonly string[] = [],
+  ): ToolSchema[] {
+    return TOOL_SCHEMAS.filter(
+      (schema) =>
+        !spent.includes(schema.name) &&
+        ToolCatalogue.isOffered(schema.name, commandsAllowed, searchEnabled),
     )
   }
 
@@ -137,8 +174,13 @@ export class ToolCatalogue {
   ): boolean {
     if (name === RUN_COMMAND) return commandsAllowed
     if (SEARCH_TOOLS.includes(name)) return searchEnabled
+    // Asking is what is left once the routes are exhausted, so a vault with no
+    // route to exhaust is offered the release 3 tools exactly (NFR7).
+    if (name === ASK_USER) return commandsAllowed || searchEnabled
     return true
   }
 }
 
-const SEARCH_TOOLS: string[] = [SEARCH_VAULT, READ_NOTE, ANSWER_FROM_SEARCH]
+// open_note joins them because a search hit is the only source of a path it
+// accepts, so a vault with search off can never offer it one (NFR4).
+const SEARCH_TOOLS: string[] = [SEARCH_VAULT, READ_NOTE, ANSWER_FROM_SEARCH, OPEN_NOTE]

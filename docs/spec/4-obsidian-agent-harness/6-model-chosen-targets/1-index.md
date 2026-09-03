@@ -33,6 +33,6 @@ A confirmation and a question park a turn the same way, so PendingAnswer
 comes back. The notices are one collaborator over Obsidian's own Notice, which
 persists at a zero duration.
 
-Designed, not built. It needs
+Built, exit tests pending. It needed
 [5-cancelling-a-turn](../5-cancelling-a-turn/1-index.md) first, since a parked
 question settles on that spec's cancellation.

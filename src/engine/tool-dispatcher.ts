@@ -1,8 +1,6 @@
 import { ToolCall } from '../providers/types'
-import { EditorPosition } from 'obsidian'
-import { NoteEditor, EditOperation } from './note-editor'
-import { NoteOperationParser } from './note-operation-parser'
-import { OpenNote } from './models/open-note'
+import { NoteEditTool } from './note-edit-tool'
+import { ToolCallOutcome } from './models/tool-call-outcome'
 import { SkillRepository } from '../skills/skill-repository'
 import { HarnessTools } from './harness-tools'
 import { CommandEffect } from '../commands/models/command-effect'
@@ -11,15 +9,15 @@ import { TargetNoteResolver } from './target-note-resolver'
 import { SessionRepository } from '../session/session-repository'
 import { TurnProgressPublisher } from './turn-progress-publisher'
 import { TurnCancellation } from './turn-cancellation'
+import { OpenApproval } from './open-approval'
+import { UserQuestion } from './user-question'
+import { AnswerRequest } from './models/answer-request'
+import { TurnStep } from './models/turn-step'
 
 const CANCELLED_RESULT = 'the user stopped the turn; this call did not run'
-
-// editedTo is absent when the call changed nothing, so the turn keeps the
-// position of the last call that did.
-export interface ToolCallOutcome {
-  result: string
-  editedTo?: EditorPosition
-}
+const NO_ANSWER_RESULT = 'the user did not answer; stop and say what you were waiting on'
+const DECLINED_RESULT =
+  'the user declined that note; the session did not move and nothing was written'
 
 // One tool call, run and published. The loop owns the conversation; this owns
 // what a call does to the note, the session and the panel.
@@ -28,11 +26,13 @@ export class ToolDispatcher {
     private sessionRepository: SessionRepository,
     private targetNoteResolver: TargetNoteResolver,
     private skillRepository: SkillRepository,
-    private noteEditor: NoteEditor,
+    private noteEditTool: NoteEditTool,
     private harnessTools: HarnessTools,
     private turnProgressPublisher: TurnProgressPublisher,
     private turnRepository: TurnRepository,
     private turnCancellation: TurnCancellation,
+    private openApproval: OpenApproval,
+    private userQuestion: UserQuestion,
   ) {}
 
   async execute(call: ToolCall): Promise<ToolCallOutcome> {
@@ -40,20 +40,17 @@ export class ToolDispatcher {
     if (this.turnCancellation.isCancelled()) return { result: CANCELLED_RESULT }
     if (call.isLoadSkill()) return { result: await this.loadSkill(call) }
     if (call.isHarnessTool()) return this.callHarnessTool(call)
-    return this.editTargetNote(call)
+    return this.publishEdit(this.noteEditTool.execute(call))
   }
 
-  // Refused rather than applied to the note the turn still holds: that note is
-  // no longer the target, and editing it would write to the wrong file.
-  private editTargetNote(call: ToolCall): ToolCallOutcome {
-    const unwritable = this.turnRepository.unwritableNote()
-    if (unwritable)
-      return { result: `${unwritable} is not editable yet; stop and tell the user to open it` }
-    const note = this.turnRepository.targetNote()
-    // Told rather than thrown, so the model reports it in the reply instead of
-    // retrying an edit that cannot land.
-    if (!note) return { result: 'no note is open; tell the user to open one before editing' }
-    return this.callToolOnNote(call, note)
+  // The edit tools are the ones a stuck turn retries, so the steps list has to
+  // show them or a loop of failed anchors reads as a turn doing nothing.
+  private publishEdit(outcome: ToolCallOutcome): ToolCallOutcome {
+    const step = outcome.editedTo
+      ? TurnStep.edited(outcome.result)
+      : TurnStep.refused(outcome.result)
+    this.turnProgressPublisher.stepTaken(step)
+    return outcome
   }
 
   // Published once the body is in hand, so the panel names a skill the turn
@@ -69,11 +66,31 @@ export class ToolDispatcher {
   }
 
   private async callHarnessTool(call: ToolCall): Promise<ToolCallOutcome> {
-    const harnessResult = await this.harnessTools.execute(call, this.turnRepository.budget)
+    const harnessResult = await this.harnessTools.execute(call, this.turnRepository)
+    if (harnessResult.step) this.turnProgressPublisher.stepTaken(harnessResult.step)
     if (harnessResult.answer)
       this.turnProgressPublisher.answered(harnessResult.answer.text, harnessResult.answer.sources)
+    if (harnessResult.question) return this.askUser(harnessResult.question)
+    if (harnessResult.openPath) return this.openModelChosenNote(harnessResult.openPath)
     if (!harnessResult.effect) return { result: harnessResult.result }
     return { result: await this.publishCommand(harnessResult.effect) }
+  }
+
+  // The answer is the tool result, so the model reads it in the same turn
+  // rather than the user restating the instruction (FR15, FR16).
+  private async askUser(request: AnswerRequest): Promise<ToolCallOutcome> {
+    this.turnProgressPublisher.stepTaken(TurnStep.asked(request.question))
+    const answer = await this.userQuestion.answerTo(request)
+    return { result: answer === '' ? NO_ANSWER_RESULT : `the user answered: ${answer}` }
+  }
+
+  // A decline is a tool result, not an exception: the model reads that it was
+  // refused and reports what stopped rather than claiming an edit (FR7, NFR1).
+  private async openModelChosenNote(path: string): Promise<ToolCallOutcome> {
+    if (!(await this.openApproval.grantFor(path))) return { result: DECLINED_RESULT }
+    this.turnProgressPublisher.stepTaken(TurnStep.opened(path))
+    const moved = await this.moveTargetTo(path)
+    return { result: moved ? `opened ${path}` : `opened ${path}, but it is not editable yet` }
   }
 
   // The model is told what actually happened: a note that opened without an
@@ -104,18 +121,5 @@ export class ToolDispatcher {
     this.turnRepository.retargetTo(resolvedNoteOutcome.value)
     this.turnProgressPublisher.retargeted(path)
     return true
-  }
-
-  private callToolOnNote(call: ToolCall, note: OpenNote): ToolCallOutcome {
-    const parsed = NoteOperationParser.parse(call)
-    if (parsed.hasFailed()) return { result: `invalid arguments: ${parsed.message}` }
-    return this.applyOperation(parsed.value, note)
-  }
-
-  private applyOperation(op: EditOperation, note: OpenNote): ToolCallOutcome {
-    const result = this.noteEditor.apply(note.editor, note.details(), op)
-    if (result.applied) return { result: 'applied', editedTo: result.endedAt }
-    if (result.reason === 'noMatch') return { result: 'anchor not found in note' }
-    return { result: 'anchor matches multiple places; use a longer anchor' }
   }
 }

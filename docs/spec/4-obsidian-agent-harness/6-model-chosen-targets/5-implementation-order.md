@@ -2,8 +2,8 @@
 
 ## Status
 
-Not started. Depends on
-[5-cancelling-a-turn](../5-cancelling-a-turn/1-index.md), which must land first:
+Built, exit tests pending. Depends on
+[5-cancelling-a-turn](../5-cancelling-a-turn/1-index.md), which landed first:
 the second commit consumes TurnCancellation (Engine) to settle a parked
 question, and FR29 has no other mechanism.
 

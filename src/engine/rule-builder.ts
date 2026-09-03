@@ -60,8 +60,19 @@ export class RuleBuilder {
       'destination it opens, then edit the note it opened.',
       'Decline a command whose effect you cannot determine from its name. Say which command',
       'you declined and why, and run nothing instead.',
-      'When an utterance names a destination no listed command reaches, say so rather than',
-      'searching the vault for it.',
+      'When an utterance names a destination, prefer a listed command that opens it.',
+      'Search for the note only when no listed command reaches it, then open what you found.',
+    ].join('\n')
+  }
+
+  // Stated where the routes are, so the model reads what to exhaust before it
+  // reaches for the question rather than treating asking as a first move (FR31).
+  static questionRules(): string {
+    return [
+      'You can ask the user one question and act on their answer in the same turn.',
+      'Ask only when no listed command and no search resolves what the instruction named:',
+      'when several notes match equally, when none does, or when the instruction itself is unclear.',
+      'Offer suggestions when you have candidates, so the user picks rather than types.',
     ].join('\n')
   }
 

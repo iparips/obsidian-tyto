@@ -31,4 +31,26 @@ describe('EntryWeights', () => {
       expect(EntryWeights.of('command')).toBe('context')
     })
   })
+
+  describe('when the entry asks the user to approve a note', () => {
+    it('weighs a confirm entry as a reply, not as context', () => {
+      expect(EntryWeights.of('confirm')).toBe('reply')
+    })
+
+    it('weighs a question entry as a reply, not as context', () => {
+      expect(EntryWeights.of('question')).toBe('reply')
+    })
+  })
+
+  describe('when the entry warns about the turn', () => {
+    it('weighs a warning entry as context, so it does not compete with the reply', () => {
+      expect(EntryWeights.of('warning')).toBe('context')
+    })
+  })
+
+  describe('when the entry lists what the turn did', () => {
+    it('weighs a steps entry as context, so it sits under the reply', () => {
+      expect(EntryWeights.of('steps')).toBe('context')
+    })
+  })
 })

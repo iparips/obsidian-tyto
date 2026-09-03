@@ -146,7 +146,73 @@ describe('EditEngine', () => {
 
       const outcome = await engine.processUtterance('edit')
 
-      expect(outcome).toEqual(Outcomes.failure('chat', 'edit loop exceeded 10 iterations'))
+      expect(outcome.hasFailed() && outcome.step).toBe('chat')
+    })
+
+    it('names the cap it hit when the iteration cap is reached', async () => {
+      complete.mockResolvedValue(
+        Outcomes.success(aToolTurn(aToolCall('insert_at', { location: 'note_end', content: 'x' }))),
+      )
+
+      const outcome = await engine.processUtterance('edit')
+
+      expect(outcome.hasFailed() && outcome.message).toContain('ran out of steps for this turn')
+    })
+
+    it('warns through the panel before the iteration cap is reached', async () => {
+      const warnings: string[] = []
+      const warned = anEngine(chat, {
+        sessions,
+        noteLocator,
+        agentsMdRepository: noInstructions(),
+        progress: new TurnProgressPublisher(
+          () => undefined,
+          () => undefined,
+          () => undefined,
+          () => undefined,
+          () => undefined,
+          (text) => warnings.push(text),
+        ),
+      })
+      complete.mockResolvedValue(
+        Outcomes.success(aToolTurn(aToolCall('insert_at', { location: 'note_end', content: 'x' }))),
+      )
+
+      await warned.processUtterance('edit')
+
+      expect(warnings).toEqual(['Owl is taking longer than usual: 3 steps left this turn.'])
+    })
+
+    it('warns nothing when the turn finishes with room to spare', async () => {
+      const warnings: string[] = []
+      const warned = anEngine(chat, {
+        sessions,
+        noteLocator,
+        agentsMdRepository: noInstructions(),
+        progress: new TurnProgressPublisher(
+          () => undefined,
+          () => undefined,
+          () => undefined,
+          () => undefined,
+          () => undefined,
+          (text) => warnings.push(text),
+        ),
+      })
+      complete.mockResolvedValue(Outcomes.success(aTextTurn('done')))
+
+      await warned.processUtterance('edit')
+
+      expect(warnings).toEqual([])
+    })
+
+    it('suggests a way forward when the iteration cap is reached', async () => {
+      complete.mockResolvedValue(
+        Outcomes.success(aToolTurn(aToolCall('insert_at', { location: 'note_end', content: 'x' }))),
+      )
+
+      const outcome = await engine.processUtterance('edit')
+
+      expect(outcome.hasFailed() && outcome.message).toContain('Try a smaller instruction')
     })
   })
 

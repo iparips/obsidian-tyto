@@ -13,8 +13,8 @@ import { TurnFactory } from './turn-factory'
 import { TurnRepository } from './turn-repository'
 import { SessionRepository } from '../session/session-repository'
 import { TurnProgressPublisher } from './turn-progress-publisher'
-
-const MAX_ITERATIONS = 10
+import { Today } from './models/today'
+import { IterationBudget } from './models/iteration-budget'
 
 export class EditEngine {
   // Tail of the single-flight chain: resolves once every utterance queued so
@@ -70,7 +70,8 @@ export class EditEngine {
   private async runAgentLoop(turn: Turn, utterance: ChatMessage): Promise<Outcome<string>> {
     this.sessionRepository.appendChatMessage(utterance)
     const turnRepository = turn.repository
-    for (let iteration = 0; iteration < MAX_ITERATIONS; iteration++) {
+    const iterations = new IterationBudget()
+    for (let iteration = 0; !iterations.isSpent(); iteration++) {
       if (turn.cancellation.isCancelled()) return this.concludeCancelled(turn)
       const answer = await this.askModel(
         turnRepository.targetNote(),
@@ -78,6 +79,7 @@ export class EditEngine {
         turnRepository.agentMdChain(),
         this.sessionRepository.chatHistory(),
         turn.cancellation.signal(),
+        turnRepository.budget.spentTools(),
       )
       if (!answer.succeeded()) return this.concludeUnfinished(answer, turn)
       EditEngine.logIteration(iteration, answer.value, EditEngine.pathOf(turnRepository))
@@ -88,8 +90,20 @@ export class EditEngine {
           turnRepository.editEnd(),
         )
       await this.executeToolCalls(answer.value.calls, turn)
+      iterations.spend()
+      if (iterations.justRanLow()) this.turnProgressPublisher.runningLow(iterations.warning())
     }
-    return Outcomes.failure('chat', `edit loop exceeded ${MAX_ITERATIONS} iterations`)
+    return EditEngine.concludeExhausted(turnRepository)
+  }
+
+  // Names what the steps went on rather than only the cap they hit: a turn that
+  // spent them asking questions and one that spent them retrying an edit fail
+  // identically otherwise.
+  private static concludeExhausted(turnRepository: TurnRepository): Outcome<string> {
+    return Outcomes.failure(
+      'chat',
+      `Owl ran out of steps for this turn after ${IterationBudget.max()} (${turnRepository.budget.describeSpend()}). Try a smaller instruction, or say which note to use.`,
+    )
   }
 
   // An aborted request is the user's cancel arriving mid-flight, so the turn
@@ -132,6 +146,7 @@ export class EditEngine {
     instructions: AgentsMdChain,
     chatHistory: readonly ChatMessage[],
     signal: AbortSignal,
+    spentTools: readonly string[],
   ) {
     const standingRules = PromptBuilder.standingRules(
       skills,
@@ -139,15 +154,18 @@ export class EditEngine {
       this.harnessTools.allowedCommands(),
       this.harnessTools.offersSearch(),
     )
+    // Read per iteration rather than per session, so a turn running past
+    // midnight resolves against the day it is on.
+    const today = Today.of()
     // The chat history holds stale copies of the note from earlier turns, and
     // the model weights recent messages most heavily. So the note goes after it,
     // last of all: freshest content in the freshest position.
     const noteSnapshot = note
-      ? PromptBuilder.noteSnapshot(note.details())
-      : PromptBuilder.noNoteSnapshot(this.harnessTools.allowedCommands().length > 0)
+      ? PromptBuilder.noteSnapshot(note.details(), today)
+      : PromptBuilder.noNoteSnapshot(this.harnessTools.allowedCommands().length > 0, today)
     return this.modelProvider.complete(
       [standingRules, ...chatHistory, noteSnapshot],
-      this.harnessTools.schemas(),
+      this.harnessTools.schemas(spentTools),
       signal,
     )
   }

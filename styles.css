@@ -14,12 +14,36 @@
   gap: var(--size-4-2);
 }
 
-.owl-header-name {
+.owl-header-target {
   flex: 1;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.owl-header-name {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* Subordinate to the name, per the context weight the panel already uses. It
+   truncates rather than wrapping, so the header stays one line in a narrow
+   drawer (NFR10).
+
+   The head truncates, not the tail: the trailing folders say which sibling the
+   note is, and that is what a path under a name answers. */
+.owl-header-path {
+  font-size: var(--font-ui-smaller);
+  font-weight: var(--font-normal);
+  color: var(--text-muted);
+  overflow: hidden;
+  white-space: nowrap;
+  /* rtl puts the ellipsis at the head; the isolate keeps the path itself
+     reading left to right inside it. */
+  direction: rtl;
+  text-align: left;
+  unicode-bidi: plaintext;
 }
 
 .owl-new-session {
@@ -374,4 +398,60 @@
   color: var(--text-muted);
   font-size: var(--font-ui-smaller);
   font-style: italic;
+}
+
+/* Beneath the question rather than beside it, so two buttons fit a narrow
+   drawer without either being clipped (NFR5). */
+.owl-entry-confirm {
+  display: flex;
+  gap: var(--size-4-2);
+  margin-top: var(--size-4-2);
+}
+
+/* Wrapping rather than a row, since the drawer is narrow and three options do
+   not fit side by side (FR19). */
+.owl-entry-suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--size-4-2);
+  margin-top: var(--size-4-2);
+}
+
+/* Context weight, but coloured: a turn running low is worth noticing without
+   competing with the reply it may not reach. */
+.owl-entry-warning {
+  color: var(--text-warning);
+  font-style: normal;
+}
+
+/* Collapsed by default, like the resolved commands in settings. The summary
+   carries the context weight; the open list indents under it. */
+.owl-entry-steps summary {
+  cursor: pointer;
+  color: var(--text-muted);
+  font-size: var(--font-ui-smaller);
+}
+
+.owl-entry-steps ol {
+  margin: var(--size-4-1) 0 0;
+  padding-left: var(--size-4-4);
+  font-size: var(--font-ui-smaller);
+  color: var(--text-muted);
+  font-style: normal;
+}
+
+.owl-entry-steps li {
+  margin-bottom: var(--size-4-1);
+}
+
+.owl-step-label {
+  font-weight: var(--font-semibold);
+  margin-right: var(--size-4-1);
+}
+
+/* A refusal is why the list gets opened, so it is the one row that stands out
+   from the muted rest. */
+.owl-step-refused .owl-step-label,
+.owl-step-refused .owl-step-detail {
+  color: var(--text-warning);
 }

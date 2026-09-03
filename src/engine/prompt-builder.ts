@@ -5,6 +5,7 @@ import { AgentsMdChain } from '../agents/agents-md-chain'
 import { AgentsMdFile } from '../agents/agents-md-file'
 import { AllowedCommand } from '../commands/models/allowed-command'
 import { ChatMessage } from '../providers/types'
+import { Today } from './models/today'
 
 export class PromptBuilder {
   // The note itself is not here: EditEngine sends it as the last message, so the
@@ -22,12 +23,13 @@ export class PromptBuilder {
 
   // Stands where the note snapshot stands in a bound turn, so the model reads
   // what it can do in the freshest position rather than a note that is absent.
-  static noNoteSnapshot(canRunCommands = false): ChatMessage {
-    return ChatMessage.system(PromptBuilder.noNoteSnapshotText(canRunCommands))
+  static noNoteSnapshot(canRunCommands = false, today: Today = Today.of()): ChatMessage {
+    return ChatMessage.system(PromptBuilder.noNoteSnapshotText(canRunCommands, today))
   }
 
-  private static noNoteSnapshotText(canRunCommands: boolean): string {
+  private static noNoteSnapshotText(canRunCommands: boolean, today: Today): string {
     return [
+      PromptBuilder.dateLine(today),
       'No note is open, so this session is not bound to one yet.',
       'Every tool but the editing ones still works: only writing needs a note.',
       'The editing tools have nothing to write to until a note opens.',
@@ -63,6 +65,7 @@ export class PromptBuilder {
       ...PromptBuilder.skillSection(skills, commands.length > 0),
       ...PromptBuilder.commandSection(commands),
       ...PromptBuilder.searchSection(searchEnabled),
+      ...PromptBuilder.questionSection(commands.length > 0, searchEnabled),
     ].join('\n\n')
   }
 
@@ -84,6 +87,13 @@ export class PromptBuilder {
 
   private static searchSection(searchEnabled: boolean): string[] {
     return searchEnabled ? [RuleBuilder.searchRules()] : []
+  }
+
+  // Omitted where no route exists to exhaust, so a vault with neither flow
+  // produces the release 3 prompt byte for byte (NFR7).
+  private static questionSection(canRunCommands: boolean, searchEnabled: boolean): string[] {
+    if (!canRunCommands && !searchEnabled) return []
+    return [RuleBuilder.questionRules()]
   }
 
   // Omitted entirely when no folder holds instructions, so a vault with neither
@@ -144,15 +154,28 @@ export class PromptBuilder {
     return skills.map((skill) => `${skill.name} - ${skill.description}`)
   }
 
+  // Sent with the note rather than with the standing rules, because it goes
+  // stale the same way the note does: the chat history holds yesterday's copy,
+  // and this is the only current one.
+  private static dateLine(today: Today): string {
+    return [
+      `Today is ${today.describe()}.`,
+      'Resolve every relative date in the instruction against it, never against',
+      'a date in the conversation or a note name. A note named for a date is not',
+      'evidence of what today is.',
+    ].join('\n')
+  }
+
   // Re-read from the editor every turn. Anything the conversation says about
   // the note is a record of an earlier state, including the user's own manual
   // edits between turns, so this copy is the only current one.
-  static noteSnapshot(note: NoteDetails): ChatMessage {
-    return ChatMessage.system(PromptBuilder.noteSnapshotText(note))
+  static noteSnapshot(note: NoteDetails, today: Today = Today.of()): ChatMessage {
+    return ChatMessage.system(PromptBuilder.noteSnapshotText(note, today))
   }
 
-  private static noteSnapshotText(note: NoteDetails): string {
+  private static noteSnapshotText(note: NoteDetails, today: Today): string {
     return [
+      PromptBuilder.dateLine(today),
       `Note path: ${note.path}`,
       `Cursor line: ${note.cursor.line}`,
       'This is the note as it is right now, re-read from the editor. It supersedes any',

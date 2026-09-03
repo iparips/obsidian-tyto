@@ -3,6 +3,8 @@ export const RUN_COMMAND = 'run_command'
 export const SEARCH_VAULT = 'search_vault'
 export const READ_NOTE = 'read_note'
 export const ANSWER_FROM_SEARCH = 'answer_from_search'
+export const OPEN_NOTE = 'open_note'
+export const ASK_USER = 'ask_user'
 
 // One tool call the model asked for. It classifies itself, so callers dispatch
 // on a method rather than comparing the raw name at each site.
@@ -33,9 +35,22 @@ export class ToolCall {
     return this.name === ANSWER_FROM_SEARCH
   }
 
+  isOpenNote(): boolean {
+    return this.name === OPEN_NOTE
+  }
+
+  isAskUser(): boolean {
+    return this.name === ASK_USER
+  }
+
   isHarnessTool(): boolean {
     return (
-      this.isRunCommand() || this.isSearchVault() || this.isReadNote() || this.isAnswerFromSearch()
+      this.isRunCommand() ||
+      this.isSearchVault() ||
+      this.isReadNote() ||
+      this.isAnswerFromSearch() ||
+      this.isOpenNote() ||
+      this.isAskUser()
     )
   }
 

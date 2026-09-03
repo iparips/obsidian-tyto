@@ -1,4 +1,5 @@
 import { AgentsMdChain } from '../agents/agents-md-chain'
+import { TurnStep } from './models/turn-step'
 
 // What a turn publishes as it runs, so a command entry lands before the edit
 // that follows it. One way: nothing here returns anything the turn reads, and a
@@ -11,6 +12,12 @@ export class TurnProgressPublisher {
     readonly retargeted: (path: string) => void,
     readonly instructionsResolved: (chain: AgentsMdChain) => void,
     readonly skillLoaded: (name: string) => void,
+    // Said once, as the turn nears its cap, so a user watching a long turn can
+    // stop it rather than waiting for it to fail.
+    readonly runningLow: (text: string) => void = () => undefined,
+    // Every step a turn takes, collapsed in the panel: the entries say what the
+    // turn produced, and this says what it did to get there.
+    readonly stepTaken: (step: TurnStep) => void = () => undefined,
   ) {}
 
   static silent(): TurnProgressPublisher {

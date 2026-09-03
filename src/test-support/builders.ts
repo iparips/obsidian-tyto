@@ -21,6 +21,9 @@ import { SessionRepository } from '../session/session-repository'
 import { AgentsMdRepository } from '../agents/agents-md-repository'
 import { SkillRepository } from '../skills/skill-repository'
 import { ChatProvider } from '../providers/types'
+import { OpenApproval } from '../engine/open-approval'
+import { TurnCancellation } from '../engine/turn-cancellation'
+import { UserQuestion } from '../engine/user-question'
 
 let nextCallId = 0
 
@@ -38,6 +41,8 @@ export interface EnginePartsOptions {
   skillRepository?: SkillRepository
   harnessTools?: HarnessTools
   progress?: TurnProgressPublisher
+  openApproval?: (cancellation: TurnCancellation) => OpenApproval
+  userQuestion?: (cancellation: TurnCancellation) => UserQuestion
 }
 
 // The resolver and dispatcher a test needs beside an engine, wired the way
@@ -59,6 +64,8 @@ export const anEngine = (modelProvider: ChatProvider, options: EnginePartsOption
     new NoteEditor(),
     harness,
     progress,
+    options.openApproval ?? (() => OpenApproval.granted()),
+    options.userQuestion ?? (() => UserQuestion.unanswered()),
   )
   return new EditEngine(
     modelProvider,
