@@ -92,8 +92,11 @@ export default class OwlPlugin extends Plugin {
     )
   }
 
+  // Markdown only. Obsidian opens canvases, PDFs and Bases files through the
+  // same event, and binding the session to one strands every later turn: the
+  // edit tools need an editor, and only a markdown view has one.
   private retargetActiveEngine(file: TFile | null): void {
-    if (file) this.activeEngine?.followActiveNote(file.path)
+    if (file?.extension === 'md') this.activeEngine?.followActiveNote(file.path)
   }
 
   // Rebuilds the props, so the model's history and the panel's entries both go.

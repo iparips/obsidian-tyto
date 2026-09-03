@@ -9,8 +9,16 @@ export class WorkspaceNoteLocator {
 
   locate(path: string): Attempt<OpenNote> {
     const editor = this.findEditor(path)
-    if (!editor) return Outcomes.failure('apply', `${path} is not open in an editor`)
+    if (!editor) return Outcomes.failure('apply', WorkspaceNoteLocator.notOpenMessage(path))
     return Outcomes.success(new OpenNote(editor, path, editor.getCursor()))
+  }
+
+  // A path that is not a note can never gain an editor, so the message says to
+  // start again rather than to open it: a session bound to a canvas, a PDF or a
+  // Bases file is stuck until it is reset.
+  private static notOpenMessage(path: string): string {
+    if (path.endsWith('.md')) return `${path} is not open in an editor`
+    return `${path} is not a markdown note, so it cannot be edited; press Reset to start a session on a note`
   }
 
   private findEditor(path: string): Editor | null {
