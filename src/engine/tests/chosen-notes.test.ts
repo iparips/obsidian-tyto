@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest'
-import { ChosenNotes } from '../models/chosen-notes'
+import { ChosenNotes } from '../turn/chosen-notes'
 
 const TODO = 'Journal/Weekly/Week-36/todo.md'
 const SHOPPING = 'Lists/shopping.md'

@@ -1,9 +1,9 @@
-import { CommandEffect } from '../commands/models/command-effect'
-import { SeenPaths } from '../search/models/seen-paths'
-import { AnswerRequest } from './models/answer-request'
-import { ChoiceRequest } from './models/choice-request'
-import { TurnBudget } from './models/turn-budget'
-import { TurnStep } from './models/turn-step'
+import { CommandEffect } from '../../commands/models/command-effect'
+import { SeenPaths } from '../../search/models/seen-paths'
+import { AnswerRequest } from './answer-request'
+import { ChoiceRequest } from './choice-request'
+import { TurnBudget } from '../turn/turn-budget'
+import { TurnStep } from '../turn-step'
 
 // What the harness tools return to the model. A command effect, a resolved open
 // path and a question travel beside the text, because only the loop can act on

@@ -3,7 +3,7 @@ import { AgentsMdChain } from '../agents/agents-md-chain'
 import { InstructionReport } from '../agents/instruction-report'
 import { SessionListeners } from './session-listeners'
 import { TurnProgressPublisher } from '../engine/turn-progress-publisher'
-import { TurnStep } from '../engine/models/turn-step'
+import { TurnStep } from '../engine/turn-step'
 
 // Where each thing a turn narrates lands. A skill and a resolved chain join the
 // numbered steps rather than sitting beside them, so the list reads in the order

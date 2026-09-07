@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest'
-import { TurnBudget } from '../models/turn-budget'
+import { TurnBudget } from '../turn/turn-budget'
 
 const TODO = 'Journal/todo.md'
 const OTHER = 'Journal/other.md'

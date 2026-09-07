@@ -1,11 +1,11 @@
-import { Skill } from '../skills/skill'
+import { Skill } from '../../skills/skill'
 import { RuleBuilder } from './rule-builder'
-import { NoteDetails } from './models/note-details'
-import { AgentsMdChain } from '../agents/agents-md-chain'
-import { AgentsMdFile } from '../agents/agents-md-file'
-import { AllowedCommand } from '../commands/models/allowed-command'
-import { ChatMessage } from '../providers/types'
-import { Today } from './models/today'
+import { NoteDetails } from '../note-editing/note-details'
+import { AgentsMdChain } from '../../agents/agents-md-chain'
+import { AgentsMdFile } from '../../agents/agents-md-file'
+import { AllowedCommand } from '../../commands/models/allowed-command'
+import { ChatMessage } from '../../providers/types'
+import { Today } from './today'
 
 export class PromptBuilder {
   // The note itself is not here: EditEngine sends it as the last message, so the

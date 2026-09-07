@@ -1,21 +1,21 @@
 import { EditorPosition } from 'obsidian'
 import { ChatMessage, ChatProvider, ToolCall } from '../providers/types'
 import { ChatTurn } from '../providers/models/chat-turn'
-import { NoteEditor } from './note-editor'
+import { NoteEditor } from './note-editing/note-editor'
 import { Cancelled, Failure, Outcome, Outcomes } from '../shared/models/outcome'
-import { PromptBuilder } from './prompt-builder'
-import { OpenNote } from './models/open-note'
+import { PromptBuilder } from './prompting/prompt-builder'
+import { OpenNote } from './note-editing/open-note'
 import { Skill } from '../skills/skill'
 import { AgentsMdChain } from '../agents/agents-md-chain'
-import { HarnessTools } from './harness-tools'
-import { Turn } from './models/turn'
-import { TurnFactory } from './turn-factory'
-import { TurnRepository } from './turn-repository'
+import { HarnessTools } from './tools/harness-tools'
+import { Turn } from './turn/turn'
+import { TurnFactory } from './turn/turn-factory'
+import { TurnRepository } from './turn/turn-repository'
 import { SessionRepository } from '../session/session-repository'
 import { TurnProgressPublisher } from './turn-progress-publisher'
-import { Today } from './models/today'
-import { IterationBudget } from './models/iteration-budget'
-import { RepeatedRefusal } from './models/repeated-refusal'
+import { Today } from './prompting/today'
+import { IterationBudget } from './turn/iteration-budget'
+import { RepeatedRefusal } from './turn/repeated-refusal'
 
 export class EditEngine {
   // Tail of the single-flight chain: resolves once every utterance queued so
@@ -100,7 +100,8 @@ export class EditEngine {
       await this.executeToolCalls(answer.value.calls, turn, repeatedRefusal)
       if (repeatedRefusal.isStuck()) return EditEngine.concludeStuck(repeatedRefusal)
       iterationBudget.spend(answer.value.calls.length)
-      if (iterationBudget.justRanLow()) this.turnProgressPublisher.runningLow(iterationBudget.warning())
+      if (iterationBudget.justRanLow())
+        this.turnProgressPublisher.runningLow(iterationBudget.warning())
     }
     return EditEngine.concludeExhausted()
   }

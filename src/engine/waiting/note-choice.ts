@@ -1,7 +1,7 @@
-import { ChoiceRequest } from './models/choice-request'
-import { ChosenNotes } from './models/chosen-notes'
+import { ChoiceRequest } from '../tools/choice-request'
+import { ChosenNotes } from '../turn/chosen-notes'
 import { PendingAnswer } from './pending-answer'
-import { TurnCancellation } from './turn-cancellation'
+import { TurnCancellation } from '../turn/turn-cancellation'
 
 // One choice, asked of whoever supplied it. The engine awaits a path without
 // knowing that a panel row is what produces it. The parking itself is

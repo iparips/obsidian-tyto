@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest'
-import { TargetNoteResolver } from '../target-note-resolver'
+import { TargetNoteResolver } from '../note-binding/target-note-resolver'
 import { TurnProgressPublisher } from '../turn-progress-publisher'
 import { AgentsMdRepository } from '../../agents/agents-md-repository'
 import { SessionRepository } from '../../session/session-repository'

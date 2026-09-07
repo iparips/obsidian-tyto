@@ -3,7 +3,7 @@ import { SessionProgress } from '../session-progress'
 import { SessionListeners, StepReport } from '../session-listeners'
 import { AgentsMdChain } from '../../agents/agents-md-chain'
 import { AgentsMdFile } from '../../agents/agents-md-file'
-import { TurnStep } from '../../engine/models/turn-step'
+import { TurnStep } from '../../engine/turn-step'
 
 // A skill and a resolved chain are things the turn did, so they belong in the
 // numbered list. Published on their own channels they landed beside it, and a

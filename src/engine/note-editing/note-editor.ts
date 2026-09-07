@@ -1,5 +1,5 @@
 import { Editor, EditorPosition } from 'obsidian'
-import { NoteDetails } from './models/note-details'
+import { NoteDetails } from './note-details'
 import { PositionConverter } from './position-converter'
 
 export type EditOperation =

@@ -1,6 +1,6 @@
-import { AnswerRequest } from './models/answer-request'
+import { AnswerRequest } from '../tools/answer-request'
 import { PendingAnswer } from './pending-answer'
-import { TurnCancellation } from './turn-cancellation'
+import { TurnCancellation } from '../turn/turn-cancellation'
 
 const NO_ANSWER = ''
 

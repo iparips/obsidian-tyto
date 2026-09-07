@@ -1,12 +1,12 @@
-import { ToolCall } from '../providers/types'
-import { NoteGlob } from '../search/note-glob'
-import { NoteGrep } from '../search/note-grep'
-import { SearchReport } from '../search/search-report'
-import { GrepRequest } from '../search/models/grep-request'
-import { GrepResult } from '../search/models/grep-result'
-import { ResultOrder } from '../search/models/result-order'
+import { ToolCall } from '../../providers/types'
+import { NoteGlob } from '../../search/note-glob'
+import { NoteGrep } from '../../search/note-grep'
+import { SearchReport } from '../../search/search-report'
+import { GrepRequest } from '../../search/models/grep-request'
+import { GrepResult } from '../../search/models/grep-result'
+import { ResultOrder } from '../../search/models/result-order'
 import { HarnessResult, Refusal, TurnState } from './harness-result'
-import { TurnStep } from './models/turn-step'
+import { TurnStep } from '../turn-step'
 
 // The two ways the model reaches a note it cannot name: a glob over paths and a
 // grep over content. Both record what they found, or open_note refuses

@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, it } from 'vitest'
-import { TurnRepository } from '../turn-repository'
+import { TurnRepository } from '../turn/turn-repository'
 import { AgentsMdChain } from '../../agents/agents-md-chain'
 import { AgentsMdFile } from '../../agents/agents-md-file'
-import { OpenNote } from '../models/open-note'
-import { ResolvedNote } from '../models/resolved-note'
+import { OpenNote } from '../note-editing/open-note'
+import { ResolvedNote } from '../note-binding/resolved-note'
 import { FakeEditor } from '../../test-support/fake-editor'
 
 const aResolvedNote = (path: string, chain = new AgentsMdChain()): ResolvedNote => {

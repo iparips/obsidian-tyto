@@ -1,6 +1,6 @@
 import { App } from 'obsidian'
-import { WorkspaceNoteLocator } from '../engine/workspace-note-locator'
-import { OpenNote } from '../engine/models/open-note'
+import { WorkspaceNoteLocator } from '../engine/note-binding/workspace-note-locator'
+import { OpenNote } from '../engine/note-editing/open-note'
 import { Attempt, Outcomes } from '../shared/models/outcome'
 import { FakeEditor } from './fake-editor'
 

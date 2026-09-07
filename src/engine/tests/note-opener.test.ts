@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { App } from 'obsidian'
-import { NoteOpener } from '../note-opener'
+import { NoteOpener } from '../note-binding/note-opener'
 import { OpenedNoteWait } from '../../commands/opened-note-wait'
 import { FakeVault } from '../../test-support/fake-vault'
 import { FakeWorkspace } from '../../test-support/fake-workspace'

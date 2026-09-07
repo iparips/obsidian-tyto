@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest'
-import { IterationBudget } from '../models/iteration-budget'
+import { IterationBudget } from '../turn/iteration-budget'
 
 describe('IterationBudget', () => {
   let budget: IterationBudget

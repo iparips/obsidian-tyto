@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { MistralProvider } from '../mistral-provider'
 import { Outcomes } from '../../shared/models/outcome'
-import { TOOL_SCHEMAS } from '../../engine/models/tool-schemas'
+import { TOOL_SCHEMAS } from '../../engine/tools/tool-schemas'
 import { ChatMessage } from '../models/chat-message'
 
 const abortError = (): Error => {

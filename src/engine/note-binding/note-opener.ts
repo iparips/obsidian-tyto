@@ -1,5 +1,5 @@
 import { App, TAbstractFile, TFile } from 'obsidian'
-import { OpenedNoteWait } from '../commands/opened-note-wait'
+import { OpenedNoteWait } from '../../commands/opened-note-wait'
 
 // Opens a note the model chose, the way a command opens its own. open_note
 // retargets the session, and retargeting only resolves against an editor that

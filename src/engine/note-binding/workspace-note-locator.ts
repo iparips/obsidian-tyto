@@ -1,6 +1,6 @@
 import { App, Editor, MarkdownView } from 'obsidian'
-import { OpenNote } from './models/open-note'
-import { Attempt, Outcomes } from '../shared/models/outcome'
+import { OpenNote } from '../note-editing/open-note'
+import { Attempt, Outcomes } from '../../shared/models/outcome'
 
 // A lookup, holding no binding of its own: the caller says which note, this
 // finds the editor showing it.

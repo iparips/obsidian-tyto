@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, Mock, vi } from 'vitest'
-import { PendingAnswer } from '../pending-answer'
-import { AnswerRequest } from '../models/answer-request'
-import { TurnCancellation } from '../turn-cancellation'
+import { PendingAnswer } from '../waiting/pending-answer'
+import { AnswerRequest } from '../tools/answer-request'
+import { TurnCancellation } from '../turn/turn-cancellation'
 
 describe('PendingAnswer', () => {
   let cancellation: TurnCancellation

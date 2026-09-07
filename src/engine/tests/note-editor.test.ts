@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { NoteEditor } from '../note-editor'
-import { NoteDetails } from '../models/note-details'
+import { NoteEditor } from '../note-editing/note-editor'
+import { NoteDetails } from '../note-editing/note-details'
 import { FakeEditor } from '../../test-support/fake-editor'
 
 const noteEditor = new NoteEditor()

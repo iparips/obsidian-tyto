@@ -1,4 +1,4 @@
-import { OpenNote } from './open-note'
+import { OpenNote } from '../note-editing/open-note'
 import { AgentsMdChain } from '../../agents/agents-md-chain'
 
 // The target note, made writable: the editor showing it and the chain its

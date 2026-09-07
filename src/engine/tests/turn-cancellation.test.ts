@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest'
-import { TurnCancellation } from '../turn-cancellation'
+import { TurnCancellation } from '../turn/turn-cancellation'
 
 describe('TurnCancellation', () => {
   let cancellation: TurnCancellation

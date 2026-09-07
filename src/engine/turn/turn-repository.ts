@@ -1,11 +1,11 @@
 import { EditorPosition } from 'obsidian'
-import { OpenNote } from './models/open-note'
-import { AgentsMdChain } from '../agents/agents-md-chain'
-import { ResolvedNote } from './models/resolved-note'
-import { TurnBudget } from './models/turn-budget'
-import { ChosenNotes } from './models/chosen-notes'
-import { SeenPaths } from '../search/models/seen-paths'
-import { Skill } from '../skills/skill'
+import { OpenNote } from '../note-editing/open-note'
+import { AgentsMdChain } from '../../agents/agents-md-chain'
+import { ResolvedNote } from '../note-binding/resolved-note'
+import { TurnBudget } from './turn-budget'
+import { ChosenNotes } from './chosen-notes'
+import { SeenPaths } from '../../search/models/seen-paths'
+import { Skill } from '../../skills/skill'
 
 // What one turn holds, built at its start and discarded with it. Separate from
 // SessionRepository because an editor handle cannot outlive the turn: kept

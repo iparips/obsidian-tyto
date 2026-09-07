@@ -1,7 +1,7 @@
-import { ToolCall } from '../providers/types'
+import { ToolCall } from '../../providers/types'
 import { HarnessResult, Refusal, TurnState } from './harness-result'
-import { ChoiceRequest } from './models/choice-request'
-import { TurnStep } from './models/turn-step'
+import { ChoiceRequest } from './choice-request'
+import { TurnStep } from '../turn-step'
 
 // Eight, because that is what a person reads without scrolling a phone drawer.
 // Over it the call refuses rather than truncating: silently dropping the note

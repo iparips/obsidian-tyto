@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { App } from 'obsidian'
-import { WorkspaceNoteLocator } from '../workspace-note-locator'
+import { WorkspaceNoteLocator } from '../note-binding/workspace-note-locator'
 import { FakeWorkspace } from '../../test-support/fake-workspace'
 
 const NOTE = 'Journal/todo.md'

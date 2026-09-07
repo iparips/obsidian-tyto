@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { AnswerRequest } from '../models/answer-request'
+import { AnswerRequest } from '../tools/answer-request'
 
 describe('AnswerRequest', () => {
   describe('when no suggestions are offered', () => {

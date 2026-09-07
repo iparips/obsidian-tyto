@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { NoteChoice } from '../note-choice'
-import { ChoiceRequest } from '../models/choice-request'
-import { ChosenNotes } from '../models/chosen-notes'
-import { TurnCancellation } from '../turn-cancellation'
+import { NoteChoice } from '../waiting/note-choice'
+import { ChoiceRequest } from '../tools/choice-request'
+import { ChosenNotes } from '../turn/chosen-notes'
+import { TurnCancellation } from '../turn/turn-cancellation'
 
 const TODO = 'Journal/Weekly/Week-36/todo.md'
 const SHOPPING = 'Lists/shopping.md'

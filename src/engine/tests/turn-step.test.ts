@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { TurnStep } from '../models/turn-step'
+import { TurnStep } from '../turn-step'
 
 describe('TurnStep', () => {
   describe('when a search is recorded', () => {

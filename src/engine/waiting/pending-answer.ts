@@ -1,4 +1,4 @@
-import { TurnCancellation } from './turn-cancellation'
+import { TurnCancellation } from '../turn/turn-cancellation'
 
 // One parked question, settled by the panel or by a cancellation. Generic over
 // the request and the answer, because parking is the same work whether what is

@@ -1,5 +1,5 @@
 import { AgentsMdChain } from '../agents/agents-md-chain'
-import { TurnStep } from './models/turn-step'
+import { TurnStep } from './turn-step'
 
 // What a turn publishes as it runs. One way: nothing here returns anything the
 // turn reads, and a silent publisher is a working engine. The plugin supplies

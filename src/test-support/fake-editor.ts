@@ -1,5 +1,5 @@
 import { Editor, EditorPosition } from 'obsidian'
-import { PositionConverter } from '../engine/position-converter'
+import { PositionConverter } from '../engine/note-editing/position-converter'
 
 export class FakeEditor {
   cursor: EditorPosition = { line: 0, ch: 0 }

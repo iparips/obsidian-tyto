@@ -1,11 +1,11 @@
-import { SessionRepository } from '../session/session-repository'
+import { SessionRepository } from '../../session/session-repository'
 import { WorkspaceNoteLocator } from './workspace-note-locator'
-import { AgentsMdRepository } from '../agents/agents-md-repository'
-import { AgentsMdChain } from '../agents/agents-md-chain'
-import { ResolvedNote } from './models/resolved-note'
-import { OpenNote } from './models/open-note'
-import { Attempt, Outcomes } from '../shared/models/outcome'
-import { TurnProgressPublisher } from './turn-progress-publisher'
+import { AgentsMdRepository } from '../../agents/agents-md-repository'
+import { AgentsMdChain } from '../../agents/agents-md-chain'
+import { ResolvedNote } from './resolved-note'
+import { OpenNote } from '../note-editing/open-note'
+import { Attempt, Outcomes } from '../../shared/models/outcome'
+import { TurnProgressPublisher } from '../turn-progress-publisher'
 
 // Turns the session's target path into something writable: the editor showing
 // it, and the chain its folders state. A path is what survives between turns;

@@ -1,9 +1,9 @@
-import { ToolCall } from '../providers/types'
-import { EditOperation, NoteEditor } from './note-editor'
-import { NoteOperationParser } from './note-operation-parser'
-import { OpenNote } from './models/open-note'
-import { TurnRepository } from './turn-repository'
-import { ToolCallOutcome } from './models/tool-call-outcome'
+import { ToolCall } from '../../providers/types'
+import { EditOperation, NoteEditor } from '../note-editing/note-editor'
+import { NoteOperationParser } from '../note-editing/note-operation-parser'
+import { OpenNote } from '../note-editing/open-note'
+import { TurnRepository } from '../turn/turn-repository'
+import { ToolCallOutcome } from './tool-call-outcome'
 
 const UNSETTLED_SKILLS =
   'this vault defines skills and you have not checked them; call load_skill for the one that covers this, or no_skill_applies if none does, then edit'

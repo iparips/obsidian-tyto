@@ -7,6 +7,7 @@ code that gives it meaning.
 ## The six
 
 ### turn/ - what one turn scopes and spends
+
 - TurnFactory, TurnRepository, TurnCancellation (Engine)
 - Turn, TurnBudget, IterationBudget, RepeatedRefusal, ChosenNotes (Engine)
 
@@ -14,6 +15,7 @@ The strongest cluster. The three counters all answer "what may this turn
 spend", and today they sit apart from the repository owning their lifetime.
 
 ### note-editing/ - how a note is changed
+
 - NoteEditor, NoteOperationParser, PositionConverter (Engine)
 - NoteDetails, OpenNote (Engine)
 
@@ -22,6 +24,7 @@ NoteOperationParser (Engine) is what turns one into an EditOperation, and
 NoteEditor (Engine) applies that to an Obsidian editor.
 
 ### tools/ - what the model can call
+
 - HarnessTools, SearchTools, ShortlistTool, NoteEditTool (Engine)
 - HarnessResult, TurnState, Refusal, ToolSchemas, ToolCallOutcome (Engine)
 - AnswerRequest, ChoiceRequest (Engine)
@@ -40,15 +43,18 @@ would separate the schema from the code that answers it, which costs more than
 the overrun.
 
 ### waiting/ - what parks a turn on a person
+
 - PendingAnswer, NoteChoice, UserQuestion (Engine)
 
 ### prompting/ - what the model is told
+
 - PromptBuilder, RuleBuilder, Today (Engine)
 
 RuleBuilder (Engine) imports nothing at all. Together 402 lines of text
 assembly, unrelated to the rest of the package.
 
 ### note-binding/ - which note the session points at
+
 - TargetNoteResolver, WorkspaceNoteLocator, NoteOpener (Engine)
 - ResolvedNote (Engine)
 
@@ -87,13 +93,13 @@ The case against is what the call graph shows. ToolDispatcher (Engine) is the
 only runtime caller of NoteChoice and UserQuestion (Engine), at three call
 sites. PendingAnswer (Engine) has no caller outside those two.
 
-| Axis                | Fold into tools/                            | Keep waiting/ separate                        |
-|---------------------|---------------------------------------------|-----------------------------------------------|
-| Schema              | Both are declared tools                     | Same, so this axis does not separate them     |
-| What the code does  | Runs and returns                            | Suspends until a person answers               |
-| Who calls it        | HarnessTools dispatches                     | ToolDispatcher awaits, after the tool returned |
-| Constructed by      | EngineFactory, once                         | TurnAskers (Session), per turn                |
-| Cost of folding     | tools/ reaches 9 files, near the cap        | Six folders instead of five                   |
+| Axis               | Fold into tools/                     | Keep waiting/ separate                         |
+| ------------------ | ------------------------------------ | ---------------------------------------------- |
+| Schema             | Both are declared tools              | Same, so this axis does not separate them      |
+| What the code does | Runs and returns                     | Suspends until a person answers                |
+| Who calls it       | HarnessTools dispatches              | ToolDispatcher awaits, after the tool returned |
+| Constructed by     | EngineFactory, once                  | TurnAskers (Session), per turn                 |
+| Cost of folding    | tools/ reaches 9 files, near the cap | Six folders instead of five                    |
 
 Recommendation: keep waiting/ separate.
 
