@@ -1,7 +1,7 @@
 # Session Persistence: Component Design
 
 What is written, who writes it, and when. Delta on
-[7-sessions-without-a-note](../7-sessions-without-a-note/3-component-design.md);
+[7-sessions-without-a-note](../../7-sessions-without-a-note/3-component-design.md);
 unlisted components are unchanged.
 
 ## Table of Contents

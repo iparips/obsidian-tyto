@@ -2,7 +2,7 @@
 
 Seven releases. The MVPs prove the core loop with the simplest capture path, record-then-transcribe, and follow the host vault's single-note skills. Release 3 makes behaviour depend on where a note sits. Release 4 widens the plugin from one bound note to the vault, through commands and search. The V1s add realtime streaming and polish. Release 7 lifts the single-note write limit so cross-file skills become actionable. Requirement IDs refer to [1-requirements.md](../spec/1-requirements.md), except releases 3, 4 and 7, which carry their own.
 
-Releases say what gets built. [3-objectives.md](objectives.md) says in what order, cut into sittings of two to three hours, and marks where the community store submission goes.
+Releases say what gets built. [3-objectives.md](steps.md) says in what order, cut into sittings of two to three hours, and marks where the community store submission goes.
 
 ## Table of Contents
 
@@ -85,7 +85,7 @@ Detailed design, one folder per feature:
 - [9-model-chosen-targets/1-index.md](../spec/9-model-chosen-targets/1-index.md) - opening a note the model located itself. Built; exit tests outstanding.
 - [10-finding-notes/1-index.md](../spec/10-finding-notes/1-index.md) - a glob over paths and a grep over content, replacing fuzzy search. Built; exit tests outstanding.
 - [14-choosing-the-note/1-index.md](../spec/14-choosing-the-note/1-index.md) - the user picks the note from a shortlist, which is also the permission to write to it. Built; exit tests outstanding.
-- [15-session-persistence/1-index.md](../spec/15-session-persistence/1-index.md) - a session that survives the app being backgrounded. Designed.
+- [session-persistence/1-index.md](../spec/Upcoming/session-persistence/1-index.md) - a session that survives the app being backgrounded. Designed.
 
 High-level design: [architecture/4-obsidian-agent-harness.md](../architecture/4-obsidian-agent-harness.md).
 
@@ -112,7 +112,7 @@ Goal: streaming parity on mobile, then public release.
 - Automatic fallback to batch when a token mint fails.
 - Mobile polish: mic lifecycle across app switches, drawer ergonomics.
 
-Community plugin submission moves ahead of this release. See [3-objectives.md](objectives.md#submission): streaming is not a prerequisite for a stranger having a good time, and review latency should not sit on the critical path.
+Community plugin submission moves ahead of this release. See [3-objectives.md](steps.md#submission): streaming is not a prerequisite for a stranger having a good time, and review latency should not sit on the critical path.
 
 Exit test: the desktop V1 exit test passes on mobile, and a token-mint failure degrades gracefully to batch.
 
@@ -126,6 +126,6 @@ Goal: lift the single-note limit, so the vault skills that route between files b
 - The FR37 refusal narrows to whatever remains unsupported, rather than covering every cross-file skill.
 - Each write resolves its own target's AGENTS.md chain, per release 3.
 
-Detailed design: [13-cross-file-skills/index.md](../spec/13-cross-file-skills/1-index.md).
+Detailed design: [cross-file-skills/index.md](../spec/Upcoming/cross-file-skills/1-index.md).
 
 Exit test: with the vault's todo skill present, an instruction to archive done items follows the skill's steps rather than improvising, and the journal skill files an entry at the right computed path.

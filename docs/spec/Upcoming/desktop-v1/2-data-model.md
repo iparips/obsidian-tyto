@@ -1,6 +1,6 @@
 # Desktop V1: Data Model
 
-Additions to the MVP contracts in [1-desktop-mvp/2-data-model.md](../1-desktop-mvp/3-data-model.md). All in src/providers/types.ts unless noted.
+Additions to the MVP contracts in [1-desktop-mvp/2-data-model.md](../../1-desktop-mvp/3-data-model.md). All in src/providers/types.ts unless noted.
 
 ## Realtime Contracts
 

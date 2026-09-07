@@ -13,7 +13,7 @@ may write.
 - [4-testing-strategy.md](4-testing-strategy.md) - unit test outline, branch by branch
 - [5-implementation-order.md](5-implementation-order.md) - build order and the exit test
 
-Undo stays out, with [13-cross-file-skills](../13-cross-file-skills/1-index.md).
+Undo stays out, with [cross-file-skills](../Upcoming/cross-file-skills/1-index.md).
 The vault keeps what a cancelled turn wrote, and the obligation here is to report
 that rather than repair it.
 

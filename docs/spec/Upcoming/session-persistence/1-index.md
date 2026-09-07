@@ -4,7 +4,7 @@ Keeps a session across a backgrounded app. Mobile evicts the WebView while the
 user is elsewhere, and Owl comes back with an empty panel and a model that has
 forgotten the conversation.
 
-A delta on [7-sessions-without-a-note](../7-sessions-without-a-note/1-index.md),
+A delta on [7-sessions-without-a-note](../../7-sessions-without-a-note/1-index.md),
 which defined what a session holds. That design assumed the session lives as
 long as the plugin does, which is true on the desktop and false on a phone.
 

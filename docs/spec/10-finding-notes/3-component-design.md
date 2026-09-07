@@ -565,5 +565,5 @@ path, which is FR3 of the spec before this one.
 - Brace expansion and character classes in a glob. Two globs express what braces
   would, and `*` already matches digits.
 - Writing what either tool found into a note, which stays with
-  [13-cross-file-skills](../13-cross-file-skills/1-index.md).
+  [cross-file-skills](../Upcoming/cross-file-skills/1-index.md).
 - Searching anything but markdown, since getMarkdownFiles is the one pass.

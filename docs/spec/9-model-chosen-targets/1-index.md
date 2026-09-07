@@ -24,7 +24,7 @@ than the guess the rule guards against.
 - [5-implementation-order.md](5-implementation-order.md) - build order in two commits, and an exit test for each
 
 Creating a note at a model-chosen path stays out, with
-[13-cross-file-skills](../13-cross-file-skills/1-index.md), because a wrong
+[cross-file-skills](../Upcoming/cross-file-skills/1-index.md), because a wrong
 guess there lands a stray note with no error and needs that release's undo
 story.
 

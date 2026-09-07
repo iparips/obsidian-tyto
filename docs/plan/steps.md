@@ -1,6 +1,6 @@
 # Objectives
 
-The build order for [2-plan.md](plan.md), cut into sittings of two to three hours. Each line is one sitting that leaves something working. Tick them in order to see where the project stands.
+The build order for [2-plan.md](releases.md), cut into sittings of two to three hours. Each line is one sitting that leaves something working. Tick them in order to see where the project stands.
 
 Sizing comes from this repo's own history. A spec is about an hour, a feature built on a written spec is two to three, and a polish pass is one. Sittings that carried more than one feature are split.
 
@@ -17,7 +17,7 @@ Sizing comes from this repo's own history. A spec is about an hour, a feature bu
 
 ## Where things stand
 
-Features 1 to 10 and 14 are built, and the suite is green at 838 tests across 67 files. Feature 15 is specced and unbuilt.
+Features 1 to 10 and 14 are built, and the suite is green at 854 tests across 70 files. Unbuilt specs live under [spec/Upcoming](../spec/Upcoming), which is why they carry no number: numbering them forces a renumber every time one ships.
 
 Feature 10 is done, despite its spec saying otherwise. glob_notes and grep_notes are both routed in HarnessTools (Engine), PathPattern, NoteGlob, NoteGrep, ResultOrder and GrepRequest (Search) all ship with tests, VaultSearch is gone, and two tests assert search_vault no longer exists. Only the status lines in its index and implementation order are stale.
 
@@ -49,7 +49,7 @@ Mobile is the case the plugin is designed around. A session that vanishes when t
 | B3      | Run the whole manual-test folder on a phone                     | 3 h   |
 | B4      | Fix the mobile failures                                         | 3 h   |
 
-B1 and B2 follow the two commits in [15-session-persistence/5-implementation-order.md](../spec/15-session-persistence/5-implementation-order.md).
+B1 and B2 follow the two commits in [session-persistence/5-implementation-order.md](../spec/Upcoming/session-persistence/5-implementation-order.md).
 
 ## C. Make it safe for a stranger
 
@@ -65,7 +65,7 @@ Everything here exists because someone who is not the author will install this. 
 
 C2 covers a bad key, a network drop, a rate limit and a malformed tool call. Each produces a panel entry naming the failing step, and none leaves the panel stuck pending (NFR5).
 
-C3 covers no innerHTML, async onload, no global style leakage, and a detach that cleans up every listener. Steps 2 and 5 of [12-mobile-v1/4-release-checklist.md](../spec/12-mobile-v1/4-release-checklist.md) cover C3 and C4.
+C3 covers no innerHTML, async onload, no global style leakage, and a detach that cleans up every listener. Steps 2 and 5 of [mobile-v1/4-release-checklist.md](../spec/Upcoming/mobile-v1/4-release-checklist.md) cover C3 and C4.
 
 ## Submission
 
@@ -77,7 +77,7 @@ Review takes weeks and is outside your control. Milestone D is what to build dur
 
 ## D. Desktop V1, built during review
 
-Steps 2 to 5 of [11-desktop-v1/7-implementation-order.md](../spec/11-desktop-v1/7-implementation-order.md) are independent once the contracts land, so these sittings can be reordered after D1.
+Steps 2 to 5 of [desktop-v1/7-implementation-order.md](../spec/Upcoming/desktop-v1/7-implementation-order.md) are independent once the contracts land, so these sittings can be reordered after D1.
 
 | Sitting | Objective                                    | Scope |
 | ------- | -------------------------------------------- | ----- |
