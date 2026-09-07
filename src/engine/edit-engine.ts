@@ -15,6 +15,7 @@ import { SessionRepository } from '../session/session-repository'
 import { TurnProgressPublisher } from './turn-progress-publisher'
 import { Today } from './models/today'
 import { IterationBudget } from './models/iteration-budget'
+import { RepeatedRefusal } from './models/repeated-refusal'
 
 export class EditEngine {
   // Tail of the single-flight chain: resolves once every utterance queued so
@@ -71,8 +72,9 @@ export class EditEngine {
 
   private async runAgentLoop(turn: Turn): Promise<Outcome<string>> {
     const turnRepository = turn.repository
-    const iterations = new IterationBudget()
-    for (let iteration = 0; !iterations.isSpent(); iteration++) {
+    const iterationBudget = new IterationBudget()
+    const repeatedRefusal = new RepeatedRefusal()
+    for (let iteration = 0; !iterationBudget.isSpent(); iteration++) {
       if (turn.cancellation.isCancelled()) return this.concludeCancelled(turn)
       const askedAt = Date.now()
       const answer = await this.askModel(
@@ -95,11 +97,18 @@ export class EditEngine {
           turnRepository.targetNote(),
           turnRepository.editEnd(),
         )
-      await this.executeToolCalls(answer.value.calls, turn)
-      iterations.spend(answer.value.calls.length)
-      if (iterations.justRanLow()) this.turnProgressPublisher.runningLow(iterations.warning())
+      await this.executeToolCalls(answer.value.calls, turn, repeatedRefusal)
+      if (repeatedRefusal.isStuck()) return EditEngine.concludeStuck(repeatedRefusal)
+      iterationBudget.spend(answer.value.calls.length)
+      if (iterationBudget.justRanLow()) this.turnProgressPublisher.runningLow(iterationBudget.warning())
     }
     return EditEngine.concludeExhausted()
+  }
+
+  // Ends the turn on the reason itself, since a model refused the same way
+  // twice will spend every remaining step being refused a third way.
+  private static concludeStuck(refusals: RepeatedRefusal): Outcome<string> {
+    return Outcomes.failure('chat', refusals.message())
   }
 
   // Points at the steps list rather than repeating it: every step is numbered
@@ -191,7 +200,11 @@ export class EditEngine {
     return Outcomes.success(summary)
   }
 
-  private async executeToolCalls(toolCalls: ToolCall[], turn: Turn): Promise<void> {
+  private async executeToolCalls(
+    toolCalls: ToolCall[],
+    turn: Turn,
+    refusals: RepeatedRefusal,
+  ): Promise<void> {
     this.sessionRepository.appendChatMessage(ChatMessage.modelToolCalls(toolCalls))
     for (const call of toolCalls) {
       const toolCallOutcome = await turn.toolDispatcher.execute(call)
@@ -199,6 +212,7 @@ export class EditEngine {
         ChatMessage.toolCallResult(call.id, toolCallOutcome.result),
       )
       turn.repository.recordEdit(toolCallOutcome.editedTo)
+      refusals.record(toolCallOutcome.refusal ?? null)
     }
   }
 }

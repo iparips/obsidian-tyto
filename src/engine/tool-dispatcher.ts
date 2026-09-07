@@ -3,6 +3,7 @@ import { NoteEditTool } from './note-edit-tool'
 import { ToolCallOutcome } from './models/tool-call-outcome'
 import { SkillRepository } from '../skills/skill-repository'
 import { HarnessTools } from './harness-tools'
+import { HarnessResult } from './harness-result'
 import { CommandEffect } from '../commands/models/command-effect'
 import { TurnRepository } from './turn-repository'
 import { TargetNoteResolver } from './target-note-resolver'
@@ -56,11 +57,12 @@ export class ToolDispatcher {
   // The edit tools are the ones a stuck turn retries, so the steps list has to
   // show them or a loop of failed anchors reads as a turn doing nothing.
   private publishEdit(outcome: ToolCallOutcome): ToolCallOutcome {
-    const step = outcome.editedTo
-      ? TurnStep.edited(outcome.result)
-      : TurnStep.refused(outcome.result)
-    this.turnProgressPublisher.stepTaken(step)
-    return outcome
+    if (outcome.editedTo) {
+      this.turnProgressPublisher.stepTaken(TurnStep.edited(outcome.result))
+      return outcome
+    }
+    this.turnProgressPublisher.stepTaken(TurnStep.refused(outcome.result))
+    return { ...outcome, refusal: outcome.result }
   }
 
   // Published once the body is in hand, so the panel names a skill the turn
@@ -101,8 +103,15 @@ export class ToolDispatcher {
     if (harnessResult.question) return this.askUser(harnessResult.question)
     if (harnessResult.choice) return this.chooseNote(harnessResult.choice)
     if (harnessResult.openPath) return this.openModelChosenNote(harnessResult.openPath)
-    if (!harnessResult.effect) return { result: harnessResult.result }
+    if (!harnessResult.effect) return ToolDispatcher.outcomeOf(harnessResult)
     return { result: await this.publishCommand(harnessResult.effect) }
+  }
+
+  // A refused tool already published its step, so this only carries the reason
+  // out to the loop that counts repeats.
+  private static outcomeOf(harnessResult: HarnessResult): ToolCallOutcome {
+    if (!harnessResult.step?.refused) return { result: harnessResult.result }
+    return { result: harnessResult.result, refusal: harnessResult.result }
   }
 
   // The answer is the tool result, so the model reads it in the same turn
@@ -142,7 +151,7 @@ export class ToolDispatcher {
   private refuseUnchosen(path: string): ToolCallOutcome {
     const reason = `${path} was not chosen by the user this turn; call choose_note with it now, then open it. Do not ask the user in prose`
     this.turnProgressPublisher.stepTaken(TurnStep.refused(reason))
-    return { result: reason }
+    return { result: reason, refusal: reason }
   }
 
   // The step goes up before the target moves, so the list reads in the order

@@ -53,7 +53,7 @@ export class HarnessTools {
     if (!this.searchEnabled) return Refusal.of('searching the vault is turned off in settings')
     if (call.isGlobNotes()) return this.searchTools.glob(call, turn)
     if (call.isGrepNotes()) return this.searchTools.grep(call, turn)
-    if (call.isReadNote()) return this.readNote(call)
+    if (call.isReadNote()) return this.readNote(call, turn)
     if (call.isOpenNote()) return this.openNote(call, turn)
     if (call.isChooseNote()) return ShortlistTool.offer(call, turn)
     return HarnessTools.answer(call)
@@ -85,10 +85,14 @@ export class HarnessTools {
     return `${path} was not returned by a search this session; search for it before opening it`
   }
 
-  private async readNote(call: ToolCall): Promise<HarnessResult> {
+  // A read the vault answered is proof the note exists, so the path becomes
+  // offerable. Without this a path a skill names can be read but never opened,
+  // and the model retries the edit it cannot land.
+  private async readNote(call: ToolCall, turn: TurnState): Promise<HarnessResult> {
     const path = call.argument('path')
     const contentsOutcome = await this.noteReader.read(path)
     if (contentsOutcome.hasFailed()) return Refusal.of(contentsOutcome.message)
+    turn.seenPaths.recordPaths([path])
     return { result: contentsOutcome.value, step: TurnStep.read(path) }
   }
 

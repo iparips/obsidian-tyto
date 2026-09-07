@@ -51,7 +51,18 @@ export class TurnRepository {
   // one the user was looking at, until the model goes looking for another.
   mayEdit(path: string): boolean {
     if (this.openedThisTurn.has(path)) return true
-    return !this.reachedOut && path === this.startedOn
+    const allowed = !this.reachedOut && path === this.startedOn
+    if (!allowed) this.logRefusal(path)
+    return allowed
+  }
+
+  // The refusal reads the same whichever branch produced it, so the log names
+  // the state instead: which note the turn started on, and whether a search
+  // moved it off that note.
+  private logRefusal(path: string): void {
+    console.debug(
+      `[owl] refused edit to ${path}: startedOn=${this.startedOn}, reachedOut=${this.reachedOut}, opened=[${[...this.openedThisTurn].join(', ')}]`,
+    )
   }
 
   private readonly openedThisTurn = new Set<string>()

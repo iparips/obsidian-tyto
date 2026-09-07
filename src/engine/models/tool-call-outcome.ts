@@ -5,4 +5,7 @@ import { EditorPosition } from 'obsidian'
 export interface ToolCallOutcome {
   result: string
   editedTo?: EditorPosition
+  // Set when the call was refused, so the loop counts repeats without reading
+  // meaning into the result text.
+  refusal?: string
 }
