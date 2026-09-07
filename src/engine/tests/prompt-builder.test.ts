@@ -27,8 +27,8 @@ const standingRulesText = (...args: Parameters<typeof PromptBuilder.standingRule
 
 const noteContextText = (note: NoteDetails) => PromptBuilder.noteContext(note).content
 
-const unboundContextText = (canRunCommands = false) =>
-  PromptBuilder.unboundContext(canRunCommands).content
+const unboundContextText = (canRunCommands = false, canSearch = false) =>
+  PromptBuilder.unboundContext(canRunCommands, canSearch).content
 
 describe('PromptBuilder', () => {
   describe('when a folder holds instructions', () => {
@@ -502,26 +502,52 @@ describe('PromptBuilder', () => {
       expect(unboundContextText()).toContain('Every tool but the editing ones still works')
     })
 
-    it('asks the user to open a note when no command reaches one', () => {
-      expect(unboundContextText()).toContain('ask them to open one')
+    describe('when nothing reaches a note', () => {
+      it('asks the user to open a note when neither route exists', () => {
+        expect(unboundContextText()).toContain('ask them to open one')
+      })
+
+      it('tells the model not to call an editing tool when neither route exists', () => {
+        expect(unboundContextText()).toContain('rather than calling an editing tool')
+      })
     })
 
-    it('tells the model not to call an editing tool when no command reaches a note', () => {
-      expect(unboundContextText()).toContain('rather than calling an editing tool')
+    describe('when a command reaches a note', () => {
+      it('runs the command that opens the note when a command is allowed', () => {
+        expect(unboundContextText(true)).toContain('run the command that opens the note they named')
+      })
+
+      it('does not tell the model to ask first when a command is allowed', () => {
+        expect(unboundContextText(true)).not.toContain('rather than calling an editing tool')
+      })
     })
 
-    it('runs the command that opens the note when a command is allowed', () => {
-      expect(unboundContextText(true)).toContain('run the command that opens the note they named')
+    // The reported gap: a vault with search and no commands can still reach a
+    // note, and was told to ask the user instead.
+    describe('when only search reaches a note', () => {
+      it('searches for the note when search is the only route', () => {
+        expect(unboundContextText(false, true)).toContain('search for it and open what they choose')
+      })
+
+      it('does not tell the model to ask first when search is the only route', () => {
+        expect(unboundContextText(false, true)).not.toContain('rather than calling an editing tool')
+      })
+
+      it('names no command when none is allowed', () => {
+        expect(unboundContextText(false, true)).not.toContain('run the command')
+      })
     })
 
-    it('asks only as a last resort when a command is allowed', () => {
-      expect(unboundContextText(true)).toContain(
-        'Only ask them to open a note if no listed command',
-      )
-    })
+    describe('when both routes reach a note', () => {
+      it('offers both routes when commands and search are available', () => {
+        expect(unboundContextText(true, true)).toContain(
+          'run the command that opens the note they named, or search for it',
+        )
+      })
 
-    it('does not tell the model to ask first when a command is allowed', () => {
-      expect(unboundContextText(true)).not.toContain('rather than calling an editing tool')
+      it('asks only as a last resort when a route exists', () => {
+        expect(unboundContextText(true, true)).toContain('Only ask them to open a note when')
+      })
     })
 
     it('says the session binds to the first note that opens when it is unbound', () => {

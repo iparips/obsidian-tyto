@@ -66,10 +66,10 @@ describe('EditEngine', () => {
   const appOf = (): App =>
     ({ ...registry.asApp(), workspace: workspace.asWorkspace() }) as unknown as App
 
-  const harnessOf = (): HarnessTools => {
+  const harnessOf = (allowed: string[] = ['daily-notes:*']): HarnessTools => {
     const app = appOf()
     const commandRegistry = new CommandRegistry(app)
-    const catalogue = new CommandCatalogue(commandRegistry, new AllowList(['daily-notes:*']))
+    const catalogue = new CommandCatalogue(commandRegistry, new AllowList(allowed))
     return new HarnessTools(
       new CommandRunner(app, catalogue, new OpenedNoteWait(app, 30), commandRegistry),
       new NoteReader(vault.asVault()),
@@ -79,7 +79,7 @@ describe('EditEngine', () => {
     )
   }
 
-  const engineOf = () =>
+  const engineOf = (allowed: string[] = ['daily-notes:*']) =>
     anEngine(
       { complete },
       {
@@ -87,7 +87,7 @@ describe('EditEngine', () => {
         noteLocator,
         agentsMdRepository: new AgentsMdRepository(adapter.asAdapter()),
         skillRepository: new SkillRepository(adapter.asAdapter(), SKILLS_PATH),
-        harnessTools: harnessOf(),
+        harnessTools: harnessOf(allowed),
         progress: new TurnProgressPublisher(
           (text, sources) => answers.push({ text, sources }),
           (path) => retargets.push(path),
@@ -227,6 +227,32 @@ describe('EditEngine', () => {
       await engineOf().processUtterance('open my daily note and add a paragraph')
 
       expect(dailyEditor.content).toBe('# Today\n\n## Meetings\nstandup notes\n')
+    })
+  })
+
+  // Search reaches a note without any command, so a vault that allows none is
+  // not stuck: the model globs, offers, opens, and the session binds.
+  describe('when search opens a note in a vault that allows no commands', () => {
+    beforeEach(() => {
+      vault = new FakeVault().withNote(DAILY, '# Today\n\n## Meetings\n')
+      respondsWith(
+        aToolTurn(aToolCall('glob_notes', { pattern: 'Journal/*.md' })),
+        aToolTurn(aToolCall('choose_note', { paths: [DAILY], purpose: 'add a line' })),
+        aToolTurn(aToolCall('open_note', { path: DAILY })),
+      )
+    })
+
+    it('binds the session to the note search opened', async () => {
+      await engineOf([]).processUtterance('add a line to my daily note')
+
+      expect(sessions.targetNote()).toBe(DAILY)
+    })
+
+    it('tells the model it can search when no command is allowed', async () => {
+      await engineOf([]).processUtterance('add a line to my daily note')
+
+      const sent = complete.mock.calls[0][0]
+      expect(sent[sent.length - 1].content).toContain('search')
     })
   })
 

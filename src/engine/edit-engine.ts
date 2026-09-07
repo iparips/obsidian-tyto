@@ -186,7 +186,10 @@ export class EditEngine {
         PromptBuilder.dateAndSkills(Today.of(), skills),
         note
           ? PromptBuilder.noteContext(note.details())
-          : PromptBuilder.unboundContext(this.harnessTools.allowedCommands().length > 0),
+          : PromptBuilder.unboundContext(
+              this.harnessTools.allowedCommands().length > 0,
+              this.harnessTools.offersSearch(),
+            ),
       ],
       this.harnessTools.schemas(skills.length > 0),
       abortSignal,
