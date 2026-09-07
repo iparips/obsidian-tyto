@@ -1,13 +1,13 @@
-import { CommandSearch } from '../commands/command-search'
-import { AllowedCommand } from '../commands/models/allowed-command'
+import { ObsidianCommandSearch } from '../commands/obsidian-command-search'
+import { AllowedObsidianCommand } from '../commands/models/allowed-obsidian-command'
 import { AllowedEntries } from './AllowedEntries'
 import { CommandPicker } from './CommandPicker'
 import { ResolvedCommands } from './ResolvedCommands'
 
 export interface AllowListEditorProps {
   entries: string[]
-  search: CommandSearch
-  resolved: readonly AllowedCommand[]
+  search: ObsidianCommandSearch
+  resolved: readonly AllowedObsidianCommand[]
   onChange(entries: string[]): void
 }
 

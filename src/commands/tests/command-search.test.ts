@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, it } from 'vitest'
-import { CommandSearch } from '../command-search'
+import { ObsidianCommandSearch } from '../obsidian-command-search'
 import { AllowList } from '../allow-list'
 import { FakeCommandRegistry } from '../../test-support/fake-command-registry'
 
-describe('CommandSearch', () => {
+describe('ObsidianCommandSearch', () => {
   let registry: FakeCommandRegistry
 
   beforeEach(() => {
@@ -11,7 +11,7 @@ describe('CommandSearch', () => {
   })
 
   const searchOf = (...entries: string[]) =>
-    new CommandSearch(registry.asRegistry(), new AllowList(entries))
+    new ObsidianCommandSearch(registry.asRegistry(), new AllowList(entries))
 
   describe('when a query narrows the registry', () => {
     beforeEach(() => {

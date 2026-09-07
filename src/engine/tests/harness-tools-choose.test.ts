@@ -1,12 +1,14 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { App } from 'obsidian'
 import { HarnessTools } from '../tools/harness-tools'
-import { TurnState } from '../tools/harness-result'
+import { HarnessResult, TurnState } from '../tools/harness-result'
+import { HarnessResultKind } from '../tools/harness-result-kind'
+import { ChoiceRequest } from '../tools/choice-request'
 import { TurnBudget } from '../turn/turn-budget'
 import { SeenPaths } from '../../search/models/seen-paths'
-import { CommandCatalogue } from '../../commands/command-catalogue'
-import { CommandRegistry } from '../../commands/command-registry'
-import { CommandRunner } from '../../commands/command-runner'
+import { ObsidianCommandCatalogue } from '../../commands/obsidian-command-catalogue'
+import { ObsidianCommandRegistry } from '../../commands/obsidian-command-registry'
+import { ObsidianCommandRunner } from '../../commands/obsidian-command-runner'
 import { OpenedNoteWait } from '../../commands/opened-note-wait'
 import { AllowList } from '../../commands/allow-list'
 import { NoteGlob } from '../../search/note-glob'
@@ -26,14 +28,26 @@ describe('HarnessTools', () => {
 
   beforeEach(() => {
     vault = new FakeVault().withNote(TODO, '- [ ] milk').withNote(SHOPPING, '- [ ] bread')
-    turn = { budget: new TurnBudget(), seenPaths: new SeenPaths(), searchRan: () => undefined }
+    turn = {
+      turnBudget: new TurnBudget(),
+      pathsSeenInThisSession: new SeenPaths(),
+      searchRan: () => undefined,
+    }
   })
 
   const toolsOf = (searchEnabled = true, choiceOffered = true): HarnessTools => {
     const app = {} as App
-    const catalogue = new CommandCatalogue(new CommandRegistry(app), new AllowList([]))
+    const catalogue = new ObsidianCommandCatalogue(
+      new ObsidianCommandRegistry(app),
+      new AllowList([]),
+    )
     return new HarnessTools(
-      new CommandRunner(app, catalogue, new OpenedNoteWait(app), new CommandRegistry(app)),
+      new ObsidianCommandRunner(
+        app,
+        catalogue,
+        new OpenedNoteWait(app),
+        new ObsidianCommandRegistry(app),
+      ),
       new NoteReader(vault.asVault()),
       catalogue,
       searchEnabled,
@@ -45,27 +59,32 @@ describe('HarnessTools', () => {
   const chooseNote = (paths: readonly string[]) =>
     toolsOf().execute(aToolCall('choose_note', { paths, purpose: 'add an item' }), turn)
 
+  // Narrows the union, so an assertion reads the request without a cast and a
+  // result of the wrong kind fails as a missing shortlist rather than undefined.
+  const shortlistOf = (harnessResult: HarnessResult): ChoiceRequest | null =>
+    harnessResult.kind === HarnessResultKind.Choice ? harnessResult.presentChoiceToUser : null
+
   describe('when a search has returned every candidate', () => {
     beforeEach(() => {
-      turn.seenPaths.recordPaths([TODO, SHOPPING])
+      turn.pathsSeenInThisSession.recordPaths([TODO, SHOPPING])
     })
 
     it('runs a choice when choose_note is called', async () => {
       const harnessResult = await chooseNote([TODO, SHOPPING])
 
-      expect(harnessResult.choice?.candidates).toEqual([TODO, SHOPPING])
+      expect(shortlistOf(harnessResult)?.candidates).toEqual([TODO, SHOPPING])
     })
 
     it('carries the purpose to the panel, so the user reads what they are agreeing to', async () => {
       const harnessResult = await chooseNote([TODO])
 
-      expect(harnessResult.choice?.purpose).toBe('add an item')
+      expect(shortlistOf(harnessResult)?.purpose).toBe('add an item')
     })
 
     it('reports the choice as a step, naming how many notes were offered', async () => {
       const harnessResult = await chooseNote([TODO, SHOPPING])
 
-      expect(harnessResult.step).toMatchObject({
+      expect(harnessResult.publishStepSummary).toMatchObject({
         label: 'Offered',
         detail: '2 notes to choose from',
       })
@@ -74,27 +93,27 @@ describe('HarnessTools', () => {
     it('offers a shortlist of one, since one candidate is still the user to confirm', async () => {
       const harnessResult = await chooseNote([TODO])
 
-      expect(harnessResult.choice?.candidates).toEqual([TODO])
+      expect(shortlistOf(harnessResult)?.candidates).toEqual([TODO])
     })
   })
 
   describe('when a candidate was never returned by a search', () => {
     beforeEach(() => {
-      turn.seenPaths.recordPaths([TODO])
+      turn.pathsSeenInThisSession.recordPaths([TODO])
     })
 
     it('offers only the candidates a search returned, so an invented path is dropped', async () => {
       const harnessResult = await chooseNote([TODO, INVENTED])
 
-      expect(harnessResult.choice?.candidates).toEqual([TODO])
+      expect(shortlistOf(harnessResult)?.candidates).toEqual([TODO])
     })
 
     it('applies the cap after the filter, so a dropped path does not push a shortlist over it', async () => {
-      turn.seenPaths.recordPaths(EIGHT)
+      turn.pathsSeenInThisSession.recordPaths(EIGHT)
 
       const harnessResult = await chooseNote([...EIGHT, INVENTED])
 
-      expect(harnessResult.choice?.candidates).toHaveLength(8)
+      expect(shortlistOf(harnessResult)?.candidates).toHaveLength(8)
     })
   })
 
@@ -110,7 +129,7 @@ describe('HarnessTools', () => {
     it('offers nothing when no candidate was returned by a search', async () => {
       const harnessResult = await chooseNote([INVENTED])
 
-      expect(harnessResult.choice).toBeUndefined()
+      expect(shortlistOf(harnessResult)).toBeNull()
     })
   })
 
@@ -124,13 +143,13 @@ describe('HarnessTools', () => {
     it('offers nothing when the paths list is empty', async () => {
       const harnessResult = await chooseNote([])
 
-      expect(harnessResult.choice).toBeUndefined()
+      expect(shortlistOf(harnessResult)).toBeNull()
     })
   })
 
   describe('when more notes are offered than the cap', () => {
     beforeEach(() => {
-      turn.seenPaths.recordPaths(NINE)
+      turn.pathsSeenInThisSession.recordPaths(NINE)
     })
 
     it('refuses the call when more notes are offered than the cap, naming the cap', async () => {
@@ -142,7 +161,7 @@ describe('HarnessTools', () => {
     it('offers nothing rather than truncating when the cap is exceeded', async () => {
       const harnessResult = await chooseNote(NINE)
 
-      expect(harnessResult.choice).toBeUndefined()
+      expect(shortlistOf(harnessResult)).toBeNull()
     })
   })
 
@@ -152,7 +171,7 @@ describe('HarnessTools', () => {
     })
 
     it('refuses the call when search is disabled', async () => {
-      turn.seenPaths.recordPaths([TODO])
+      turn.pathsSeenInThisSession.recordPaths([TODO])
 
       const harnessResult = await toolsOf(false).execute(
         aToolCall('choose_note', { paths: [TODO], purpose: 'add an item' }),

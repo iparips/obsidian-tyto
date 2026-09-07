@@ -1,17 +1,17 @@
 import { AllowList } from './allow-list'
-import { CommandRegistry } from './command-registry'
-import { AllowedCommand } from './models/allowed-command'
+import { ObsidianCommandRegistry } from './obsidian-command-registry'
+import { AllowedObsidianCommand } from './models/allowed-obsidian-command'
 
 // Resolves the user's entries against the live command list every call, so a
 // command registered after the pattern was written is matched without a
 // settings edit (FR6).
-export class CommandCatalogue {
+export class ObsidianCommandCatalogue {
   constructor(
-    private registry: CommandRegistry,
+    private registry: ObsidianCommandRegistry,
     private allowList: AllowList,
   ) {}
 
-  resolve(): readonly AllowedCommand[] {
+  resolve(): readonly AllowedObsidianCommand[] {
     return this.registry.list().filter((command) => this.allowList.permits(command.id))
   }
 

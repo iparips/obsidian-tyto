@@ -37,7 +37,7 @@ the editor lookup.
   silently matching nothing.
 - Empty list permits nothing.
 
-## CommandCatalogue (Commands, new)
+## ObsidianCommandCatalogue (Commands, new)
 
 - Resolution: a pattern matching two of four registered commands yields those
   two, in the registry's order.
@@ -49,7 +49,7 @@ the editor lookup.
 - Empty allow-list yields an empty catalogue, and the prompt section is omitted
   entirely (NFR8).
 
-## CommandRunner (Commands, new)
+## ObsidianCommandRunner (Commands, new)
 
 - Refusal (FR13): an id outside the catalogue returns a refusal naming the id,
   and the registry is never called.

@@ -1,3 +1,5 @@
+import { ToolCall } from '../../providers/types'
+
 // A value: what to ask and what to offer. Holds no collaborator, so the panel
 // renders it without reaching back into the engine.
 export class AnswerRequest {
@@ -5,4 +7,8 @@ export class AnswerRequest {
     readonly question: string,
     readonly suggestions: readonly string[] = [],
   ) {}
+
+  static from(call: ToolCall): AnswerRequest {
+    return new AnswerRequest(call.argument('question'), call.stringsArgument('suggestions'))
+  }
 }

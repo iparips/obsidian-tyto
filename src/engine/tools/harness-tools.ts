@@ -1,21 +1,21 @@
 import { ToolCall, ToolSchema } from '../../providers/types'
-import { CommandRunner } from '../../commands/command-runner'
+import { ObsidianCommandRunner } from '../../commands/obsidian-command-runner'
 import { NoteReader } from '../../search/note-reader'
 import { TurnBudget } from '../turn/turn-budget'
-import { CommandCatalogue } from '../../commands/command-catalogue'
-import { AllowedCommand } from '../../commands/models/allowed-command'
+import { ObsidianCommandCatalogue } from '../../commands/obsidian-command-catalogue'
+import { AllowedObsidianCommand } from '../../commands/models/allowed-obsidian-command'
 import { ToolCatalogue } from './tool-schemas'
-import { AnswerRequest } from './answer-request'
 import { TurnStep } from '../turn-step'
 import { HarnessResult, Refusal, TurnState } from './harness-result'
+import { ObsidianCommandRanResult, OpenNoteResult, TextResult } from './harness-results'
 import { SearchTools } from './search-tools'
-import { ShortlistTool } from './shortlist-tool'
+import { NotePathsShortlistTool } from './note-paths-shortlist-tool'
 
 export class HarnessTools {
   constructor(
-    private commandRunner: CommandRunner,
+    private commandRunner: ObsidianCommandRunner,
     private noteReader: NoteReader,
-    private commandCatalogue: CommandCatalogue,
+    private commandCatalogue: ObsidianCommandCatalogue,
     private searchEnabled: boolean,
     private searchTools: SearchTools,
     // Auto mode opens the first note the model offers, so the tool that asks is
@@ -24,11 +24,15 @@ export class HarnessTools {
     private choiceOffered = true,
   ) {}
 
-  allowedCommands(): readonly AllowedCommand[] {
+  allowedCommands(): readonly AllowedObsidianCommand[] {
     return this.commandCatalogue.resolve()
   }
 
-  offersSearch(): boolean {
+  hasWhitelistedCommands(): boolean {
+    return this.allowedCommands().length > 0
+  }
+
+  hasSearchEnabled(): boolean {
     return this.searchEnabled
   }
 
@@ -36,7 +40,7 @@ export class HarnessTools {
   // drops out part way through and a model never sees the list change under it.
   schemas(skillsExist = false): ToolSchema[] {
     return ToolCatalogue.forCapabilities(
-      this.allowedCommands().length > 0,
+      this.hasWhitelistedCommands(),
       this.searchEnabled,
       this.choiceOffered,
       skillsExist,
@@ -46,24 +50,20 @@ export class HarnessTools {
   // A disabled flow refuses here as well as being absent from the schemas, so
   // the offered tool list is never the only thing keeping it out of reach.
   async execute(call: ToolCall, turn: TurnState): Promise<HarnessResult> {
-    if (call.isRunCommand()) return this.runCommand(call)
-    // Asking is not a search, so it stays reachable in a vault that allows
-    // commands and turns search off.
-    if (call.isAskUser()) return HarnessTools.askUser(call)
+    if (call.isRunObsidianCommand()) return this.runObsidianCommand(call)
     if (!this.searchEnabled) return Refusal.of('searching the vault is turned off in settings')
     if (call.isGlobNotes()) return this.searchTools.glob(call, turn)
     if (call.isGrepNotes()) return this.searchTools.grep(call, turn)
     if (call.isReadNote()) return this.readNote(call, turn)
     if (call.isOpenNote()) return this.openNote(call, turn)
-    if (call.isChooseNote()) return ShortlistTool.offer(call, turn)
-    return HarnessTools.answer(call)
+    return NotePathsShortlistTool.offerPaths(call, turn)
   }
 
-  private async runCommand(call: ToolCall): Promise<HarnessResult> {
-    const commandEffectOutcome = await this.commandRunner.run(call.argument('command_id'))
-    if (commandEffectOutcome.hasFailed()) return Refusal.of(commandEffectOutcome.message)
-    const commandEffect = commandEffectOutcome.value
-    return { result: commandEffect.describe(), effect: commandEffect }
+  private async runObsidianCommand(call: ToolCall): Promise<HarnessResult> {
+    const runOutcome = await this.commandRunner.run(call.argument('command_id'))
+    if (runOutcome.hasFailed()) return Refusal.of(runOutcome.message)
+    const noteOpenedByObsidianCommand = runOutcome.value
+    return new ObsidianCommandRanResult(noteOpenedByObsidianCommand)
   }
 
   // Refused rather than thrown, in the shape every other tool refuses, so the
@@ -74,11 +74,12 @@ export class HarnessTools {
   // dispatcher once the open is granted: a declined note is not one opened.
   private async openNote(call: ToolCall, turn: TurnState): Promise<HarnessResult> {
     const path = call.argument('path')
-    if (!turn.seenPaths.includes(path)) return Refusal.of(HarnessTools.unseenMessage(path))
-    if (!turn.budget.canOpen(path)) return Refusal.of(TurnBudget.openCapMessage())
+    if (!turn.pathsSeenInThisSession.includes(path))
+      return Refusal.of(HarnessTools.unseenMessage(path))
+    if (!turn.turnBudget.canOpen(path)) return Refusal.of(TurnBudget.openCapMessage())
     const contentsOutcome = await this.noteReader.read(path)
     if (contentsOutcome.hasFailed()) return Refusal.of(contentsOutcome.message)
-    return { result: `opened ${path}`, openPath: path }
+    return new OpenNoteResult(`opened ${path}`, path)
   }
 
   private static unseenMessage(path: string): string {
@@ -92,26 +93,7 @@ export class HarnessTools {
     const path = call.argument('path')
     const contentsOutcome = await this.noteReader.read(path)
     if (contentsOutcome.hasFailed()) return Refusal.of(contentsOutcome.message)
-    turn.seenPaths.recordPaths([path])
-    return { result: contentsOutcome.value, step: TurnStep.read(path) }
-  }
-
-  // The question travels back rather than being asked here: HarnessTools runs a
-  // tool, it does not wait on a person (FR15, FR16, FR30).
-  private static askUser(call: ToolCall): HarnessResult {
-    return {
-      result: 'asked the user; their answer follows',
-      question: new AnswerRequest(call.argument('question'), call.stringsArgument('suggestions')),
-    }
-  }
-
-  // Confirmation only: the answer reaches the user through the panel, and no
-  // tool can carry it into a note (FR31).
-  private static answer(call: ToolCall): HarnessResult {
-    const text = call.argument('answer')
-    return {
-      result: 'the answer reached the panel; say nothing further about it',
-      answer: { text, sources: call.stringsArgument('sources') },
-    }
+    turn.pathsSeenInThisSession.recordPaths([path])
+    return new TextResult(contentsOutcome.value, TurnStep.read(path))
   }
 }

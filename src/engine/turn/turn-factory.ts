@@ -45,28 +45,28 @@ export class TurnFactory {
   // Session-scoped, so a note found in one turn can still be opened in the
   // next. A path that has gone stale fails loudly on the read, which is a
   // better answer than refusing one the user watched the model find.
-  private readonly seenPaths = new SeenPaths()
+  private readonly pathsSeenInThisSession = new SeenPaths()
 
   async openTurn(): Promise<Attempt<Turn>> {
-    const resolved = await this.targetNoteResolver.resolve()
-    if (resolved.hasFailed()) return Outcomes.failure(resolved.step, resolved.message)
+    const resolvedNote = await this.targetNoteResolver.resolve()
+    if (resolvedNote.hasFailed()) return Outcomes.failure(resolvedNote.step, resolvedNote.message)
     const skills = await this.skillRepository.listSkills()
     const turnRepository = new TurnRepository(
-      resolved.value,
+      resolvedNote.value,
       skills,
       new TurnBudget(),
-      this.seenPaths,
+      this.pathsSeenInThisSession,
     )
     const cancellation = new TurnCancellation()
     const askers = this.askersFor(cancellation, turnRepository.chosenNotes)
-    const dispatcher = this.dispatcherFor(turnRepository, cancellation, askers)
-    return Outcomes.success(new Turn(turnRepository, dispatcher, cancellation))
+    const toolDispatcher = this.dispatcherFor(turnRepository, cancellation, askers)
+    return Outcomes.success(new Turn(turnRepository, toolDispatcher, cancellation))
   }
 
-  private askersFor(cancellation: TurnCancellation, chosen: ChosenNotes): TurnAskers {
+  private askersFor(turnCancellation: TurnCancellation, chosenNotes: ChosenNotes): TurnAskers {
     return {
-      noteChoice: this.buildNoteChoice(cancellation, chosen),
-      userQuestion: this.buildUserQuestion(cancellation),
+      noteChoice: this.buildNoteChoice(turnCancellation, chosenNotes),
+      userQuestion: this.buildUserQuestion(turnCancellation),
     }
   }
 

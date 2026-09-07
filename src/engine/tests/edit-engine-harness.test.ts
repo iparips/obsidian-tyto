@@ -7,9 +7,9 @@ import { Outcomes } from '../../shared/models/outcome'
 import { ChatMessage, ChatProvider } from '../../providers/types'
 import { AgentsMdRepository } from '../../agents/agents-md-repository'
 import { AllowList } from '../../commands/allow-list'
-import { CommandCatalogue } from '../../commands/command-catalogue'
-import { CommandRegistry } from '../../commands/command-registry'
-import { CommandRunner } from '../../commands/command-runner'
+import { ObsidianCommandCatalogue } from '../../commands/obsidian-command-catalogue'
+import { ObsidianCommandRegistry } from '../../commands/obsidian-command-registry'
+import { ObsidianCommandRunner } from '../../commands/obsidian-command-runner'
 import { OpenedNoteWait } from '../../commands/opened-note-wait'
 import { NoteGlob } from '../../search/note-glob'
 import { NoteGrep } from '../../search/note-grep'
@@ -70,10 +70,10 @@ describe('EditEngine', () => {
 
   const harnessOf = (allowed: string[], searchEnabled: boolean): HarnessTools => {
     const app = appOf()
-    const commandRegistry = new CommandRegistry(app)
-    const catalogue = new CommandCatalogue(commandRegistry, new AllowList(allowed))
+    const commandRegistry = new ObsidianCommandRegistry(app)
+    const catalogue = new ObsidianCommandCatalogue(commandRegistry, new AllowList(allowed))
     return new HarnessTools(
-      new CommandRunner(app, catalogue, new OpenedNoteWait(app, 30), commandRegistry),
+      new ObsidianCommandRunner(app, catalogue, new OpenedNoteWait(app, 30), commandRegistry),
       new NoteReader(vault.asVault()),
       catalogue,
       searchEnabled,
@@ -439,6 +439,31 @@ describe('EditEngine', () => {
       expect(results[0]).toMatchObject({
         content: 'searching the vault is turned off in settings',
       })
+    })
+
+    // Dispatched before the harness tools, so the refusal has to be restated
+    // there: the schema dropping it is never the only thing keeping it away.
+    it('refuses an answer when search is disabled in settings', async () => {
+      respondsWith(
+        aToolTurn(aToolCall('answer_from_search', { answer: 'It was 12k.', sources: [] })),
+      )
+
+      await engineOf(['daily-notes:*'], false).processUtterance('what did I write')
+
+      const results = complete.mock.calls[1][0].filter((m: ChatMessage) => m.isToolResult())
+      expect(results[0]).toMatchObject({
+        content: 'searching the vault is turned off in settings',
+      })
+    })
+
+    it('publishes no answer when search is disabled in settings', async () => {
+      respondsWith(
+        aToolTurn(aToolCall('answer_from_search', { answer: 'It was 12k.', sources: [] })),
+      )
+
+      await engineOf(['daily-notes:*'], false).processUtterance('what did I write')
+
+      expect(answers).toEqual([])
     })
   })
 })

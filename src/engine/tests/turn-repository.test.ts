@@ -28,7 +28,7 @@ describe('TurnRepository', () => {
     })
 
     it('starts with an unspent budget', () => {
-      expect(turn.budget.canOpen('Journal/todo.md')).toBe(true)
+      expect(turn.turnBudget.canOpen('Journal/todo.md')).toBe(true)
     })
 
     it('reports itself bound when it holds a note', () => {
@@ -72,15 +72,15 @@ describe('TurnRepository', () => {
 
   describe('when edits land', () => {
     it('keeps the position when an edit reports one', () => {
-      turn.recordEdit({ line: 2, ch: 4 })
+      turn.storeCursorPositionAndWrittenNote({ line: 2, ch: 4 })
 
       expect(turn.editEnd()).toEqual({ line: 2, ch: 4 })
     })
 
     it('keeps the last position when a later call changes nothing', () => {
-      turn.recordEdit({ line: 2, ch: 4 })
+      turn.storeCursorPositionAndWrittenNote({ line: 2, ch: 4 })
 
-      turn.recordEdit(undefined)
+      turn.storeCursorPositionAndWrittenNote(undefined)
 
       expect(turn.editEnd()).toEqual({ line: 2, ch: 4 })
     })
@@ -92,30 +92,30 @@ describe('TurnRepository', () => {
     })
 
     it('holds no written note when a call changed nothing', () => {
-      turn.recordEdit(undefined)
+      turn.storeCursorPositionAndWrittenNote(undefined)
 
       expect(turn.writtenNotes()).toEqual([])
     })
 
     it('holds the note when an edit lands', () => {
-      turn.recordEdit({ line: 2, ch: 4 })
+      turn.storeCursorPositionAndWrittenNote({ line: 2, ch: 4 })
 
       expect(turn.writtenNotes()).toEqual(['note.md'])
     })
 
     it('holds one entry when the same note is written twice', () => {
-      turn.recordEdit({ line: 2, ch: 4 })
+      turn.storeCursorPositionAndWrittenNote({ line: 2, ch: 4 })
 
-      turn.recordEdit({ line: 3, ch: 0 })
+      turn.storeCursorPositionAndWrittenNote({ line: 3, ch: 0 })
 
       expect(turn.writtenNotes()).toEqual(['note.md'])
     })
 
     it('holds both notes in order when a turn writes to two', () => {
-      turn.recordEdit({ line: 2, ch: 4 })
+      turn.storeCursorPositionAndWrittenNote({ line: 2, ch: 4 })
       turn.retargetTo(aResolvedNote('Journal/day.md'))
 
-      turn.recordEdit({ line: 1, ch: 0 })
+      turn.storeCursorPositionAndWrittenNote({ line: 1, ch: 0 })
 
       expect(turn.writtenNotes()).toEqual(['note.md', 'Journal/day.md'])
     })

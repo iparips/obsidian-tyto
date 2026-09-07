@@ -13,9 +13,9 @@ import { Outcomes } from '../../shared/models/outcome'
 import { ChatMessage, ChatProvider } from '../../providers/types'
 import { AgentsMdRepository } from '../../agents/agents-md-repository'
 import { AllowList } from '../../commands/allow-list'
-import { CommandCatalogue } from '../../commands/command-catalogue'
-import { CommandRegistry } from '../../commands/command-registry'
-import { CommandRunner } from '../../commands/command-runner'
+import { ObsidianCommandCatalogue } from '../../commands/obsidian-command-catalogue'
+import { ObsidianCommandRegistry } from '../../commands/obsidian-command-registry'
+import { ObsidianCommandRunner } from '../../commands/obsidian-command-runner'
 import { OpenedNoteWait } from '../../commands/opened-note-wait'
 import { NoteGlob } from '../../search/note-glob'
 import { NoteGrep } from '../../search/note-grep'
@@ -64,10 +64,10 @@ describe('EditEngine', () => {
       ...new FakeCommandRegistry().asApp(),
       workspace: new FakeWorkspace('note.md').asWorkspace(),
     } as unknown as App
-    const registry = new CommandRegistry(app)
-    const catalogue = new CommandCatalogue(registry, new AllowList([]))
+    const registry = new ObsidianCommandRegistry(app)
+    const catalogue = new ObsidianCommandCatalogue(registry, new AllowList([]))
     return new HarnessTools(
-      new CommandRunner(app, catalogue, new OpenedNoteWait(app, 30), registry),
+      new ObsidianCommandRunner(app, catalogue, new OpenedNoteWait(app, 30), registry),
       new NoteReader(vault.asVault()),
       catalogue,
       true,

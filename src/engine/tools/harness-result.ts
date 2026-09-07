@@ -1,32 +1,22 @@
-import { CommandEffect } from '../../commands/models/command-effect'
 import { SeenPaths } from '../../search/models/seen-paths'
-import { AnswerRequest } from './answer-request'
-import { ChoiceRequest } from './choice-request'
 import { TurnBudget } from '../turn/turn-budget'
-import { TurnStep } from '../turn-step'
+import {
+  ChoiceResult,
+  ObsidianCommandRanResult,
+  OpenNoteResult,
+  TextResult,
+} from './harness-results'
 
-// What the harness tools return to the model. A command effect, a resolved open
-// path and a question travel beside the text, because only the loop can act on
-// any of them.
-export interface HarnessResult {
-  result: string
-  effect?: CommandEffect
-  answer?: { text: string; sources: string[] }
-  openPath?: string
-  question?: AnswerRequest
-  // The shortlist travels back rather than being offered here, the way a
-  // question does: only the loop can park a turn on a person.
-  choice?: ChoiceRequest
-  // What the panel shows in the steps list. Present on every call, including
-  // the ones that refused, so a turn that went nowhere still says why.
-  step?: TurnStep
-}
+// What the harness tools return. The kind each class carries says what the
+// dispatcher must do next, because a tool can run a command or filter a
+// shortlist but cannot move the session or park a turn on a person.
+export type HarnessResult = TextResult | ChoiceResult | OpenNoteResult | ObsidianCommandRanResult
 
 // What a tool reads off the turn it runs in. Narrower than TurnRepository, so
 // the tools see the two counters they spend and nothing else.
 export interface TurnState {
-  readonly budget: TurnBudget
-  readonly seenPaths: SeenPaths
+  readonly turnBudget: TurnBudget
+  readonly pathsSeenInThisSession: SeenPaths
   // Told when the model looks past the note the turn started on, which is what
   // makes the inherited binding no longer a safe edit target.
   searchRan(): void
@@ -35,9 +25,7 @@ export interface TurnState {
 // Shared by every tool that can refuse, so a cap message and a bad argument
 // reach the model in one shape rather than two.
 export class Refusal {
-  // Every refusal is a step, since it spent an iteration and is usually what
-  // the user most needs to see when a turn goes nowhere.
   static of(reason: string): HarnessResult {
-    return { result: reason, step: TurnStep.refused(reason) }
+    return TextResult.refusing(reason)
   }
 }

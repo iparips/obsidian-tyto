@@ -4,9 +4,9 @@ import { HarnessTools } from '../tools/harness-tools'
 import { TurnState } from '../tools/harness-result'
 import { TurnBudget } from '../turn/turn-budget'
 import { SeenPaths } from '../../search/models/seen-paths'
-import { CommandCatalogue } from '../../commands/command-catalogue'
-import { CommandRegistry } from '../../commands/command-registry'
-import { CommandRunner } from '../../commands/command-runner'
+import { ObsidianCommandCatalogue } from '../../commands/obsidian-command-catalogue'
+import { ObsidianCommandRegistry } from '../../commands/obsidian-command-registry'
+import { ObsidianCommandRunner } from '../../commands/obsidian-command-runner'
 import { OpenedNoteWait } from '../../commands/opened-note-wait'
 import { AllowList } from '../../commands/allow-list'
 import { NoteGlob } from '../../search/note-glob'
@@ -25,14 +25,26 @@ describe('HarnessTools', () => {
 
   beforeEach(() => {
     vault = new FakeVault().withNote(TODO, '- [ ] milk')
-    turn = { budget: new TurnBudget(), seenPaths: new SeenPaths(), searchRan: () => undefined }
+    turn = {
+      turnBudget: new TurnBudget(),
+      pathsSeenInThisSession: new SeenPaths(),
+      searchRan: () => undefined,
+    }
   })
 
   const toolsOf = (): HarnessTools => {
     const app = {} as App
-    const catalogue = new CommandCatalogue(new CommandRegistry(app), new AllowList([]))
+    const catalogue = new ObsidianCommandCatalogue(
+      new ObsidianCommandRegistry(app),
+      new AllowList([]),
+    )
     return new HarnessTools(
-      new CommandRunner(app, catalogue, new OpenedNoteWait(app), new CommandRegistry(app)),
+      new ObsidianCommandRunner(
+        app,
+        catalogue,
+        new OpenedNoteWait(app),
+        new ObsidianCommandRegistry(app),
+      ),
       new NoteReader(vault.asVault()),
       catalogue,
       true,
@@ -55,7 +67,7 @@ describe('HarnessTools', () => {
     it('records the path as found when the read succeeds', async () => {
       await readNote(TODO)
 
-      expect(turn.seenPaths.includes(TODO)).toBe(true)
+      expect(turn.pathsSeenInThisSession.includes(TODO)).toBe(true)
     })
   })
 
@@ -69,7 +81,7 @@ describe('HarnessTools', () => {
     it('records no path when the read fails', async () => {
       await readNote(MISSING)
 
-      expect(turn.seenPaths.includes(MISSING)).toBe(false)
+      expect(turn.pathsSeenInThisSession.includes(MISSING)).toBe(false)
     })
   })
 })

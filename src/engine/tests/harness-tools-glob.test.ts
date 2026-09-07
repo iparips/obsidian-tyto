@@ -4,9 +4,9 @@ import { HarnessTools } from '../tools/harness-tools'
 import { TurnState } from '../tools/harness-result'
 import { TurnBudget } from '../turn/turn-budget'
 import { SeenPaths } from '../../search/models/seen-paths'
-import { CommandCatalogue } from '../../commands/command-catalogue'
-import { CommandRegistry } from '../../commands/command-registry'
-import { CommandRunner } from '../../commands/command-runner'
+import { ObsidianCommandCatalogue } from '../../commands/obsidian-command-catalogue'
+import { ObsidianCommandRegistry } from '../../commands/obsidian-command-registry'
+import { ObsidianCommandRunner } from '../../commands/obsidian-command-runner'
 import { OpenedNoteWait } from '../../commands/opened-note-wait'
 import { AllowList } from '../../commands/allow-list'
 import { NoteGlob } from '../../search/note-glob'
@@ -26,14 +26,26 @@ describe('HarnessTools', () => {
 
   beforeEach(() => {
     vault = new FakeVault().withNote(FRIDAY, 'friday').withNote(THURSDAY, 'thursday')
-    turn = { budget: new TurnBudget(), seenPaths: new SeenPaths(), searchRan: () => undefined }
+    turn = {
+      turnBudget: new TurnBudget(),
+      pathsSeenInThisSession: new SeenPaths(),
+      searchRan: () => undefined,
+    }
   })
 
   const toolsOf = (searchEnabled = true): HarnessTools => {
     const app = {} as App
-    const catalogue = new CommandCatalogue(new CommandRegistry(app), new AllowList([]))
+    const catalogue = new ObsidianCommandCatalogue(
+      new ObsidianCommandRegistry(app),
+      new AllowList([]),
+    )
     return new HarnessTools(
-      new CommandRunner(app, catalogue, new OpenedNoteWait(app), new CommandRegistry(app)),
+      new ObsidianCommandRunner(
+        app,
+        catalogue,
+        new OpenedNoteWait(app),
+        new ObsidianCommandRegistry(app),
+      ),
       new NoteReader(vault.asVault()),
       catalogue,
       searchEnabled,
@@ -57,13 +69,13 @@ describe('HarnessTools', () => {
     it('records the paths of a glob, so a following open is permitted', async () => {
       await glob(`${WEEK}/*.md`)
 
-      expect(turn.seenPaths.includes(FRIDAY)).toBe(true)
+      expect(turn.pathsSeenInThisSession.includes(FRIDAY)).toBe(true)
     })
 
     it('reports a glob as a step, naming the pattern and the count', async () => {
       const harnessResult = await glob(`${WEEK}/*.md`)
 
-      expect(harnessResult.step?.detail).toBe(`${WEEK}/*.md — 2 notes`)
+      expect(harnessResult.publishStepSummary?.detail).toBe(`${WEEK}/*.md — 2 notes`)
     })
 
     it('orders the paths as the call asked when a sort is given', async () => {
@@ -83,7 +95,7 @@ describe('HarnessTools', () => {
     it('reports the empty glob as a step rather than a refusal', async () => {
       const harnessResult = await glob('Nowhere/*.md')
 
-      expect(harnessResult.step?.refused).toBe(false)
+      expect(harnessResult.publishStepSummary?.refused).toBe(false)
     })
   })
 

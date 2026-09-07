@@ -1,13 +1,14 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { App } from 'obsidian'
 import { HarnessTools } from '../tools/harness-tools'
-import { TurnState } from '../tools/harness-result'
+import { HarnessResult, TurnState } from '../tools/harness-result'
+import { HarnessResultKind } from '../tools/harness-result-kind'
 import { TurnBudget } from '../turn/turn-budget'
 import { SeenPaths } from '../../search/models/seen-paths'
 import { SearchHit } from '../../search/models/search-hit'
-import { CommandCatalogue } from '../../commands/command-catalogue'
-import { CommandRegistry } from '../../commands/command-registry'
-import { CommandRunner } from '../../commands/command-runner'
+import { ObsidianCommandCatalogue } from '../../commands/obsidian-command-catalogue'
+import { ObsidianCommandRegistry } from '../../commands/obsidian-command-registry'
+import { ObsidianCommandRunner } from '../../commands/obsidian-command-runner'
 import { OpenedNoteWait } from '../../commands/opened-note-wait'
 import { AllowList } from '../../commands/allow-list'
 import { NoteGlob } from '../../search/note-glob'
@@ -25,14 +26,26 @@ describe('HarnessTools', () => {
 
   beforeEach(() => {
     vault = new FakeVault().withNote(TODO, '- [ ] milk')
-    turn = { budget: new TurnBudget(), seenPaths: new SeenPaths(), searchRan: () => undefined }
+    turn = {
+      turnBudget: new TurnBudget(),
+      pathsSeenInThisSession: new SeenPaths(),
+      searchRan: () => undefined,
+    }
   })
 
   const toolsOf = (searchEnabled = true): HarnessTools => {
     const app = {} as App
-    const catalogue = new CommandCatalogue(new CommandRegistry(app), new AllowList([]))
+    const catalogue = new ObsidianCommandCatalogue(
+      new ObsidianCommandRegistry(app),
+      new AllowList([]),
+    )
     return new HarnessTools(
-      new CommandRunner(app, catalogue, new OpenedNoteWait(app), new CommandRegistry(app)),
+      new ObsidianCommandRunner(
+        app,
+        catalogue,
+        new OpenedNoteWait(app),
+        new ObsidianCommandRegistry(app),
+      ),
       new NoteReader(vault.asVault()),
       catalogue,
       searchEnabled,
@@ -41,6 +54,11 @@ describe('HarnessTools', () => {
   }
 
   const openNote = (path: string) => toolsOf().execute(aToolCall('open_note', { path }), turn)
+
+  // Null unless the open was granted, so a refusal fails the assertion rather
+  // than reading undefined off a result that never carried a path.
+  const openedPathOf = (harnessResult: HarnessResult): string | null =>
+    harnessResult.kind === HarnessResultKind.OpenNote ? harnessResult.openNoteAtPath : null
 
   // A glob rather than a search: this helper exists to put a path in SeenPaths
   // so open_note will accept it, and a glob does that as well as a search did.
@@ -55,7 +73,7 @@ describe('HarnessTools', () => {
     it('yields the path to open when every guard passes', async () => {
       const harnessResult = await openNote(TODO)
 
-      expect(harnessResult.openPath).toBe(TODO)
+      expect(openedPathOf(harnessResult)).toBe(TODO)
     })
 
     it('tells the model the note opened when every guard passes', async () => {
@@ -65,7 +83,7 @@ describe('HarnessTools', () => {
     })
 
     it('refuses the open when no note exists at the path', async () => {
-      turn.seenPaths.record([new SearchHit('Gone/away.md', 1, '')])
+      turn.pathsSeenInThisSession.record([new SearchHit('Gone/away.md', 1, '')])
 
       const harnessResult = await openNote('Gone/away.md')
 
@@ -73,11 +91,11 @@ describe('HarnessTools', () => {
     })
 
     it('offers no path when no note exists at the path', async () => {
-      turn.seenPaths.record([new SearchHit('Gone/away.md', 1, '')])
+      turn.pathsSeenInThisSession.record([new SearchHit('Gone/away.md', 1, '')])
 
       const harnessResult = await openNote('Gone/away.md')
 
-      expect(harnessResult.openPath).toBeUndefined()
+      expect(openedPathOf(harnessResult)).toBeNull()
     })
   })
 
@@ -93,7 +111,7 @@ describe('HarnessTools', () => {
     it('offers no path when the path was never returned by a search', async () => {
       const harnessResult = await openNote(TODO)
 
-      expect(harnessResult.openPath).toBeUndefined()
+      expect(openedPathOf(harnessResult)).toBeNull()
     })
   })
 
@@ -103,11 +121,11 @@ describe('HarnessTools', () => {
       await openNote(TODO)
       // The dispatcher spends the cap once an open is granted; at this level
       // nothing has granted one, so the test states what a granted open left.
-      turn.budget.takeOpen(TODO)
+      turn.turnBudget.takeOpen(TODO)
     })
 
     it('refuses a second note when the cap is reached, naming it', async () => {
-      turn.seenPaths.recordPaths(['Journal/Weekly/Week-36/other.md'])
+      turn.pathsSeenInThisSession.recordPaths(['Journal/Weekly/Week-36/other.md'])
 
       const harnessResult = await openNote('Journal/Weekly/Week-36/other.md')
 
@@ -121,7 +139,7 @@ describe('HarnessTools', () => {
     it('reopens the same note when the cap is reached, since it is not a second note', async () => {
       const harnessResult = await openNote(TODO)
 
-      expect(harnessResult.openPath).toBe(TODO)
+      expect(openedPathOf(harnessResult)).toBe(TODO)
     })
 
     // The seen-path check comes first now, so a path the model never found is
@@ -158,7 +176,7 @@ describe('HarnessTools', () => {
     it('records the paths of a search when hits come back', async () => {
       await findsTodo()
 
-      expect(turn.seenPaths.includes(TODO)).toBe(true)
+      expect(turn.pathsSeenInThisSession.includes(TODO)).toBe(true)
     })
   })
 })

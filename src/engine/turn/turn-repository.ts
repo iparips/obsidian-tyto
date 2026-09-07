@@ -17,13 +17,13 @@ export class TurnRepository {
   private readonly written: string[] = []
 
   constructor(
-    private resolved: ResolvedNote | null,
+    private resolvedNote: ResolvedNote | null,
     private readonly vaultSkills: readonly Skill[] = [],
-    readonly budget: TurnBudget = new TurnBudget(),
+    readonly turnBudget: TurnBudget = new TurnBudget(),
     // Supplied by the session rather than defaulted per turn: a note the model
     // found in one turn is one the user watched it find, and refusing to open
     // it in the next is what drives the model to edit whatever is still bound.
-    readonly seenPaths: SeenPaths = new SeenPaths(),
+    readonly pathsSeenInThisSession: SeenPaths = new SeenPaths(),
   ) {}
 
   // Built here rather than passed in, which is the whole of its turn scope: a
@@ -33,7 +33,7 @@ export class TurnRepository {
 
   // The note the turn inherited, resolved before any tool ran. Editing it needs
   // no choice: it is the note the user was looking at when they spoke.
-  private readonly startedOn: string | null = this.resolved?.note.path ?? null
+  private readonly noteTheTurnStartedOn: string | null = this.resolvedNote?.note.path ?? null
 
   // Set once the model reaches past the note it started on. From then the turn
   // is working on a note the user has to have chosen and the loop has to have
@@ -51,7 +51,7 @@ export class TurnRepository {
   // one the user was looking at, until the model goes looking for another.
   mayEdit(path: string): boolean {
     if (this.openedThisTurn.has(path)) return true
-    const allowed = !this.reachedOut && path === this.startedOn
+    const allowed = !this.reachedOut && path === this.noteTheTurnStartedOn
     if (!allowed) this.logRefusal(path)
     return allowed
   }
@@ -61,7 +61,7 @@ export class TurnRepository {
   // moved it off that note.
   private logRefusal(path: string): void {
     console.debug(
-      `[owl] refused edit to ${path}: startedOn=${this.startedOn}, reachedOut=${this.reachedOut}, opened=[${[...this.openedThisTurn].join(', ')}]`,
+      `[owl] refused edit to ${path}: noteTheTurnStartedOn=${this.noteTheTurnStartedOn}, reachedOut=${this.reachedOut}, opened=[${[...this.openedThisTurn].join(', ')}]`,
     )
   }
 
@@ -70,17 +70,17 @@ export class TurnRepository {
   // Null while the session is unbound, which is a turn that can search but not
   // write.
   targetNote(): OpenNote | null {
-    return this.resolved?.note ?? null
+    return this.resolvedNote?.note ?? null
   }
 
   isBound(): boolean {
-    return this.resolved !== null
+    return this.resolvedNote !== null
   }
 
   // Empty when unbound: a chain resolves from a note's folders, and there is no
   // note.
   agentMdChain(): AgentsMdChain {
-    return this.resolved?.instructions ?? new AgentsMdChain()
+    return this.resolvedNote?.instructions ?? new AgentsMdChain()
   }
 
   skills(): readonly Skill[] {
@@ -121,7 +121,7 @@ export class TurnRepository {
     return this.vaultSkills.length > 0 && !this.skillsSettled
   }
 
-  skillNamed(name: string): Skill | undefined {
+  getSkillNamed(name: string): Skill | undefined {
     return this.vaultSkills.find((candidate) => candidate.name === name)
   }
 
@@ -132,7 +132,7 @@ export class TurnRepository {
   // Spent once an open is granted rather than when it is asked for, so a note
   // the user declined does not cost the turn its one open.
   recordOpen(path: string): void {
-    this.budget.takeOpen(path)
+    this.turnBudget.takeOpen(path)
   }
 
   // Separate from recordOpen, which spends the budget: a command's note is
@@ -142,7 +142,7 @@ export class TurnRepository {
   }
 
   retargetTo(resolved: ResolvedNote): void {
-    this.resolved = resolved
+    this.resolvedNote = resolved
     this.unwritablePath = null
   }
 
@@ -162,7 +162,7 @@ export class TurnRepository {
     return this.written
   }
 
-  recordEdit(editedTo: EditorPosition | undefined): void {
+  storeCursorPositionAndWrittenNote(editedTo: EditorPosition | undefined): void {
     this.lastEditEnd = editedTo ?? this.lastEditEnd
     if (editedTo) this.recordWrittenNote()
   }

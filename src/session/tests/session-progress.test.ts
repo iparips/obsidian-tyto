@@ -31,7 +31,7 @@ describe('SessionProgress', () => {
       const publisher = publisherOf()
 
       publisher.skillLoaded('shopping-list')
-      publisher.stepTaken(TurnStep.edited('applied'))
+      publisher.publishStepTaken(TurnStep.edited('applied'))
 
       expect(steps.map((step) => step.label)).toEqual(['Loaded skill', 'Edit'])
     })

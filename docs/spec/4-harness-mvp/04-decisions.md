@@ -94,7 +94,7 @@ stays a single number.
 
 Command effect verification stays the before-and-after diff, plus one check the
 build added: a note a command opened but that has no editor does not move the
-binding. CommandRunner (Commands) reports the diff, and ToolDispatcher (Engine,
+binding. ObsidianCommandRunner (Commands) reports the diff, and ToolDispatcher (Engine,
 new) downgrades the report to "no note opened" when the rebind cannot find an
 editor. The model is told the binding stayed, so its next anchor targets the
 note it can actually write to.

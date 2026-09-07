@@ -23,19 +23,22 @@ export class NoteEditTool {
     // Ordering, not relevance: the model decides which skill applies, or that
     // none does, and the harness only holds it to deciding before it writes.
     // Refused once per turn, since either answer settles it.
-    if (this.turnRepository.mustSettleSkills()) return { result: UNSETTLED_SKILLS }
+    if (this.turnRepository.mustSettleSkills()) return ToolCallOutcome.of(UNSETTLED_SKILLS)
     const unwritable = this.turnRepository.unwritableNote()
     if (unwritable)
-      return { result: `${unwritable} is not editable yet; stop and tell the user to open it` }
+      return ToolCallOutcome.of(
+        `${unwritable} is not editable yet; stop and tell the user to open it`,
+      )
     const note = this.turnRepository.targetNote()
     // Told rather than thrown, so the model reports it in the reply instead of
     // retrying an edit that cannot land.
-    if (!note) return { result: 'no note is open; tell the user to open one before editing' }
+    if (!note)
+      return ToolCallOutcome.of('no note is open; tell the user to open one before editing')
     // The binding a turn inherits is a path, and the editor it resolves to may
     // be one Obsidian still reports but no longer shows. Once the model has
     // searched, only a note it chose and opened this turn is known to be live.
     if (!this.turnRepository.mayEdit(note.path))
-      return { result: NoteEditTool.unopenedMessage(note.path) }
+      return ToolCallOutcome.of(NoteEditTool.unopenedMessage(note.path))
     return this.callToolOnNote(call, note)
   }
 
@@ -45,14 +48,14 @@ export class NoteEditTool {
 
   private callToolOnNote(call: ToolCall, note: OpenNote): ToolCallOutcome {
     const parsed = NoteOperationParser.parse(call)
-    if (parsed.hasFailed()) return { result: `invalid arguments: ${parsed.message}` }
+    if (parsed.hasFailed()) return ToolCallOutcome.of(`invalid arguments: ${parsed.message}`)
     return this.applyOperation(parsed.value, note)
   }
 
   private applyOperation(op: EditOperation, note: OpenNote): ToolCallOutcome {
     const result = this.noteEditor.apply(note.editor, note.details(), op)
-    if (result.applied) return { result: 'applied', editedTo: result.endedAt }
-    if (result.reason === 'noMatch') return { result: 'anchor not found in note' }
-    return { result: 'anchor matches multiple places; use a longer anchor' }
+    if (result.applied) return ToolCallOutcome.edited('applied', result.endedAt)
+    if (result.reason === 'noMatch') return ToolCallOutcome.of('anchor not found in note')
+    return ToolCallOutcome.of('anchor matches multiple places; use a longer anchor')
   }
 }

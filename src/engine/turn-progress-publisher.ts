@@ -6,7 +6,7 @@ import { TurnStep } from './turn-step'
 // the callbacks, so the engine narrates without knowing where any of it lands.
 export class TurnProgressPublisher {
   constructor(
-    readonly answered: (text: string, sources: string[]) => void,
+    readonly publishModelAnswer: (text: string, sources: string[]) => void,
     readonly retargeted: (path: string) => void,
     readonly instructionsResolved: (chain: AgentsMdChain) => void,
     readonly skillLoaded: (name: string) => void,
@@ -15,7 +15,7 @@ export class TurnProgressPublisher {
     readonly runningLow: (text: string) => void = () => undefined,
     // Every step a turn takes, collapsed in the panel: the entries say what the
     // turn produced, and this says what it did to get there.
-    readonly stepTaken: (step: TurnStep) => void = () => undefined,
+    readonly publishStepTaken: (step: TurnStep) => void = () => undefined,
   ) {}
 
   static silent(): TurnProgressPublisher {

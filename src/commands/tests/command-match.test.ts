@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { CommandMatch } from '../models/command-match'
-import { AllowedCommand } from '../models/allowed-command'
+import { ObsidianCommandMatch } from '../models/obsidian-command-match'
+import { AllowedObsidianCommand } from '../models/allowed-obsidian-command'
 
-describe('CommandMatch', () => {
+describe('ObsidianCommandMatch', () => {
   const matchOf = (coveredBy: string | null) =>
-    new CommandMatch(new AllowedCommand('daily-notes', 'Open today'), coveredBy)
+    new ObsidianCommandMatch(new AllowedObsidianCommand('daily-notes', 'Open today'), coveredBy)
 
   describe('when an entry covers the command', () => {
     it('reports itself covered when an entry covers it', () => {

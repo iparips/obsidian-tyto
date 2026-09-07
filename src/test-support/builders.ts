@@ -1,10 +1,10 @@
 import { ChatTurn, ToolCall } from '../providers/types'
 import { App } from 'obsidian'
 import { HarnessTools } from '../engine/tools/harness-tools'
-import { CommandRunner } from '../commands/command-runner'
+import { ObsidianCommandRunner } from '../commands/obsidian-command-runner'
 import { OpenedNoteWait } from '../commands/opened-note-wait'
-import { CommandCatalogue } from '../commands/command-catalogue'
-import { CommandRegistry } from '../commands/command-registry'
+import { ObsidianCommandCatalogue } from '../commands/obsidian-command-catalogue'
+import { ObsidianCommandRegistry } from '../commands/obsidian-command-registry'
 import { AllowList } from '../commands/allow-list'
 import { NoteGlob } from '../search/note-glob'
 import { NoteGrep } from '../search/note-grep'
@@ -88,14 +88,14 @@ export const aSession = (path = 'note.md'): SessionRepository =>
 
 export const noHarness = (): HarnessTools =>
   new HarnessTools(
-    new CommandRunner(
+    new ObsidianCommandRunner(
       {} as App,
-      new CommandCatalogue(new CommandRegistry({} as App), new AllowList([])),
+      new ObsidianCommandCatalogue(new ObsidianCommandRegistry({} as App), new AllowList([])),
       new OpenedNoteWait({} as App),
-      new CommandRegistry({} as App),
+      new ObsidianCommandRegistry({} as App),
     ),
     new NoteReader(new FakeVault().asVault()),
-    new CommandCatalogue(new CommandRegistry({} as App), new AllowList([])),
+    new ObsidianCommandCatalogue(new ObsidianCommandRegistry({} as App), new AllowList([])),
     false,
     new SearchTools(
       new NoteGlob(new FakeVault().asVault()),

@@ -2,9 +2,9 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { AllowListEditor } from '../AllowListEditor'
-import { CommandSearch } from '../../commands/command-search'
+import { ObsidianCommandSearch } from '../../commands/obsidian-command-search'
 import { AllowList } from '../../commands/allow-list'
-import { AllowedCommand } from '../../commands/models/allowed-command'
+import { AllowedObsidianCommand } from '../../commands/models/allowed-obsidian-command'
 import { FakeCommandRegistry } from '../../test-support/fake-command-registry'
 
 describe('AllowListEditor', () => {
@@ -17,11 +17,11 @@ describe('AllowListEditor', () => {
     registry = new FakeCommandRegistry().withCommand('daily-notes', 'Open today')
   })
 
-  const renderEditor = (entries: string[], resolved: AllowedCommand[] = []) =>
+  const renderEditor = (entries: string[], resolved: AllowedObsidianCommand[] = []) =>
     render(
       <AllowListEditor
         entries={entries}
-        search={new CommandSearch(registry.asRegistry(), new AllowList(entries))}
+        search={new ObsidianCommandSearch(registry.asRegistry(), new AllowList(entries))}
         resolved={resolved}
         onChange={onChange}
       />,
@@ -55,8 +55,8 @@ describe('AllowListEditor', () => {
 
   describe('when the entries resolve to commands', () => {
     const resolved = [
-      new AllowedCommand('daily-notes', 'Open today'),
-      new AllowedCommand('daily-notes:goto-prev', 'Open previous'),
+      new AllowedObsidianCommand('daily-notes', 'Open today'),
+      new AllowedObsidianCommand('daily-notes:goto-prev', 'Open previous'),
     ]
 
     it('counts what the entries reach when they resolve', () => {
@@ -86,7 +86,7 @@ describe('AllowListEditor', () => {
     })
 
     it('says one command in the singular when a single entry resolves', () => {
-      renderEditor(['daily-notes'], [new AllowedCommand('daily-notes', 'Open today')])
+      renderEditor(['daily-notes'], [new AllowedObsidianCommand('daily-notes', 'Open today')])
 
       expect(screen.getByText('Reaches 1 command')).toBeDefined()
     })

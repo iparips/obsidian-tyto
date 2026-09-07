@@ -57,18 +57,18 @@ to 3 are independent and can proceed in parallel; the rest are sequential.
 4. `src/commands/allow-list.ts`: entries, the colon rule, and validation. Pure
    string logic with no Obsidian dependency, so it tests without a fake.
 
-5. `src/commands/models/allowed-command.ts` and `command-effect.ts`: the two
+5. `src/commands/models/allowed-obsidian-command.ts` and `note-opened-by-obsidian-command.ts`: the two
    value objects.
 
 6. `src/test-support/fake-command-registry.ts` and `fake-workspace.ts`: the two
    doubles [09-testing-strategy.md](09-testing-strategy.md) needs.
 
-7. `src/commands/command-catalogue.ts`: the module augmentation declaring
+7. `src/commands/obsidian-command-catalogue.ts`: the module augmentation declaring
    `app.commands`, the probe that yields an empty catalogue when the methods are
    absent, and resolution against the live list. The augmentation is declared
    here and nowhere else.
 
-8. `src/commands/command-runner.ts`: the before-and-after diff around
+8. `src/commands/obsidian-command-runner.ts`: the before-and-after diff around
    `executeCommandById`, refusing ids outside the catalogue.
 
 9. `src/engine/models/tool-schemas.ts`: the four new schemas, and the matching

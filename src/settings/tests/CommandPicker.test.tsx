@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { CommandPicker } from '../CommandPicker'
-import { CommandSearch } from '../../commands/command-search'
+import { ObsidianCommandSearch } from '../../commands/obsidian-command-search'
 import { AllowList } from '../../commands/allow-list'
 import { FakeCommandRegistry } from '../../test-support/fake-command-registry'
 
@@ -23,7 +23,7 @@ describe('CommandPicker', () => {
     render(
       <CommandPicker
         entries={entries}
-        search={new CommandSearch(registry.asRegistry(), new AllowList(entries))}
+        search={new ObsidianCommandSearch(registry.asRegistry(), new AllowList(entries))}
         onChange={onChange}
       />,
     )

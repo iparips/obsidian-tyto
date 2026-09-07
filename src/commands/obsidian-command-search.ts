@@ -1,7 +1,7 @@
 import { AllowList } from './allow-list'
-import { CommandRegistry } from './command-registry'
-import { AllowedCommand } from './models/allowed-command'
-import { CommandMatch } from './models/command-match'
+import { ObsidianCommandRegistry } from './obsidian-command-registry'
+import { AllowedObsidianCommand } from './models/allowed-obsidian-command'
+import { ObsidianCommandMatch } from './models/obsidian-command-match'
 import { SearchResults } from './models/search-results'
 
 // Twenty fits a desktop panel without scrolling far, and a query matching more
@@ -10,9 +10,9 @@ const CAP = 20
 
 // The catalogue's opposite question: every command annotated with whether the
 // allow-list covers it, rather than only the ones it does.
-export class CommandSearch {
+export class ObsidianCommandSearch {
   constructor(
-    private registry: CommandRegistry,
+    private registry: ObsidianCommandRegistry,
     private allowList: AllowList,
   ) {}
 
@@ -29,11 +29,11 @@ export class CommandSearch {
     )
   }
 
-  private matchingName(needle: string): readonly AllowedCommand[] {
+  private matchingName(needle: string): readonly AllowedObsidianCommand[] {
     return this.registry.list().filter((command) => command.name.toLowerCase().includes(needle))
   }
 
-  private matchOf(command: AllowedCommand): CommandMatch {
-    return new CommandMatch(command, this.allowList.coveringEntry(command.id))
+  private matchOf(command: AllowedObsidianCommand): ObsidianCommandMatch {
+    return new ObsidianCommandMatch(command, this.allowList.coveringEntry(command.id))
   }
 }

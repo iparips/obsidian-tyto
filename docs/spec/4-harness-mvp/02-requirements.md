@@ -73,7 +73,7 @@ something the user reads.
 ```mermaid
 sequenceDiagram
     participant Engine as EditEngine [Engine]
-    participant Commands as CommandCatalogue [Commands, new]
+    participant Commands as ObsidianCommandCatalogue [Commands, new]
     participant Obsidian as Obsidian App [Obsidian]
     participant Search as VaultSearch [Search, new]
     participant Panel as SessionPanel [Session]

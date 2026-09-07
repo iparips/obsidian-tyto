@@ -4,9 +4,9 @@ import { HarnessTools } from '../tools/harness-tools'
 import { TurnState } from '../tools/harness-result'
 import { TurnBudget } from '../turn/turn-budget'
 import { SeenPaths } from '../../search/models/seen-paths'
-import { CommandCatalogue } from '../../commands/command-catalogue'
-import { CommandRegistry } from '../../commands/command-registry'
-import { CommandRunner } from '../../commands/command-runner'
+import { ObsidianCommandCatalogue } from '../../commands/obsidian-command-catalogue'
+import { ObsidianCommandRegistry } from '../../commands/obsidian-command-registry'
+import { ObsidianCommandRunner } from '../../commands/obsidian-command-runner'
 import { OpenedNoteWait } from '../../commands/opened-note-wait'
 import { AllowList } from '../../commands/allow-list'
 import { NoteGlob } from '../../search/note-glob'
@@ -26,14 +26,26 @@ describe('HarnessTools', () => {
     vault = new FakeVault()
       .withNote(QUOTE, 'the roofing quote came to 12k')
       .withNote('Lists/shopping.md', 'milk and bread')
-    turn = { budget: new TurnBudget(), seenPaths: new SeenPaths(), searchRan: () => undefined }
+    turn = {
+      turnBudget: new TurnBudget(),
+      pathsSeenInThisSession: new SeenPaths(),
+      searchRan: () => undefined,
+    }
   })
 
   const toolsOf = (searchEnabled = true): HarnessTools => {
     const app = {} as App
-    const catalogue = new CommandCatalogue(new CommandRegistry(app), new AllowList([]))
+    const catalogue = new ObsidianCommandCatalogue(
+      new ObsidianCommandRegistry(app),
+      new AllowList([]),
+    )
     return new HarnessTools(
-      new CommandRunner(app, catalogue, new OpenedNoteWait(app), new CommandRegistry(app)),
+      new ObsidianCommandRunner(
+        app,
+        catalogue,
+        new OpenedNoteWait(app),
+        new ObsidianCommandRegistry(app),
+      ),
       new NoteReader(vault.asVault()),
       catalogue,
       searchEnabled,
@@ -57,13 +69,13 @@ describe('HarnessTools', () => {
     it('records the paths of a grep, so a following open is permitted', async () => {
       await grep('roofing')
 
-      expect(turn.seenPaths.includes(QUOTE)).toBe(true)
+      expect(turn.pathsSeenInThisSession.includes(QUOTE)).toBe(true)
     })
 
     it('reports a grep as a step, naming the expression and the count', async () => {
       const harnessResult = await grep('roofing')
 
-      expect(harnessResult.step?.detail).toBe('roofing — 1 note')
+      expect(harnessResult.publishStepSummary?.detail).toBe('roofing — 1 note')
     })
 
     it('returns paths alone when paths_only is asked for', async () => {
@@ -109,7 +121,7 @@ describe('HarnessTools', () => {
     it('reports the invalid expression as a refusal', async () => {
       const harnessResult = await grep('roofing(')
 
-      expect(harnessResult.step?.refused).toBe(true)
+      expect(harnessResult.publishStepSummary?.refused).toBe(true)
     })
   })
 

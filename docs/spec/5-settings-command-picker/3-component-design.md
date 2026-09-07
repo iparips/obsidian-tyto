@@ -6,7 +6,7 @@ unchanged.
 
 ## The Catalogue Answers One Question, the Picker Another
 
-CommandCatalogue (Commands) resolves the allow-list against the live command
+ObsidianCommandCatalogue (Commands) resolves the allow-list against the live command
 list and yields what is permitted. That is the model's view, and it is the only
 view the harness MVP needed.
 
@@ -15,10 +15,10 @@ can find one to add. Same registry, different question.
 
 ```
 src/commands/
-  command-registry.ts      # every registered command, one read
-  command-search.ts        # name matching, capped
+  obsidian-command-registry.ts      # every registered command, one read
+  obsidian-command-search.ts        # name matching, capped
   models/
-    command-match.ts       # a command, and whether the list already covers it
+    obsidian-command-match.ts       # a command, and whether the list already covers it
     search-results.ts      # the capped matches, and whether more matched
 
 src/settings/
@@ -29,26 +29,26 @@ src/settings/
   ResolvedCommands.tsx     # collapsed: every command the entries reach
 ```
 
-CommandRegistry (Commands, new) holds the module augmentation and the probe that
-CommandCatalogue (Commands) holds today, so both read the registry through one
+ObsidianCommandRegistry (Commands, new) holds the module augmentation and the probe that
+ObsidianCommandCatalogue (Commands) holds today, so both read the registry through one
 place rather than two. The catalogue keeps its filtering and becomes its only
 job.
 
 ```typescript
-// command-registry.ts
-export class CommandRegistry {
+// obsidian-command-registry.ts
+export class ObsidianCommandRegistry {
   constructor(private app: App) {}
 
   // Every registered command that is available in the current context. Empty
   // when the registry is absent, which is what keeps a missing private API from
   // failing the plugin (NFR4 of the harness MVP).
-  list(): readonly AllowedCommand[]
+  list(): readonly AllowedObsidianCommand[]
 
   isReachable(): boolean
 }
 ```
 
-CommandCatalogue (Commands) takes a CommandRegistry (Commands, new) instead of an
+ObsidianCommandCatalogue (Commands) takes a ObsidianCommandRegistry (Commands, new) instead of an
 App, and its body becomes the allow-list filter over `registry.list()`. Its
 `isReachable` delegates. The augmentation and the availability check move with
 the registry, so the catalogue no longer imports Obsidian at all.
@@ -57,26 +57,26 @@ Four call sites construct a catalogue and each gains the registry:
 EngineFactory (Engine), OwlSettingsTab (Settings), and two in builders.ts
 (Test Support).
 
-CommandRunner (Commands) gains the registry for `executeCommandById`, which is
+ObsidianCommandRunner (Commands) gains the registry for `executeCommandById`, which is
 the other half of what the registry owns. It keeps its App, because the
 before-and-after diff reads `app.workspace` for the active file, which the
 registry has no part in.
 
 ```typescript
-// command-registry.ts, beside list()
+// obsidian-command-registry.ts, beside list()
 executeCommandById(id: string): boolean
 ```
 
 ```mermaid
 flowchart LR
     Picker["CommandPicker [Settings, new]<br/>Responsibility: owns finding a command to allow"]
-    Search["CommandSearch [Commands, new]<br/>Responsibility: owns matching a query against command names"]
-    Registry["CommandRegistry [Commands, new]<br/>Responsibility: owns reading every registered command"]
-    Catalogue["CommandCatalogue [Commands]<br/>Responsibility: owns which commands the allow-list permits"]
+    Search["ObsidianCommandSearch [Commands, new]<br/>Responsibility: owns matching a query against command names"]
+    Registry["ObsidianCommandRegistry [Commands, new]<br/>Responsibility: owns reading every registered command"]
+    Catalogue["ObsidianCommandCatalogue [Commands]<br/>Responsibility: owns which commands the allow-list permits"]
     AllowList["AllowList [Commands]<br/>Responsibility: owns the entry rule and matching"]
     Entries["AllowedEntries [Settings, new]<br/>Responsibility: owns the entry list and editing a row"]
     Resolved["ResolvedCommands [Settings, new]<br/>Responsibility: owns showing every command the entries reach"]
-    Match["CommandMatch [Commands, new]<br/>Holds: a command, and whether an entry covers it"]
+    Match["ObsidianCommandMatch [Commands, new]<br/>Holds: a command, and whether an entry covers it"]
 
     Picker --> Search
     Search --> Registry
@@ -90,7 +90,7 @@ flowchart LR
 
 Arrows: uses-relationship (client to supplier).
 
-CommandCatalogue (Commands) and CommandSearch (Commands, new) both read the
+ObsidianCommandCatalogue (Commands) and ObsidianCommandSearch (Commands, new) both read the
 registry and both consult the allow-list, but they compose them oppositely: the
 catalogue filters to what is permitted, the search annotates everything with
 whether it is.
@@ -105,10 +105,10 @@ coveringEntry(commandId: string): string | null
 ```
 
 ```typescript
-// models/command-match.ts
-export class CommandMatch {
+// models/obsidian-command-match.ts
+export class ObsidianCommandMatch {
   constructor(
-    readonly command: AllowedCommand,
+    readonly command: AllowedObsidianCommand,
     readonly coveredBy: string | null,
   ) {}
 
@@ -125,8 +125,8 @@ finite, so the empty query returns nothing rather than everything (FR4).
 sequenceDiagram
     participant User as User
     participant Picker as CommandPicker [Settings, new]
-    participant Search as CommandSearch [Commands, new]
-    participant Registry as CommandRegistry [Commands, new]
+    participant Search as ObsidianCommandSearch [Commands, new]
+    participant Registry as ObsidianCommandRegistry [Commands, new]
     participant Settings as OwlSettings [Settings]
 
     Note over User,Settings: TYPING NARROWS, IT DOES NOT LOAD
@@ -135,7 +135,7 @@ sequenceDiagram
     Search->>Registry: listCommands
     Registry-->>Search: every registered command
     Note over Search: empty query returns nothing
-    Search-->>Picker: CommandMatch [new], capped
+    Search-->>Picker: ObsidianCommandMatch [new], capped
     Note over Picker: says when more matched than the cap
 
     Note over User,Settings: ADDING WRITES AN ID
@@ -147,10 +147,10 @@ sequenceDiagram
 Arrows: uses-relationship (client to supplier).
 
 ```typescript
-// command-search.ts
-export class CommandSearch {
+// obsidian-command-search.ts
+export class ObsidianCommandSearch {
   constructor(
-    private registry: CommandRegistry,
+    private registry: ObsidianCommandRegistry,
     private allowList: AllowList,
   ) {}
 
@@ -166,7 +166,7 @@ export class CommandSearch {
 // type more rather than a paging control.
 export class SearchResults {
   constructor(
-    readonly matches: readonly CommandMatch[],
+    readonly matches: readonly ObsidianCommandMatch[],
     readonly overflowed: boolean,
   ) {}
 
@@ -209,7 +209,7 @@ Each entry becomes a row holding the entry itself, editable, beside a remove
 control. The rows carry ids and patterns only.
 
 What those entries reach is resolved once, for the whole list, into a collapsed
-section beneath it. CommandCatalogue (Commands) already answers exactly that
+section beneath it. ObsidianCommandCatalogue (Commands) already answers exactly that
 question, so no per-entry resolver is needed.
 
 ```

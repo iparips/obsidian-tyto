@@ -1,8 +1,8 @@
-import { CommandMatch } from './command-match'
+import { ObsidianCommandMatch } from './obsidian-command-match'
 
 export class SearchResults {
   constructor(
-    readonly matches: readonly CommandMatch[],
+    readonly matches: readonly ObsidianCommandMatch[],
     readonly overflowed: boolean,
   ) {}
 

@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { FakeCommandRegistry } from '../../test-support/fake-command-registry'
 
-describe('CommandRegistry', () => {
+describe('ObsidianCommandRegistry', () => {
   let fake: FakeCommandRegistry
 
   beforeEach(() => {

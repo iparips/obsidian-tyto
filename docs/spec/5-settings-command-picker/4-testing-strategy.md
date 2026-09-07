@@ -6,10 +6,10 @@ the repo's conventions: one dedicated case per branch, named "does X when Y".
 FakeCommandRegistry (Test Support) backs every test here. It already holds a
 command list and supports being constructed without its methods, so the probe
 path and the unreachable-registry case need no new double. It exposes only
-`asApp()` today, and gains a way to serve as a CommandRegistry (Commands, new)
+`asApp()` today, and gains a way to serve as a ObsidianCommandRegistry (Commands, new)
 directly.
 
-## CommandRegistry (Commands, new)
+## ObsidianCommandRegistry (Commands, new)
 
 - Lists every registered command, allowed or not.
 - Yields nothing when the registry methods are absent, rather than throwing.
@@ -25,7 +25,7 @@ they must pass with only their construction changed.
 - It names the pattern when a pattern permitted it, not the id.
 - It returns nothing when no entry permits, and `permits` still agrees with it.
 
-## CommandSearch (Commands, new)
+## ObsidianCommandSearch (Commands, new)
 
 - Empty query: returns nothing, not everything (FR4). The case that keeps the
   picker usable in a vault with several hundred commands.
@@ -39,7 +39,7 @@ they must pass with only their construction changed.
   separately (FR6).
 - Unreachable registry: returns nothing rather than failing (NFR3).
 
-## CommandMatch (Commands, new)
+## ObsidianCommandMatch (Commands, new)
 
 - Reports itself covered when an entry covers it, and uncovered when none does.
 

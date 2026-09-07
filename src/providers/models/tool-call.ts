@@ -22,11 +22,11 @@ export class ToolCall {
     return this.name === LOAD_SKILL
   }
 
-  isNoSkillApplies(): boolean {
+  isRecordNoSkillApplies(): boolean {
     return this.name === NO_SKILL_APPLIES
   }
 
-  isRunCommand(): boolean {
+  isRunObsidianCommand(): boolean {
     return this.name === RUN_COMMAND
   }
 
@@ -58,16 +58,16 @@ export class ToolCall {
     return this.name === ASK_USER
   }
 
+  // The tools that reach the vault or the command registry. Asking and
+  // answering are dispatched before this, since neither touches either.
   isHarnessTool(): boolean {
     return (
-      this.isRunCommand() ||
+      this.isRunObsidianCommand() ||
       this.isGlobNotes() ||
       this.isGrepNotes() ||
       this.isReadNote() ||
-      this.isAnswerFromSearch() ||
       this.isOpenNote() ||
-      this.isChooseNote() ||
-      this.isAskUser()
+      this.isChooseNote()
     )
   }
 

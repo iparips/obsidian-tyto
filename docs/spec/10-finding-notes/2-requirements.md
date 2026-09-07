@@ -58,7 +58,7 @@ it. Guessing is the step to remove.
 - Searching anything but markdown notes.
 - Writing what a search found into a note. Still release 7.
 - Regular expressions the user writes. The model writes them.
-- Replacing the allowed-command route to a note. A command still wins.
+- Replacing the allowed-obsidian-command route to a note. A command still wins.
 
 ## User stories
 

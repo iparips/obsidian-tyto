@@ -3,9 +3,9 @@ import { createRoot, Root } from 'react-dom/client'
 import { SettingsPanel } from './SettingsPanel'
 import { OwlSettings } from './settings'
 import { AllowList } from '../commands/allow-list'
-import { CommandRegistry } from '../commands/command-registry'
-import { CommandCatalogue } from '../commands/command-catalogue'
-import { CommandSearch } from '../commands/command-search'
+import { ObsidianCommandRegistry } from '../commands/obsidian-command-registry'
+import { ObsidianCommandCatalogue } from '../commands/obsidian-command-catalogue'
+import { ObsidianCommandSearch } from '../commands/obsidian-command-search'
 
 export interface SettingsHost {
   settings: OwlSettings
@@ -34,14 +34,14 @@ export class OwlSettingsTab extends PluginSettingTab {
   }
 
   private renderPanel(): void {
-    const registry = new CommandRegistry(this.app)
+    const registry = new ObsidianCommandRegistry(this.app)
     const allowList = new AllowList(this.host.settings.commandAllowList)
     this.root?.render(
       <SettingsPanel
         settings={this.host.settings}
         onChange={(update) => this.applyUpdate(update)}
-        search={new CommandSearch(registry, allowList)}
-        resolvedCommands={new CommandCatalogue(registry, allowList).resolve()}
+        search={new ObsidianCommandSearch(registry, allowList)}
+        resolvedCommands={new ObsidianCommandCatalogue(registry, allowList).resolve()}
       />,
     )
   }

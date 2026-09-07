@@ -1,5 +1,5 @@
 import { App, Command } from 'obsidian'
-import { AllowedCommand } from './models/allowed-command'
+import { AllowedObsidianCommand } from './models/allowed-obsidian-command'
 
 // The registry holding the commands is not on the typed App class, though the
 // Command interface is. Declared here and nowhere else.
@@ -14,15 +14,15 @@ declare module 'obsidian' {
 
 // One read of Obsidian's command registry, so the catalogue and the picker ask
 // the same source rather than each reaching for the private API.
-export class CommandRegistry {
+export class ObsidianCommandRegistry {
   constructor(private app: App) {}
 
-  list(): readonly AllowedCommand[] {
+  list(): readonly AllowedObsidianCommand[] {
     if (!this.isReachable()) return []
     return this.app.commands
       .listCommands()
-      .filter((command) => CommandRegistry.isAvailable(command))
-      .map((command) => new AllowedCommand(command.id, command.name))
+      .filter((command) => ObsidianCommandRegistry.isAvailable(command))
+      .map((command) => new AllowedObsidianCommand(command.id, command.name))
   }
 
   executeCommandById(id: string): boolean {

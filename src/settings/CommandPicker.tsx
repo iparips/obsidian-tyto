@@ -1,10 +1,10 @@
 import { useState } from 'react'
-import { CommandSearch } from '../commands/command-search'
+import { ObsidianCommandSearch } from '../commands/obsidian-command-search'
 import { CommandMatchRow } from './CommandMatchRow'
 
 export interface CommandPickerProps {
   entries: readonly string[]
-  search: CommandSearch
+  search: ObsidianCommandSearch
   onChange(entries: string[]): void
 }
 

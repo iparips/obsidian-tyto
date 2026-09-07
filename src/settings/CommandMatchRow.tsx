@@ -1,7 +1,7 @@
-import { CommandMatch } from '../commands/models/command-match'
+import { ObsidianCommandMatch } from '../commands/models/obsidian-command-match'
 
 export interface CommandMatchRowProps {
-  match: CommandMatch
+  match: ObsidianCommandMatch
   onAdd(commandId: string): void
 }
 

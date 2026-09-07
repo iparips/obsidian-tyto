@@ -1,14 +1,14 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { App } from 'obsidian'
-import { CommandRunner } from '../command-runner'
-import { CommandCatalogue } from '../command-catalogue'
-import { CommandRegistry } from '../command-registry'
+import { ObsidianCommandRunner } from '../obsidian-command-runner'
+import { ObsidianCommandCatalogue } from '../obsidian-command-catalogue'
+import { ObsidianCommandRegistry } from '../obsidian-command-registry'
 import { AllowList } from '../allow-list'
 import { FakeCommandRegistry } from '../../test-support/fake-command-registry'
 import { FakeWorkspace } from '../../test-support/fake-workspace'
 import { OpenedNoteWait } from '../opened-note-wait'
 
-describe('CommandRunner', () => {
+describe('ObsidianCommandRunner', () => {
   let registry: FakeCommandRegistry
   let workspace: FakeWorkspace
 
@@ -22,10 +22,10 @@ describe('CommandRunner', () => {
 
   const runnerOf = (...entries: string[]) => {
     const app = appOf()
-    const commandRegistry = new CommandRegistry(app)
-    return new CommandRunner(
+    const commandRegistry = new ObsidianCommandRegistry(app)
+    return new ObsidianCommandRunner(
       app,
-      new CommandCatalogue(commandRegistry, new AllowList(entries)),
+      new ObsidianCommandCatalogue(commandRegistry, new AllowList(entries)),
       new OpenedNoteWait(app, 30),
       commandRegistry,
     )
@@ -84,7 +84,7 @@ describe('CommandRunner', () => {
     it('names the new note in the tool result when the active note changes', async () => {
       const outcome = await runnerOf('daily-notes:*').run('daily-notes:goto-today')
 
-      expect(outcome.hasFailed() ? '' : outcome.value.describe()).toBe(
+      expect(outcome.hasFailed() ? '' : outcome.value.descriptionForModel(true)).toBe(
         'ran Open today; the session is now editing Journal/2026-09-02.md',
       )
     })
@@ -100,7 +100,7 @@ describe('CommandRunner', () => {
     it('says the binding stayed when the active note is unchanged', async () => {
       const outcome = await runnerOf('daily-notes:*').run('daily-notes:goto-today')
 
-      expect(outcome.hasFailed() ? '' : outcome.value.describe()).toBe(
+      expect(outcome.hasFailed() ? '' : outcome.value.descriptionForModel(true)).toBe(
         'ran Open today; no note opened, still editing the same note',
       )
     })

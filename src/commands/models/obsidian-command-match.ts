@@ -1,10 +1,10 @@
-import { AllowedCommand } from './allowed-command'
+import { AllowedObsidianCommand } from './allowed-obsidian-command'
 
 // A command beside the entry covering it, so the picker can say what is already
 // allowed and by what (FR6).
-export class CommandMatch {
+export class ObsidianCommandMatch {
   constructor(
-    readonly command: AllowedCommand,
+    readonly command: AllowedObsidianCommand,
     readonly coveredBy: string | null,
   ) {}
 

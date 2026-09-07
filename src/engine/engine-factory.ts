@@ -11,9 +11,9 @@ import { AgentsMdRepository } from '../agents/agents-md-repository'
 import { SkillRepository } from '../skills/skill-repository'
 import { ChatProvider } from '../providers/types'
 import { AllowList } from '../commands/allow-list'
-import { CommandCatalogue } from '../commands/command-catalogue'
-import { CommandRegistry } from '../commands/command-registry'
-import { CommandRunner } from '../commands/command-runner'
+import { ObsidianCommandCatalogue } from '../commands/obsidian-command-catalogue'
+import { ObsidianCommandRegistry } from '../commands/obsidian-command-registry'
+import { ObsidianCommandRunner } from '../commands/obsidian-command-runner'
 import { OpenedNoteWait } from '../commands/opened-note-wait'
 import { NoteGlob } from '../search/note-glob'
 import { NoteGrep } from '../search/note-grep'
@@ -88,10 +88,13 @@ export class EngineFactory {
   }
 
   private buildHarnessTools(): HarnessTools {
-    const registry = new CommandRegistry(this.app)
-    const catalogue = new CommandCatalogue(registry, new AllowList(this.settings.commandAllowList))
+    const registry = new ObsidianCommandRegistry(this.app)
+    const catalogue = new ObsidianCommandCatalogue(
+      registry,
+      new AllowList(this.settings.commandAllowList),
+    )
     return new HarnessTools(
-      new CommandRunner(this.app, catalogue, new OpenedNoteWait(this.app), registry),
+      new ObsidianCommandRunner(this.app, catalogue, new OpenedNoteWait(this.app), registry),
       new NoteReader(this.app.vault),
       catalogue,
       this.settings.searchEnabled,

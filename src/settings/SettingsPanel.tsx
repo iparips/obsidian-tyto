@@ -1,13 +1,13 @@
 import { OwlSettings } from './settings'
 import { AllowListEditor } from './AllowListEditor'
-import { CommandSearch } from '../commands/command-search'
-import { AllowedCommand } from '../commands/models/allowed-command'
+import { ObsidianCommandSearch } from '../commands/obsidian-command-search'
+import { AllowedObsidianCommand } from '../commands/models/allowed-obsidian-command'
 
 export interface SettingsPanelProps {
   settings: OwlSettings
   onChange(update: Partial<OwlSettings>): void
-  search: CommandSearch
-  resolvedCommands: readonly AllowedCommand[]
+  search: ObsidianCommandSearch
+  resolvedCommands: readonly AllowedObsidianCommand[]
 }
 
 export const SettingsPanel = ({

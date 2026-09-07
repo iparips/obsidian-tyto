@@ -6,27 +6,27 @@ Delta on [1-desktop-mvp/2-data-model.md](../1-desktop-mvp/3-data-model.md).
 ## Commands (src/commands/models/)
 
 ```typescript
-// allowed-command.ts - one entry in the resolved catalogue
-export class AllowedCommand {
+// allowed-obsidian-command.ts - one entry in the resolved catalogue
+export class AllowedObsidianCommand {
   constructor(
     readonly id: string,
     readonly name: string,
   ) {}
 }
 
-// command-effect.ts - what a run changed, as far as the harness can tell
-export class CommandEffect {
+// note-opened-by-obsidian-command.ts - which note a command opened, if any
+export class NoteOpenedByObsidianCommand {
   private constructor(
     readonly commandName: string,
     readonly openedPath: string | null,
   ) {}
 
-  static opened(commandName: string, path: string): CommandEffect {
-    return new CommandEffect(commandName, path)
+  static opened(commandName: string, path: string): NoteOpenedByObsidianCommand {
+    return new NoteOpenedByObsidianCommand(commandName, path)
   }
 
-  static openedNothing(commandName: string): CommandEffect {
-    return new CommandEffect(commandName, null)
+  static openedNothing(commandName: string): NoteOpenedByObsidianCommand {
+    return new NoteOpenedByObsidianCommand(commandName, null)
   }
 
   rebinds(): boolean {
@@ -156,7 +156,7 @@ export const READ_NOTE = 'read_note'
 export const ANSWER_FROM_SEARCH = 'answer_from_search'
 ```
 
-- `run_command` takes `command_id`. Returns `CommandEffect.describe()`.
+- `run_command` takes `command_id`. Returns `NoteOpenedByObsidianCommand.describe()`.
 - `search_vault` takes `query` and optional `modified_within_days`. Returns
   the hits as path, score and excerpt lines.
 - `read_note` takes `path`. Returns the note in full.

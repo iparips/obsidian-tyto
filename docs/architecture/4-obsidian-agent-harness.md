@@ -26,7 +26,7 @@ All five questions are closed, with the reasoning in [04-decisions.md](../spec/4
 | Mobile settings       | One entry per line, with the resolved list collapsed to a count           |
 | Destructive core ids  | No denylist; the user typing a namespace is what permits it               |
 
-Command enumeration turned out to be the smaller risk. The registry is not on the typed App class, but listCommands and executeCommandById are reachable through a module augmentation, and the vault's own open-or-create-file plugin already depends on them. CommandCatalogue probes for the methods and yields an empty catalogue when they are missing, so their loss costs the command flow rather than the plugin (NFR4).
+Command enumeration turned out to be the smaller risk. The registry is not on the typed App class, but listCommands and executeCommandById are reachable through a module augmentation, and the vault's own open-or-create-file plugin already depends on them. ObsidianCommandCatalogue probes for the methods and yields an empty catalogue when they are missing, so their loss costs the command flow rather than the plugin (NFR4).
 
 ## Rebinding Is the Core Change
 

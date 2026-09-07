@@ -10,12 +10,12 @@ Search in detail: [07-search-and-answering.md](07-search-and-answering.md).
 
 ```
 src/commands/
-  command-catalogue.ts     # allowed commands, resolved from the live list
-  command-runner.ts        # runs one command, reports what opened
+  obsidian-command-catalogue.ts     # allowed commands, resolved from the live list
+  obsidian-command-runner.ts        # runs one command, reports what opened
   allow-list.ts            # entries, and the pattern rule
   models/
-    allowed-command.ts     # one id and display name pair
-    command-effect.ts      # what changed after a command ran
+    allowed-obsidian-command.ts     # one id and display name pair
+    note-opened-by-obsidian-command.ts # which note a command opened
 
 src/search/
   vault-search.ts          # scored matches over markdown files
@@ -215,7 +215,7 @@ declare module 'obsidian' {
 This is the same access the vault's own open-or-create-file plugin already
 relies on, so the surface is load-bearing for plugins in the wild rather than
 incidental. It is still not covered by Obsidian's compatibility promise, which
-NFR4 answers: CommandCatalogue (Commands, new) probes for the methods on
+NFR4 answers: ObsidianCommandCatalogue (Commands, new) probes for the methods on
 construction and yields an empty catalogue when they are absent, so the harness
 degrades to search only rather than failing to load.
 

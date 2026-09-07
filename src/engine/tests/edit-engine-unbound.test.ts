@@ -7,9 +7,9 @@ import { Outcomes } from '../../shared/models/outcome'
 import { ChatMessage, ChatProvider } from '../../providers/types'
 import { AgentsMdRepository } from '../../agents/agents-md-repository'
 import { AllowList } from '../../commands/allow-list'
-import { CommandCatalogue } from '../../commands/command-catalogue'
-import { CommandRegistry } from '../../commands/command-registry'
-import { CommandRunner } from '../../commands/command-runner'
+import { ObsidianCommandCatalogue } from '../../commands/obsidian-command-catalogue'
+import { ObsidianCommandRegistry } from '../../commands/obsidian-command-registry'
+import { ObsidianCommandRunner } from '../../commands/obsidian-command-runner'
 import { OpenedNoteWait } from '../../commands/opened-note-wait'
 import { SkillRepository } from '../../skills/skill-repository'
 import { NoteGlob } from '../../search/note-glob'
@@ -68,10 +68,10 @@ describe('EditEngine', () => {
 
   const harnessOf = (allowed: string[] = ['daily-notes:*']): HarnessTools => {
     const app = appOf()
-    const commandRegistry = new CommandRegistry(app)
-    const catalogue = new CommandCatalogue(commandRegistry, new AllowList(allowed))
+    const commandRegistry = new ObsidianCommandRegistry(app)
+    const catalogue = new ObsidianCommandCatalogue(commandRegistry, new AllowList(allowed))
     return new HarnessTools(
-      new CommandRunner(app, catalogue, new OpenedNoteWait(app, 30), commandRegistry),
+      new ObsidianCommandRunner(app, catalogue, new OpenedNoteWait(app, 30), commandRegistry),
       new NoteReader(vault.asVault()),
       catalogue,
       true,

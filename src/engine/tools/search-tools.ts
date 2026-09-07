@@ -6,6 +6,7 @@ import { GrepRequest } from '../../search/models/grep-request'
 import { GrepResult } from '../../search/models/grep-result'
 import { ResultOrder } from '../../search/models/result-order'
 import { HarnessResult, Refusal, TurnState } from './harness-result'
+import { TextResult } from './harness-results'
 import { TurnStep } from '../turn-step'
 
 // The two ways the model reaches a note it cannot name: a glob over paths and a
@@ -21,11 +22,11 @@ export class SearchTools {
     turn.searchRan()
     const pattern = call.argument('pattern')
     const result = this.noteGlob.find(pattern, SearchTools.orderOf(call))
-    turn.seenPaths.recordPaths(result.paths)
-    return {
-      result: SearchReport.ofGlob(pattern, result),
-      step: TurnStep.globbed(pattern, result.total),
-    }
+    turn.pathsSeenInThisSession.recordPaths(result.paths)
+    return new TextResult(
+      SearchReport.ofGlob(pattern, result),
+      TurnStep.globbed(pattern, result.total),
+    )
   }
 
   async grep(call: ToolCall, turn: TurnState): Promise<HarnessResult> {
@@ -36,11 +37,11 @@ export class SearchTools {
   }
 
   private static reported(pattern: string, result: GrepResult, turn: TurnState): HarnessResult {
-    turn.seenPaths.recordPaths(result.hits.map((hit) => hit.path))
-    return {
-      result: SearchReport.ofGrep(pattern, result),
-      step: TurnStep.grepped(pattern, result.total),
-    }
+    turn.pathsSeenInThisSession.recordPaths(result.hits.map((hit) => hit.path))
+    return new TextResult(
+      SearchReport.ofGrep(pattern, result),
+      TurnStep.grepped(pattern, result.total),
+    )
   }
 
   private static requestOf(call: ToolCall): GrepRequest {

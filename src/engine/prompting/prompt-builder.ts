@@ -3,7 +3,7 @@ import { RuleBuilder } from './rule-builder'
 import { NoteDetails } from '../note-editing/note-details'
 import { AgentsMdChain } from '../../agents/agents-md-chain'
 import { AgentsMdFile } from '../../agents/agents-md-file'
-import { AllowedCommand } from '../../commands/models/allowed-command'
+import { AllowedObsidianCommand } from '../../commands/models/allowed-obsidian-command'
 import { ChatMessage } from '../../providers/types'
 import { Today } from './today'
 
@@ -13,7 +13,7 @@ export class PromptBuilder {
   static standingRules(
     skills: readonly Skill[] = [],
     instructions: AgentsMdChain = new AgentsMdChain(),
-    commands: readonly AllowedCommand[] = [],
+    commands: readonly AllowedObsidianCommand[] = [],
     searchEnabled = false,
   ): ChatMessage {
     return ChatMessage.system(
@@ -71,7 +71,7 @@ export class PromptBuilder {
   private static standingRulesText(
     skills: readonly Skill[],
     instructions: AgentsMdChain,
-    commands: readonly AllowedCommand[],
+    commands: readonly AllowedObsidianCommand[],
     searchEnabled: boolean,
   ): string {
     return [
@@ -85,14 +85,17 @@ export class PromptBuilder {
     ].join('\n\n')
   }
 
-  private static reachOf(commands: readonly AllowedCommand[], searchEnabled: boolean): string {
+  private static reachOf(
+    commands: readonly AllowedObsidianCommand[],
+    searchEnabled: boolean,
+  ): string {
     if (commands.length === 0 && !searchEnabled) return RuleBuilder.SINGLE_NOTE_REACH
     return RuleBuilder.widenedReach(commands.length > 0, searchEnabled)
   }
 
   // Omitted entirely when the catalogue is empty, so a vault allowing no
   // commands produces the release 3 prompt byte for byte (NFR8).
-  private static commandSection(commands: readonly AllowedCommand[]): string[] {
+  private static commandSection(commands: readonly AllowedObsidianCommand[]): string[] {
     if (commands.length === 0) return []
     return [[RuleBuilder.commandRules(), ...PromptBuilder.commandLines(commands)].join('\n')]
   }
@@ -100,7 +103,7 @@ export class PromptBuilder {
   // The id first and the name after, since the id is what run_command takes.
   // The separator is wide enough to read as a break rather than as part of
   // either half.
-  private static commandLines(commands: readonly AllowedCommand[]): string[] {
+  private static commandLines(commands: readonly AllowedObsidianCommand[]): string[] {
     return commands.map((command) => `${command.id} - ${command.name}`)
   }
 

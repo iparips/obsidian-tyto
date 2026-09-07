@@ -7,7 +7,7 @@ exit test below is by hand and has not been run.
 
 What the build settled that the design did not:
 
-- SearchResults (Commands, new) sits in models/ rather than beside CommandSearch
+- SearchResults (Commands, new) sits in models/ rather than beside ObsidianCommandSearch
   (Commands), following the repo's rule that value objects live in models/.
 - The pattern suggestion and its positional warning are gone, and with them the
   per-entry reach resolver the design named. What the entries reach is resolved
@@ -20,18 +20,18 @@ What the build settled that the design did not:
 
 Each step leaves the suite green.
 
-1. `src/commands/command-registry.ts`: move the module augmentation, the probe
-   and the availability check out of CommandCatalogue (Commands), which keeps
+1. `src/commands/obsidian-command-registry.ts`: move the module augmentation, the probe
+   and the availability check out of ObsidianCommandCatalogue (Commands), which keeps
    only its filtering and stops importing Obsidian.
 
-   Behaviour-preserving, but not confined to one file. CommandCatalogue
-   (Commands) takes a registry in place of its App. CommandRunner (Commands)
+   Behaviour-preserving, but not confined to one file. ObsidianCommandCatalogue
+   (Commands) takes a registry in place of its App. ObsidianCommandRunner (Commands)
    keeps its App, because it reads `app.workspace` for the active file, and
    gains the registry for `executeCommandById`.
 
    Four construction sites follow: EngineFactory (Engine), OwlSettingsTab
    (Settings) and two in builders.ts (Test Support). FakeCommandRegistry (Test
-   Support) exposes only `asApp()`; it gains a way to serve as a CommandRegistry
+   Support) exposes only `asApp()`; it gains a way to serve as a ObsidianCommandRegistry
    so the catalogue and search tests can construct one.
 
    The catalogue's and runner's existing tests must pass with no change beyond
@@ -42,10 +42,10 @@ Each step leaves the suite green.
    permits an id rather than whether one does. `permits` stays, expressed
    through it.
 
-3. `src/commands/models/command-match.ts`: the value pairing a command with the
+3. `src/commands/models/obsidian-command-match.ts`: the value pairing a command with the
    entry covering it, plus the plugin-id split and the positional-id check.
 
-4. `src/commands/command-search.ts`: name matching, the cap of 20, the overflow
+4. `src/commands/obsidian-command-search.ts`: name matching, the cap of 20, the overflow
    flag, and the empty-query rule. No Obsidian dependency beyond the registry,
    so it tests against the existing fake.
 
@@ -56,7 +56,7 @@ Each step leaves the suite green.
    overflow line. Choosing a row clears the query, so the results close.
 
 7. `src/settings/ResolvedCommands.tsx`: the collapsed section naming every
-   command the allow-list reaches. CommandCatalogue (Commands) already answers
+   command the allow-list reaches. ObsidianCommandCatalogue (Commands) already answers
    that, so no per-entry resolver is built.
 
 8. `src/settings/AllowedEntryRow.tsx`: one entry, editable in place, with its

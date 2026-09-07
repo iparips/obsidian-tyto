@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { SettingsPanel } from '../SettingsPanel'
 import { DEFAULT_SETTINGS, OpenMode, OwlSettings } from '../settings'
-import { CommandSearch } from '../../commands/command-search'
+import { ObsidianCommandSearch } from '../../commands/obsidian-command-search'
 import { AllowList } from '../../commands/allow-list'
 import { FakeCommandRegistry } from '../../test-support/fake-command-registry'
 
@@ -24,7 +24,9 @@ describe('SettingsPanel', () => {
       <SettingsPanel
         settings={settings}
         onChange={onChange}
-        search={new CommandSearch(new FakeCommandRegistry().asRegistry(), new AllowList([]))}
+        search={
+          new ObsidianCommandSearch(new FakeCommandRegistry().asRegistry(), new AllowList([]))
+        }
         resolvedCommands={[]}
       />,
     )

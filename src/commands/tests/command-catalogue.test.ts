@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, it } from 'vitest'
-import { CommandCatalogue } from '../command-catalogue'
+import { ObsidianCommandCatalogue } from '../obsidian-command-catalogue'
 import { AllowList } from '../allow-list'
 import { FakeCommandRegistry } from '../../test-support/fake-command-registry'
 
-describe('CommandCatalogue', () => {
+describe('ObsidianCommandCatalogue', () => {
   let registry: FakeCommandRegistry
 
   beforeEach(() => {
@@ -11,7 +11,7 @@ describe('CommandCatalogue', () => {
   })
 
   const catalogueOf = (...entries: string[]) =>
-    new CommandCatalogue(registry.asRegistry(), new AllowList(entries))
+    new ObsidianCommandCatalogue(registry.asRegistry(), new AllowList(entries))
 
   describe('when entries resolve against the registry', () => {
     beforeEach(() => {

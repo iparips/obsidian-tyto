@@ -5,7 +5,7 @@ import { PromptBuilder } from '../prompting/prompt-builder'
 import { Skill } from '../../skills/skill'
 import { AgentsMdChain } from '../../agents/agents-md-chain'
 import { AgentsMdFile } from '../../agents/agents-md-file'
-import { AllowedCommand } from '../../commands/models/allowed-command'
+import { AllowedObsidianCommand } from '../../commands/models/allowed-obsidian-command'
 // Stored rather than rebuilt, so a change to the prompt a vault without commands
 // or search sees is deliberate rather than drift. Release 4 moved none of it;
 // release 5 adds the heading rule and re-records this.
@@ -245,8 +245,8 @@ describe('PromptBuilder', () => {
 
   describe('when the vault allows commands', () => {
     const catalogue = [
-      new AllowedCommand('daily-notes:goto-today', 'Open todays daily note'),
-      new AllowedCommand('shopping:add', 'Add to shopping list'),
+      new AllowedObsidianCommand('daily-notes:goto-today', 'Open todays daily note'),
+      new AllowedObsidianCommand('shopping:add', 'Add to shopping list'),
     ]
 
     it('lists one line per command when the catalogue has entries', () => {
@@ -445,7 +445,7 @@ describe('PromptBuilder', () => {
 
     const withCommands = () =>
       standingRulesText([], new AgentsMdChain(), [
-        new AllowedCommand('daily-notes:goto-today', 'Open todays daily note'),
+        new AllowedObsidianCommand('daily-notes:goto-today', 'Open todays daily note'),
       ])
 
     it('tells the model never to ask permission for what the user already asked for', () => {
@@ -564,7 +564,7 @@ describe('PromptBuilder', () => {
   })
 
   describe('when a tool can reach beyond the open note', () => {
-    const catalogue = [new AllowedCommand('daily-notes:goto-today', 'Open today')]
+    const catalogue = [new AllowedObsidianCommand('daily-notes:goto-today', 'Open today')]
 
     it('does not claim other files are unreachable when a command is allowed', () => {
       const prompt = standingRulesText([], new AgentsMdChain(), catalogue)

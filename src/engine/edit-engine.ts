@@ -77,29 +77,29 @@ export class EditEngine {
     for (let iteration = 0; !iterationBudget.isSpent(); iteration++) {
       if (turn.cancellation.isCancelled()) return this.concludeCancelled(turn)
       const askedAt = Date.now()
-      const answer = await this.askModel(
+      const modelAnswer = await this.askModel(
         turnRepository.targetNote(),
         turnRepository.skills(),
         turnRepository.agentMdChain(),
         this.sessionRepository.chatHistory(),
         turn.cancellation.signal(),
       )
-      if (!answer.succeeded()) return this.concludeUnfinished(answer, turn)
+      if (!modelAnswer.succeeded()) return this.concludeUnfinished(modelAnswer, turn)
       EditEngine.logIteration(
         iteration,
-        answer.value,
+        modelAnswer.value,
         EditEngine.pathOf(turnRepository),
         Date.now() - askedAt,
       )
-      if (answer.value.isText())
+      if (modelAnswer.value.isText())
         return this.concludeUtterance(
-          answer.value.content,
+          modelAnswer.value.content,
           turnRepository.targetNote(),
           turnRepository.editEnd(),
         )
-      await this.executeToolCalls(answer.value.calls, turn, repeatedRefusal)
+      await this.executeToolCalls(modelAnswer.value.calls, turn, repeatedRefusal)
       if (repeatedRefusal.isStuck()) return EditEngine.concludeStuck(repeatedRefusal)
-      iterationBudget.spend(answer.value.calls.length)
+      iterationBudget.spend(modelAnswer.value.calls.length)
       if (iterationBudget.justRanLow())
         this.turnProgressPublisher.runningLow(iterationBudget.warning())
     }
@@ -173,7 +173,7 @@ export class EditEngine {
       skills,
       agentsMdChain,
       this.harnessTools.allowedCommands(),
-      this.harnessTools.offersSearch(),
+      this.harnessTools.hasSearchEnabled(),
     )
     // Ordered by how stale a copy the history could hold: the rules first, then
     // the conversation, then what the model must not read off an earlier turn.
@@ -187,8 +187,8 @@ export class EditEngine {
         note
           ? PromptBuilder.noteContext(note.details())
           : PromptBuilder.unboundContext(
-              this.harnessTools.allowedCommands().length > 0,
-              this.harnessTools.offersSearch(),
+              this.harnessTools.hasWhitelistedCommands(),
+              this.harnessTools.hasSearchEnabled(),
             ),
       ],
       this.harnessTools.schemas(skills.length > 0),
@@ -217,7 +217,7 @@ export class EditEngine {
       this.sessionRepository.appendChatMessage(
         ChatMessage.toolCallResult(call.id, toolCallOutcome.result),
       )
-      turn.repository.recordEdit(toolCallOutcome.editedTo)
+      turn.repository.storeCursorPositionAndWrittenNote(toolCallOutcome.editedTo)
       refusals.record(toolCallOutcome.refusal ?? null)
     }
   }

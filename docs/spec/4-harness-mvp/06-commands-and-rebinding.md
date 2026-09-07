@@ -9,7 +9,7 @@ AllowList (Commands, new) holds what the user typed: a list of entries, each an
 exact command id or a namespace pattern (FR3). It stores nothing about which
 commands exist.
 
-CommandCatalogue (Commands, new) resolves those entries against the live
+ObsidianCommandCatalogue (Commands, new) resolves those entries against the live
 command list every session, so a command registered after the pattern was
 written is matched without a settings edit (FR6). Resolution is the only place
 the two meet, which keeps the stored settings independent of what is installed.
@@ -19,7 +19,7 @@ the two meet, which keeps the stored settings independent of what is installed.
 ```mermaid
 sequenceDiagram
     participant Settings as OwlSettings [Settings]
-    participant Catalogue as CommandCatalogue [Commands, new]
+    participant Catalogue as ObsidianCommandCatalogue [Commands, new]
     participant AllowList as AllowList [Commands, new]
     participant App as App.commands [Obsidian]
 
@@ -46,7 +46,7 @@ refused at match time would silently allow nothing.
 
 ## Running a Command Is a Diff, Not a Call
 
-CommandRunner (Commands, new) records the active note path, calls
+ObsidianCommandRunner (Commands, new) records the active note path, calls
 executeCommandById, then reads the active path again. The difference is what it
 reports (FR14).
 
@@ -61,7 +61,7 @@ tool call depends on: which note the edit tools will now target.
 ```mermaid
 sequenceDiagram
     participant Dispatcher as ToolDispatcher [Engine, new]
-    participant Runner as CommandRunner [Commands, new]
+    participant Runner as ObsidianCommandRunner [Commands, new]
     participant App as App.commands [Obsidian]
     participant Workspace as Workspace [Obsidian]
     participant Sessions as SessionRepository [Session, new]
@@ -73,7 +73,7 @@ sequenceDiagram
     Note over App: effects are unbounded and unobservable
     Runner->>Workspace: getActiveFile
     Note over Runner: the difference is the whole report
-    Runner-->>Dispatcher: CommandEffect [new]
+    Runner-->>Dispatcher: NoteOpenedByObsidianCommand [new]
     Dispatcher->>Sessions: changeTargetNote
     Note over Dispatcher: rolls the target back if no editor holds it
 ```
