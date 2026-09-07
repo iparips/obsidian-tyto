@@ -8,7 +8,7 @@ export class ToolCallOutcome {
     readonly result: string,
     // Absent when the call changed nothing, so the turn keeps the position of
     // the last call that did.
-    readonly editedTo?: EditorPosition,
+    readonly editEndPosition?: EditorPosition,
     // Set when the call was refused, so the loop counts repeats without reading
     // meaning into the result text.
     readonly refusal?: string,
@@ -23,8 +23,8 @@ export class ToolCallOutcome {
     return new ToolCallOutcome(reason, undefined, reason)
   }
 
-  static edited(result: string, editedTo: EditorPosition): ToolCallOutcome {
-    return new ToolCallOutcome(result, editedTo)
+  static edited(result: string, editEndPosition: EditorPosition): ToolCallOutcome {
+    return new ToolCallOutcome(result, editEndPosition)
   }
 
   // An edit tool that changed nothing was refused, whatever it said: the reason

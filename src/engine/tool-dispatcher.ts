@@ -64,7 +64,7 @@ export class ToolDispatcher {
   // The edit tools are the ones a stuck turn retries, so the steps list has to
   // show them or a loop of failed anchors reads as a turn doing nothing.
   private recordEdit(outcome: ToolCallOutcome): ToolCallOutcome {
-    if (outcome.editedTo) {
+    if (outcome.editEndPosition) {
       this.turnProgressPublisher.publishStepTaken(TurnStep.edited(outcome.result))
       return outcome
     }

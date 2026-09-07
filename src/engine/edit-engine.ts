@@ -217,7 +217,7 @@ export class EditEngine {
       this.sessionRepository.appendChatMessage(
         ChatMessage.toolCallResult(call.id, toolCallOutcome.result),
       )
-      turn.repository.storeCursorPositionAndWrittenNote(toolCallOutcome.editedTo)
+      turn.repository.storeCursorPositionAndWrittenNote(toolCallOutcome.editEndPosition)
       refusals.record(toolCallOutcome.refusal ?? null)
     }
   }

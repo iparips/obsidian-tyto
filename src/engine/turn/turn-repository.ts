@@ -162,9 +162,9 @@ export class TurnRepository {
     return this.written
   }
 
-  storeCursorPositionAndWrittenNote(editedTo: EditorPosition | undefined): void {
-    this.lastEditEnd = editedTo ?? this.lastEditEnd
-    if (editedTo) this.recordWrittenNote()
+  storeCursorPositionAndWrittenNote(editEndPosition: EditorPosition | undefined): void {
+    this.lastEditEnd = editEndPosition ?? this.lastEditEnd
+    if (editEndPosition) this.recordWrittenNote()
   }
 
   private recordWrittenNote(): void {
