@@ -591,6 +591,17 @@ describe('EditEngine', () => {
       expect(sent[sent.length - 1].content).toContain('Note content:')
     })
 
+    // Two messages rather than one, so the note stays the last thing read and
+    // the date it must not take from a note name sits directly before it.
+    it('sends the date directly before the note when a turn starts', async () => {
+      complete.mockResolvedValue(Outcomes.success(aTextTurn('ok')))
+
+      await engine.processUtterance('first')
+
+      const sent = complete.mock.calls[0][0]
+      expect(sent[sent.length - 2].content).toContain('Today is')
+    })
+
     it('re-reads note content when a new turn starts', async () => {
       complete.mockResolvedValue(Outcomes.success(aTextTurn('ok')))
       await engine.processUtterance('first')

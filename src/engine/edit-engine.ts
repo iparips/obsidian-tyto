@@ -165,29 +165,31 @@ export class EditEngine {
   private askModel(
     note: OpenNote | null,
     skills: readonly Skill[],
-    instructions: AgentsMdChain,
+    agentsMdChain: AgentsMdChain,
     chatHistory: readonly ChatMessage[],
-    signal: AbortSignal,
+    abortSignal: AbortSignal,
   ) {
     const standingRules = PromptBuilder.standingRules(
       skills,
-      instructions,
+      agentsMdChain,
       this.harnessTools.allowedCommands(),
       this.harnessTools.offersSearch(),
     )
-    // Read per iteration rather than per session, so a turn running past
-    // midnight resolves against the day it is on.
-    const today = Today.of()
-    // The chat history holds stale copies of the note from earlier turns, and
-    // the model weights recent messages most heavily. So the note goes after it,
-    // last of all: freshest content in the freshest position.
-    const noteSnapshot = note
-      ? PromptBuilder.noteSnapshot(note.details(), today, skills)
-      : PromptBuilder.noNoteSnapshot(this.harnessTools.allowedCommands().length > 0, today, skills)
+    // Ordered by how stale a copy the history could hold: the rules first, then
+    // the conversation, then what the model must not read off an earlier turn.
+    // Today is read per iteration rather than per session, so a turn running
+    // past midnight resolves against the day it is on.
     return this.modelProvider.complete(
-      [standingRules, ...chatHistory, noteSnapshot],
+      [
+        standingRules,
+        ...chatHistory,
+        PromptBuilder.dateAndSkills(Today.of(), skills),
+        note
+          ? PromptBuilder.noteContext(note.details())
+          : PromptBuilder.unboundContext(this.harnessTools.allowedCommands().length > 0),
+      ],
       this.harnessTools.schemas(skills.length > 0),
-      signal,
+      abortSignal,
     )
   }
 

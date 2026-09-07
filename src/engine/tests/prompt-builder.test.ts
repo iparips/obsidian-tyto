@@ -25,10 +25,10 @@ const aChain = (...files: AgentsMdFile[]) => new AgentsMdChain(files)
 const standingRulesText = (...args: Parameters<typeof PromptBuilder.standingRules>) =>
   PromptBuilder.standingRules(...args).content
 
-const noteSnapshotText = (note: NoteDetails) => PromptBuilder.noteSnapshot(note).content
+const noteContextText = (note: NoteDetails) => PromptBuilder.noteContext(note).content
 
-const noNoteSnapshotText = (canRunCommands = false) =>
-  PromptBuilder.noNoteSnapshot(canRunCommands).content
+const unboundContextText = (canRunCommands = false) =>
+  PromptBuilder.unboundContext(canRunCommands).content
 
 describe('PromptBuilder', () => {
   describe('when a folder holds instructions', () => {
@@ -105,11 +105,11 @@ describe('PromptBuilder', () => {
   describe('when the catalogue has entries', () => {
     const catalogue = [aSkill('tidy-notes', 'Tidies a note.'), aSkill('weekly-review', 'Reviews.')]
 
-    // The list travels with the note snapshot rather than the standing rules,
-    // so the trigger phrases sit in the freshest position rather than behind
-    // the whole chat history and the note body.
+    // The list travels with the date rather than the standing rules, so the
+    // trigger phrases sit in the freshest position rather than behind the whole
+    // chat history and the note body.
     it('lists one line per skill beside the note, where the model reads last', () => {
-      const snapshot = PromptBuilder.noteSnapshot(aNote(), Today.of(), catalogue).content
+      const snapshot = PromptBuilder.dateAndSkills(Today.of(), catalogue).content
 
       expect(snapshot).toContain('tidy-notes - Tidies a note.')
       expect(snapshot).toContain('weekly-review - Reviews.')
@@ -471,21 +471,21 @@ describe('PromptBuilder', () => {
     })
   })
 
-  describe('when the note snapshot is built', () => {
-    it('names the note path when the snapshot is built', () => {
-      expect(noteSnapshotText(aNote())).toContain('Note path: note.md')
+  describe('when the final context carries a note', () => {
+    it('names the note path when the final context carries a note', () => {
+      expect(noteContextText(aNote())).toContain('Note path: note.md')
     })
 
-    it('names the cursor line when the snapshot is built', () => {
-      expect(noteSnapshotText(aNote())).toContain('Cursor line: 2')
+    it('names the cursor line when the final context carries a note', () => {
+      expect(noteContextText(aNote())).toContain('Cursor line: 2')
     })
 
-    it('carries the note content when the snapshot is built', () => {
-      expect(noteSnapshotText(aNote())).toContain('# Budget')
+    it('carries the note content when the final context carries a note', () => {
+      expect(noteContextText(aNote())).toContain('# Budget')
     })
 
-    it('states that it supersedes earlier copies when the snapshot is built', () => {
-      expect(noteSnapshotText(aNote())).toContain('supersedes any')
+    it('states that it supersedes earlier copies when the final context carries a note', () => {
+      expect(noteContextText(aNote())).toContain('supersedes any')
     })
 
     it('keeps the note out of the standing rules when both are built', () => {
@@ -495,41 +495,41 @@ describe('PromptBuilder', () => {
 
   describe('when the session is unbound', () => {
     it('states that no note is open when the session is unbound', () => {
-      expect(noNoteSnapshotText()).toContain('No note is open')
+      expect(unboundContextText()).toContain('No note is open')
     })
 
     it('says the other tools still work when the session is unbound', () => {
-      expect(noNoteSnapshotText()).toContain('Every tool but the editing ones still works')
+      expect(unboundContextText()).toContain('Every tool but the editing ones still works')
     })
 
     it('asks the user to open a note when no command reaches one', () => {
-      expect(noNoteSnapshotText()).toContain('ask them to open one')
+      expect(unboundContextText()).toContain('ask them to open one')
     })
 
     it('tells the model not to call an editing tool when no command reaches a note', () => {
-      expect(noNoteSnapshotText()).toContain('rather than calling an editing tool')
+      expect(unboundContextText()).toContain('rather than calling an editing tool')
     })
 
     it('runs the command that opens the note when a command is allowed', () => {
-      expect(noNoteSnapshotText(true)).toContain('run the command that opens the note they named')
+      expect(unboundContextText(true)).toContain('run the command that opens the note they named')
     })
 
     it('asks only as a last resort when a command is allowed', () => {
-      expect(noNoteSnapshotText(true)).toContain(
+      expect(unboundContextText(true)).toContain(
         'Only ask them to open a note if no listed command',
       )
     })
 
     it('does not tell the model to ask first when a command is allowed', () => {
-      expect(noNoteSnapshotText(true)).not.toContain('rather than calling an editing tool')
+      expect(unboundContextText(true)).not.toContain('rather than calling an editing tool')
     })
 
     it('says the session binds to the first note that opens when it is unbound', () => {
-      expect(noNoteSnapshotText()).toContain('binds to the first note that opens')
+      expect(unboundContextText()).toContain('binds to the first note that opens')
     })
 
     it('names no note when the session is unbound', () => {
-      expect(noNoteSnapshotText()).not.toContain('Note path:')
+      expect(unboundContextText()).not.toContain('Note path:')
     })
 
     it('leaves the standing rules unchanged when the session is unbound', () => {
@@ -596,38 +596,24 @@ describe('PromptBuilder', () => {
   describe('when the prompt states what day it is', () => {
     const THURSDAY = new Today(new Date(2026, 8, 3))
 
-    it('names today in the note snapshot when a note is open', () => {
-      const snapshot = PromptBuilder.noteSnapshot(aNote(), THURSDAY)
-
-      expect(snapshot.content).toContain('Today is 2026-09-03 (Thursday).')
-    })
-
-    it('names today in the unbound snapshot when no note is open', () => {
-      const snapshot = PromptBuilder.noNoteSnapshot(false, THURSDAY)
+    it('names today whether or not a note is open', () => {
+      const snapshot = PromptBuilder.dateAndSkills(THURSDAY)
 
       expect(snapshot.content).toContain('Today is 2026-09-03 (Thursday).')
     })
 
     it('tells the model not to resolve a date against a note name', () => {
-      const snapshot = PromptBuilder.noteSnapshot(aNote(), THURSDAY)
+      const snapshot = PromptBuilder.dateAndSkills(THURSDAY)
 
       expect(snapshot.content).toContain(
         'A note named for a date is not\nevidence of what today is.',
       )
     })
 
-    it('states the date before the note, so it is read as context for it', () => {
-      const snapshot = PromptBuilder.noteSnapshot(aNote(), THURSDAY)
+    it('names no note, since the note travels in its own message', () => {
+      const snapshot = PromptBuilder.dateAndSkills(THURSDAY)
 
-      expect(snapshot.content.indexOf('Today is')).toBeLessThan(
-        snapshot.content.indexOf('Note path:'),
-      )
-    })
-
-    it('keeps the note content when the date is added', () => {
-      const snapshot = PromptBuilder.noteSnapshot(aNote(), THURSDAY)
-
-      expect(snapshot.content).toContain('# Budget')
+      expect(snapshot.content).not.toContain('Note path:')
     })
   })
 })
