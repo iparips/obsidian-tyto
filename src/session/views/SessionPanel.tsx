@@ -1,8 +1,7 @@
-import { useEffect, useReducer, useState } from 'react'
+import { useReducer, useState } from 'react'
 import { Outcome } from '../../shared/models/outcome'
 import { HistoryList } from './HistoryList'
 import { INITIAL_PANEL_STATE, PanelReducer } from '../models/panel-state'
-import { AnswerReport, StepReport } from '../session-listeners'
 import { PanelHeader } from './PanelHeader'
 import {
   ChoiceRequest,
@@ -11,33 +10,19 @@ import {
   useParkedAnswers,
 } from './useParkedAnswers'
 import { RecorderPort, RecordingPorts, useRecording } from './useRecording'
+import { EngineEventPorts, useEngineEvents } from './useEngineEvents'
+import { TargetNotePorts, useTargetNote } from './useTargetNote'
 import { InputRow } from './InputRow'
 
 export type { ChoiceRequest, QuestionRequest, RecorderPort }
 
-export interface SessionPanelProps extends ParkedAnswerPorts, RecordingPorts {
-  // Null while the session is unbound, which the header says rather than naming
-  // a note.
-  noteName: string | null
-  // The path from the vault root, beneath the name, so two notes sharing a name
-  // are told apart (FR14).
-  notePath?: string | null
+export interface SessionPanelProps
+  extends ParkedAnswerPorts, RecordingPorts, EngineEventPorts, TargetNotePorts {
   processUtterance(text: string): Promise<Outcome<string>>
   // The engine owns the running turn's cancellation, so the panel asks rather
   // than holding it.
   cancelTurn?(): void
   startNewSession?(): void
-  // The plugin owns the subscription, as with onHidden, so the engine reports a
-  // resolved chain without knowing the panel.
-  onInstructions?(listener: (text: string) => void): () => void
-  // Said once as a turn nears its cap, so a user watching can stop it rather
-  // than waiting for it to fail.
-  onWarning?(listener: (text: string) => void): () => void
-  // Every step the turn takes, collected into one collapsed entry, so a turn
-  // that goes nowhere can still be inspected.
-  onStep?(listener: (step: StepReport) => void): () => void
-  onAnswer?(listener: (report: AnswerReport) => void): () => void
-  onTargetNoteChanged?(listener: (path: string) => void): () => void
   // Only the plugin knows whether the panel is on screen, so it decides what a
   // finished or failed turn is worth telling the user (FR22, FR23).
   onTurnFinished?(summary: string): void
@@ -48,8 +33,7 @@ export const SessionPanel = (props: SessionPanelProps) => {
   const [state, dispatch] = useReducer(PanelReducer.reduce, INITIAL_PANEL_STATE)
   const asking = state.phase === 'asking'
   const [draft, setDraft] = useState('')
-  const [targetName, setTargetName] = useState(props.noteName)
-  const [targetPath, setTargetPath] = useState(props.notePath ?? null)
+  const targetNote = useTargetNote(props)
   // The engine asks through these and awaits the answer, so a parked turn is a
   // promise the panel settles rather than a channel the publisher lacks.
   const { settleChoice, settleQuestion } = useParkedAnswers(props, dispatch)
@@ -82,43 +66,7 @@ export const SessionPanel = (props: SessionPanelProps) => {
     props.cancelTurn?.()
   }
 
-  useEffect(() => props.onHidden?.(() => recorded.discardOnBackground()), [])
-
-  useEffect(() => props.onInstructions?.((text) => dispatch({ type: 'instructions', text })), [])
-
-  useEffect(() => props.onWarning?.((text) => dispatch({ type: 'warned', text })), [])
-
-  useEffect(
-    () =>
-      props.onStep?.((step) =>
-        dispatch({
-          type: 'stepTaken',
-          label: step.label,
-          detail: step.detail,
-          refused: step.refused,
-        }),
-      ),
-    [],
-  )
-
-  useEffect(
-    () =>
-      props.onAnswer?.((report) =>
-        dispatch({ type: 'answer', text: report.text, sources: report.sources }),
-      ),
-    [],
-  )
-
-  // The header names the note the edit tools now target, which a command may
-  // have moved mid-turn (FR19).
-  useEffect(
-    () =>
-      props.onTargetNoteChanged?.((path) => {
-        setTargetName(noteNameOf(path))
-        setTargetPath(path)
-      }),
-    [],
-  )
+  useEngineEvents(props, dispatch, () => recorded.discardOnBackground())
 
   // A suggestion is a whole answer, so clicking one submits it rather than
   // filling the box: the user picked it to avoid typing, and leaving it as a
@@ -142,8 +90,8 @@ export const SessionPanel = (props: SessionPanelProps) => {
   return (
     <div className="owl-panel">
       <PanelHeader
-        name={targetName}
-        path={targetPath}
+        name={targetNote.name}
+        path={targetNote.path}
         running={state.phase !== 'idle'}
         onReset={props.startNewSession}
       />
@@ -165,6 +113,3 @@ export const SessionPanel = (props: SessionPanelProps) => {
     </div>
   )
 }
-
-const noteNameOf = (path: string): string =>
-  path.slice(path.lastIndexOf('/') + 1).replace(/\.md$/, '')

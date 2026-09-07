@@ -5,15 +5,17 @@ code, so comments and blanks do not inflate them.
 
 ## Over the file limit
 
-| LOC | Functions | Longest function | File                                |
-| --- | --------- | ---------------- | ----------------------------------- |
-| 263 | 2         | 20               | engine/tools/tool-schemas.ts        |
-| 179 | 22        | 20               | engine/prompting/prompt-builder.ts  |
-| 179 | 16        | 35               | engine/edit-engine.ts               |
-| 164 | 18        | 16               | engine/tool-dispatcher.ts           |
-| 127 | 7         | 83               | session/views/SessionPanel.tsx      |
+| LOC | Functions | Longest function | File                               |
+| --- | --------- | ---------------- | ---------------------------------- |
+| 263 | 2         | 20               | engine/tools/tool-schemas.ts       |
+| 179 | 22        | 20               | engine/prompting/prompt-builder.ts |
+| 179 | 16        | 35               | engine/edit-engine.ts              |
+| 164 | 18        | 16               | engine/tool-dispatcher.ts          |
 
 Close behind: panel-state.ts at 119, main.ts at 116, rule-builder.ts at 113.
+
+SessionPanel.tsx was in this table at 127. Extracting its subscriptions took it
+to 94, which is what candidate 1 records.
 
 ## Long is not the same as complex
 
@@ -30,12 +32,12 @@ around it is 100 lines or 300.
 
 ## Ranked by the worst single function
 
-| Lines | Function                       | File                           |
-| ----- | ------------------------------ | ------------------------------ |
-| 83    | the SessionPanel component     | session/views/SessionPanel.tsx |
-| 64    | PanelReducer.reduce            | session/models/panel-state.ts  |
-| 39    | RuleBuilder.searchRules        | engine/prompting/rule-builder.ts |
-| 35    | EditEngine.runAgentLoop        | engine/edit-engine.ts          |
+| Lines | Function                   | File                             |
+| ----- | -------------------------- | -------------------------------- |
+| 64    | PanelReducer.reduce        | session/models/panel-state.ts    |
+| 51    | the SessionPanel component | session/views/SessionPanel.tsx   |
+| 39    | RuleBuilder.searchRules    | engine/prompting/rule-builder.ts |
+| 35    | EditEngine.runAgentLoop    | engine/edit-engine.ts            |
 
 searchRules is a string array, not logic: it has one statement and no branches.
 It is long the same way tool-schemas.ts is long, and needs nothing.
