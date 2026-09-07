@@ -2,7 +2,7 @@
 
 Seven releases. The MVPs prove the core loop with the simplest capture path, record-then-transcribe, and follow the host vault's single-note skills. Release 3 makes behaviour depend on where a note sits. Release 4 widens the plugin from one bound note to the vault, through commands and search. The V1s add realtime streaming and polish. Release 7 lifts the single-note write limit so cross-file skills become actionable. Requirement IDs refer to [1-requirements.md](../spec/1-requirements.md), except releases 3, 4 and 7, which carry their own.
 
-Releases say what gets built. [3-objectives.md](steps.md) says in what order, cut into sittings of two to three hours, and marks where the community store submission goes.
+Releases say what gets built. [steps/1-index.md](steps/1-index.md) says in what order, cut into sittings of two to three hours, and marks where the community store submission goes.
 
 ## Table of Contents
 
@@ -112,7 +112,7 @@ Goal: streaming parity on mobile, then public release.
 - Automatic fallback to batch when a token mint fails.
 - Mobile polish: mic lifecycle across app switches, drawer ergonomics.
 
-Community plugin submission moves ahead of this release. See [3-objectives.md](steps.md#submission): streaming is not a prerequisite for a stranger having a good time, and review latency should not sit on the critical path.
+Community plugin submission moves ahead of this release. See [steps/4-safe-for-a-stranger.md](steps/4-safe-for-a-stranger.md#submission): streaming is not a prerequisite for a stranger having a good time, and review latency should not sit on the critical path.
 
 Exit test: the desktop V1 exit test passes on mobile, and a token-mint failure degrades gracefully to batch.
 
