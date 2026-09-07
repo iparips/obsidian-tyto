@@ -23,4 +23,5 @@ The reason to build this is a vault organised by path. A daily note lives at
 the path rather than the prose. Content search cannot see a folder name, so the
 model guesses filenames and spends the turn on searches that match nothing.
 
-Not started. Depends on nothing else in this release.
+Built. Both commits' steps are implemented and the suite is green. The two exit
+tests below are unrun, since both need a real vault on both surfaces.

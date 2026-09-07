@@ -2,7 +2,8 @@
 
 ## Status
 
-Not started. Depends on nothing else in this release.
+Built. Every step below is implemented and the suite is green. Both exit tests
+are unrun.
 
 Touches the same tool set as
 [9-model-chosen-targets](../9-model-chosen-targets/1-index.md), whose open_note

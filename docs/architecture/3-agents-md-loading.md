@@ -1,6 +1,6 @@
 # Design: AGENTS.md Loading
 
-Covers release 3 of [2-plan.md](../spec/2-plan.md): standing instructions a folder sets for the notes inside it. Delta design on top of [2-mobile-mvp.md](2-mobile-mvp.md). Requirement IDs refer to [3-agents-md-loading/2-functional-requirements.md](../spec/3-agents-md-loading/3-functional-requirements.md).
+Covers release 3 of [2-plan.md](../plan/plan.md): standing instructions a folder sets for the notes inside it. Delta design on top of [2-mobile-mvp.md](2-mobile-mvp.md). Requirement IDs refer to [3-agents-md-loading/2-functional-requirements.md](../spec/3-agents-md-loading/3-functional-requirements.md).
 
 ## Two Kinds of Instruction
 

@@ -1,6 +1,8 @@
 # Release Plan: Voice Note Editing
 
-Seven releases. The MVPs prove the core loop with the simplest capture path, record-then-transcribe, and follow the host vault's single-note skills. Release 3 makes behaviour depend on where a note sits. Release 4 widens the plugin from one bound note to the vault, through commands and search. The V1s add realtime streaming and polish. Release 7 lifts the single-note write limit so cross-file skills become actionable. Requirement IDs refer to [1-requirements.md](1-requirements.md), except releases 3, 4 and 7, which carry their own.
+Seven releases. The MVPs prove the core loop with the simplest capture path, record-then-transcribe, and follow the host vault's single-note skills. Release 3 makes behaviour depend on where a note sits. Release 4 widens the plugin from one bound note to the vault, through commands and search. The V1s add realtime streaming and polish. Release 7 lifts the single-note write limit so cross-file skills become actionable. Requirement IDs refer to [1-requirements.md](../spec/1-requirements.md), except releases 3, 4 and 7, which carry their own.
+
+Releases say what gets built. [3-objectives.md](objectives.md) says in what order, cut into sittings of two to three hours, and marks where the community store submission goes.
 
 ## Table of Contents
 
@@ -56,7 +58,7 @@ Goal: let a folder set the standing instructions for the notes inside it, via AG
 - Cap the total loaded, and report which folders applied in the panel (FR8, FR9).
 - Notify and log to the console when the cap drops a file (FR13-FR15).
 
-Detailed design: [3-agents-md-loading/index.md](3-agents-md-loading/1-index.md).
+Detailed design: [3-agents-md-loading/index.md](../spec/3-agents-md-loading/1-index.md).
 
 Exit test: two notes in sibling folders with different AGENTS.md files produce visibly different behaviour for the same utterance, rebinding between them swaps the rules, and a vault with none behaves byte for byte as release 2.
 
@@ -75,13 +77,15 @@ The write destination always comes from a command, never from a path the model p
 
 Detailed design, one folder per feature:
 
-- [4-harness-mvp/01-index.md](4-harness-mvp/01-index.md) - commands, retargeting and search. Built; the exit test is outstanding.
-- [5-settings-command-picker/1-index.md](5-settings-command-picker/1-index.md) - finding a command to allow, without knowing its id. Built.
-- [6-tidy-up-chat-panel/1-index.md](6-tidy-up-chat-panel/1-index.md) - three weights for six entry kinds, and a pending indicator.
-- [7-sessions-without-a-note/1-index.md](7-sessions-without-a-note/1-index.md) - starting a session with no note open.
-- [8-cancelling-a-turn/1-index.md](8-cancelling-a-turn/1-index.md) - stopping a turn that is running, and saying what it left.
-- [9-model-chosen-targets/1-index.md](9-model-chosen-targets/1-index.md) - opening a note the model located itself. Built; exit tests outstanding.
-- [10-finding-notes/1-index.md](10-finding-notes/1-index.md) - a glob over paths and a grep over content, replacing fuzzy search. Designed.
+- [4-harness-mvp/01-index.md](../spec/4-harness-mvp/01-index.md) - commands, retargeting and search. Built; the exit test is outstanding.
+- [5-settings-command-picker/1-index.md](../spec/5-settings-command-picker/1-index.md) - finding a command to allow, without knowing its id. Built.
+- [6-tidy-up-chat-panel/1-index.md](../spec/6-tidy-up-chat-panel/1-index.md) - three weights for six entry kinds, and a pending indicator.
+- [7-sessions-without-a-note/1-index.md](../spec/7-sessions-without-a-note/1-index.md) - starting a session with no note open.
+- [8-cancelling-a-turn/1-index.md](../spec/8-cancelling-a-turn/1-index.md) - stopping a turn that is running, and saying what it left.
+- [9-model-chosen-targets/1-index.md](../spec/9-model-chosen-targets/1-index.md) - opening a note the model located itself. Built; exit tests outstanding.
+- [10-finding-notes/1-index.md](../spec/10-finding-notes/1-index.md) - a glob over paths and a grep over content, replacing fuzzy search. Built; exit tests outstanding.
+- [14-choosing-the-note/1-index.md](../spec/14-choosing-the-note/1-index.md) - the user picks the note from a shortlist, which is also the permission to write to it. Built; exit tests outstanding.
+- [15-session-persistence/1-index.md](../spec/15-session-persistence/1-index.md) - a session that survives the app being backgrounded. Designed.
 
 High-level design: [architecture/4-obsidian-agent-harness.md](../architecture/4-obsidian-agent-harness.md).
 
@@ -107,7 +111,8 @@ Goal: streaming parity on mobile, then public release.
 - Realtime streaming via ephemeral client tokens (NFR3).
 - Automatic fallback to batch when a token mint fails.
 - Mobile polish: mic lifecycle across app switches, drawer ergonomics.
-- Community plugin submission.
+
+Community plugin submission moves ahead of this release. See [3-objectives.md](objectives.md#submission): streaming is not a prerequisite for a stranger having a good time, and review latency should not sit on the critical path.
 
 Exit test: the desktop V1 exit test passes on mobile, and a token-mint failure degrades gracefully to batch.
 
@@ -120,8 +125,7 @@ Goal: lift the single-note limit, so the vault skills that route between files b
 - Skill bodies loaded on demand, so a matched skill's full steps reach the model rather than its description alone.
 - The FR37 refusal narrows to whatever remains unsupported, rather than covering every cross-file skill.
 - Each write resolves its own target's AGENTS.md chain, per release 3.
-- Each write resolves its own target's AGENTS.md chain, per release 3.
 
-Detailed design: [13-cross-file-skills/index.md](13-cross-file-skills/1-index.md).
+Detailed design: [13-cross-file-skills/index.md](../spec/13-cross-file-skills/1-index.md).
 
 Exit test: with the vault's todo skill present, an instruction to archive done items follows the skill's steps rather than improvising, and the journal skill files an entry at the right computed path.
