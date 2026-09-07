@@ -77,6 +77,7 @@ export class EditEngine {
     for (let iteration = 0; !iterationBudget.isSpent(); iteration++) {
       if (turn.cancellation.isCancelled()) return this.concludeCancelled(turn)
       const askedAt = Date.now()
+      // build prompt, and send it to model
       const modelAnswer = await this.askModel(
         turnRepository.targetNote(),
         turnRepository.skills(),
@@ -98,8 +99,10 @@ export class EditEngine {
           turnRepository.editEnd(),
         )
       await this.executeToolCalls(modelAnswer.value.calls, turn, repeatedRefusal)
+
       if (repeatedRefusal.isStuck()) return EditEngine.concludeStuck(repeatedRefusal)
       iterationBudget.spend(modelAnswer.value.calls.length)
+
       if (iterationBudget.justRanLow())
         this.turnProgressPublisher.runningLow(iterationBudget.warning())
     }
