@@ -6,7 +6,6 @@ import { TurnFactory } from './turn/turn-factory'
 import { TurnRepository } from './turn/turn-repository'
 import { SessionRepository } from '../session/session-repository'
 import { TurnProgressPublisher } from './turn-progress-publisher'
-import { IterationBudget } from './turn/iteration-budget'
 import { RepeatedRefusal } from './turn/repeated-refusal'
 import { ModelCaller, ModelRequest } from './model-caller'
 import { TurnConclusion } from './turn-conclusion'
@@ -75,7 +74,6 @@ export class EditEngine {
     spend: TurnSpend,
     iteration: number,
   ): Promise<Outcome<string> | null> {
-
     if (turn.cancellation.isCancelled()) return this.concludeCancelled(turn)
     const modelAnswer = await this.askModel(turn, iteration)
 
