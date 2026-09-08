@@ -2,31 +2,26 @@
 
 Ordered by how much each one helps a reader per unit of churn.
 
-## 1. Stop two classes claiming to be repositories
+## 1. Make the scope visible where the classes live
 
-SessionRepository and TurnRepository persist nothing. Renaming them stops the
-word Repository meaning two things.
+Six classes carry the name Repository and two of them survive a reload. The
+rest are in-memory, scoped to a turn or a session.
 
-TurnState is taken, by the interface the harness tools read a turn through, so
-the obvious pair is not available.
+Renaming is not the fix: both readings of the word are defensible, and this
+codebase now uses the broad one deliberately. What is missing is the scope. A
+reader seeing SessionRepository cannot tell it from SkillRepository without
+opening both.
 
-| Now               | Proposed      | Holds                                 |
-| ----------------- | ------------- | ------------------------------------- |
-| SessionRepository | SessionMemory | The chat history and target note      |
-| TurnRepository    | TurnMemory    | What the turn resolved, opened, spent |
+A package comment in engine/turn stating that everything there dies with the
+turn would carry that at the point of use, and rename nothing. The same comment
+gives the scoped-state category in [3-what-does-not.md](3-what-does-not.md) the
+name the layered model does not have.
 
-Eight files reference TurnRepository and eighteen reference SessionRepository,
-so neither is a wide rename. Worth doing if the confusion is real rather than
-theoretical, which is a judgement about the reader.
+## 2. Leave TurnCancellation unlabelled
 
-## 2. Name the fourth category in the code
-
-The layered model has no slot for turn-scoped state, so a reader without this
-document has to infer one. A package comment in engine/turn saying what that
-package is would carry the same information as
-[3-what-does-not.md](3-what-does-not.md) at the point of use.
-
-Cheap, and it does not rename anything.
+It holds one flag that flips once, and hands out an AbortSignal and a promise.
+No block names it, and forcing one would mislead rather than help. Better to say
+so than to file it wrongly.
 
 ## 3. Consider a Service suffix, once the categories are settled
 
@@ -43,7 +38,7 @@ once every category has a name.
 
 ## What not to do
 
-Do not force the scoped-state classes into the three-layer model. They would
-become either services holding state, which the readability rules forbid, or
-repositories persisting nothing, which is the confusion this document starts
-from.
+Do not make every stateful class a Repository for consistency. The word already
+covers two things here, and a third group would leave it meaning only that a
+class has fields. TurnSpend is an entity and TurnCancellation is neither, which
+is more useful to a reader than a suffix they all share.

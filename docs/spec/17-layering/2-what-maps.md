@@ -58,18 +58,24 @@ the finished thing.
 
 ## Repository
 
-Storage access. Two classes qualify, and two more use the name without doing the
-job.
+State held across calls to the holder's own methods. Two kinds, both using the
+word.
 
-| Class              | Reads from                 | A repository |
-| ------------------ | -------------------------- | ------------ |
-| SkillRepository    | The vault, via DataAdapter | Yes          |
-| AgentsMdRepository | The vault, via DataAdapter | Yes          |
-| SessionRepository  | Nothing. Holds fields      | No           |
-| TurnRepository     | Nothing. Holds fields      | No           |
+| Class                          | Storage   | Reachable from |
+| ------------------------------ | --------- | -------------- |
+| SkillRepository                | The vault | Any session    |
+| AgentsMdRepository             | The vault | Any session    |
+| SessionRepository              | Fields    | One session    |
+| PathsReturnedByVaultRepository | A Set     | One session    |
+| TurnRepository                 | Fields    | One turn       |
+| NotesChosenByUserRepository    | A Set     | One turn       |
 
-The search classes are repositories in everything but name: NoteGlob, NoteGrep
-and NoteReader read the vault and return values, holding no state.
+The first two survive a reload because the vault does. The rest are gone when
+the plugin unloads, which is the distinction the shared name hides. Scope is the
+thing to read, not the suffix.
+
+NoteGlob, NoteGrep and NoteReader read the vault and return values without
+holding any, so they are services despite doing what a repository does.
 
 ## Where the layers are clean
 
