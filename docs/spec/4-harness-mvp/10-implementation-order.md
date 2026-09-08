@@ -32,7 +32,7 @@ lives.
   a lifecycle file rather than a wiring one.
 
 Two renames went with them. NoteContext (Engine) became NoteDetails, and
-PromptBuilder (Engine) now returns messages rather than text, so the engine names
+PromptFactory (Engine) now returns messages rather than text, so the engine names
 the parts of a model call without assembling them.
 
 ## Steps
@@ -74,7 +74,7 @@ to 3 are independent and can proceed in parallel; the rest are sequential.
 9. `src/engine/models/tool-schemas.ts`: the four new schemas, and the matching
    predicates on `ToolCall` beside `isLoadSkill`.
 
-10. `src/engine/prompt-builder.ts`: the command section, built like the skill
+10. `src/engine/prompt-factory.ts`: the command section, built like the skill
     section and omitted when the catalogue is empty. Add the FR11 decline
     instruction to `rule-builder.ts`.
 

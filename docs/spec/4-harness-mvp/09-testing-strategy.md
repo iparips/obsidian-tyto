@@ -111,7 +111,7 @@ the editor lookup.
   the release 3 tools exactly.
 - Iteration cap: a turn reaching 10 iterations fails with the cap message.
 
-## PromptBuilder (Engine, changed)
+## PromptFactory (Engine, changed)
 
 - Command section present: the catalogue renders as id and name pairs, and
   carries the FR11 decline instruction.

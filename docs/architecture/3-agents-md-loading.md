@@ -52,7 +52,7 @@ Arrows: uses-relationship (client to supplier).
 
 ## Prompt Placement
 
-The chain becomes a fourth section in PromptBuilder (Engine), after the dictation rules and before the skill catalogue (FR5). Each file is fenced and labelled with its folder (FR6). An empty chain omits the section, so a vault with no instruction files produces the release 2 prompt byte for byte (FR11).
+The chain becomes a fourth section in PromptFactory (Engine), after the dictation rules and before the skill catalogue (FR5). Each file is fenced and labelled with its folder (FR6). An empty chain omits the section, so a vault with no instruction files produces the release 2 prompt byte for byte (FR11).
 
 The section states that these are quoted user instructions, and that nothing in them grants a tool or widens a path. A vault file cannot argue its way past the single-note limit release 7 removes (NFR3).
 

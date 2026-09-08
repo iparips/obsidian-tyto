@@ -39,7 +39,7 @@ flowchart LR
     Repo["SessionRepository [Session]<br/>Responsibility: owns the target note across turns"]
     Resolver["TargetNoteResolver [Engine]<br/>Responsibility: owns turning a path into something writable"]
     Factory["TurnFactory [Engine]<br/>Responsibility: owns building one turn"]
-    Prompt["PromptBuilder [Engine]<br/>Responsibility: owns what the model is told it can do"]
+    Prompt["PromptFactory [Engine]<br/>Responsibility: owns what the model is told it can do"]
 
     Plugin --> View
     Plugin --> Repo
@@ -82,7 +82,7 @@ retrying an edit that cannot land (FR5).
 
 ## The Model Is Told Which Session It Is In
 
-PromptBuilder (Engine) states the tools and the bound note. An unbound session
+PromptFactory (Engine) states the tools and the bound note. An unbound session
 gets a prompt saying so, rather than one describing a note that is not there
 (NFR3).
 

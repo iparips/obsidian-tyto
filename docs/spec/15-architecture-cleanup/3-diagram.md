@@ -40,13 +40,13 @@ flowchart LR
     end
 
     subgraph Prompting["prompting/"]
-        PromptBuilder["PromptBuilder [Engine]<br/>Responsibility: owns what the model reads by assembling the system prompt"]
+        PromptFactory["PromptFactory [Engine]<br/>Responsibility: owns what the model reads by assembling the system prompt"]
         RuleBuilder["RuleBuilder [Engine]<br/>Responsibility: owns the standing rules by stating them as text"]
     end
 
     EngineFactory --> EditEngine
     EditEngine --> TurnFactory
-    EditEngine --> PromptBuilder
+    EditEngine --> PromptFactory
     EditEngine --> Progress
     TurnFactory --> TurnRepository
     TurnFactory --> ToolDispatcher
@@ -65,7 +65,7 @@ flowchart LR
     NoteEditTool --> NoteEditor
     NoteEditTool --> TurnRepository
     TargetNoteResolver --> WorkspaceNoteLocator
-    PromptBuilder --> RuleBuilder
+    PromptFactory --> RuleBuilder
 
     classDef root fill:#4a5568,color:#fff
     class EditEngine,ToolDispatcher,EngineFactory,Progress root

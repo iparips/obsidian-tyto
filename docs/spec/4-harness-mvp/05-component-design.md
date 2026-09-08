@@ -72,7 +72,7 @@ flowchart LR
         Harness["HarnessTools [Engine, new]<br/>Responsibility: owns the four release 4 tools"]
         Editor["NoteEditor [Engine]<br/>Responsibility: owns applying one edit through the editor API"]
         Progress["TurnProgressPublisher [Engine, new]<br/>Responsibility: owns publishing what a turn does as it runs"]
-        Prompt["PromptBuilder [Engine]<br/>Responsibility: owns the messages one model call is made of"]
+        Prompt["PromptFactory [Engine]<br/>Responsibility: owns the messages one model call is made of"]
         Turn["TurnRepository [Engine, new]<br/>Responsibility: owns what one turn holds, discarded with it"]
     end
 
@@ -221,7 +221,7 @@ degrades to search only rather than failing to load.
 
 ## Prompt Additions
 
-PromptBuilder (Engine) gains a command section, built the same way as the skill
+PromptFactory (Engine) gains a command section, built the same way as the skill
 catalogue: omitted entirely when the catalogue is empty, so a vault allowing no
 commands produces the release 3 prompt byte for byte (NFR8).
 
@@ -233,7 +233,7 @@ destructive commands out of reach.
 
 ### What one model call is made of
 
-PromptBuilder (Engine) returns messages rather than text, so EditEngine (Engine)
+PromptFactory (Engine) returns messages rather than text, so EditEngine (Engine)
 names the parts and the order without assembling either.
 
 | Part           | Carries                                                 |

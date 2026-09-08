@@ -1,7 +1,7 @@
 import { ChatMessage, ChatProvider } from '../providers/types'
 import { ChatTurn } from '../providers/models/chat-turn'
 import { Outcome } from '../shared/models/outcome'
-import { PromptBuilder } from './prompting/prompt-builder'
+import { PromptFactory } from './prompting/prompt-factory'
 import { Today } from './prompting/today'
 import { OpenNote } from './note-editing/open-note'
 import { Skill } from '../skills/skill'
@@ -32,13 +32,13 @@ export class ModelCaller {
       ...request.chatHistory,
       // Today is read per call rather than per session, so a turn running past
       // midnight resolves against the day it is on.
-      PromptBuilder.dateAndSkills(Today.of(), request.skills),
+      PromptFactory.dateAndSkills(Today.of(), request.skills),
       this.finalContext(request.note),
     ]
   }
 
   private standingRules(request: ModelRequest): ChatMessage {
-    return PromptBuilder.standingRules(
+    return PromptFactory.standingRules(
       request.skills,
       request.agentsMdChain,
       this.harnessTools.allowedCommands(),
@@ -47,8 +47,8 @@ export class ModelCaller {
   }
 
   private finalContext(note: OpenNote | null): ChatMessage {
-    if (note) return PromptBuilder.noteContext(note.details())
-    return PromptBuilder.unboundContext(
+    if (note) return PromptFactory.noteContext(note.details())
+    return PromptFactory.unboundContext(
       this.harnessTools.hasWhitelistedCommands(),
       this.harnessTools.hasSearchEnabled(),
     )

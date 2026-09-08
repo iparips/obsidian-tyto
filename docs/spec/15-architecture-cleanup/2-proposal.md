@@ -48,7 +48,7 @@ the overrun.
 
 ### prompting/ - what the model is told
 
-- PromptBuilder, RuleBuilder, Today (Engine)
+- PromptFactory, RuleBuilder, Today (Engine)
 
 RuleBuilder (Engine) imports nothing at all. Together 402 lines of text
 assembly, unrelated to the rest of the package.

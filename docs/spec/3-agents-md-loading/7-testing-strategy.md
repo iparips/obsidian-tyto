@@ -18,7 +18,7 @@ unchanged.
   sibling folder reads again.
 - Cap reporting: a chain under the cap notifies nothing and logs nothing, a
   chain over it notifies once and logs every dropped file.
-- PromptBuilder (Engine): empty chain omits the section, one file renders with
+- PromptFactory (Engine): empty chain omits the section, one file renders with
   its folder label, several render root first, and the section states that
   later entries win.
 - Rebinding to a note in another folder resolves that folder's chain.

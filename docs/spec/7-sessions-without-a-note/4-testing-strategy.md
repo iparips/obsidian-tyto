@@ -33,7 +33,7 @@ edited means behaviour moved where it should not have.
 - Runs a command when unbound, and binds the session to the note it opens.
 - Applies an edit normally once bound, unchanged from today.
 
-## PromptBuilder (Engine, changed)
+## PromptFactory (Engine, changed)
 
 - States that no note is open when the session is unbound.
 - States the bound note when the session is bound, unchanged from today.

@@ -41,19 +41,19 @@ service: no constructor, no state, every method static.
 
 | Class               | Package   | Produces                       |
 | ------------------- | --------- | ------------------------------ |
-| PromptBuilder       | Engine    | ChatMessage, from four sources |
+| PromptFactory       | Engine    | ChatMessage, from four sources |
 | TurnStep            | Engine    | One panel entry, fifteen ways  |
 | MistralMapper       | Providers | API shapes, both directions    |
 | SearchReport        | Search    | The text a search returns      |
 | NoteOperationParser | Engine    | An EditOperation from a call   |
 
 These are factories in the tactical sense: they build a value whose construction
-is too complex for a constructor. PromptBuilder cannot live on ChatMessage,
+is too complex for a constructor. PromptFactory cannot live on ChatMessage,
 which is a Providers value object, because assembling one needs Skill,
 AgentsMdChain and AllowedObsidianCommand from three other packages.
 
 The name misleads on two of them. A Builder accumulates across calls before
-producing; PromptBuilder and RuleBuilder take every argument at once and return
+producing; PromptFactory and RuleBuilder take every argument at once and return
 the finished thing.
 
 ## Repository

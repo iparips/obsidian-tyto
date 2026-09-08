@@ -39,7 +39,7 @@ The note content is re-read from the editor at the start of every turn, never ca
 
 ### Skill scope rule
 
-The skills section carries the rule that decides FR36 against FR37. `PromptBuilder.skillRules()` (Engine, new) emits it verbatim above the skill list:
+The skills section carries the rule that decides FR36 against FR37. `PromptFactory.skillRules()` (Engine, new) emits it verbatim above the skill list:
 
 ```
 This vault defines the skills below. When an utterance matches one, follow its
@@ -95,12 +95,12 @@ EditEngine lists the skills at the start of each turn rather than once per sessi
 `EditEngine` takes the catalogue as a fourth constructor parameter, holds it for the session's life, and passes it to the prompt on every turn:
 
 ```typescript
-PromptBuilder.build(note.context(), this.catalogue)
+PromptFactory.build(note.context(), this.catalogue)
 ```
 
 The catalogue is read once at session start, not per turn. Skills change rarely, a re-read costs adapter calls on every utterance, and a session already re-reads the note rather than the vault.
 
-`PromptBuilder.build()` (Engine) gains a second parameter defaulting to an empty catalogue, so existing call sites and tests stay valid.
+`PromptFactory.build()` (Engine) gains a second parameter defaulting to an empty catalogue, so existing call sites and tests stay valid.
 
 Two constraints fix the path shape. `app.vault.getFiles()` omits dot-directories, and Obsidian Sync never copies a dot-folder to a phone other than `.obsidian` and `.trash`. So the canonical folder is a normal vault folder, and the harness paths that agents use (`.agents/skills`, `.claude/skills`) are symlinks pointing at it. Symlinks do not reach mobile either, which is why discovery targets the real folder and not a link.
 

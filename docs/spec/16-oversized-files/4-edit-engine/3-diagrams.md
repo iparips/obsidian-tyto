@@ -6,7 +6,7 @@
 flowchart LR
     EditEngine["EditEngine [Engine]<br/>Responsibility: owns the turn by queueing utterances, looping the model, and ending it five ways"]
     TurnFactory["TurnFactory [Engine]<br/>Responsibility: opens a turn by resolving the note and reading the skills"]
-    PromptBuilder["PromptBuilder [Engine]<br/>Responsibility: assembles the four messages the model reads"]
+    PromptFactory["PromptFactory [Engine]<br/>Responsibility: assembles the four messages the model reads"]
     ChatProvider["ChatProvider [Providers]<br/>Responsibility: calls the model and returns tool calls or text"]
     ToolDispatcher["ToolDispatcher [Engine]<br/>Responsibility: runs one tool call and acts on what it returns"]
     SessionRepository["SessionRepository [Session]<br/>Responsibility: holds the chat history and the target note"]
@@ -15,7 +15,7 @@ flowchart LR
     HarnessTools["HarnessTools [Engine]<br/>Responsibility: names what the vault allows, for the prompt and the schemas"]
 
     EditEngine --> TurnFactory
-    EditEngine --> PromptBuilder
+    EditEngine --> PromptFactory
     EditEngine --> ChatProvider
     EditEngine --> ToolDispatcher
     EditEngine --> SessionRepository
@@ -40,7 +40,7 @@ flowchart LR
     TurnConclusion["TurnConclusion [Engine, new]<br/>Responsibility: ends a turn five ways, each writing what happened to history"]
     TurnFactory["TurnFactory [Engine]<br/>Responsibility: opens a turn by resolving the note and reading the skills"]
     SessionRepository["SessionRepository [Session]<br/>Responsibility: holds the chat history and the target note"]
-    PromptBuilder["PromptBuilder [Engine]<br/>Responsibility: assembles the four messages the model reads"]
+    PromptFactory["PromptFactory [Engine]<br/>Responsibility: assembles the four messages the model reads"]
     ChatProvider["ChatProvider [Providers]<br/>Responsibility: calls the model and returns tool calls or text"]
     HarnessTools["HarnessTools [Engine]<br/>Responsibility: names what the vault allows, for the prompt and the schemas"]
     NoteEditor["NoteEditor [Engine]<br/>Responsibility: applies an operation, and focuses the last edit"]
@@ -52,7 +52,7 @@ flowchart LR
     EditEngine --> TurnConclusion
     EditEngine --> SessionRepository
     EditEngine --> ToolDispatcher
-    ModelCaller --> PromptBuilder
+    ModelCaller --> PromptFactory
     ModelCaller --> ChatProvider
     ModelCaller --> HarnessTools
     TurnConclusion --> SessionRepository

@@ -7,7 +7,7 @@ import { AllowedObsidianCommand } from '../../commands/models/allowed-obsidian-c
 import { ChatMessage } from '../../providers/types'
 import { Today } from './today'
 
-export class PromptBuilder {
+export class PromptFactory {
   // The note itself is not here: EditEngine sends it as the last message, so the
   // current copy sits after every stale one in the conversation.
   static standingRules(
@@ -17,7 +17,7 @@ export class PromptBuilder {
     searchEnabled = false,
   ): ChatMessage {
     return ChatMessage.system(
-      PromptBuilder.standingRulesText(skills, instructions, commands, searchEnabled),
+      PromptFactory.standingRulesText(skills, instructions, commands, searchEnabled),
     )
   }
 
@@ -26,7 +26,7 @@ export class PromptBuilder {
   // both mistakes the freshest position prevents.
   static dateAndSkills(today: Today = Today.of(), skills: readonly Skill[] = []): ChatMessage {
     return ChatMessage.system(
-      [PromptBuilder.dateLine(today), ...PromptBuilder.skillCatalogue(skills)].join('\n'),
+      [PromptFactory.dateLine(today), ...PromptFactory.skillCatalogue(skills)].join('\n'),
     )
   }
 
@@ -38,7 +38,7 @@ export class PromptBuilder {
         'No note is open, so this session is not bound to one yet.',
         'Every tool but the editing ones still works: only writing needs a note.',
         'The editing tools have nothing to write to until a note opens.',
-        ...PromptBuilder.noNoteEditRules(canRunCommands, canSearch),
+        ...PromptFactory.noNoteEditRules(canRunCommands, canSearch),
         'The session binds to the first note that opens, however it opens.',
       ].join('\n'),
     )
@@ -47,7 +47,7 @@ export class PromptBuilder {
   // A note the user names is reachable once a command can open one, so asking
   // them to open it is stated only while it is still the only move.
   private static noNoteEditRules(canRunCommands: boolean, canSearch: boolean): string[] {
-    const routes = PromptBuilder.noteRoutes(canRunCommands, canSearch)
+    const routes = PromptFactory.noteRoutes(canRunCommands, canSearch)
     if (routes.length === 0)
       return [
         'When the user asks for an edit, say that no note is open and ask them to open one,',
@@ -75,13 +75,13 @@ export class PromptBuilder {
     searchEnabled: boolean,
   ): string {
     return [
-      RuleBuilder.roleRules(PromptBuilder.reachOf(commands, searchEnabled)),
+      RuleBuilder.roleRules(PromptFactory.reachOf(commands, searchEnabled)),
       RuleBuilder.dictationRules(),
-      ...PromptBuilder.instructionSection(instructions),
-      ...PromptBuilder.skillSection(skills, commands.length > 0),
-      ...PromptBuilder.commandSection(commands),
-      ...PromptBuilder.searchSection(searchEnabled),
-      ...PromptBuilder.questionSection(commands.length > 0, searchEnabled),
+      ...PromptFactory.instructionSection(instructions),
+      ...PromptFactory.skillSection(skills, commands.length > 0),
+      ...PromptFactory.commandSection(commands),
+      ...PromptFactory.searchSection(searchEnabled),
+      ...PromptFactory.questionSection(commands.length > 0, searchEnabled),
     ].join('\n\n')
   }
 
@@ -97,7 +97,7 @@ export class PromptBuilder {
   // commands produces the release 3 prompt byte for byte (NFR8).
   private static commandSection(commands: readonly AllowedObsidianCommand[]): string[] {
     if (commands.length === 0) return []
-    return [[RuleBuilder.commandRules(), ...PromptBuilder.commandLines(commands)].join('\n')]
+    return [[RuleBuilder.commandRules(), ...PromptFactory.commandLines(commands)].join('\n')]
   }
 
   // The id first and the name after, since the id is what run_command takes.
@@ -122,11 +122,11 @@ export class PromptBuilder {
   // filename produces the release 2 prompt byte for byte (FR11).
   private static instructionSection(chain: AgentsMdChain): string[] {
     if (chain.isEmpty()) return []
-    return [[RuleBuilder.instructionRules(), ...PromptBuilder.instructionBlocks(chain)].join('\n')]
+    return [[RuleBuilder.instructionRules(), ...PromptFactory.instructionBlocks(chain)].join('\n')]
   }
 
   private static instructionBlocks(chain: AgentsMdChain): string[] {
-    return chain.files.map((file) => PromptBuilder.instructionBlock(file))
+    return chain.files.map((file) => PromptFactory.instructionBlock(file))
   }
 
   private static instructionBlock(file: AgentsMdFile): string {
@@ -145,7 +145,7 @@ export class PromptBuilder {
   // produces the three-section prompt byte for byte (FR38).
   private static skillSection(skills: readonly Skill[], canLeaveNote: boolean): string[] {
     if (skills.length === 0) return []
-    return [PromptBuilder.skillRules(canLeaveNote)]
+    return [PromptFactory.skillRules(canLeaveNote)]
   }
 
   // Where the skills are actually listed: last, beside the note. The standing
@@ -157,7 +157,7 @@ export class PromptBuilder {
     return [
       '',
       'This vault defines these skills. Match the user against them before you act:',
-      ...PromptBuilder.skillLines(skills),
+      ...PromptFactory.skillLines(skills),
       '',
     ]
   }
@@ -179,7 +179,7 @@ export class PromptBuilder {
       'it whenever you are about to write to a file of that kind. When a skill lists a',
       'folder or a kind of note, the note you are about to edit being one of them is a',
       'match, whatever words the user used.',
-      ...PromptBuilder.skillReachRules(canLeaveNote),
+      ...PromptFactory.skillReachRules(canLeaveNote),
     ].join('\n')
   }
 
@@ -219,7 +219,7 @@ export class PromptBuilder {
   // about the note is a record of an earlier state, including the user's own
   // manual edits between turns, so this copy is the only current one.
   static noteContext(note: NoteDetails): ChatMessage {
-    return ChatMessage.system(PromptBuilder.noteContextText(note))
+    return ChatMessage.system(PromptFactory.noteContextText(note))
   }
 
   private static noteContextText(note: NoteDetails): string {

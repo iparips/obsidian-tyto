@@ -21,7 +21,7 @@ which.
 
 - A service reads state and applies operations. It is stateless, so one instance
   serves every turn and is injected once at construction. It takes what it needs
-  as parameters. Named after a verb: NoteEditor, PromptBuilder, SkillRepository.
+  as parameters. Named after a verb: NoteEditor, PromptFactory, SkillRepository.
 - A value object represents state. Fields are readonly, and a change returns a
   new instance. Named after a noun: NoteContext, AgentSession, Skill.
 
@@ -76,7 +76,7 @@ Two things to know about `bun run build`:
 
 ## Prompt Changes Are Behaviour Changes
 
-The system prompt is assembled in src/engine/prompt-builder.ts. Editing it
+The system prompt is assembled in src/engine/prompt-factory.ts. Editing it
 changes what the model does, and the unit tests cannot catch a regression there.
 Test a prompt change against a real vault and a real API key.
 
@@ -85,8 +85,8 @@ prompt as before vault skills existed, byte for byte. Verify against git rather
 than by eye:
 
 ```bash
-git show <ref>:src/engine/prompt-builder.ts > /tmp/old.ts
-# build both, compare PromptBuilder.build() output for an empty catalogue
+git show <ref>:src/engine/prompt-factory.ts > /tmp/old.ts
+# build both, compare PromptFactory.build() output for an empty catalogue
 ```
 
 ## Skill Files Are Untrusted

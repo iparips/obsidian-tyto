@@ -50,7 +50,7 @@ and never duplicates instructions in the prompt.
 ```mermaid
 flowchart LR
     Engine["EditEngine [Engine]<br/>Responsibility: owns the agent loop by resolving a chain per write target"]
-    Prompt["PromptBuilder [Engine]<br/>Responsibility: owns prompt assembly by ordering its sections"]
+    Prompt["PromptFactory [Engine]<br/>Responsibility: owns prompt assembly by ordering its sections"]
     Repo["AgentsMdRepository [Agents, new]<br/>Responsibility: owns instruction loading by taking one file per ancestor folder"]
     Paths["AncestorFolders [Agents, new]<br/>Responsibility: owns the walk by deriving candidate folders from a note path"]
     Adapter["DataAdapter [Obsidian]<br/>Responsibility: owns vault IO by reading files on either platform"]
@@ -65,7 +65,7 @@ Arrows: uses-relationship (client to supplier).
 
 ## Prompt assembly
 
-PromptBuilder.build (Engine) gains a fourth section, between the dictation
+PromptFactory.build (Engine) gains a fourth section, between the dictation
 rules and the skill catalogue (FR5). An empty chain omits the section entirely,
 the pattern skillSection already uses, so a vault with no instruction files
 produces the release 2 prompt byte for byte (FR11).

@@ -40,7 +40,7 @@ obsidian-owl/
       workspace-note-locator.ts  WorkspaceNoteLocator: finds the editor holding the bound note
       note-operation-parser.ts  NoteOperationParser: tool call arguments to EditOperation
       position-converter.ts  PositionConverter: offset to EditorPosition conversion
-      prompt-builder.ts      PromptBuilder: assembles the system prompt
+      prompt-factory.ts      PromptFactory: assembles the system prompt
       rule-builder.ts        RuleBuilder: the role and dictation rule text
       models/
         note-context.ts      NoteContext: path, content and cursor for one model call

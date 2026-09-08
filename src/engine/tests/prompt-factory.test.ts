@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { NoteDetails } from '../note-editing/note-details'
 import { Today } from '../prompting/today'
-import { PromptBuilder } from '../prompting/prompt-builder'
+import { PromptFactory } from '../prompting/prompt-factory'
 import { Skill } from '../../skills/skill'
 import { AgentsMdChain } from '../../agents/agents-md-chain'
 import { AgentsMdFile } from '../../agents/agents-md-file'
@@ -22,15 +22,15 @@ const aSkill = (name: string, description: string): Skill => ({
 const aChain = (...files: AgentsMdFile[]) => new AgentsMdChain(files)
 
 // The messages carry the prompt; the assertions are about the text inside them.
-const standingRulesText = (...args: Parameters<typeof PromptBuilder.standingRules>) =>
-  PromptBuilder.standingRules(...args).content
+const standingRulesText = (...args: Parameters<typeof PromptFactory.standingRules>) =>
+  PromptFactory.standingRules(...args).content
 
-const noteContextText = (note: NoteDetails) => PromptBuilder.noteContext(note).content
+const noteContextText = (note: NoteDetails) => PromptFactory.noteContext(note).content
 
 const unboundContextText = (canRunCommands = false, canSearch = false) =>
-  PromptBuilder.unboundContext(canRunCommands, canSearch).content
+  PromptFactory.unboundContext(canRunCommands, canSearch).content
 
-describe('PromptBuilder', () => {
+describe('PromptFactory', () => {
   describe('when a folder holds instructions', () => {
     it('labels the block with the folder when one file applies', () => {
       const chain = aChain(new AgentsMdFile('Journal', 'AGENTS.md', 'Write in second person.'))
@@ -109,7 +109,7 @@ describe('PromptBuilder', () => {
     // trigger phrases sit in the freshest position rather than behind the whole
     // chat history and the note body.
     it('lists one line per skill beside the note, where the model reads last', () => {
-      const snapshot = PromptBuilder.dateAndSkills(Today.of(), catalogue).content
+      const snapshot = PromptFactory.dateAndSkills(Today.of(), catalogue).content
 
       expect(snapshot).toContain('tidy-notes - Tidies a note.')
       expect(snapshot).toContain('weekly-review - Reviews.')
@@ -126,7 +126,7 @@ describe('PromptBuilder', () => {
     it('states the single-note rule when the catalogue has entries', () => {
       const prompt = standingRulesText(catalogue)
 
-      expect(prompt).toContain(PromptBuilder.skillRules())
+      expect(prompt).toContain(PromptFactory.skillRules())
     })
 
     it('omits the note content when the prompt is built', () => {
@@ -623,13 +623,13 @@ describe('PromptBuilder', () => {
     const THURSDAY = new Today(new Date(2026, 8, 3))
 
     it('names today whether or not a note is open', () => {
-      const snapshot = PromptBuilder.dateAndSkills(THURSDAY)
+      const snapshot = PromptFactory.dateAndSkills(THURSDAY)
 
       expect(snapshot.content).toContain('Today is 2026-09-03 (Thursday).')
     })
 
     it('tells the model not to resolve a date against a note name', () => {
-      const snapshot = PromptBuilder.dateAndSkills(THURSDAY)
+      const snapshot = PromptFactory.dateAndSkills(THURSDAY)
 
       expect(snapshot.content).toContain(
         'A note named for a date is not\nevidence of what today is.',
@@ -637,7 +637,7 @@ describe('PromptBuilder', () => {
     })
 
     it('names no note, since the note travels in its own message', () => {
-      const snapshot = PromptBuilder.dateAndSkills(THURSDAY)
+      const snapshot = PromptFactory.dateAndSkills(THURSDAY)
 
       expect(snapshot.content).not.toContain('Note path:')
     })

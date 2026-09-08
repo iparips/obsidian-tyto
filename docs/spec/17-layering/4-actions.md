@@ -5,8 +5,9 @@ done; what is left is one comment and one open question.
 
 ## Done
 
-Four classes carried value object names while being mutable, and two records
-said neither what they held nor who filled them.
+Four classes carried value object names while being mutable, two records said
+neither what they held nor who filled them, and two named Builder build nothing
+across calls.
 
 | Was              | Now                            | Because                      |
 | ---------------- | ------------------------------ | ---------------------------- |
@@ -16,9 +17,19 @@ said neither what they held nor who filled them.
 | IterationBudget  | IterationCounter               | Spent, not held              |
 | TurnBudget       | NotesOpenedCounter             | Also said nothing about what |
 | RepeatedRefusal  | RepeatedRefusalCounter         | Same shape as the other two  |
+| PromptBuilder    | PromptFactory                  | Builds a ChatMessage         |
+| ChainBudget      | AgentsMdChainFactory           | Builds an AgentsMdChain      |
 
-The naming rules behind them are in the code-generation skill, so the next class
-of either shape gets the right name without this document.
+A Builder accumulates across calls and neither does, so both are factories: they
+take every argument at once and return the finished object.
+
+Classes returning a string keep Builder, since the strings they assemble are the
+complex thing. RuleBuilder, SearchReport and NoteExcerpt are all of that shape.
+MistralMapper and NoteOperationParser keep their names, which already say what
+they do.
+
+The naming rules behind these are in the code-generation skill, so the next
+class of either shape gets the right name without this document.
 
 ## 1. Make the scope visible where the classes live
 
@@ -35,22 +46,30 @@ turn would carry that at the point of use, and rename nothing. The same comment
 gives the scoped-state category in [3-what-does-not.md](3-what-does-not.md) the
 name the layered model does not have.
 
-## 2. Decide whether services take a suffix
+## 2. Decide the six ambiguous service names
 
-The question this analysis started from, now answerable because every other
-category has a name.
+A Service suffix on every service would produce NoteReaderService and
+TargetNoteResolverService, which the naming rule argues against: an agent noun
+already announces behaviour.
 
-Applied to every service it would produce NoteReaderService,
-TargetNoteResolverService and PromptBuilderService, which the naming rule argues
-against: an agent noun already announces behaviour, and PromptBuilder is a
-static factory rather than a service at all.
+Six names do not announce it, and are the open question. Each reads as a noun or
+a collection while being injected behaviour.
 
-Applied where the name is ambiguous it touches a handful: TurnConclusion,
-NoteChoice, UserQuestion, HarnessTools, SearchTools, TurnAskers. Each reads as
-a noun or a collection while being behaviour.
+| Class          | Reads as     | Is                                    |
+| -------------- | ------------ | ------------------------------------- |
+| TurnConclusion | A record     | Five ways of ending a turn            |
+| NoteChoice     | A pick       | Parks the turn until the user answers |
+| UserQuestion   | A question   | Parks the turn until the user answers |
+| HarnessTools   | A collection | Runs the tool the model named         |
+| SearchTools    | A collection | Globs and greps the vault             |
+| TurnAskers     | A collection | Chooses who answers, per mode         |
 
-The narrower reading is the defensible one. Whether it is worth the churn is a
-judgement about how much the remaining ambiguity costs a reader.
+The plurals are the weakest: HarnessTools and SearchTools promise collections
+and hold none, which the plural rule in the naming skill already calls a
+failure.
+
+Undecided. The churn is small, and whether it is worth it depends on how much
+the ambiguity costs when reading the dispatcher.
 
 ## What not to do
 

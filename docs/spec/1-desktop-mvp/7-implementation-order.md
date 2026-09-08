@@ -26,7 +26,7 @@ parallel; the rest are sequential.
    [4-component-design.md](4-component-design.md). Tests drive a fake adapter
    and cover a populated folder, a missing folder, an empty configured path,
    and a malformed file among valid siblings.
-4. `src/engine/tool-schemas.ts`: `PromptBuilder.build()` takes a catalogue
+4. `src/engine/tool-schemas.ts`: `PromptFactory.build()` takes a catalogue
    defaulting to empty, and emits the skills section and scope rule when it has
    entries. Tests assert the section is present with entries, absent without,
    and that the scope rule is carried.

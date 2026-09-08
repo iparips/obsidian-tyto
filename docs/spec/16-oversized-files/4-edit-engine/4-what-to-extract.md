@@ -42,7 +42,7 @@ the conclusions move first and the class still reads as two things.
 
 ## Third: the model call
 
-askModel takes five parameters, calls PromptBuilder four times, asks
+askModel takes five parameters, calls PromptFactory four times, asks
 HarnessTools five questions, and calls the provider. It is the whole of turning
 a turn into a model call, and the only place either collaborator is used for
 prompting.

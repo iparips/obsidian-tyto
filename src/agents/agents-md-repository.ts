@@ -2,7 +2,7 @@ import { DataAdapter } from 'obsidian'
 import { AgentsMdFile } from './agents-md-file'
 import { AgentsMdChain } from './agents-md-chain'
 import { AncestorFolders } from './ancestor-folders'
-import { ChainBudget } from './chain-budget'
+import { AgentsMdChainFactory } from './agents-md-chain-factory'
 
 const FILE_NAMES = ['AGENTS.md', 'CLAUDE.md']
 
@@ -27,7 +27,7 @@ export class AgentsMdRepository {
   private async walk(notePath: string): Promise<AgentsMdChain> {
     const folders = AncestorFolders.of(notePath)
     const found = await Promise.all(folders.map((folder) => this.readFolder(folder)))
-    return ChainBudget.apply(found.filter((file): file is AgentsMdFile => file !== null))
+    return AgentsMdChainFactory.apply(found.filter((file): file is AgentsMdFile => file !== null))
   }
 
   // One file per folder: an AGENTS.md that reads at all suppresses the

@@ -7,7 +7,7 @@ const MAX_CHARACTERS = 40_000
 
 // Fills from the nearest folder outward, so a cap that fires drops the furthest
 // files rather than the ones the user most meant to apply.
-export class ChainBudget {
+export class AgentsMdChainFactory {
   static apply(rootFirst: readonly AgentsMdFile[]): AgentsMdChain {
     const kept: AgentsMdFile[] = []
     let total = 0
@@ -16,7 +16,7 @@ export class ChainBudget {
       total += file.size()
       kept.push(file)
     })
-    return new AgentsMdChain(kept.reverse(), ChainBudget.dropped(rootFirst, kept))
+    return new AgentsMdChain(kept.reverse(), AgentsMdChainFactory.dropped(rootFirst, kept))
   }
 
   private static dropped(

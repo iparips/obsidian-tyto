@@ -8,7 +8,7 @@ code, so comments and blanks do not inflate them.
 | LOC | Functions | Longest function | File                               |
 | --- | --------- | ---------------- | ---------------------------------- |
 | 263 | 2         | 20               | engine/tools/tool-schemas.ts       |
-| 179 | 22        | 20               | engine/prompting/prompt-builder.ts |
+| 179 | 22        | 20               | engine/prompting/prompt-factory.ts |
 | 164 | 18        | 16               | engine/tool-dispatcher.ts          |
 
 Close behind: panel-state.ts at 119, main.ts at 116, rule-builder.ts at 113.
@@ -21,7 +21,7 @@ EditEngine was at 179 and is now 114.
 Two shapes hide in that table, and only one is a problem.
 
 Data files are long because they hold data. tool-schemas.ts is 263 lines of
-JSON schema declarations plus one filter; prompt-builder.ts is 22 small
+JSON schema declarations plus one filter; prompt-factory.ts is 22 small
 functions assembling prose. Both read top to bottom, and splitting either would
 separate content from the code that selects it.
 
@@ -54,7 +54,7 @@ in its props declaration. Its real weight is 83 lines of hook wiring above the
 JSX.
 
 It counts a returned array literal as though every element were a statement,
-which is what flags searchRules and most of prompt-builder.
+which is what flags searchRules and most of prompt-factory.
 
 Both are worth knowing before repeating the scan: the branch count matters more
 than the line count.

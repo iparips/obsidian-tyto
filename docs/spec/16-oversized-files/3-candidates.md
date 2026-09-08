@@ -58,7 +58,7 @@ extracting first.
 
 ## Not candidates
 
-tool-schemas.ts, prompt-builder.ts and rule-builder.ts are long because they
+tool-schemas.ts, prompt-factory.ts and rule-builder.ts are long because they
 hold declarations and prose. Their functions are short and branch once or not
 at all.
 

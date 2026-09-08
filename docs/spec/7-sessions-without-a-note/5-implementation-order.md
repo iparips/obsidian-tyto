@@ -29,7 +29,7 @@ Each step leaves the suite green.
    the unwritable-note refusal already uses. Search, load_skill and run_command
    are untouched, which is the point of the step.
 
-4. `src/engine/prompt-builder.ts`: say no note is open when unbound.
+4. `src/engine/prompt-factory.ts`: say no note is open when unbound.
 
    A prompt change is a behaviour change: the repo's convention is to verify a
    bound session's prompt is byte-for-byte unchanged, against git rather than by
