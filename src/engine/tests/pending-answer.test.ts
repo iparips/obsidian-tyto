@@ -4,16 +4,16 @@ import { AnswerRequest } from '../tools/answer-request'
 import { TurnCancellationController } from '../turn/turn-cancellation-controller'
 
 describe('PendingAnswer', () => {
-  let cancellation: TurnCancellationController
+  let cancellationController: TurnCancellationController
   let ask: Mock<[AnswerRequest], Promise<string>>
 
   beforeEach(() => {
     vi.clearAllMocks()
-    cancellation = new TurnCancellationController()
+    cancellationController = new TurnCancellationController()
     ask = vi.fn()
   })
 
-  const parked = () => new PendingAnswer(ask, cancellation)
+  const parked = () => new PendingAnswer(ask, cancellationController)
 
   describe('when the panel answers', () => {
     beforeEach(() => {
@@ -43,33 +43,33 @@ describe('PendingAnswer', () => {
     it('resolves with the fallback when the turn is cancelled', async () => {
       const answer = parked().awaiting(new AnswerRequest('which list?'), 'nothing')
 
-      cancellation.cancel()
+      cancellationController.cancel()
 
       expect(await answer).toBe('nothing')
     })
 
     it('resolves with the fallback when the turn was already cancelled', async () => {
-      cancellation.cancel()
+      cancellationController.cancel()
 
       expect(await parked().awaiting(new AnswerRequest('which list?'), 'nothing')).toBe('nothing')
     })
   })
 
-  describe('when an answer and a cancellation arrive together', () => {
-    it('resolves once when both an answer and a cancellation arrive', async () => {
+  describe('when an answer and a cancellationController arrive together', () => {
+    it('resolves once when both an answer and a cancellationController arrive', async () => {
       ask.mockResolvedValue('the shopping list')
 
       const answer = parked().awaiting(new AnswerRequest('which list?'), 'nothing')
-      cancellation.cancel()
+      cancellationController.cancel()
 
       expect(['the shopping list', 'nothing']).toContain(await answer)
     })
 
-    it('settles rather than parking when both an answer and a cancellation arrive', async () => {
+    it('settles rather than parking when both an answer and a cancellationController arrive', async () => {
       ask.mockResolvedValue('the shopping list')
 
       const answer = parked().awaiting(new AnswerRequest('which list?'), 'nothing')
-      cancellation.cancel()
+      cancellationController.cancel()
 
       await expect(answer).resolves.toBeDefined()
     })

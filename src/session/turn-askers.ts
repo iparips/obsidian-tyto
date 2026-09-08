@@ -25,14 +25,14 @@ export class TurnAskers {
   // comes from the turn, so a note chosen in one turn is asked about again in
   // the next (FR5).
   noteChoice(
-    cancellation: TurnCancellationController,
-    chosen: NotesChosenByUserRepository,
+    cancellationController: TurnCancellationController,
+    notesChosenByUser: NotesChosenByUserRepository,
   ): NoteChoice {
-    if (this.mode === 'auto') return NoteChoice.automatic(chosen)
+    if (this.mode === 'auto') return NoteChoice.automatic(notesChosenByUser)
     return NoteChoice.of(
       (request) => this.noticed(TurnAskers.noticeFor(request), this.choices.ask(request)),
-      cancellation,
-      chosen,
+      cancellationController,
+      notesChosenByUser,
     )
   }
 
@@ -43,10 +43,10 @@ export class TurnAskers {
     return `Owl found ${candidates.length} notes and wants you to pick one.`
   }
 
-  userQuestion(cancellation: TurnCancellationController): UserQuestion {
+  userQuestion(cancellationController: TurnCancellationController): UserQuestion {
     return UserQuestion.of(
       (request) => this.noticed(request.question, this.questions.ask(request)),
-      cancellation,
+      cancellationController,
     )
   }
 

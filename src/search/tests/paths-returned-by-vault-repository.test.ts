@@ -5,58 +5,58 @@ import { SearchHit } from '../models/search-hit'
 const aHit = (path: string): SearchHit => new SearchHit(path, 1, 'excerpt')
 
 describe('PathsReturnedByVaultRepository', () => {
-  let seen: PathsReturnedByVaultRepository
+  let pathsReturnedByVault: PathsReturnedByVaultRepository
 
   beforeEach(() => {
-    seen = new PathsReturnedByVaultRepository()
+    pathsReturnedByVault = new PathsReturnedByVaultRepository()
   })
 
   describe('when nothing has been searched', () => {
     it('excludes every path when no search has run', () => {
-      expect(seen.includes('note.md')).toBe(false)
+      expect(pathsReturnedByVault.includes('note.md')).toBe(false)
     })
   })
 
   describe('when a search has returned hits', () => {
     beforeEach(() => {
-      seen.record([aHit('Journal/todo.md'), aHit('Lists/shopping.md')])
+      pathsReturnedByVault.record([aHit('Journal/todo.md'), aHit('Lists/shopping.md')])
     })
 
     it('includes a path when a search returned it', () => {
-      expect(seen.includes('Journal/todo.md')).toBe(true)
+      expect(pathsReturnedByVault.includes('Journal/todo.md')).toBe(true)
     })
 
     it('excludes a path when no search returned it', () => {
-      expect(seen.includes('Journal/other.md')).toBe(false)
+      expect(pathsReturnedByVault.includes('Journal/other.md')).toBe(false)
     })
   })
 
   describe('when a glob has returned paths', () => {
     beforeEach(() => {
-      seen.recordPaths(['1 - Journal/Weekly/Week-35/04-09-Fri.md'])
+      pathsReturnedByVault.recordPaths(['1 - Journal/Weekly/Week-35/04-09-Fri.md'])
     })
 
     it('includes a path when a glob returned it', () => {
-      expect(seen.includes('1 - Journal/Weekly/Week-35/04-09-Fri.md')).toBe(true)
+      expect(pathsReturnedByVault.includes('1 - Journal/Weekly/Week-35/04-09-Fri.md')).toBe(true)
     })
 
     it('excludes a path when no glob returned it', () => {
-      expect(seen.includes('1 - Journal/Weekly/Week-35/03-09-Thu.md')).toBe(false)
+      expect(pathsReturnedByVault.includes('1 - Journal/Weekly/Week-35/03-09-Thu.md')).toBe(false)
     })
   })
 
   describe('when a second search refines the first', () => {
     beforeEach(() => {
-      seen.record([aHit('Journal/todo.md')])
-      seen.record([aHit('Lists/shopping.md')])
+      pathsReturnedByVault.record([aHit('Journal/todo.md')])
+      pathsReturnedByVault.record([aHit('Lists/shopping.md')])
     })
 
     it('includes a path from the second search when a query is refined', () => {
-      expect(seen.includes('Lists/shopping.md')).toBe(true)
+      expect(pathsReturnedByVault.includes('Lists/shopping.md')).toBe(true)
     })
 
     it('keeps a path from the first search when a query is refined', () => {
-      expect(seen.includes('Journal/todo.md')).toBe(true)
+      expect(pathsReturnedByVault.includes('Journal/todo.md')).toBe(true)
     })
   })
 })

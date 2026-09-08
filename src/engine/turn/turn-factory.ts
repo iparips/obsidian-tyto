@@ -35,11 +35,13 @@ export class TurnFactory {
     // The set it records into comes from the turn, so what the user chose dies
     // with the write they consented to (FR5).
     private buildNoteChoice: (
-      cancellation: TurnCancellationController,
-      chosen: NotesChosenByUserRepository,
-    ) => NoteChoice = (_cancellation, chosen) => NoteChoice.automatic(chosen),
-    private buildUserQuestion: (cancellation: TurnCancellationController) => UserQuestion = () =>
-      UserQuestion.unanswered(),
+      cancellationController: TurnCancellationController,
+      notesChosenByUser: NotesChosenByUserRepository,
+    ) => NoteChoice = (_cancellationController, notesChosenByUser) =>
+      NoteChoice.automatic(notesChosenByUser),
+    private buildUserQuestion: (
+      cancellationController: TurnCancellationController,
+    ) => UserQuestion = () => UserQuestion.unanswered(),
   ) {}
 
   // Session-scoped, so a note found in one turn can still be opened in the
@@ -57,10 +59,10 @@ export class TurnFactory {
       new NotesOpenedCounter(),
       this.pathsReturnedByVault,
     )
-    const cancellation = new TurnCancellationController()
-    const askers = this.askersFor(cancellation, turnRepository.notesChosenByUser)
-    const toolDispatcher = this.dispatcherFor(turnRepository, cancellation, askers)
-    return Outcomes.success(new Turn(turnRepository, toolDispatcher, cancellation))
+    const cancellationController = new TurnCancellationController()
+    const askers = this.askersFor(cancellationController, turnRepository.notesChosenByUser)
+    const toolDispatcher = this.dispatcherFor(turnRepository, cancellationController, askers)
+    return Outcomes.success(new Turn(turnRepository, toolDispatcher, cancellationController))
   }
 
   private askersFor(
@@ -75,7 +77,7 @@ export class TurnFactory {
 
   private dispatcherFor(
     repository: TurnRepository,
-    cancellation: TurnCancellationController,
+    cancellationController: TurnCancellationController,
     askers: TurnAskers,
   ): ToolDispatcher {
     return new ToolDispatcher(
@@ -86,7 +88,7 @@ export class TurnFactory {
       this.harnessTools,
       this.turnProgressPublisher,
       repository,
-      cancellation,
+      cancellationController,
       askers.noteChoice,
       askers.userQuestion,
       this.noteOpener,

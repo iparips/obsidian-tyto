@@ -11,7 +11,7 @@ export class NoteChoice {
     private pending: PendingAnswer<ChoiceRequest, string | null>,
     // Turn-scoped, so a note chosen in one turn is asked about again in the
     // next: consent is about the write in front of the user.
-    private chosen: NotesChosenByUserRepository,
+    private notesChosenByUser: NotesChosenByUserRepository,
   ) {}
 
   // The paths offered are from the vault root, so the user chooses a note
@@ -19,19 +19,19 @@ export class NoteChoice {
   // them, since the user is consenting to a write rather than to a path.
   static of(
     ask: (request: ChoiceRequest) => Promise<string | null>,
-    cancellation = new TurnCancellationController(),
-    chosen = new NotesChosenByUserRepository(),
+    cancellationController = new TurnCancellationController(),
+    notesChosenByUser = new NotesChosenByUserRepository(),
   ): NoteChoice {
-    return new NoteChoice(new PendingAnswer(ask, cancellation), chosen)
+    return new NoteChoice(new PendingAnswer(ask, cancellationController), notesChosenByUser)
   }
 
   // Auto mode, and what a test constructs when the choice is not what it is
   // exercising. The mode is a choice of collaborator, not a branch (FR13).
-  static automatic(chosen = new NotesChosenByUserRepository()): NoteChoice {
+  static automatic(notesChosenByUser = new NotesChosenByUserRepository()): NoteChoice {
     return NoteChoice.of(
       (request) => Promise.resolve(request.candidates[0] ?? null),
       undefined,
-      chosen,
+      notesChosenByUser,
     )
   }
 
@@ -41,13 +41,13 @@ export class NoteChoice {
   async choose(request: ChoiceRequest): Promise<string | null> {
     const picked = await this.pending.awaiting(request, null)
     if (picked === null || !request.candidates.includes(picked)) return null
-    this.chosen.record(picked)
+    this.notesChosenByUser.record(picked)
     return picked
   }
 
   // What open_note checks. Separate from choose, because opening is a later
   // call than choosing and must not re-ask (FR11).
   holds(path: string): boolean {
-    return this.chosen.includes(path)
+    return this.notesChosenByUser.includes(path)
   }
 }

@@ -49,10 +49,10 @@ export interface EnginePartsOptions {
   progress?: TurnProgressPublisher
   noteOpener?: NoteOpener | null
   noteChoice?: (
-    cancellation: TurnCancellationController,
-    chosen: NotesChosenByUserRepository,
+    cancellationController: TurnCancellationController,
+    notesChosenByUser: NotesChosenByUserRepository,
   ) => NoteChoice
-  userQuestion?: (cancellation: TurnCancellationController) => UserQuestion
+  userQuestion?: (cancellationController: TurnCancellationController) => UserQuestion
 }
 
 // The resolver and dispatcher a test needs beside an engine, wired the way
@@ -75,7 +75,8 @@ export const anEngine = (modelProvider: ChatProvider, options: EnginePartsOption
     harness,
     progress,
     options.noteOpener ?? null,
-    options.noteChoice ?? ((_cancellation, chosen) => NoteChoice.automatic(chosen)),
+    options.noteChoice ??
+      ((_cancellationController, notesChosenByUser) => NoteChoice.automatic(notesChosenByUser)),
     options.userQuestion ?? (() => UserQuestion.unanswered()),
   )
   return new EditEngine(

@@ -12,9 +12,9 @@ export class UserQuestion {
 
   static of(
     ask: (request: AnswerRequest) => Promise<string>,
-    cancellation = new TurnCancellationController(),
+    cancellationController = new TurnCancellationController(),
   ): UserQuestion {
-    return new UserQuestion(new PendingAnswer(ask, cancellation))
+    return new UserQuestion(new PendingAnswer(ask, cancellationController))
   }
 
   // Silent, and what a test constructs when the question is not what it is

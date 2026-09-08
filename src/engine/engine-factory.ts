@@ -32,10 +32,10 @@ import { UserQuestion } from './waiting/user-question'
 // so a parked question settles on a cancel rather than parking the loop.
 export interface EngineAskers {
   noteChoice?(
-    cancellation: TurnCancellationController,
-    chosen: NotesChosenByUserRepository,
+    cancellationController: TurnCancellationController,
+    notesChosenByUser: NotesChosenByUserRepository,
   ): NoteChoice
-  userQuestion?(cancellation: TurnCancellationController): UserQuestion
+  userQuestion?(cancellationController: TurnCancellationController): UserQuestion
 }
 
 // Assembles one session's engine. Every collaborator is explicit, and this is
@@ -86,7 +86,8 @@ export class EngineFactory {
       harnessTools,
       progress,
       new NoteOpener(this.app, new OpenedNoteWait(this.app)),
-      askers.noteChoice ?? ((_cancellation, chosen) => NoteChoice.automatic(chosen)),
+      askers.noteChoice ??
+        ((_cancellationController, notesChosenByUser) => NoteChoice.automatic(notesChosenByUser)),
       askers.userQuestion ?? (() => UserQuestion.unanswered()),
     )
   }

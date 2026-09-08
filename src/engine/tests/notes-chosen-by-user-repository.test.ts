@@ -1,0 +1,44 @@
+import { beforeEach, describe, expect, it } from 'vitest'
+import { NotesChosenByUserRepository } from '../turn/notes-chosen-by-user-repository'
+
+const TODO = 'Journal/Weekly/Week-36/todo.md'
+const SHOPPING = 'Lists/shopping.md'
+
+describe('NotesChosenByUserRepository', () => {
+  let notesChosenByUser: NotesChosenByUserRepository
+
+  beforeEach(() => {
+    notesChosenByUser = new NotesChosenByUserRepository()
+  })
+
+  describe('when nothing has been notesChosenByUser', () => {
+    it('excludes every path when nothing has been notesChosenByUser', () => {
+      expect(notesChosenByUser.includes(TODO)).toBe(false)
+    })
+  })
+
+  describe('when the user has notesChosenByUser a note', () => {
+    beforeEach(() => {
+      notesChosenByUser.record(TODO)
+    })
+
+    it('includes a path the user chose', () => {
+      expect(notesChosenByUser.includes(TODO)).toBe(true)
+    })
+
+    it('excludes a path the user did not choose', () => {
+      expect(notesChosenByUser.includes(SHOPPING)).toBe(false)
+    })
+  })
+
+  describe('when a second note is notesChosenByUser', () => {
+    beforeEach(() => {
+      notesChosenByUser.record(TODO)
+      notesChosenByUser.record(SHOPPING)
+    })
+
+    it('keeps a path from an earlier choice when a second is recorded', () => {
+      expect(notesChosenByUser.includes(TODO)).toBe(true)
+    })
+  })
+})

@@ -40,7 +40,7 @@ export class ToolDispatcher {
     private harnessTools: HarnessTools,
     private turnProgressPublisher: TurnProgressPublisher,
     private turnRepository: TurnRepository,
-    private turnCancellation: TurnCancellationController,
+    private cancellationController: TurnCancellationController,
     private noteChoice: NoteChoice,
     private userQuestion: UserQuestion,
     // Absent in tests that exercise the guards rather than the opening, and in a
@@ -50,7 +50,7 @@ export class ToolDispatcher {
 
   async execute(call: ToolCall): Promise<ToolCallOutcome> {
     // Between calls rather than inside one, so no edit is left half-applied.
-    if (this.turnCancellation.isCancelled()) return ToolCallOutcome.of(CANCELLED_RESULT)
+    if (this.cancellationController.isCancelled()) return ToolCallOutcome.of(CANCELLED_RESULT)
     if (call.isLoadSkill()) return ToolCallOutcome.of(await this.loadSkill(call))
     if (call.isRecordNoSkillApplies()) return ToolCallOutcome.of(this.recordNoSkillApplies(call))
     // Neither reaches the vault: both only read the call and act, so they are

@@ -128,24 +128,24 @@ describe('NoteChoice', () => {
   })
 
   describe('when the turn is cancelled rather than answered', () => {
-    let cancellation: TurnCancellationController
+    let cancellationController: TurnCancellationController
     let choice: NoteChoice
 
     beforeEach(() => {
-      cancellation = new TurnCancellationController()
-      choice = NoteChoice.of(() => new Promise(() => undefined), cancellation)
+      cancellationController = new TurnCancellationController()
+      choice = NoteChoice.of(() => new Promise(() => undefined), cancellationController)
     })
 
     it('declines when the turn is cancelled rather than answered', async () => {
       const chosen = choice.choose(offering())
-      cancellation.cancel()
+      cancellationController.cancel()
 
       expect(await chosen).toBeNull()
     })
 
     it('settles rather than parking the loop when the turn is cancelled', async () => {
       const chosen = choice.choose(offering())
-      cancellation.cancel()
+      cancellationController.cancel()
       await chosen
 
       expect(choice.holds(TODO)).toBe(false)

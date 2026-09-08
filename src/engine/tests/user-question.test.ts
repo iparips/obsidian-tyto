@@ -35,17 +35,17 @@ describe('UserQuestion', () => {
   })
 
   describe('when the turn is cancelled', () => {
-    let cancellation: TurnCancellationController
+    let cancellationController: TurnCancellationController
 
     beforeEach(() => {
-      cancellation = new TurnCancellationController()
+      cancellationController = new TurnCancellationController()
       ask.mockReturnValue(new Promise<string>(() => undefined))
     })
 
     it('returns an empty answer when the turn is cancelled', async () => {
-      const answer = UserQuestion.of(ask, cancellation).answerTo(WHICH_LIST)
+      const answer = UserQuestion.of(ask, cancellationController).answerTo(WHICH_LIST)
 
-      cancellation.cancel()
+      cancellationController.cancel()
 
       expect(await answer).toBe('')
     })
