@@ -15,7 +15,7 @@ match a real vault's paths, so the fixtures use the shape that failed:
 3. [NoteGlob (Search, new)](#noteglob-search-new)
 4. [NoteGrep (Search, new)](#notegrep-search-new)
 5. [HarnessTools (Engine, changed)](#harnesstools-engine-changed)
-6. [TurnBudget (Engine, changed)](#turnbudget-engine-changed)
+6. [NotesOpenedCounter (Engine, changed)](#turnbudget-engine-changed)
 7. [RuleBuilder (Engine, changed)](#rulebuilder-engine-changed)
 8. [EditEngine (Engine, changed)](#editengine-engine-changed)
 
@@ -93,7 +93,7 @@ match a real vault's paths, so the fixtures use the shape that failed:
 - Reports a glob as a step, naming the pattern and the count.
 - Reports a grep as a step, naming the expression and the count.
 
-## TurnBudget (Engine, changed)
+## NotesOpenedCounter (Engine, changed)
 
 - Permits globs up to the cap.
 - Refuses a glob past the cap, naming it.

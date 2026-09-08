@@ -2,7 +2,7 @@ import { EditorPosition } from 'obsidian'
 import { OpenNote } from '../note-editing/open-note'
 import { AgentsMdChain } from '../../agents/agents-md-chain'
 import { ResolvedNote } from '../note-binding/resolved-note'
-import { TurnBudget } from './turn-budget'
+import { NotesOpenedCounter } from './notes-opened-counter'
 import { NotesChosenByUserRepository } from './notes-chosen-by-user-repository'
 import { PathsReturnedByVaultRepository } from '../../search/models/paths-returned-by-vault-repository'
 import { Skill } from '../../skills/skill'
@@ -19,7 +19,7 @@ export class TurnRepository {
   constructor(
     private resolvedNote: ResolvedNote | null,
     private readonly vaultSkills: readonly Skill[] = [],
-    readonly turnBudget: TurnBudget = new TurnBudget(),
+    readonly notesOpenedCounter: NotesOpenedCounter = new NotesOpenedCounter(),
     // Supplied by the session rather than defaulted per turn: a note the model
     // found in one turn is one the user watched it find, and refusing to open
     // it in the next is what drives the model to edit whatever is still bound.
@@ -132,7 +132,7 @@ export class TurnRepository {
   // Spent once an open is granted rather than when it is asked for, so a note
   // the user declined does not cost the turn its one open.
   recordOpen(path: string): void {
-    this.turnBudget.takeOpen(path)
+    this.notesOpenedCounter.takeOpen(path)
   }
 
   // Separate from recordOpen, which spends the budget: a command's note is

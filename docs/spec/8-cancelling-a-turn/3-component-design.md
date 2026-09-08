@@ -24,11 +24,11 @@ So the cancellation is one object, held for the turn and read by whoever needs
 it.
 
 ```typescript
-// turn-cancellation.ts
+// turn-cancellation-controller.ts
 // One per turn, so cancelling one utterance never reaches the next. Holds an
 // AbortController rather than a boolean, because the provider request needs a
 // signal and the loop needs a question.
-export class TurnCancellation {
+export class TurnCancellationController {
   cancel(): void
 
   isCancelled(): boolean
@@ -51,7 +51,7 @@ engine asks it what happened rather than telling it what to do.
 ```mermaid
 flowchart LR
     Engine["EditEngine [Engine]<br/>Responsibility: owns the loop that runs one turn"]
-    Cancellation["TurnCancellation [Engine, new]<br/>Responsibility: owns whether this turn was cancelled"]
+    Cancellation["TurnCancellationController [Engine, new]<br/>Responsibility: owns whether this turn was cancelled"]
     Factory["TurnFactory [Engine]<br/>Responsibility: owns opening a turn"]
     Provider["MistralProvider [Providers]<br/>Responsibility: owns the model request"]
     Dispatcher["ToolDispatcher [Engine]<br/>Responsibility: owns what one tool call does"]
@@ -86,7 +86,7 @@ It races its own answer against whenCancelled, and whichever settles first wins.
 sequenceDiagram
     participant Panel as SessionPanel [Session]
     participant Engine as EditEngine [Engine]
-    participant Cancellation as TurnCancellation [Engine, new]
+    participant Cancellation as TurnCancellationController [Engine, new]
     participant Provider as MistralProvider [Providers]
     participant Dispatcher as ToolDispatcher [Engine]
 

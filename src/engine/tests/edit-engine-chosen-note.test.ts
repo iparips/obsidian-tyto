@@ -6,7 +6,7 @@ import { HarnessTools } from '../tools/harness-tools'
 import { SearchTools } from '../tools/search-tools'
 import { NoteChoice } from '../waiting/note-choice'
 import { NotesChosenByUserRepository } from '../turn/notes-chosen-by-user-repository'
-import { TurnCancellation } from '../turn/turn-cancellation'
+import { TurnCancellationController } from '../turn/turn-cancellation-controller'
 import { Outcomes } from '../../shared/models/outcome'
 import { ChatMessage, ChatProvider } from '../../providers/types'
 import { AgentsMdRepository } from '../../agents/agents-md-repository'
@@ -91,7 +91,7 @@ describe('EditEngine', () => {
   // states which note the user pointed at rather than wiring a choice per case.
   const picking =
     (pick: string | null) =>
-    (cancellation: TurnCancellation, chosen: NotesChosenByUserRepository) =>
+    (cancellation: TurnCancellationController, chosen: NotesChosenByUserRepository) =>
       NoteChoice.of(
         (request) => {
           asked.push(...request.candidates)

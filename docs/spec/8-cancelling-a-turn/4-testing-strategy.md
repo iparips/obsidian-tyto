@@ -7,7 +7,7 @@ The existing suites are the real check on the third Outcome case. A turn nobody
 cancels must behave identically (NFR1), so any existing test needing its
 assertions edited means behaviour moved where it should not have.
 
-## TurnCancellation (Engine, new)
+## TurnCancellationController (Engine, new)
 
 - Reports itself uncancelled before anything cancels it.
 - Reports itself cancelled once cancelled.

@@ -4,8 +4,8 @@ import { ChatTurn } from '../providers/models/chat-turn'
 import { Cancelled, Failure, Outcome, Outcomes } from '../shared/models/outcome'
 import { NoteEditor } from './note-editing/note-editor'
 import { OpenNote } from './note-editing/open-note'
-import { IterationBudget } from './turn/iteration-budget'
-import { RepeatedRefusal } from './turn/repeated-refusal'
+import { IterationCounter } from './turn/iteration-counter'
+import { RepeatedRefusalCounter } from './turn/repeated-refusal-counter'
 import { SessionRepository } from '../session/session-repository'
 
 // The five ways a turn ends. Each writes what happened to the history before
@@ -50,7 +50,7 @@ export class TurnConclusion {
 
   // Ends on the reason itself, since a model refused the same way twice will
   // spend every remaining step being refused a third way.
-  static stuck(refusals: RepeatedRefusal): Outcome<string> {
+  static stuck(refusals: RepeatedRefusalCounter): Outcome<string> {
     return Outcomes.failure('chat', refusals.message())
   }
 
@@ -59,7 +59,7 @@ export class TurnConclusion {
   static exhausted(): Outcome<string> {
     return Outcomes.failure(
       'chat',
-      `Owl ran out of steps for this turn after ${IterationBudget.max()}. The steps list shows where they went. Try a smaller instruction, or say which note to use.`,
+      `Owl ran out of steps for this turn after ${IterationCounter.max()}. The steps list shows where they went. Try a smaller instruction, or say which note to use.`,
     )
   }
 

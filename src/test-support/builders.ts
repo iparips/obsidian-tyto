@@ -28,7 +28,7 @@ import { ChatProvider } from '../providers/types'
 import { NoteChoice } from '../engine/waiting/note-choice'
 import { NoteOpener } from '../engine/note-binding/note-opener'
 import { NotesChosenByUserRepository } from '../engine/turn/notes-chosen-by-user-repository'
-import { TurnCancellation } from '../engine/turn/turn-cancellation'
+import { TurnCancellationController } from '../engine/turn/turn-cancellation-controller'
 import { UserQuestion } from '../engine/waiting/user-question'
 
 let nextCallId = 0
@@ -48,8 +48,11 @@ export interface EnginePartsOptions {
   harnessTools?: HarnessTools
   progress?: TurnProgressPublisher
   noteOpener?: NoteOpener | null
-  noteChoice?: (cancellation: TurnCancellation, chosen: NotesChosenByUserRepository) => NoteChoice
-  userQuestion?: (cancellation: TurnCancellation) => UserQuestion
+  noteChoice?: (
+    cancellation: TurnCancellationController,
+    chosen: NotesChosenByUserRepository,
+  ) => NoteChoice
+  userQuestion?: (cancellation: TurnCancellationController) => UserQuestion
 }
 
 // The resolver and dispatcher a test needs beside an engine, wired the way

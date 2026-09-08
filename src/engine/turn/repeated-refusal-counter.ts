@@ -5,7 +5,7 @@ const MAX_REPEATS = 2
 // How many times running a turn has been refused for the same reason. Counted
 // by reason rather than by tool, since a model that retries an edit varies its
 // arguments while the refusal stays word for word.
-export class RepeatedRefusal {
+export class RepeatedRefusalCounter {
   private lastReason: string | null = null
   private repeats = 0
 

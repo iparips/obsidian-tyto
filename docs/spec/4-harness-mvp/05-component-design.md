@@ -35,7 +35,7 @@ src/engine/
   models/
     resolved-note.ts       # the target note, plus the chain governing it
     turn.ts                # one turn's collaborators, built together
-    turn-budget.ts         # per-turn command and search counters
+    notes-opened-counter.ts         # per-turn command and search counters
 
 src/session/
   session-repository.ts    # the target note and the conversation

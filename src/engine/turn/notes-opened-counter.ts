@@ -4,10 +4,10 @@
 const MAX_OPENS = 1
 
 // What a turn may open. The cost of a turn is one number, held by
-// IterationBudget and visible as the numbered steps the user reads; this holds
+// IterationCounter and visible as the numbered steps the user reads; this holds
 // the one limit that is about safety rather than cost, since a turn that writes
 // to several notes is a different thing from a slow one.
-export class TurnBudget {
+export class NotesOpenedCounter {
   private readonly opened = new Set<string>()
 
   // Asked before the user is, so a note the cap forbids is refused without a

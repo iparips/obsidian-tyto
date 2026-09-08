@@ -1,4 +1,4 @@
-import { TurnCancellation } from '../turn/turn-cancellation'
+import { TurnCancellationController } from '../turn/turn-cancellation-controller'
 
 // One parked question, settled by the panel or by a cancellation. Generic over
 // the request and the answer, because parking is the same work whether what is
@@ -7,7 +7,7 @@ import { TurnCancellation } from '../turn/turn-cancellation'
 export class PendingAnswer<Request, Answer> {
   constructor(
     private ask: (request: Request) => Promise<Answer>,
-    private cancellation: TurnCancellation,
+    private cancellationController: TurnCancellationController,
   ) {}
 
   // Resolves with the fallback when the turn is cancelled rather than answered,
@@ -15,7 +15,7 @@ export class PendingAnswer<Request, Answer> {
   async awaiting(request: Request, whenCancelled: Answer): Promise<Answer> {
     return Promise.race([
       this.ask(request),
-      this.cancellation.whenCancelled().then(() => whenCancelled),
+      this.cancellationController.whenCancelled().then(() => whenCancelled),
     ])
   }
 }

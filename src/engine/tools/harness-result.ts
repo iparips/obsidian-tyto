@@ -1,5 +1,5 @@
 import { PathsReturnedByVaultRepository } from '../../search/models/paths-returned-by-vault-repository'
-import { TurnBudget } from '../turn/turn-budget'
+import { NotesOpenedCounter } from '../turn/notes-opened-counter'
 import {
   ChoiceResult,
   ObsidianCommandRanResult,
@@ -15,7 +15,7 @@ export type HarnessResult = TextResult | ChoiceResult | OpenNoteResult | Obsidia
 // What a tool reads off the turn it runs in. Narrower than TurnRepository, so
 // the tools see the two counters they spend and nothing else.
 export interface TurnState {
-  readonly turnBudget: TurnBudget
+  readonly notesOpenedCounter: NotesOpenedCounter
   readonly pathsReturnedByVault: PathsReturnedByVaultRepository
   // Told when the model looks past the note the turn started on, which is what
   // makes the inherited binding no longer a safe edit target.

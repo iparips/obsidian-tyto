@@ -1,15 +1,15 @@
 import { beforeEach, describe, expect, it, Mock, vi } from 'vitest'
 import { PendingAnswer } from '../waiting/pending-answer'
 import { AnswerRequest } from '../tools/answer-request'
-import { TurnCancellation } from '../turn/turn-cancellation'
+import { TurnCancellationController } from '../turn/turn-cancellation-controller'
 
 describe('PendingAnswer', () => {
-  let cancellation: TurnCancellation
+  let cancellation: TurnCancellationController
   let ask: Mock<[AnswerRequest], Promise<string>>
 
   beforeEach(() => {
     vi.clearAllMocks()
-    cancellation = new TurnCancellation()
+    cancellation = new TurnCancellationController()
     ask = vi.fn()
   })
 

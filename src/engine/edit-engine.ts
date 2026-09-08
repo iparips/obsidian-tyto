@@ -6,7 +6,7 @@ import { TurnFactory } from './turn/turn-factory'
 import { TurnRepository } from './turn/turn-repository'
 import { SessionRepository } from '../session/session-repository'
 import { TurnProgressPublisher } from './turn-progress-publisher'
-import { RepeatedRefusal } from './turn/repeated-refusal'
+import { RepeatedRefusalCounter } from './turn/repeated-refusal-counter'
 import { ModelCaller, ModelRequest } from './model-caller'
 import { TurnConclusion } from './turn-conclusion'
 import { UtteranceQueue } from './utterance-queue'
@@ -36,7 +36,7 @@ export class EditEngine {
   // Ignored between turns: a cancel that arrives after the turn finished has
   // nothing left to stop.
   cancelTurn(): void {
-    this.runningTurn?.cancellation.cancel()
+    this.runningTurn?.cancellationController.cancel()
   }
 
   processUtterance(text: string): Promise<Outcome<string>> {
@@ -74,25 +74,26 @@ export class EditEngine {
     spend: TurnSpend,
     iteration: number,
   ): Promise<Outcome<string> | null> {
-    if (turn.cancellation.isCancelled()) return this.concludeCancelled(turn)
+    if (turn.cancellationController.isCancelled()) return this.concludeCancelled(turn)
     const modelAnswer = await this.askModel(turn, iteration)
 
     if (!modelAnswer.succeeded())
       return this.turnConclusion.unfinished(modelAnswer, turn.repository.writtenNotes())
 
     if (modelAnswer.value.isText()) return this.concludeUtterance(turn, modelAnswer.value.content)
-    await this.executeToolCalls(modelAnswer.value.calls, turn, spend.repeatedRefusal)
+    await this.executeToolCalls(modelAnswer.value.calls, turn, spend.repeatedRefusalCounter)
 
-    if (spend.repeatedRefusal.isStuck()) return TurnConclusion.stuck(spend.repeatedRefusal)
+    if (spend.repeatedRefusalCounter.isStuck())
+      return TurnConclusion.stuck(spend.repeatedRefusalCounter)
     this.spendOn(spend, modelAnswer.value.calls.length)
 
     return null
   }
 
   private spendOn(spend: TurnSpend, calls: number): void {
-    spend.iterationBudget.spend(calls)
-    if (spend.iterationBudget.justRanLow())
-      this.turnProgressPublisher.runningLow(spend.iterationBudget.warning())
+    spend.iterationCounter.spend(calls)
+    if (spend.iterationCounter.justRanLow())
+      this.turnProgressPublisher.runningLow(spend.iterationCounter.warning())
   }
 
   // Logged around the call rather than after it, since a turn that feels slow is
@@ -111,7 +112,7 @@ export class EditEngine {
       turn.repository.skills(),
       turn.repository.agentMdChain(),
       this.sessionRepository.chatHistory(),
-      turn.cancellation.signal(),
+      turn.cancellationController.signal(),
     )
   }
 
@@ -143,7 +144,7 @@ export class EditEngine {
   private async executeToolCalls(
     toolCalls: ToolCall[],
     turn: Turn,
-    refusals: RepeatedRefusal,
+    refusals: RepeatedRefusalCounter,
   ): Promise<void> {
     this.sessionRepository.appendChatMessage(ChatMessage.modelToolCalls(toolCalls))
     for (const call of toolCalls) {

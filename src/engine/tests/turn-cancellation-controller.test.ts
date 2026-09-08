@@ -1,11 +1,11 @@
 import { beforeEach, describe, expect, it } from 'vitest'
-import { TurnCancellation } from '../turn/turn-cancellation'
+import { TurnCancellationController } from '../turn/turn-cancellation-controller'
 
-describe('TurnCancellation', () => {
-  let cancellation: TurnCancellation
+describe('TurnCancellationController', () => {
+  let cancellation: TurnCancellationController
 
   beforeEach(() => {
-    cancellation = new TurnCancellation()
+    cancellation = new TurnCancellationController()
   })
 
   describe('when nothing has cancelled it', () => {

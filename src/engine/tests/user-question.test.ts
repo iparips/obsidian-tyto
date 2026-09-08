@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, Mock, vi } from 'vitest'
 import { UserQuestion } from '../waiting/user-question'
 import { AnswerRequest } from '../tools/answer-request'
-import { TurnCancellation } from '../turn/turn-cancellation'
+import { TurnCancellationController } from '../turn/turn-cancellation-controller'
 
 const WHICH_LIST = new AnswerRequest('which shopping list?', ['Lists/a.md', 'Lists/b.md'])
 
@@ -35,10 +35,10 @@ describe('UserQuestion', () => {
   })
 
   describe('when the turn is cancelled', () => {
-    let cancellation: TurnCancellation
+    let cancellation: TurnCancellationController
 
     beforeEach(() => {
-      cancellation = new TurnCancellation()
+      cancellation = new TurnCancellationController()
       ask.mockReturnValue(new Promise<string>(() => undefined))
     })
 

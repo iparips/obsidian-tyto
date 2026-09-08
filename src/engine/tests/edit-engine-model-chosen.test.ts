@@ -5,7 +5,7 @@ import { TurnProgressPublisher } from '../turn-progress-publisher'
 import { HarnessTools } from '../tools/harness-tools'
 import { NoteChoice } from '../waiting/note-choice'
 import { NoteOpener } from '../note-binding/note-opener'
-import { TurnCancellation } from '../turn/turn-cancellation'
+import { TurnCancellationController } from '../turn/turn-cancellation-controller'
 import { NotesChosenByUserRepository } from '../turn/notes-chosen-by-user-repository'
 import { UserQuestion } from '../waiting/user-question'
 import { AnswerRequest } from '../tools/answer-request'
@@ -77,7 +77,7 @@ describe('EditEngine', () => {
 
   const engineOf = (
     buildChoice: (
-      cancellation: TurnCancellation,
+      cancellation: TurnCancellationController,
       chosen: NotesChosenByUserRepository,
     ) => NoteChoice = (_cancellation, chosen) => NoteChoice.automatic(chosen),
     answer = '',
@@ -112,13 +112,13 @@ describe('EditEngine', () => {
   // user pointed at rather than wiring a choice per case. A null declines.
   const picking =
     (pick: string | null) =>
-    (_cancellation: TurnCancellation, chosen: NotesChosenByUserRepository) =>
+    (_cancellation: TurnCancellationController, chosen: NotesChosenByUserRepository) =>
       NoteChoice.of(
         (request) => {
           asked.push(...request.candidates)
           return Promise.resolve(request.candidates.includes(pick ?? '') ? pick : null)
         },
-        new TurnCancellation(),
+        new TurnCancellationController(),
         chosen,
       )
 

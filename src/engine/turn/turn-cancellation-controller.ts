@@ -1,7 +1,9 @@
-// Whether one turn was cancelled, held for the turn so a cancel never reaches
-// the next utterance. An AbortController rather than a boolean, because the
-// provider request needs a signal and a parked question needs a promise.
-export class TurnCancellation {
+// Stops one turn, and says whether it was stopped. Scoped to the turn so a
+// cancel never reaches the next utterance. An AbortController rather than a
+// boolean, because three readers need three shapes of the same fact: the loop
+// polls it, the provider request takes a signal, and a parked question races a
+// promise.
+export class TurnCancellationController {
   private readonly controller = new AbortController()
 
   cancel(): void {

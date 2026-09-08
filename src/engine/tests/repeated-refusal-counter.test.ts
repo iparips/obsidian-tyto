@@ -1,14 +1,14 @@
 import { beforeEach, describe, expect, it } from 'vitest'
-import { RepeatedRefusal } from '../turn/repeated-refusal'
+import { RepeatedRefusalCounter } from '../turn/repeated-refusal-counter'
 
 const UNOPENED = 'todo.md was not opened this turn'
 const UNCHOSEN = 'todo.md was not chosen by the user this turn'
 
-describe('RepeatedRefusal', () => {
-  let refusals: RepeatedRefusal
+describe('RepeatedRefusalCounter', () => {
+  let refusals: RepeatedRefusalCounter
 
   beforeEach(() => {
-    refusals = new RepeatedRefusal()
+    refusals = new RepeatedRefusalCounter()
   })
 
   describe('when the turn has not been refused', () => {

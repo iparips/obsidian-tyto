@@ -48,7 +48,7 @@ Each step leaves the suite green.
    Assert it calls no cachedRead. FakeVault records every read, so NFR2 is one
    assertion rather than a convention.
 
-4. `src/engine/models/turn-budget.ts`: a glob counter and a grep counter beside
+4. `src/engine/models/notes-opened-counter.ts`: a glob counter and a grep counter beside
    the four, each with its own cap message and its own entry in spentTools.
 
    The grep counter lands here rather than in the second commit, so the budget

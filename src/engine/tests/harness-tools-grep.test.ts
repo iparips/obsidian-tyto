@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it } from 'vitest'
 import { App } from 'obsidian'
 import { HarnessTools } from '../tools/harness-tools'
 import { TurnState } from '../tools/harness-result'
-import { TurnBudget } from '../turn/turn-budget'
+import { NotesOpenedCounter } from '../turn/notes-opened-counter'
 import { PathsReturnedByVaultRepository } from '../../search/models/paths-returned-by-vault-repository'
 import { ObsidianCommandCatalogue } from '../../commands/obsidian-command-catalogue'
 import { ObsidianCommandRegistry } from '../../commands/obsidian-command-registry'
@@ -27,7 +27,7 @@ describe('HarnessTools', () => {
       .withNote(QUOTE, 'the roofing quote came to 12k')
       .withNote('Lists/shopping.md', 'milk and bread')
     turn = {
-      turnBudget: new TurnBudget(),
+      notesOpenedCounter: new NotesOpenedCounter(),
       pathsReturnedByVault: new PathsReturnedByVaultRepository(),
       searchRan: () => undefined,
     }

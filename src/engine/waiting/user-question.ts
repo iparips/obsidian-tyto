@@ -1,6 +1,6 @@
 import { AnswerRequest } from '../tools/answer-request'
 import { PendingAnswer } from './pending-answer'
-import { TurnCancellation } from '../turn/turn-cancellation'
+import { TurnCancellationController } from '../turn/turn-cancellation-controller'
 
 const NO_ANSWER = ''
 
@@ -12,7 +12,7 @@ export class UserQuestion {
 
   static of(
     ask: (request: AnswerRequest) => Promise<string>,
-    cancellation = new TurnCancellation(),
+    cancellation = new TurnCancellationController(),
   ): UserQuestion {
     return new UserQuestion(new PendingAnswer(ask, cancellation))
   }

@@ -24,7 +24,7 @@ Each step leaves the suite green.
    for three cases is what makes the third case additive rather than a rewrite
    of every caller. Do not add `.value` to the cancelled case to dodge this.
 
-2. `src/engine/turn-cancellation.ts`: the value, its AbortController, and
+2. `src/engine/turn-cancellation-controller.ts`: the value, its AbortController, and
    `whenCancelled`.
 
    Built by `TurnFactory` and held on `Turn`, so it is reachable from the loop

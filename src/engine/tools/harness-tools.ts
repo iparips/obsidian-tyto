@@ -1,7 +1,7 @@
 import { ToolCall, ToolSchema } from '../../providers/types'
 import { ObsidianCommandRunner } from '../../commands/obsidian-command-runner'
 import { NoteReader } from '../../search/note-reader'
-import { TurnBudget } from '../turn/turn-budget'
+import { NotesOpenedCounter } from '../turn/notes-opened-counter'
 import { ObsidianCommandCatalogue } from '../../commands/obsidian-command-catalogue'
 import { AllowedObsidianCommand } from '../../commands/models/allowed-obsidian-command'
 import { ToolCatalogue } from './tool-schemas'
@@ -76,7 +76,8 @@ export class HarnessTools {
     const path = call.argument('path')
     if (!turn.pathsReturnedByVault.includes(path))
       return Refusal.of(HarnessTools.unseenMessage(path))
-    if (!turn.turnBudget.canOpen(path)) return Refusal.of(TurnBudget.openCapMessage())
+    if (!turn.notesOpenedCounter.canOpen(path))
+      return Refusal.of(NotesOpenedCounter.openCapMessage())
     const contentsOutcome = await this.noteReader.read(path)
     if (contentsOutcome.hasFailed()) return Refusal.of(contentsOutcome.message)
     return new OpenNoteResult(`opened ${path}`, path)

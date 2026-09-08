@@ -3,7 +3,7 @@ import { App } from 'obsidian'
 import { HarnessTools } from '../tools/harness-tools'
 import { HarnessResult, TurnState } from '../tools/harness-result'
 import { HarnessResultKind } from '../tools/harness-result-kind'
-import { TurnBudget } from '../turn/turn-budget'
+import { NotesOpenedCounter } from '../turn/notes-opened-counter'
 import { PathsReturnedByVaultRepository } from '../../search/models/paths-returned-by-vault-repository'
 import { SearchHit } from '../../search/models/search-hit'
 import { ObsidianCommandCatalogue } from '../../commands/obsidian-command-catalogue'
@@ -27,7 +27,7 @@ describe('HarnessTools', () => {
   beforeEach(() => {
     vault = new FakeVault().withNote(TODO, '- [ ] milk')
     turn = {
-      turnBudget: new TurnBudget(),
+      notesOpenedCounter: new NotesOpenedCounter(),
       pathsReturnedByVault: new PathsReturnedByVaultRepository(),
       searchRan: () => undefined,
     }
@@ -121,7 +121,7 @@ describe('HarnessTools', () => {
       await openNote(TODO)
       // The dispatcher spends the cap once an open is granted; at this level
       // nothing has granted one, so the test states what a granted open left.
-      turn.turnBudget.takeOpen(TODO)
+      turn.notesOpenedCounter.takeOpen(TODO)
     })
 
     it('refuses a second note when the cap is reached, naming it', async () => {

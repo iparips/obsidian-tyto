@@ -82,7 +82,7 @@ OpenApproval (Engine) goes. Its three pieces land differently.
 export class NoteChoice {
   static of(
     ask: (candidates: readonly string[]) => Promise<string | null>,
-    cancellation?: TurnCancellation,
+    cancellation?: TurnCancellationController,
   ): NoteChoice
 
   // Auto mode: the first candidate, without asking. The mode is a choice of
@@ -262,7 +262,7 @@ export class NotesChosenByUserRepository {
 }
 ```
 
-NotesChosenByUserRepository is built where TurnBudget is, in TurnRepository (Engine), and dies
+NotesChosenByUserRepository is built where NotesOpenedCounter is, in TurnRepository (Engine), and dies
 with it (FR5). PathsReturnedByVaultRepository is passed in by TurnFactory (Engine), which holds one
 for the session.
 
@@ -296,7 +296,7 @@ its type is worse than a name that has outlived its wording.
 
 ## A Decline Is an Answer
 
-A declined shortlist spends no open budget (FR8). TurnBudget's open counter is
+A declined shortlist spends no open budget (FR8). NotesOpenedCounter's open counter is
 taken when a note is opened, not when one is offered, so a user who declines
 three shortlists still has their one open to spend on the fourth.
 

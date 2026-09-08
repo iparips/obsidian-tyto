@@ -18,7 +18,7 @@ second is tested by running the same refusal cases with a granted approval.
 6. [TurnNotices (Session, new)](#turnnotices-session-new)
 7. [HarnessTools (Engine, changed)](#harnesstools-engine-changed)
 8. [ToolDispatcher (Engine, changed)](#tooldispatcher-engine-changed)
-9. [TurnBudget (Engine, changed)](#turnbudget-engine-changed)
+9. [NotesOpenedCounter (Engine, changed)](#turnbudget-engine-changed)
 10. [RuleBuilder (Engine, changed)](#rulebuilder-engine-changed)
 11. [PanelReducer (Session, changed)](#panelreducer-session-changed)
 12. [SessionPanel (Session, changed)](#sessionpanel-session-changed)
@@ -95,7 +95,7 @@ second is tested by running the same refusal cases with a granted approval.
 - Refuses a path the budget forbids without asking for approval, so a refused
   open never interrupts the user.
 
-## TurnBudget (Engine, changed)
+## NotesOpenedCounter (Engine, changed)
 
 - Permits opens up to the cap.
 - Refuses an open past the cap, naming it.

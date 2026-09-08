@@ -1,14 +1,14 @@
-import { IterationBudget } from './iteration-budget'
-import { RepeatedRefusal } from './repeated-refusal'
+import { IterationCounter } from './iteration-counter'
+import { RepeatedRefusalCounter } from './repeated-refusal-counter'
 
 // What one turn spends as it runs: its iterations, and how many times running
 // it was refused the same way. Held together because both outlive an iteration
 // and neither outlives the turn.
 export class TurnSpend {
-  readonly iterationBudget = new IterationBudget()
-  readonly repeatedRefusal = new RepeatedRefusal()
+  readonly iterationCounter = new IterationCounter()
+  readonly repeatedRefusalCounter = new RepeatedRefusalCounter()
 
   isExhausted(): boolean {
-    return this.iterationBudget.isSpent()
+    return this.iterationCounter.isSpent()
   }
 }

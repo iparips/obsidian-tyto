@@ -10,12 +10,12 @@ That needs machinery the rest of the codebase does not.
 
 ## The four collaborators
 
-| Class            | Package | Answers                                        |
-| ---------------- | ------- | ---------------------------------------------- |
-| NoteChoice       | Engine  | What is being asked, in domain terms           |
-| PendingAnswer    | Engine  | Answer or cancel, whichever settles first      |
-| TurnCancellation | Engine  | Has this turn been cancelled, asked three ways |
-| Asker            | Session | Who answers, and what if nobody is listening   |
+| Class                      | Package | Answers                                        |
+| -------------------------- | ------- | ---------------------------------------------- |
+| NoteChoice                 | Engine  | What is being asked, in domain terms           |
+| PendingAnswer              | Engine  | Answer or cancel, whichever settles first      |
+| TurnCancellationController | Engine  | Has this turn been cancelled, asked three ways |
+| Asker                      | Session | Who answers, and what if nobody is listening   |
 
 UserQuestion sits beside NoteChoice and works the same way, so only one is drawn.
 
@@ -26,7 +26,7 @@ sequenceDiagram
     participant Model as Chat Provider [Providers]
     participant Choice as NoteChoice [Engine]
     participant Pending as PendingAnswer [Engine]
-    participant Cancel as TurnCancellation [Engine]
+    participant Cancel as TurnCancellationController [Engine]
     participant Asker as Asker [Session]
     participant Panel as SessionPanel [Session]
     participant User as The user
@@ -57,7 +57,7 @@ Arrows: uses-relationship (client to supplier).
 ```mermaid
 sequenceDiagram
     participant Engine as EditEngine [Engine]
-    participant Cancel as TurnCancellation [Engine]
+    participant Cancel as TurnCancellationController [Engine]
     participant Controller as AbortController [Browser]
     participant Pending as PendingAnswer [Engine]
     participant Choice as NoteChoice [Engine]
@@ -90,7 +90,7 @@ Promise.race([this.ask(request), this.cancellation.whenCancelled().then(() => wh
 Generic over request and answer, because parking is the same work whether what
 is asked is a path and the reply a pick, or a question and the reply a sentence.
 
-TurnCancellation wraps an AbortController rather than a boolean, because three
+TurnCancellationController wraps an AbortController rather than a boolean, because three
 consumers need three shapes of the same fact: a boolean for the loop between
 iterations, an AbortSignal for the provider's fetch, and a promise for the race
 above. A boolean would serve only the first.

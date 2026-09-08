@@ -17,7 +17,7 @@ turn would carry that at the point of use, and rename nothing. The same comment
 gives the scoped-state category in [3-what-does-not.md](3-what-does-not.md) the
 name the layered model does not have.
 
-## 2. Leave TurnCancellation unlabelled
+## 2. Leave TurnCancellationController unlabelled
 
 It holds one flag that flips once, and hands out an AbortSignal and a promise.
 No block names it, and forcing one would mislead rather than help. Better to say
@@ -40,5 +40,5 @@ once every category has a name.
 
 Do not make every stateful class a Repository for consistency. The word already
 covers two things here, and a third group would leave it meaning only that a
-class has fields. TurnSpend is an entity and TurnCancellation is neither, which
+class has fields. TurnSpend is an entity and TurnCancellationController is neither, which
 is more useful to a reader than a suffix they all share.

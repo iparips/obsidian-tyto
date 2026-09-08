@@ -4,7 +4,7 @@
 
 Built, exit tests pending. Depends on
 [8-cancelling-a-turn](../8-cancelling-a-turn/1-index.md), which landed first:
-the second commit consumes TurnCancellation (Engine) to settle a parked
+the second commit consumes TurnCancellationController (Engine) to settle a parked
 question, and FR29 has no other mechanism.
 
 Depends on [7-sessions-without-a-note](../7-sessions-without-a-note/1-index.md)
@@ -40,7 +40,7 @@ Each step leaves the suite green.
    Nothing reads it yet, so this step is the guard's data with no behaviour
    attached to it.
 
-2. `src/engine/models/turn-budget.ts`: an open counter beside the command and
+2. `src/engine/models/notes-opened-counter.ts`: an open counter beside the command and
    search ones, with its own cap message.
 
 3. `src/engine/harness-tools.ts` and `src/engine/models/tool-schemas.ts`:
@@ -110,7 +110,7 @@ it rather than closing the one before.
     askers share one mechanism before the second one exists. Its tests from step
     4 must pass unchanged, which is what proves the move was behaviour-preserving.
 
-13. `src/engine/user-question.ts` and `src/engine/models/turn-budget.ts`: the
+13. `src/engine/user-question.ts` and `src/engine/models/notes-opened-counter.ts`: the
     second asker, and a question counter beside the other three.
 
 14. `src/engine/harness-tools.ts` and `src/engine/models/tool-schemas.ts`:

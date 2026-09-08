@@ -24,7 +24,7 @@ this spec removes.
 Each step leaves the suite green.
 
 1. `src/engine/models/notes-chosen-by-user-repository.ts`: the turn-scoped set, and its place
-   beside TurnBudget in TurnRepository.
+   beside NotesOpenedCounter in TurnRepository.
 
    Nothing calls it yet. Get the scope right here: it is built by
    TurnRepository, never passed in by TurnFactory, which is what makes it die

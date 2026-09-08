@@ -1,7 +1,7 @@
 import { ChoiceRequest } from '../tools/choice-request'
 import { NotesChosenByUserRepository } from '../turn/notes-chosen-by-user-repository'
 import { PendingAnswer } from './pending-answer'
-import { TurnCancellation } from '../turn/turn-cancellation'
+import { TurnCancellationController } from '../turn/turn-cancellation-controller'
 
 // One choice, asked of whoever supplied it. The engine awaits a path without
 // knowing that a panel row is what produces it. The parking itself is
@@ -19,7 +19,7 @@ export class NoteChoice {
   // them, since the user is consenting to a write rather than to a path.
   static of(
     ask: (request: ChoiceRequest) => Promise<string | null>,
-    cancellation = new TurnCancellation(),
+    cancellation = new TurnCancellationController(),
     chosen = new NotesChosenByUserRepository(),
   ): NoteChoice {
     return new NoteChoice(new PendingAnswer(ask, cancellation), chosen)

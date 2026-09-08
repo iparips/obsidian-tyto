@@ -7,12 +7,12 @@ import { ToolDispatcher } from '../tool-dispatcher'
 import { Turn } from './turn'
 import { TurnRepository } from './turn-repository'
 import { TurnProgressPublisher } from '../turn-progress-publisher'
-import { TurnCancellation } from './turn-cancellation'
+import { TurnCancellationController } from './turn-cancellation-controller'
 import { NoteChoice } from '../waiting/note-choice'
 import { NoteOpener } from '../note-binding/note-opener'
 import { NotesChosenByUserRepository } from './notes-chosen-by-user-repository'
 import { PathsReturnedByVaultRepository } from '../../search/models/paths-returned-by-vault-repository'
-import { TurnBudget } from './turn-budget'
+import { NotesOpenedCounter } from './notes-opened-counter'
 import { UserQuestion } from '../waiting/user-question'
 import { SessionRepository } from '../../session/session-repository'
 import { Attempt, Outcomes } from '../../shared/models/outcome'
@@ -35,10 +35,10 @@ export class TurnFactory {
     // The set it records into comes from the turn, so what the user chose dies
     // with the write they consented to (FR5).
     private buildNoteChoice: (
-      cancellation: TurnCancellation,
+      cancellation: TurnCancellationController,
       chosen: NotesChosenByUserRepository,
     ) => NoteChoice = (_cancellation, chosen) => NoteChoice.automatic(chosen),
-    private buildUserQuestion: (cancellation: TurnCancellation) => UserQuestion = () =>
+    private buildUserQuestion: (cancellation: TurnCancellationController) => UserQuestion = () =>
       UserQuestion.unanswered(),
   ) {}
 
@@ -54,17 +54,17 @@ export class TurnFactory {
     const turnRepository = new TurnRepository(
       resolvedNote.value,
       skills,
-      new TurnBudget(),
+      new NotesOpenedCounter(),
       this.pathsReturnedByVault,
     )
-    const cancellation = new TurnCancellation()
+    const cancellation = new TurnCancellationController()
     const askers = this.askersFor(cancellation, turnRepository.notesChosenByUser)
     const toolDispatcher = this.dispatcherFor(turnRepository, cancellation, askers)
     return Outcomes.success(new Turn(turnRepository, toolDispatcher, cancellation))
   }
 
   private askersFor(
-    turnCancellation: TurnCancellation,
+    turnCancellation: TurnCancellationController,
     notesChosenByUser: NotesChosenByUserRepository,
   ): TurnAskers {
     return {
@@ -75,7 +75,7 @@ export class TurnFactory {
 
   private dispatcherFor(
     repository: TurnRepository,
-    cancellation: TurnCancellation,
+    cancellation: TurnCancellationController,
     askers: TurnAskers,
   ): ToolDispatcher {
     return new ToolDispatcher(

@@ -10,7 +10,7 @@ const WARN_AT_REMAINING = 3
 // How much room a turn has left, and when to say so. A counter rather than a
 // bare loop index, because running low is something the user is told about and
 // running out is something the reply has to explain.
-export class IterationBudget {
+export class IterationCounter {
   private used = 0
 
   // Spent per tool call, so the count matches the numbered steps the user reads.

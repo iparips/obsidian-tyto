@@ -8,8 +8,8 @@ code that gives it meaning.
 
 ### turn/ - what one turn scopes and spends
 
-- TurnFactory, TurnRepository, TurnCancellation (Engine)
-- Turn, TurnBudget, IterationBudget, RepeatedRefusal, NotesChosenByUserRepository (Engine)
+- TurnFactory, TurnRepository, TurnCancellationController (Engine)
+- Turn, NotesOpenedCounter, IterationCounter, RepeatedRefusalCounter, NotesChosenByUserRepository (Engine)
 
 The strongest cluster. The three counters all answer "what may this turn
 spend", and today they sit apart from the repository owning their lifetime.

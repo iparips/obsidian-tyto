@@ -42,14 +42,14 @@ and retargets the session to it.
 // harness-tools.ts, beside runCommand and readNote
 // Refused rather than thrown, in the shape every other tool refuses, so the
 // model reads the reason and searches again (FR2, FR3).
-private async openNote(call: ToolCall, budget: TurnBudget): Promise<HarnessResult>
+private async openNote(call: ToolCall, budget: NotesOpenedCounter): Promise<HarnessResult>
 ```
 
 Three refusals guard it, in order:
 
 | Refusal            | Source of the answer           | Requirement |
 | ------------------ | ------------------------------ | ----------- |
-| Budget spent       | TurnBudget                     | FR4         |
+| Budget spent       | NotesOpenedCounter             | FR4         |
 | Path never offered | PathsReturnedByVaultRepository | FR3         |
 | No note there      | NoteReader                     | FR2         |
 
@@ -220,7 +220,7 @@ An unanswered question is the exception. Its buttons go, but its text stays, so
 a user who dismissed the notice can still read what was asked (FR32).
 
 Cancelling a turn while it waits answers declined. The promise must settle, or
-the loop stays parked and the session never returns to idle. TurnCancellation
+the loop stays parked and the session never returns to idle. TurnCancellationController
 (Engine) from [8-cancelling-a-turn](../8-cancelling-a-turn/1-index.md) is what
 carries that: the pending question races its own answer against whenCancelled.
 
@@ -237,7 +237,7 @@ mechanism, and the two differ only in what comes back.
 export class PendingAnswer<T> {
   constructor(
     private ask: (request: AnswerRequest) => Promise<T>,
-    private cancellation: TurnCancellation,
+    private cancellation: TurnCancellationController,
   ) {}
 
   // Resolves with the fallback when the turn is cancelled rather than answered,
@@ -281,10 +281,10 @@ HarnessTools (Engine) gains ask_user beside open_note and the four before it.
 // harness-tools.ts, beside openNote
 // The answer is the tool result, so the model reads it in the same turn rather
 // than the user restating the instruction (FR15, FR16).
-private async askUser(call: ToolCall, budget: TurnBudget): Promise<HarnessResult>
+private async askUser(call: ToolCall, budget: NotesOpenedCounter): Promise<HarnessResult>
 ```
 
-Its arguments are the question and, optionally, the suggestions. TurnBudget
+Its arguments are the question and, optionally, the suggestions. NotesOpenedCounter
 (Engine) gains a question counter beside the command, search and open ones, so
 FR30 costs no new mechanism.
 
@@ -391,6 +391,6 @@ not need the mode to justify it.
 - Remembering an approval past the turn that granted it.
 - Cancelling itself, which is
   [8-cancelling-a-turn](../8-cancelling-a-turn/1-index.md). This design consumes
-  TurnCancellation (Engine) and does not build it.
+  TurnCancellationController (Engine) and does not build it.
 - A system notification. The notices here are Obsidian's own, and stop at its
   window.

@@ -10,7 +10,7 @@ import { TurnRepository } from './turn/turn-repository'
 import { TargetNoteResolver } from './note-binding/target-note-resolver'
 import { SessionRepository } from '../session/session-repository'
 import { TurnProgressPublisher } from './turn-progress-publisher'
-import { TurnCancellation } from './turn/turn-cancellation'
+import { TurnCancellationController } from './turn/turn-cancellation-controller'
 import { NoteChoice } from './waiting/note-choice'
 import { NoteOpener } from './note-binding/note-opener'
 import { UserQuestion } from './waiting/user-question'
@@ -40,7 +40,7 @@ export class ToolDispatcher {
     private harnessTools: HarnessTools,
     private turnProgressPublisher: TurnProgressPublisher,
     private turnRepository: TurnRepository,
-    private turnCancellation: TurnCancellation,
+    private turnCancellation: TurnCancellationController,
     private noteChoice: NoteChoice,
     private userQuestion: UserQuestion,
     // Absent in tests that exercise the guards rather than the opening, and in a

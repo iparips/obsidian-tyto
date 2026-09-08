@@ -15,7 +15,10 @@ and consents to.
 | SessionRepository              | A session | Repository |
 | TurnRepository                 | One turn  | Repository |
 | TurnSpend                      | One turn  | Entity     |
-| TurnCancellation               | One turn  | Unsettled  |
+| IterationCounter               | One turn  | Counter    |
+| NotesOpenedCounter             | One turn  | Counter    |
+| RepeatedRefusalCounter         | One turn  | Counter    |
+| TurnCancellationController     | One turn  | Unsettled  |
 
 None is a service, because each holds the state it operates on.
 
@@ -28,9 +31,18 @@ adding a third class to either group.
 TurnSpend is an entity: its counts change throughout a turn while its identity
 stays that turn's. Two instances both at three iterations are not
 interchangeable, and handing the loop the wrong one would spend the wrong
-budget.
+allowance.
 
-TurnCancellation is deliberately unlabelled. It holds one flag that flips once,
+Counters are the fourth shape: a number and a cap, spent rather than stored.
+Nothing put into one comes back out, since IterationCounter.spend takes a count
+and offers no way to read it, and IterationCounter.justRanLow mutates on read so
+the warning fires once. Two instances at the same count are interchangeable,
+which is what separates them from TurnSpend, the entity that holds two of them.
+
+They were called Budget, which reads as an amount a reader could hold. Counter
+says the thing counts.
+
+TurnCancellationController is deliberately unlabelled. It holds one flag that flips once,
 which is thin for an entity, and it hands out an AbortSignal that kills an
 in-flight request and a promise that resolves on abort. That is a signal rather
 than a record, and no block names it well.

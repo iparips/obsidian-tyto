@@ -25,14 +25,17 @@ import { OwlSettings } from '../settings/settings'
 import { NoteChoice } from './waiting/note-choice'
 import { NoteOpener } from './note-binding/note-opener'
 import { NotesChosenByUserRepository } from './turn/notes-chosen-by-user-repository'
-import { TurnCancellation } from './turn/turn-cancellation'
+import { TurnCancellationController } from './turn/turn-cancellation-controller'
 import { UserQuestion } from './waiting/user-question'
 
 // How a session builds what a turn parks on. Both take the turn's cancellation,
 // so a parked question settles on a cancel rather than parking the loop.
 export interface EngineAskers {
-  noteChoice?(cancellation: TurnCancellation, chosen: NotesChosenByUserRepository): NoteChoice
-  userQuestion?(cancellation: TurnCancellation): UserQuestion
+  noteChoice?(
+    cancellation: TurnCancellationController,
+    chosen: NotesChosenByUserRepository,
+  ): NoteChoice
+  userQuestion?(cancellation: TurnCancellationController): UserQuestion
 }
 
 // Assembles one session's engine. Every collaborator is explicit, and this is

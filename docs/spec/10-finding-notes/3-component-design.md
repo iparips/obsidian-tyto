@@ -470,7 +470,7 @@ reads `<pattern> — 3 notes` for a glob and `<pattern> — 3 notes` for a grep.
 
 ## Two Tools, Two Budgets
 
-TurnBudget (Engine) gains two counters beside the four it has.
+NotesOpenedCounter (Engine) gains two counters beside the four it has.
 
 | Flow      | Cap | Spent by    |
 | --------- | --- | ----------- |
@@ -548,7 +548,7 @@ substitution rather than deletion:
 | `harness-tools-open.test.ts`       | search, the same helper at unit level                                     |
 | `edit-engine-harness.test.ts`      | Six sites, including the offered-set and search-cap assertions            |
 | `edit-engine-unbound.test.ts`      | One site                                                                  |
-| `turn-budget.test.ts`              | Asserts spentTools names search_vault                                     |
+| `notes-opened-counter.test.ts`     | Asserts spentTools names search_vault                                     |
 
 The first two are the ones to get right. Their helpers exist to put a path in
 PathsReturnedByVaultRepository so open_note will accept it, and a glob does that as well as a search

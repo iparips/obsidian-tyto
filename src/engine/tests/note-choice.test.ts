@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { NoteChoice } from '../waiting/note-choice'
 import { ChoiceRequest } from '../tools/choice-request'
 import { NotesChosenByUserRepository } from '../turn/notes-chosen-by-user-repository'
-import { TurnCancellation } from '../turn/turn-cancellation'
+import { TurnCancellationController } from '../turn/turn-cancellation-controller'
 
 const TODO = 'Journal/Weekly/Week-36/todo.md'
 const SHOPPING = 'Lists/shopping.md'
@@ -128,11 +128,11 @@ describe('NoteChoice', () => {
   })
 
   describe('when the turn is cancelled rather than answered', () => {
-    let cancellation: TurnCancellation
+    let cancellation: TurnCancellationController
     let choice: NoteChoice
 
     beforeEach(() => {
-      cancellation = new TurnCancellation()
+      cancellation = new TurnCancellationController()
       choice = NoteChoice.of(() => new Promise(() => undefined), cancellation)
     })
 
@@ -156,7 +156,9 @@ describe('NoteChoice', () => {
     it('records the pick in the turn-scoped set, so the dispatcher reads it', async () => {
       const chosen = new NotesChosenByUserRepository()
 
-      await NoteChoice.of(picking(TODO), new TurnCancellation(), chosen).choose(offering())
+      await NoteChoice.of(picking(TODO), new TurnCancellationController(), chosen).choose(
+        offering(),
+      )
 
       expect(chosen.includes(TODO)).toBe(true)
     })
