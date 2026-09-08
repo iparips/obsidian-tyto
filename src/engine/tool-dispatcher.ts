@@ -65,7 +65,9 @@ export class ToolDispatcher {
   // show them or a loop of failed anchors reads as a turn doing nothing.
   private recordEdit(outcome: ToolCallOutcome): ToolCallOutcome {
     if (outcome.editEndPosition) {
-      this.turnProgressPublisher.publishStepTaken(TurnStep.edited(outcome.result))
+      this.turnProgressPublisher.publishStepTaken(
+        TurnStep.edited(outcome.result, this.turnRepository.targetNote()?.path ?? null),
+      )
       return outcome
     }
     this.turnProgressPublisher.publishStepTaken(TurnStep.refused(outcome.result))

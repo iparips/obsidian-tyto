@@ -523,12 +523,12 @@ describe('EditEngine', () => {
       expect(steps.at(-1)).toContain('Refused:')
     })
 
-    it('reports the edit when one lands', async () => {
+    it('names the note in the step when an edit lands', async () => {
       respondsWith(findsTodo(), offersTodo(), opensTodo(), addsItem())
 
       await engineOf().processUtterance('add toilet paper to my todo')
 
-      expect(steps.at(-1)).toBe('Edit: applied')
+      expect(steps.at(-1)).toBe(`Edit: applied — ${TODO}`)
     })
   })
 })

@@ -58,6 +58,20 @@ describe('TurnStep', () => {
     })
   })
 
+  describe('when an edit lands', () => {
+    it('names the note the edit reached alongside the result', () => {
+      expect(TurnStep.edited('applied', 'Lists/todo.md').detail).toBe('applied — Lists/todo.md')
+    })
+
+    it('gives the result alone when the turn has no target to name', () => {
+      expect(TurnStep.edited('applied', null).detail).toBe('applied')
+    })
+
+    it('labels it as an edit', () => {
+      expect(TurnStep.edited('applied', 'Lists/todo.md').label).toBe('Edit')
+    })
+  })
+
   describe('when the turn refuses a call', () => {
     it('marks a refusal as refused, so the panel can set it apart', () => {
       expect(TurnStep.refused('the path was never searched').refused).toBe(true)

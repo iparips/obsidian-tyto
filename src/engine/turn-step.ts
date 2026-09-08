@@ -61,8 +61,11 @@ export class TurnStep {
     return new TurnStep('Asked', question)
   }
 
-  static edited(summary: string): TurnStep {
-    return new TurnStep('Edit', summary)
+  // Named, because the note an edit reached is the one thing the panel could
+  // not show: a choice of one note followed by an edit to another reads as an
+  // open the model never ran.
+  static edited(summary: string, path: string | null): TurnStep {
+    return new TurnStep('Edit', path === null ? summary : `${summary} — ${path}`)
   }
 
   // A refusal is a step too: it spent an iteration, and it is usually the thing
