@@ -29,9 +29,16 @@ searchRan and logRefusal. NoteEditTool edits the target it reads.
 EditEngine.followActiveNote retargets the turn it is running, where one is
 running.
 
-- Resolve the path, and retarget the turn on success
+- EditEngine takes a TargetNoteResolver, appended to its constructor
+- EngineFactory and the test builder pass the resolver they already build
+- Resolve after the session target moves, since the resolver reads it
+- Retarget the running turn on success, through retargetTo
 - A failed resolve leaves the turn where it was, as a command already does
 - The session target moves either way, which is today's behaviour
+
+followActiveNote becomes async, so the caller in OwlPlugin.retargetActiveEngine
+either awaits it or fires and forgets. It is an event handler, so it does not
+await today.
 
 ## Tests
 
