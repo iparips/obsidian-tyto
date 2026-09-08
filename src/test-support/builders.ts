@@ -13,6 +13,8 @@ import { NoteReader } from '../search/note-reader'
 import { FakeVault } from './fake-vault'
 import { FakeAdapter } from './fake-adapter'
 import { EditEngine } from '../engine/edit-engine'
+import { ModelCaller } from '../engine/model-caller'
+import { TurnConclusion } from '../engine/turn-conclusion'
 import { NoteEditor } from '../engine/note-editing/note-editor'
 import { TargetNoteResolver } from '../engine/note-binding/target-note-resolver'
 import { TurnProgressPublisher } from '../engine/turn-progress-publisher'
@@ -74,11 +76,10 @@ export const anEngine = (modelProvider: ChatProvider, options: EnginePartsOption
     options.userQuestion ?? (() => UserQuestion.unanswered()),
   )
   return new EditEngine(
-    modelProvider,
     options.sessions,
-    new NoteEditor(),
-    harness,
     turnFactory,
+    new ModelCaller(modelProvider, harness),
+    new TurnConclusion(options.sessions, new NoteEditor()),
     progress,
   )
 }

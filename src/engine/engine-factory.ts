@@ -1,5 +1,7 @@
 import { App, TFile } from 'obsidian'
 import { EditEngine } from './edit-engine'
+import { ModelCaller } from './model-caller'
+import { TurnConclusion } from './turn-conclusion'
 import { NoteEditor } from './note-editing/note-editor'
 import { HarnessTools } from './tools/harness-tools'
 import { TargetNoteResolver } from './note-binding/target-note-resolver'
@@ -58,11 +60,10 @@ export class EngineFactory {
     )
     const harnessTools = this.buildHarnessTools()
     return new EditEngine(
-      modelProvider,
       sessions,
-      new NoteEditor(),
-      harnessTools,
       this.buildTurnFactory(sessions, targetNote, harnessTools, progress, askers),
+      new ModelCaller(modelProvider, harnessTools),
+      new TurnConclusion(sessions, new NoteEditor()),
       progress,
     )
   }

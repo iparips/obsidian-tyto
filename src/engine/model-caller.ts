@@ -1,0 +1,68 @@
+import { ChatMessage, ChatProvider } from '../providers/types'
+import { ChatTurn } from '../providers/models/chat-turn'
+import { Outcome } from '../shared/models/outcome'
+import { PromptBuilder } from './prompting/prompt-builder'
+import { Today } from './prompting/today'
+import { OpenNote } from './note-editing/open-note'
+import { Skill } from '../skills/skill'
+import { AgentsMdChain } from '../agents/agents-md-chain'
+import { HarnessTools } from './tools/harness-tools'
+
+// What one turn tells the model, and what the model may call back. The loop
+// knows when to ask; this knows what the asking is made of.
+export class ModelCaller {
+  constructor(
+    private modelProvider: ChatProvider,
+    private harnessTools: HarnessTools,
+  ) {}
+
+  // Ordered by how stale a copy the history could hold: the rules first, then
+  // the conversation, then what the model must not read off an earlier turn.
+  async ask(request: ModelRequest): Promise<Outcome<ChatTurn>> {
+    return this.modelProvider.complete(
+      this.messagesFor(request),
+      this.harnessTools.schemas(request.skills.length > 0),
+      request.abortSignal,
+    )
+  }
+
+  private messagesFor(request: ModelRequest): ChatMessage[] {
+    return [
+      this.standingRules(request),
+      ...request.chatHistory,
+      // Today is read per call rather than per session, so a turn running past
+      // midnight resolves against the day it is on.
+      PromptBuilder.dateAndSkills(Today.of(), request.skills),
+      this.finalContext(request.note),
+    ]
+  }
+
+  private standingRules(request: ModelRequest): ChatMessage {
+    return PromptBuilder.standingRules(
+      request.skills,
+      request.agentsMdChain,
+      this.harnessTools.allowedCommands(),
+      this.harnessTools.hasSearchEnabled(),
+    )
+  }
+
+  private finalContext(note: OpenNote | null): ChatMessage {
+    if (note) return PromptBuilder.noteContext(note.details())
+    return PromptBuilder.unboundContext(
+      this.harnessTools.hasWhitelistedCommands(),
+      this.harnessTools.hasSearchEnabled(),
+    )
+  }
+}
+
+// What the turn supplies for one call. A value, so the five arguments travel
+// together rather than as a signature every caller has to keep in order.
+export class ModelRequest {
+  constructor(
+    readonly note: OpenNote | null,
+    readonly skills: readonly Skill[],
+    readonly agentsMdChain: AgentsMdChain,
+    readonly chatHistory: readonly ChatMessage[],
+    readonly abortSignal: AbortSignal,
+  ) {}
+}

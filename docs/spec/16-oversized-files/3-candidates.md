@@ -47,24 +47,14 @@ Risk
 
 35 lines, in engine/edit-engine.ts.
 
-What it holds
+Extracting the loop body would leave runAgentLoop as a for statement and the
+exhausted case, but an iteration either ends the turn or continues it, so the
+extracted function returns an outcome or null. That reads worse than the
+current inline returns.
 
-- The turn loop: cancellation check, model call, logging, text-versus-tools
-  branch, tool execution, refusal counting, budget spend, low-budget warning.
-- Four ways to end a turn, each with its own conclude method.
-
-What changes
-
-- The loop body is one iteration, and could be extracted as such. What survives
-  in runAgentLoop is the for statement and the exhausted case.
-- The awkwardness is that an iteration either ends the turn or continues it, so
-  the extracted function returns an outcome or null.
-
-Risk
-
-- Medium. It grew when repeated-refusal stopping was added, and it is the
-  hottest path in the codebase. The null-or-outcome return is less readable
-  than the current inline returns, so this may not be worth doing.
+The line count is the wrong thing to chase here. [4-edit-engine/1-index.md](4-edit-engine/1-index.md)
+sets out the five responsibilities the class carries, and which of them is worth
+extracting first.
 
 ## Not candidates
 
