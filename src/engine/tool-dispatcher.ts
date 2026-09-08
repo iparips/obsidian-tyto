@@ -236,10 +236,6 @@ export class ToolDispatcher {
       return false
     }
     this.turnRepository.retargetTo(resolvedNoteOutcome.value)
-    // The note is live here: it resolved to an editor just now, rather than
-    // from a path the session carried in. A command's own note is authorised by
-    // the allow-list, so this covers both routes onto a note.
-    this.turnRepository.recordOpened(path)
     this.turnProgressPublisher.retargeted(path)
     return true
   }

@@ -19,7 +19,6 @@ export class SearchToolsService {
   ) {}
 
   glob(call: ToolCall, turn: TurnState): HarnessResult {
-    turn.searchRan()
     const pattern = call.argument('pattern')
     const result = this.noteGlob.find(pattern, SearchToolsService.orderOf(call))
     turn.pathsReturnedByVault.recordPaths(result.paths)
@@ -30,7 +29,6 @@ export class SearchToolsService {
   }
 
   async grep(call: ToolCall, turn: TurnState): Promise<HarnessResult> {
-    turn.searchRan()
     const outcome = await this.noteGrep.find(
       SearchToolsService.requestOf(call),
       SearchToolsService.orderOf(call),

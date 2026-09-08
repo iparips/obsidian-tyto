@@ -17,8 +17,8 @@ export class NoteEditTool {
     private turnRepository: TurnRepository,
   ) {}
 
-  // Refused rather than applied to the note the turn still holds: that note is
-  // no longer the target, and editing it would write to the wrong file.
+  // The target is the only editable note, so there is no permission left to
+  // check: it moves only through a consented open or a command.
   execute(call: ToolCall): ToolCallOutcome {
     // Ordering, not relevance: the model decides which skill applies, or that
     // none does, and the harness only holds it to deciding before it writes.
@@ -34,17 +34,7 @@ export class NoteEditTool {
     // retrying an edit that cannot land.
     if (!note)
       return ToolCallOutcome.of('no note is open; tell the user to open one before editing')
-    // A turn inherits its binding from the session, and choosing a note moves
-    // neither that binding nor the turn's target. Once the model has searched,
-    // an edit needs a note this turn opened, so a chosen note cannot be written
-    // to until the open that makes it the target has run.
-    if (!this.turnRepository.mayEdit(note.path))
-      return ToolCallOutcome.of(NoteEditTool.unopenedMessage(note.path))
     return this.callToolOnNote(call, note)
-  }
-
-  private static unopenedMessage(path: string): string {
-    return `${path} was not opened this turn; offer it with choose_note and open it before editing`
   }
 
   private callToolOnNote(call: ToolCall, note: OpenNote): ToolCallOutcome {

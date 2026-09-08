@@ -259,32 +259,21 @@ describe('EditEngine', () => {
 
   // The reported failure: the model globbed, was refused an unchosen open,
   // called choose_note, then edited without ever opening. Choosing moves no
-  // binding, so the edit landed on the note the turn inherited while the panel
-  // named the note the model chose.
+  // binding, so the edit lands on the note the turn inherited, which is the
+  // note the user still has in front of them. The step names it.
   describe('when the model edits without opening what it chose', () => {
     const offersStart = () =>
       aToolTurn(aToolCall('choose_note', { paths: ['note.md'], purpose: 'add a line' }))
 
-    it('refuses an edit to the inherited note once the model has searched', async () => {
+    it('edits the note the turn started on after a search, since the target has not moved', async () => {
       respondsWith(findsTodo(), offersStart(), addsLineToStart())
 
       await engineOf(picking('note.md')).processUtterance('find the todo and add an item')
 
-      expect(editor.content).toBe('# Budget\n\nbody')
+      expect(editor.content).toBe('A new line.\n# Budget\n\nbody')
     })
 
-    it('tells the model to open the note before editing when it skipped the open', async () => {
-      respondsWith(findsTodo(), offersStart(), addsLineToStart())
-
-      await engineOf(picking('note.md')).processUtterance('find the todo and add an item')
-
-      expect(toolResultsOf(3).at(-1)).toMatchObject({
-        content:
-          'note.md was not opened this turn; offer it with choose_note and open it before editing',
-      })
-    })
-
-    it('applies the edit once the note is actually opened, so the guard is not a block', async () => {
+    it('edits the note the model opened after a choice, since the open moved the target', async () => {
       respondsWith(findsTodo(), offersTodo(), opensTodo(), addsItem())
 
       await engineOf(picking(TODO)).processUtterance('find the todo and add an item')
@@ -293,8 +282,8 @@ describe('EditEngine', () => {
     })
   })
 
-  // Plain dictation never searches, so the note the user is looking at stays
-  // editable without a choice. The guard must not break the common case.
+  // Plain dictation moves nothing, so the note the user is looking at is still
+  // the target when the edit lands.
   describe('when the turn only edits the note it started on', () => {
     it('edits the inherited note when no search has run', async () => {
       respondsWith(addsLineToStart())

@@ -28,7 +28,6 @@ describe('HarnessToolsService', () => {
     turn = {
       notesOpenedCounter: new NotesOpenedCounter(),
       pathsReturnedByVault: new PathsReturnedByVaultRepository(),
-      searchRan: () => undefined,
     }
   })
 

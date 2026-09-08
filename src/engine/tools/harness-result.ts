@@ -17,9 +17,6 @@ export type HarnessResult = TextResult | ChoiceResult | OpenNoteResult | Obsidia
 export interface TurnState {
   readonly notesOpenedCounter: NotesOpenedCounter
   readonly pathsReturnedByVault: PathsReturnedByVaultRepository
-  // Told when the model looks past the note the turn started on, which is what
-  // makes the inherited binding no longer a safe edit target.
-  searchRan(): void
 }
 
 // Shared by every tool that can refuse, so a cap message and a bad argument

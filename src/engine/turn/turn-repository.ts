@@ -31,42 +31,6 @@ export class TurnRepository {
   // to, and a second turn would open the note without asking.
   readonly notesChosenByUser = new NotesChosenByUserRepository()
 
-  // The note the turn inherited, resolved before any tool ran. Editing it needs
-  // no choice: it is the note the user was looking at when they spoke.
-  private readonly noteTheTurnStartedOn: string | null = this.resolvedNote?.note.path ?? null
-
-  // Set once the model reaches past the note it started on. From then an edit
-  // needs a note this turn opened, so the note the model chose and the note the
-  // edit lands on are the same one. Nothing else keeps the two together: a
-  // choice moves neither the session binding nor the turn's target.
-  private reachedOut = false
-
-  // A glob or grep is the model looking for a note other than the one in front
-  // of the user, which is what makes the inherited binding no longer the target.
-  searchRan(): void {
-    this.reachedOut = true
-  }
-
-  // Whether an edit may land on this note. The note the turn started on is the
-  // one the user was looking at, until the model goes looking for another.
-  mayEdit(path: string): boolean {
-    if (this.openedThisTurn.has(path)) return true
-    const allowed = !this.reachedOut && path === this.noteTheTurnStartedOn
-    if (!allowed) this.logRefusal(path)
-    return allowed
-  }
-
-  // The refusal reads the same whichever branch produced it, so the log names
-  // the state instead: which note the turn started on, and whether a search
-  // moved it off that note.
-  private logRefusal(path: string): void {
-    console.debug(
-      `[owl] refused edit to ${path}: noteTheTurnStartedOn=${this.noteTheTurnStartedOn}, reachedOut=${this.reachedOut}, opened=[${[...this.openedThisTurn].join(', ')}]`,
-    )
-  }
-
-  private readonly openedThisTurn = new Set<string>()
-
   // Null while the session is unbound, which is a turn that can search but not
   // write.
   targetNote(): OpenNote | null {
@@ -133,12 +97,6 @@ export class TurnRepository {
   // the user declined does not cost the turn its one open.
   recordOpen(path: string): void {
     this.notesOpenedCounter.takeOpen(path)
-  }
-
-  // Separate from recordOpen, which spends the budget: a command's note is
-  // opened without the model choosing to, and must not cost the turn its one.
-  recordOpened(path: string): void {
-    this.openedThisTurn.add(path)
   }
 
   retargetTo(resolved: ResolvedNote): void {
