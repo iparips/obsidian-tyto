@@ -31,8 +31,8 @@ flowchart LR
     Dispatcher["ToolDispatcher [Engine]<br/>Responsibility: owns what one tool call does"]
     Picker["NoteChoice [Engine, new]<br/>Responsibility: owns asking which note and holding the answer"]
     Pending["PendingAnswer [Engine]<br/>Responsibility: owns parking a turn on the user"]
-    Chosen["ChosenNotes [Engine, new]<br/>Holds: the paths the user chose this turn"]
-    Seen["SeenPaths [Search]<br/>Holds: the paths a search returned this session"]
+    Chosen["NotesChosenByUserRepository [Engine, new]<br/>Holds: the paths the user chose this turn"]
+    Seen["PathsReturnedByVaultRepository [Search]<br/>Holds: the paths a search returned this session"]
 
     Dispatcher --> Picker
     Picker --> Pending
@@ -69,11 +69,11 @@ second records consent.
 
 OpenApproval (Engine) goes. Its three pieces land differently.
 
-| OpenApproval held       | Becomes                                                          |
-| ----------------------- | ---------------------------------------------------------------- |
-| The parked yes/no       | NoteChoice's parked pick, over the same PendingAnswer            |
-| The per-path grant set  | ChosenNotes, turn-scoped rather than session-scoped              |
-| The auto-mode granted() | NoteChoice.automatic(), which chooses the first candidate (FR13) |
+| OpenApproval held       | Becomes                                                             |
+| ----------------------- | ------------------------------------------------------------------- |
+| The parked yes/no       | NoteChoice's parked pick, over the same PendingAnswer               |
+| The per-path grant set  | NotesChosenByUserRepository, turn-scoped rather than session-scoped |
+| The auto-mode granted() | NoteChoice.automatic(), which chooses the first candidate (FR13)    |
 
 ```typescript
 // note-choice.ts
@@ -113,7 +113,7 @@ errors are the smaller half.
 | File                                          | Change                                                                       |
 | --------------------------------------------- | ---------------------------------------------------------------------------- |
 | `engine/open-approval.ts` and its test        | Deleted, replaced by note-choice.ts                                          |
-| `session/approval-repository.ts` and its test | Deleted; ChosenNotes replaces it at turn scope                               |
+| `session/approval-repository.ts` and its test | Deleted; NotesChosenByUserRepository replaces it at turn scope               |
 | `engine/tool-dispatcher.ts`                   | Holds NoteChoice; openModelChosenNote checks holds rather than granting      |
 | `engine/turn-factory.ts`                      | buildOpenApproval becomes buildNoteChoice; TurnAskers renames its field      |
 | `engine/engine-factory.ts`                    | EngineAskers renames openApproval to noteChoice                              |
@@ -137,7 +137,7 @@ confirmation had two: picked, declined, and a turn that ended with neither.
 
 ## The Shortlist Is Checked Before It Is Shown
 
-Every candidate is filtered through SeenPaths (Search) before the user sees it,
+Every candidate is filtered through PathsReturnedByVaultRepository (Search) before the user sees it,
 so the model cannot shortlist a path it invented.
 
 That check is what keeps FR10 meaningful. Without it the model could route
@@ -227,7 +227,7 @@ sequenceDiagram
     participant Engine as EditEngine [Engine]
     participant Dispatcher as ToolDispatcher [Engine]
     participant Choice as NoteChoice [Engine, new]
-    participant Chosen as ChosenNotes [Engine, new]
+    participant Chosen as NotesChosenByUserRepository [Engine, new]
     participant Panel as SessionPanel [Session]
 
     Note over Engine,Panel: THE MODEL OFFERS, THE USER CHOOSES
@@ -248,25 +248,25 @@ Arrows: uses-relationship (client to supplier).
 
 ## The Two Scopes Are Two Repositories
 
-ChosenNotes (Engine, new) lives on the turn; SeenPaths (Search) lives on the
+NotesChosenByUserRepository (Engine, new) lives on the turn; PathsReturnedByVaultRepository (Search) lives on the
 session. Different lifetimes, different homes, and neither defaults into the
 other.
 
 ```typescript
-// chosen-notes.ts
+// notes-chosen-by-user-repository.ts
 // Per turn, because consent is about the write in front of the user. A session
 // scope would let one pick license every later edit to that note.
-export class ChosenNotes {
+export class NotesChosenByUserRepository {
   includes(path: string): boolean
   record(path: string): void
 }
 ```
 
-ChosenNotes is built where TurnBudget is, in TurnRepository (Engine), and dies
-with it (FR5). SeenPaths is passed in by TurnFactory (Engine), which holds one
+NotesChosenByUserRepository is built where TurnBudget is, in TurnRepository (Engine), and dies
+with it (FR5). PathsReturnedByVaultRepository is passed in by TurnFactory (Engine), which holds one
 for the session.
 
-That placement is the whole of the scope. A ChosenNotes passed in by TurnFactory
+That placement is the whole of the scope. A NotesChosenByUserRepository passed in by TurnFactory
 would be session-scoped by accident, and the tests that prove a second turn asks
 again would pass against a fixture that never opened a second turn (FR11).
 

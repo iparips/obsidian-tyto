@@ -3,7 +3,7 @@ import { App } from 'obsidian'
 import { HarnessTools } from '../tools/harness-tools'
 import { TurnState } from '../tools/harness-result'
 import { TurnBudget } from '../turn/turn-budget'
-import { SeenPaths } from '../../search/models/seen-paths'
+import { PathsReturnedByVaultRepository } from '../../search/models/paths-returned-by-vault-repository'
 import { ObsidianCommandCatalogue } from '../../commands/obsidian-command-catalogue'
 import { ObsidianCommandRegistry } from '../../commands/obsidian-command-registry'
 import { ObsidianCommandRunner } from '../../commands/obsidian-command-runner'
@@ -27,7 +27,7 @@ describe('HarnessTools', () => {
     vault = new FakeVault().withNote(TODO, '- [ ] milk')
     turn = {
       turnBudget: new TurnBudget(),
-      pathsSeenInThisSession: new SeenPaths(),
+      pathsReturnedByVault: new PathsReturnedByVaultRepository(),
       searchRan: () => undefined,
     }
   })
@@ -67,7 +67,7 @@ describe('HarnessTools', () => {
     it('records the path as found when the read succeeds', async () => {
       await readNote(TODO)
 
-      expect(turn.pathsSeenInThisSession.includes(TODO)).toBe(true)
+      expect(turn.pathsReturnedByVault.includes(TODO)).toBe(true)
     })
   })
 
@@ -81,7 +81,7 @@ describe('HarnessTools', () => {
     it('records no path when the read fails', async () => {
       await readNote(MISSING)
 
-      expect(turn.pathsSeenInThisSession.includes(MISSING)).toBe(false)
+      expect(turn.pathsReturnedByVault.includes(MISSING)).toBe(false)
     })
   })
 })

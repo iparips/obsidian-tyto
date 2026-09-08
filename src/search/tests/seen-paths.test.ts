@@ -1,14 +1,14 @@
 import { beforeEach, describe, expect, it } from 'vitest'
-import { SeenPaths } from '../models/seen-paths'
+import { PathsReturnedByVaultRepository } from '../models/paths-returned-by-vault-repository'
 import { SearchHit } from '../models/search-hit'
 
 const aHit = (path: string): SearchHit => new SearchHit(path, 1, 'excerpt')
 
-describe('SeenPaths', () => {
-  let seen: SeenPaths
+describe('PathsReturnedByVaultRepository', () => {
+  let seen: PathsReturnedByVaultRepository
 
   beforeEach(() => {
-    seen = new SeenPaths()
+    seen = new PathsReturnedByVaultRepository()
   })
 
   describe('when nothing has been searched', () => {

@@ -1,5 +1,5 @@
 import { ChoiceRequest } from '../tools/choice-request'
-import { ChosenNotes } from '../turn/chosen-notes'
+import { NotesChosenByUserRepository } from '../turn/notes-chosen-by-user-repository'
 import { PendingAnswer } from './pending-answer'
 import { TurnCancellation } from '../turn/turn-cancellation'
 
@@ -11,7 +11,7 @@ export class NoteChoice {
     private pending: PendingAnswer<ChoiceRequest, string | null>,
     // Turn-scoped, so a note chosen in one turn is asked about again in the
     // next: consent is about the write in front of the user.
-    private chosen: ChosenNotes,
+    private chosen: NotesChosenByUserRepository,
   ) {}
 
   // The paths offered are from the vault root, so the user chooses a note
@@ -20,14 +20,14 @@ export class NoteChoice {
   static of(
     ask: (request: ChoiceRequest) => Promise<string | null>,
     cancellation = new TurnCancellation(),
-    chosen = new ChosenNotes(),
+    chosen = new NotesChosenByUserRepository(),
   ): NoteChoice {
     return new NoteChoice(new PendingAnswer(ask, cancellation), chosen)
   }
 
   // Auto mode, and what a test constructs when the choice is not what it is
   // exercising. The mode is a choice of collaborator, not a branch (FR13).
-  static automatic(chosen = new ChosenNotes()): NoteChoice {
+  static automatic(chosen = new NotesChosenByUserRepository()): NoteChoice {
     return NoteChoice.of(
       (request) => Promise.resolve(request.candidates[0] ?? null),
       undefined,

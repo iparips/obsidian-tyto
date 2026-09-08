@@ -27,7 +27,7 @@ import { SkillRepository } from '../skills/skill-repository'
 import { ChatProvider } from '../providers/types'
 import { NoteChoice } from '../engine/waiting/note-choice'
 import { NoteOpener } from '../engine/note-binding/note-opener'
-import { ChosenNotes } from '../engine/turn/chosen-notes'
+import { NotesChosenByUserRepository } from '../engine/turn/notes-chosen-by-user-repository'
 import { TurnCancellation } from '../engine/turn/turn-cancellation'
 import { UserQuestion } from '../engine/waiting/user-question'
 
@@ -48,7 +48,7 @@ export interface EnginePartsOptions {
   harnessTools?: HarnessTools
   progress?: TurnProgressPublisher
   noteOpener?: NoteOpener | null
-  noteChoice?: (cancellation: TurnCancellation, chosen: ChosenNotes) => NoteChoice
+  noteChoice?: (cancellation: TurnCancellation, chosen: NotesChosenByUserRepository) => NoteChoice
   userQuestion?: (cancellation: TurnCancellation) => UserQuestion
 }
 

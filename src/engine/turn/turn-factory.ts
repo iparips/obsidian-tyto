@@ -10,8 +10,8 @@ import { TurnProgressPublisher } from '../turn-progress-publisher'
 import { TurnCancellation } from './turn-cancellation'
 import { NoteChoice } from '../waiting/note-choice'
 import { NoteOpener } from '../note-binding/note-opener'
-import { ChosenNotes } from './chosen-notes'
-import { SeenPaths } from '../../search/models/seen-paths'
+import { NotesChosenByUserRepository } from './notes-chosen-by-user-repository'
+import { PathsReturnedByVaultRepository } from '../../search/models/paths-returned-by-vault-repository'
 import { TurnBudget } from './turn-budget'
 import { UserQuestion } from '../waiting/user-question'
 import { SessionRepository } from '../../session/session-repository'
@@ -34,10 +34,10 @@ export class TurnFactory {
     // choice settles on a cancel rather than parking the loop forever (NFR2).
     // The set it records into comes from the turn, so what the user chose dies
     // with the write they consented to (FR5).
-    private buildNoteChoice: (cancellation: TurnCancellation, chosen: ChosenNotes) => NoteChoice = (
-      _cancellation,
-      chosen,
-    ) => NoteChoice.automatic(chosen),
+    private buildNoteChoice: (
+      cancellation: TurnCancellation,
+      chosen: NotesChosenByUserRepository,
+    ) => NoteChoice = (_cancellation, chosen) => NoteChoice.automatic(chosen),
     private buildUserQuestion: (cancellation: TurnCancellation) => UserQuestion = () =>
       UserQuestion.unanswered(),
   ) {}
@@ -45,7 +45,7 @@ export class TurnFactory {
   // Session-scoped, so a note found in one turn can still be opened in the
   // next. A path that has gone stale fails loudly on the read, which is a
   // better answer than refusing one the user watched the model find.
-  private readonly pathsSeenInThisSession = new SeenPaths()
+  private readonly pathsReturnedByVault = new PathsReturnedByVaultRepository()
 
   async openTurn(): Promise<Attempt<Turn>> {
     const resolvedNote = await this.targetNoteResolver.resolve()
@@ -55,17 +55,20 @@ export class TurnFactory {
       resolvedNote.value,
       skills,
       new TurnBudget(),
-      this.pathsSeenInThisSession,
+      this.pathsReturnedByVault,
     )
     const cancellation = new TurnCancellation()
-    const askers = this.askersFor(cancellation, turnRepository.chosenNotes)
+    const askers = this.askersFor(cancellation, turnRepository.notesChosenByUser)
     const toolDispatcher = this.dispatcherFor(turnRepository, cancellation, askers)
     return Outcomes.success(new Turn(turnRepository, toolDispatcher, cancellation))
   }
 
-  private askersFor(turnCancellation: TurnCancellation, chosenNotes: ChosenNotes): TurnAskers {
+  private askersFor(
+    turnCancellation: TurnCancellation,
+    notesChosenByUser: NotesChosenByUserRepository,
+  ): TurnAskers {
     return {
-      noteChoice: this.buildNoteChoice(turnCancellation, chosenNotes),
+      noteChoice: this.buildNoteChoice(turnCancellation, notesChosenByUser),
       userQuestion: this.buildUserQuestion(turnCancellation),
     }
   }

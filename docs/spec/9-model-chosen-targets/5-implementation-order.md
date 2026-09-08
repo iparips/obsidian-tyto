@@ -33,7 +33,7 @@ shared parking mechanism before the second asker exists.
 
 Each step leaves the suite green.
 
-1. `src/search/models/seen-paths.ts`: the turn-scoped record of what search
+1. `src/search/models/paths-returned-by-vault-repository.ts`: the turn-scoped record of what search
    offered. Held on TurnRepository (Engine), recorded by HarnessTools (Engine)
    when a search returns.
 

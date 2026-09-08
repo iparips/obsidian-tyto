@@ -5,7 +5,7 @@ import { HarnessResult, TurnState } from '../tools/harness-result'
 import { HarnessResultKind } from '../tools/harness-result-kind'
 import { ChoiceRequest } from '../tools/choice-request'
 import { TurnBudget } from '../turn/turn-budget'
-import { SeenPaths } from '../../search/models/seen-paths'
+import { PathsReturnedByVaultRepository } from '../../search/models/paths-returned-by-vault-repository'
 import { ObsidianCommandCatalogue } from '../../commands/obsidian-command-catalogue'
 import { ObsidianCommandRegistry } from '../../commands/obsidian-command-registry'
 import { ObsidianCommandRunner } from '../../commands/obsidian-command-runner'
@@ -30,7 +30,7 @@ describe('HarnessTools', () => {
     vault = new FakeVault().withNote(TODO, '- [ ] milk').withNote(SHOPPING, '- [ ] bread')
     turn = {
       turnBudget: new TurnBudget(),
-      pathsSeenInThisSession: new SeenPaths(),
+      pathsReturnedByVault: new PathsReturnedByVaultRepository(),
       searchRan: () => undefined,
     }
   })
@@ -66,7 +66,7 @@ describe('HarnessTools', () => {
 
   describe('when a search has returned every candidate', () => {
     beforeEach(() => {
-      turn.pathsSeenInThisSession.recordPaths([TODO, SHOPPING])
+      turn.pathsReturnedByVault.recordPaths([TODO, SHOPPING])
     })
 
     it('runs a choice when choose_note is called', async () => {
@@ -99,7 +99,7 @@ describe('HarnessTools', () => {
 
   describe('when a candidate was never returned by a search', () => {
     beforeEach(() => {
-      turn.pathsSeenInThisSession.recordPaths([TODO])
+      turn.pathsReturnedByVault.recordPaths([TODO])
     })
 
     it('offers only the candidates a search returned, so an invented path is dropped', async () => {
@@ -109,7 +109,7 @@ describe('HarnessTools', () => {
     })
 
     it('applies the cap after the filter, so a dropped path does not push a shortlist over it', async () => {
-      turn.pathsSeenInThisSession.recordPaths(EIGHT)
+      turn.pathsReturnedByVault.recordPaths(EIGHT)
 
       const harnessResult = await chooseNote([...EIGHT, INVENTED])
 
@@ -149,7 +149,7 @@ describe('HarnessTools', () => {
 
   describe('when more notes are offered than the cap', () => {
     beforeEach(() => {
-      turn.pathsSeenInThisSession.recordPaths(NINE)
+      turn.pathsReturnedByVault.recordPaths(NINE)
     })
 
     it('refuses the call when more notes are offered than the cap, naming the cap', async () => {
@@ -171,7 +171,7 @@ describe('HarnessTools', () => {
     })
 
     it('refuses the call when search is disabled', async () => {
-      turn.pathsSeenInThisSession.recordPaths([TODO])
+      turn.pathsReturnedByVault.recordPaths([TODO])
 
       const harnessResult = await toolsOf(false).execute(
         aToolCall('choose_note', { paths: [TODO], purpose: 'add an item' }),

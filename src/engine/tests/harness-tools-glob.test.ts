@@ -3,7 +3,7 @@ import { App } from 'obsidian'
 import { HarnessTools } from '../tools/harness-tools'
 import { TurnState } from '../tools/harness-result'
 import { TurnBudget } from '../turn/turn-budget'
-import { SeenPaths } from '../../search/models/seen-paths'
+import { PathsReturnedByVaultRepository } from '../../search/models/paths-returned-by-vault-repository'
 import { ObsidianCommandCatalogue } from '../../commands/obsidian-command-catalogue'
 import { ObsidianCommandRegistry } from '../../commands/obsidian-command-registry'
 import { ObsidianCommandRunner } from '../../commands/obsidian-command-runner'
@@ -28,7 +28,7 @@ describe('HarnessTools', () => {
     vault = new FakeVault().withNote(FRIDAY, 'friday').withNote(THURSDAY, 'thursday')
     turn = {
       turnBudget: new TurnBudget(),
-      pathsSeenInThisSession: new SeenPaths(),
+      pathsReturnedByVault: new PathsReturnedByVaultRepository(),
       searchRan: () => undefined,
     }
   })
@@ -69,7 +69,7 @@ describe('HarnessTools', () => {
     it('records the paths of a glob, so a following open is permitted', async () => {
       await glob(`${WEEK}/*.md`)
 
-      expect(turn.pathsSeenInThisSession.includes(FRIDAY)).toBe(true)
+      expect(turn.pathsReturnedByVault.includes(FRIDAY)).toBe(true)
     })
 
     it('reports a glob as a step, naming the pattern and the count', async () => {

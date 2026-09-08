@@ -20,7 +20,7 @@ export class NotePathsShortlistTool {
     const pathsToOffer = call.stringsArgument('paths')
     if (pathsToOffer.length === 0) return Refusal.of('offer at least one path a search returned')
     const pathsThatHaveBeenSeenInThisSession = pathsToOffer.filter((path) =>
-      turn.pathsSeenInThisSession.includes(path),
+      turn.pathsReturnedByVault.includes(path),
     )
     if (pathsThatHaveBeenSeenInThisSession.length === 0)
       return Refusal.of(NotePathsShortlistTool.doNotOfferUnseenPathsMessage(pathsToOffer))

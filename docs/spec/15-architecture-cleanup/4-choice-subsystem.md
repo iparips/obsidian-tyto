@@ -16,26 +16,26 @@ flowchart LR
     ToolDispatcher["ToolDispatcher [Engine]<br/>Responsibility: owns the branch by awaiting the person once a tool returns a request"]
     NoteChoice["NoteChoice [Engine]<br/>Responsibility: owns the pick by parking the turn and recording what was chosen"]
     PendingAnswer["PendingAnswer [Engine]<br/>Responsibility: owns the parking by racing an answer against a cancellation"]
-    ChosenNotes["ChosenNotes [Engine]<br/>Responsibility: owns the consent record for one turn, one entry per note"]
+    NotesChosenByUserRepository["NotesChosenByUserRepository [Engine]<br/>Responsibility: owns the consent record for one turn, one entry per note"]
     ChoiceRequest["ChoiceRequest [Engine]<br/>Responsibility: carries the candidates and the purpose the user consents to"]
     TurnAskers["TurnAskers [Session]<br/>Responsibility: owns the mode by choosing whether a person or auto answers"]
     Asker["Asker [Session]<br/>Responsibility: owns the panel hand-off, answering itself when nobody listens"]
     SessionPanel["SessionPanel [Session]<br/>Responsibility: owns the rows the person clicks"]
-    SeenPaths["SeenPaths [Search]<br/>Responsibility: owns what the vault offered, for the session"]
+    PathsReturnedByVaultRepository["PathsReturnedByVaultRepository [Search]<br/>Responsibility: owns what the vault offered, for the session"]
 
-    ShortlistTool --> SeenPaths
+    ShortlistTool --> PathsReturnedByVaultRepository
     ShortlistTool --> ChoiceRequest
     ToolDispatcher --> HarnessTools
     HarnessTools --> ShortlistTool
     ToolDispatcher --> NoteChoice
     NoteChoice --> PendingAnswer
-    NoteChoice --> ChosenNotes
+    NoteChoice --> NotesChosenByUserRepository
     NoteChoice --> TurnAskers
     TurnAskers --> Asker
     Asker --> SessionPanel
 
     classDef engine fill:#4a5568,color:#fff
-    class ShortlistTool,HarnessTools,ToolDispatcher,NoteChoice,PendingAnswer,ChosenNotes,ChoiceRequest engine
+    class ShortlistTool,HarnessTools,ToolDispatcher,NoteChoice,PendingAnswer,NotesChosenByUserRepository,ChoiceRequest engine
 ```
 
 Arrows: uses-relationship (client to supplier). Grey marks the engine side. The
@@ -50,7 +50,7 @@ sequenceDiagram
     participant Harness as HarnessTools [Engine, service]
     participant Shortlist as NotePathsShortlistTool [Engine, stateless service]
     participant Choice as NoteChoice [Engine, service]
-    participant Chosen as ChosenNotes [Engine, repository]
+    participant Chosen as NotesChosenByUserRepository [Engine, repository]
     participant Panel as SessionPanel [Session, UI]
 
     Model->>Dispatcher: choose_note with paths
@@ -68,7 +68,7 @@ sequenceDiagram
 
     Model->>Dispatcher: open_note with the path
     Dispatcher->>Choice: holds
-    Note over Choice: Reads ChosenNotes, so an unpicked path is refused
+    Note over Choice: Reads NotesChosenByUserRepository, so an unpicked path is refused
     Choice-->>Dispatcher: true
     Note over Dispatcher: Opens the note, then moves the session onto it
 ```
@@ -78,14 +78,14 @@ Blocks, and where the code departs from them:
 - Domain services: ToolDispatcher, HarnessTools, NoteChoice and
   NotePathsShortlistTool (Engine). Behaviour belonging to no single object. The
   shortlist tool is all-static, the stateless case stated in the type.
-- Repository: ChosenNotes (Engine). A collection-like record of what the user
+- Repository: NotesChosenByUserRepository (Engine). A collection-like record of what the user
   consented to, with includes and record as its whole interface.
 - Value objects: ChoiceRequest and AnswerRequest (Engine). Plain readonly
   fields, no collaborator, so the panel renders one without reaching back.
 - Neither: PendingAnswer (Engine), absent above because it carries no domain
   meaning. It races an answer against a cancellation and is generic over both.
 
-NoteChoice (Engine) bends the service rule: it holds ChosenNotes, and a service
+NoteChoice (Engine) bends the service rule: it holds NotesChosenByUserRepository, and a service
 is not supposed to hold the state it operates on. That is what forces it to be
 rebuilt per turn. The alternative is for it to return the pick and let
 ToolDispatcher (Engine) do the recording, which would leave the consent record
@@ -103,11 +103,11 @@ names the tool it missed.
 
 ## The three records, and why they are separate
 
-| Record         | Scope   | Holds                          | Written by                |
-| -------------- | ------- | ------------------------------ | ------------------------- |
-| SeenPaths      | Session | What a search or read returned | SearchTools, HarnessTools |
-| ChosenNotes    | Turn    | What the user picked           | NoteChoice                |
-| openedThisTurn | Turn    | What actually opened           | TurnRepository            |
+| Record                         | Scope   | Holds                          | Written by                |
+| ------------------------------ | ------- | ------------------------------ | ------------------------- |
+| PathsReturnedByVaultRepository | Session | What a search or read returned | SearchTools, HarnessTools |
+| NotesChosenByUserRepository    | Turn    | What the user picked           | NoteChoice                |
+| openedThisTurn                 | Turn    | What actually opened           | TurnRepository            |
 
 The scopes differ because the facts do. Finding a note is knowledge and does not
 expire, so a note found in one turn opens in a later one without searching

@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { NoteChoice } from '../waiting/note-choice'
 import { ChoiceRequest } from '../tools/choice-request'
-import { ChosenNotes } from '../turn/chosen-notes'
+import { NotesChosenByUserRepository } from '../turn/notes-chosen-by-user-repository'
 import { TurnCancellation } from '../turn/turn-cancellation'
 
 const TODO = 'Journal/Weekly/Week-36/todo.md'
@@ -154,7 +154,7 @@ describe('NoteChoice', () => {
 
   describe('when the turn supplies its own chosen notes', () => {
     it('records the pick in the turn-scoped set, so the dispatcher reads it', async () => {
-      const chosen = new ChosenNotes()
+      const chosen = new NotesChosenByUserRepository()
 
       await NoteChoice.of(picking(TODO), new TurnCancellation(), chosen).choose(offering())
 

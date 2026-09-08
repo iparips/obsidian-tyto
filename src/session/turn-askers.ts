@@ -1,7 +1,7 @@
 import { Asker } from './session-listeners'
 import { TurnNotices } from './turn-notices'
 import { NoteChoice } from '../engine/waiting/note-choice'
-import { ChosenNotes } from '../engine/turn/chosen-notes'
+import { NotesChosenByUserRepository } from '../engine/turn/notes-chosen-by-user-repository'
 import { ChoiceRequest } from '../engine/tools/choice-request'
 import { UserQuestion } from '../engine/waiting/user-question'
 import { TurnCancellation } from '../engine/turn/turn-cancellation'
@@ -24,7 +24,7 @@ export class TurnAskers {
   // dispatcher, so every refusal above it runs in both modes (FR13). The set
   // comes from the turn, so a note chosen in one turn is asked about again in
   // the next (FR5).
-  noteChoice(cancellation: TurnCancellation, chosen: ChosenNotes): NoteChoice {
+  noteChoice(cancellation: TurnCancellation, chosen: NotesChosenByUserRepository): NoteChoice {
     if (this.mode === 'auto') return NoteChoice.automatic(chosen)
     return NoteChoice.of(
       (request) => this.noticed(TurnAskers.noticeFor(request), this.choices.ask(request)),

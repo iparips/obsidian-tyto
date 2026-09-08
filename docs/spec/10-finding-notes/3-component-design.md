@@ -154,7 +154,7 @@ contain X" for a search that never looked at one.
 
 paths filters the vault's own file list rather than reading what it names, so a
 path with no note behind it is dropped rather than raising. That matches
-SeenPaths, where a stale path is a miss and not a failure.
+PathsReturnedByVaultRepository, where a stale path is a miss and not a failure.
 
 Both results carry their rows and whether the cap trimmed them:
 
@@ -327,7 +327,7 @@ sequenceDiagram
     participant Harness as HarnessTools [Engine]
     participant Glob as NoteGlob [Search, new]
     participant Grep as NoteGrep [Search, new]
-    participant Seen as SeenPaths [Search]
+    participant Seen as PathsReturnedByVaultRepository [Search]
 
     Note over Engine,Seen: THE MODEL LISTS A FOLDER BEFORE IT GUESSES
     Engine->>Dispatcher: execute
@@ -349,14 +349,14 @@ sequenceDiagram
 
 Arrows: uses-relationship (client to supplier).
 
-Both tools record their paths on SeenPaths (Search), because
+Both tools record their paths on PathsReturnedByVaultRepository (Search), because
 [9-model-chosen-targets](../9-model-chosen-targets/1-index.md) makes a search hit
 the only source of a path open_note accepts. A glob that could not feed open_note
 would leave the model able to find a note and unable to open it.
 
 ## Feeding an Opened Note
 
-SeenPaths (Search) is what open_note checks before it moves the session, so a
+PathsReturnedByVaultRepository (Search) is what open_note checks before it moves the session, so a
 note either tool found must be recorded there or the model can find a note it
 cannot open.
 
@@ -364,7 +364,7 @@ Its record takes SearchHit values today, which a glob has none of. It gains a
 second method rather than a fabricated hit:
 
 ```typescript
-// seen-paths.ts, beside record
+// paths-returned-by-vault-repository.ts, beside record
 // Paths rather than hits, because a glob has no score and no excerpt and a hit
 // carrying empty ones would invite the model to read meaning into them.
 recordPaths(paths: readonly string[]): void
@@ -542,16 +542,16 @@ are the smaller half.
 Four test files call search_vault to reach a note, and each needs the same
 substitution rather than deletion:
 
-| Test file                          | What it uses search_vault for                                  |
-| ---------------------------------- | -------------------------------------------------------------- |
-| `edit-engine-model-chosen.test.ts` | findsTodo, which feeds SeenPaths for every open test           |
-| `harness-tools-open.test.ts`       | search, the same helper at unit level                          |
-| `edit-engine-harness.test.ts`      | Six sites, including the offered-set and search-cap assertions |
-| `edit-engine-unbound.test.ts`      | One site                                                       |
-| `turn-budget.test.ts`              | Asserts spentTools names search_vault                          |
+| Test file                          | What it uses search_vault for                                             |
+| ---------------------------------- | ------------------------------------------------------------------------- |
+| `edit-engine-model-chosen.test.ts` | findsTodo, which feeds PathsReturnedByVaultRepository for every open test |
+| `harness-tools-open.test.ts`       | search, the same helper at unit level                                     |
+| `edit-engine-harness.test.ts`      | Six sites, including the offered-set and search-cap assertions            |
+| `edit-engine-unbound.test.ts`      | One site                                                                  |
+| `turn-budget.test.ts`              | Asserts spentTools names search_vault                                     |
 
 The first two are the ones to get right. Their helpers exist to put a path in
-SeenPaths so open_note will accept it, and a glob does that as well as a search
+PathsReturnedByVaultRepository so open_note will accept it, and a glob does that as well as a search
 did: findsTodo becomes a glob_notes call for the note's own folder. A test suite
 that deletes them instead loses the coverage that open_note refuses an unseen
 path, which is FR3 of the spec before this one.

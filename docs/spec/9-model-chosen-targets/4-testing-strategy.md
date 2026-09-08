@@ -10,7 +10,7 @@ second is tested by running the same refusal cases with a granted approval.
 
 ## Table of Contents
 
-1. [SeenPaths (Search, new)](#seenpaths-search-new)
+1. [PathsReturnedByVaultRepository (Search, new)](#pathsreturnedbyvaultrepository-search-new)
 2. [OpenApproval (Engine, new)](#openapproval-engine-new)
 3. [PendingAnswer (Engine, new)](#pendinganswer-engine-new)
 4. [UserQuestion (Engine, new)](#userquestion-engine-new)
@@ -24,7 +24,7 @@ second is tested by running the same refusal cases with a granted approval.
 12. [SessionPanel (Session, changed)](#sessionpanel-session-changed)
 13. [EditEngine (Engine, changed)](#editengine-engine-changed)
 
-## SeenPaths (Search, new)
+## PathsReturnedByVaultRepository (Search, new)
 
 - Includes a path when a search returned it.
 - Excludes a path no search returned.
@@ -75,7 +75,7 @@ second is tested by running the same refusal cases with a granted approval.
 - Refuses an open when the budget is spent, naming the cap.
 - Refuses an open when the path was never returned by a search.
 - Refuses an open when no note exists at the path.
-- Checks the budget before the seen-paths guard, so a spent turn reports the cap
+- Checks the budget before the paths-returned-by-vault-repository guard, so a spent turn reports the cap
   rather than the path.
 - Yields the path to open when every guard passes.
 - Records the paths of a search's hits, so a following open is permitted.

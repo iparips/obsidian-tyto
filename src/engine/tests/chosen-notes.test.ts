@@ -1,14 +1,14 @@
 import { beforeEach, describe, expect, it } from 'vitest'
-import { ChosenNotes } from '../turn/chosen-notes'
+import { NotesChosenByUserRepository } from '../turn/notes-chosen-by-user-repository'
 
 const TODO = 'Journal/Weekly/Week-36/todo.md'
 const SHOPPING = 'Lists/shopping.md'
 
-describe('ChosenNotes', () => {
-  let chosen: ChosenNotes
+describe('NotesChosenByUserRepository', () => {
+  let chosen: NotesChosenByUserRepository
 
   beforeEach(() => {
-    chosen = new ChosenNotes()
+    chosen = new NotesChosenByUserRepository()
   })
 
   describe('when nothing has been chosen', () => {

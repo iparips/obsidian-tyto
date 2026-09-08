@@ -3,8 +3,8 @@ import { OpenNote } from '../note-editing/open-note'
 import { AgentsMdChain } from '../../agents/agents-md-chain'
 import { ResolvedNote } from '../note-binding/resolved-note'
 import { TurnBudget } from './turn-budget'
-import { ChosenNotes } from './chosen-notes'
-import { SeenPaths } from '../../search/models/seen-paths'
+import { NotesChosenByUserRepository } from './notes-chosen-by-user-repository'
+import { PathsReturnedByVaultRepository } from '../../search/models/paths-returned-by-vault-repository'
 import { Skill } from '../../skills/skill'
 
 // What one turn holds, built at its start and discarded with it. Separate from
@@ -23,13 +23,13 @@ export class TurnRepository {
     // Supplied by the session rather than defaulted per turn: a note the model
     // found in one turn is one the user watched it find, and refusing to open
     // it in the next is what drives the model to edit whatever is still bound.
-    readonly pathsSeenInThisSession: SeenPaths = new SeenPaths(),
+    readonly pathsReturnedByVault: PathsReturnedByVaultRepository = new PathsReturnedByVaultRepository(),
   ) {}
 
   // Built here rather than passed in, which is the whole of its turn scope: a
-  // ChosenNotes the session supplied would outlive the write the user consented
+  // NotesChosenByUserRepository the session supplied would outlive the write the user consented
   // to, and a second turn would open the note without asking.
-  readonly chosenNotes = new ChosenNotes()
+  readonly notesChosenByUser = new NotesChosenByUserRepository()
 
   // The note the turn inherited, resolved before any tool ran. Editing it needs
   // no choice: it is the note the user was looking at when they spoke.

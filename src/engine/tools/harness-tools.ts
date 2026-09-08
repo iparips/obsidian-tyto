@@ -74,7 +74,7 @@ export class HarnessTools {
   // dispatcher once the open is granted: a declined note is not one opened.
   private async openNote(call: ToolCall, turn: TurnState): Promise<HarnessResult> {
     const path = call.argument('path')
-    if (!turn.pathsSeenInThisSession.includes(path))
+    if (!turn.pathsReturnedByVault.includes(path))
       return Refusal.of(HarnessTools.unseenMessage(path))
     if (!turn.turnBudget.canOpen(path)) return Refusal.of(TurnBudget.openCapMessage())
     const contentsOutcome = await this.noteReader.read(path)
@@ -93,7 +93,7 @@ export class HarnessTools {
     const path = call.argument('path')
     const contentsOutcome = await this.noteReader.read(path)
     if (contentsOutcome.hasFailed()) return Refusal.of(contentsOutcome.message)
-    turn.pathsSeenInThisSession.recordPaths([path])
+    turn.pathsReturnedByVault.recordPaths([path])
     return new TextResult(contentsOutcome.value, TurnStep.read(path))
   }
 }

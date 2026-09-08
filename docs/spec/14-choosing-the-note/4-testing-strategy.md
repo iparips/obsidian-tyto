@@ -15,7 +15,7 @@ passed every test in the suite.
 ## Table of Contents
 
 1. [NoteChoice (Engine, new)](#notechoice-engine-new)
-2. [ChosenNotes (Engine, new)](#chosennotes-engine-new)
+2. [NotesChosenByUserRepository (Engine, new)](#chosennotes-engine-new)
 3. [HarnessTools (Engine, changed)](#harnesstools-engine-changed)
 4. [ToolDispatcher (Engine, changed)](#tooldispatcher-engine-changed)
 5. [PanelReducer (Session, changed)](#panelreducer-session-changed)
@@ -38,7 +38,7 @@ passed every test in the suite.
 - Declines when the turn is cancelled rather than answered.
 - Settles rather than parking the loop when the turn is cancelled.
 
-## ChosenNotes (Engine, new)
+## NotesChosenByUserRepository (Engine, new)
 
 - Excludes every path when nothing has been chosen.
 - Includes a path the user chose.

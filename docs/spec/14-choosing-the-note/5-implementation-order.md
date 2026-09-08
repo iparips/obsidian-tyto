@@ -23,7 +23,7 @@ this spec removes.
 
 Each step leaves the suite green.
 
-1. `src/engine/models/chosen-notes.ts`: the turn-scoped set, and its place
+1. `src/engine/models/notes-chosen-by-user-repository.ts`: the turn-scoped set, and its place
    beside TurnBudget in TurnRepository.
 
    Nothing calls it yet. Get the scope right here: it is built by
@@ -43,7 +43,7 @@ Each step leaves the suite green.
    The predicate or ToolDispatcher routes the call to the note editor and it
    fails as an unknown edit.
 
-4. `src/engine/harness-tools.ts`: the call, the SeenPaths filter, the cap of
+4. `src/engine/harness-tools.ts`: the call, the PathsReturnedByVaultRepository filter, the cap of
    eight, and the step.
 
    The filter runs before the user sees the list. A shortlist that reaches the

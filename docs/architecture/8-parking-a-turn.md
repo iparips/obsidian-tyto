@@ -10,8 +10,8 @@ That needs machinery the rest of the codebase does not.
 
 ## The four collaborators
 
-| Class            | Package | Answers                                       |
-| ---------------- | ------- | --------------------------------------------- |
+| Class            | Package | Answers                                        |
+| ---------------- | ------- | ---------------------------------------------- |
 | NoteChoice       | Engine  | What is being asked, in domain terms           |
 | PendingAnswer    | Engine  | Answer or cancel, whichever settles first      |
 | TurnCancellation | Engine  | Has this turn been cancelled, asked three ways |

@@ -5,7 +5,7 @@ import { TurnProgressPublisher } from '../turn-progress-publisher'
 import { HarnessTools } from '../tools/harness-tools'
 import { SearchTools } from '../tools/search-tools'
 import { NoteChoice } from '../waiting/note-choice'
-import { ChosenNotes } from '../turn/chosen-notes'
+import { NotesChosenByUserRepository } from '../turn/notes-chosen-by-user-repository'
 import { TurnCancellation } from '../turn/turn-cancellation'
 import { Outcomes } from '../../shared/models/outcome'
 import { ChatMessage, ChatProvider } from '../../providers/types'
@@ -89,15 +89,17 @@ describe('EditEngine', () => {
 
   // Picks the named path when it is offered and declines otherwise, so a test
   // states which note the user pointed at rather than wiring a choice per case.
-  const picking = (pick: string | null) => (cancellation: TurnCancellation, chosen: ChosenNotes) =>
-    NoteChoice.of(
-      (request) => {
-        asked.push(...request.candidates)
-        return Promise.resolve(request.candidates.includes(pick ?? '') ? pick : null)
-      },
-      cancellation,
-      chosen,
-    )
+  const picking =
+    (pick: string | null) =>
+    (cancellation: TurnCancellation, chosen: NotesChosenByUserRepository) =>
+      NoteChoice.of(
+        (request) => {
+          asked.push(...request.candidates)
+          return Promise.resolve(request.candidates.includes(pick ?? '') ? pick : null)
+        },
+        cancellation,
+        chosen,
+      )
 
   const engineOf = (pick: string | null = null) =>
     anEngine(

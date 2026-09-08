@@ -7,7 +7,7 @@ are unrun.
 
 Touches the same tool set as
 [9-model-chosen-targets](../9-model-chosen-targets/1-index.md), whose open_note
-takes its paths from SeenPaths (Search). Both new tools must record there, or a
+takes its paths from PathsReturnedByVaultRepository (Search). Both new tools must record there, or a
 note the model can find is a note it cannot open.
 
 Verify before starting: `bun run build` passes.
@@ -55,11 +55,11 @@ Each step leaves the suite green.
    is one change rather than two.
 
 5. `src/engine/harness-tools.ts`, `src/engine/models/tool-schemas.ts`,
-   `src/providers/models/tool-call.ts`, `src/search/models/seen-paths.ts` and
+   `src/providers/models/tool-call.ts`, `src/search/models/paths-returned-by-vault-repository.ts` and
    `src/engine/models/turn-step.ts`: glob_notes, its schema, its predicate, its
    step and its recording.
 
-   SeenPaths gains recordPaths, or open_note refuses everything the glob found.
+   PathsReturnedByVaultRepository gains recordPaths, or open_note refuses everything the glob found.
    tool-call.ts gains the predicate and isHarnessTool, or ToolDispatcher routes
    the call to the note editor and it fails as an unknown edit.
 
@@ -68,7 +68,7 @@ Each step leaves the suite green.
 
    Five production files and five test files, and the two that matter are
    `edit-engine-model-chosen.test.ts` and `harness-tools-open.test.ts`: their
-   helpers put a path in SeenPaths so open_note will accept it, and each becomes
+   helpers put a path in PathsReturnedByVaultRepository so open_note will accept it, and each becomes
    a glob rather than being deleted. Deleting them loses the coverage that
    open_note refuses an unseen path.
 

@@ -47,20 +47,20 @@ private async openNote(call: ToolCall, budget: TurnBudget): Promise<HarnessResul
 
 Three refusals guard it, in order:
 
-| Refusal            | Source of the answer | Requirement |
-| ------------------ | -------------------- | ----------- |
-| Budget spent       | TurnBudget           | FR4         |
-| Path never offered | SeenPaths            | FR3         |
-| No note there      | NoteReader           | FR2         |
+| Refusal            | Source of the answer           | Requirement |
+| ------------------ | ------------------------------ | ----------- |
+| Budget spent       | TurnBudget                     | FR4         |
+| Path never offered | PathsReturnedByVaultRepository | FR3         |
+| No note there      | NoteReader                     | FR2         |
 
-SeenPaths (Search, new) is the new value. VaultSearch (Search) returns hits, and
+PathsReturnedByVaultRepository (Search, new) is the new value. VaultSearch (Search) returns hits, and
 the paths of those hits are the only paths open_note accepts.
 
 ```typescript
-// seen-paths.ts
+// paths-returned-by-vault-repository.ts
 // A turn-scoped record of what the vault offered, so an opened note is one
 // search confirmed rather than one the model recalled (FR3).
-export class SeenPaths {
+export class PathsReturnedByVaultRepository {
   record(hits: readonly SearchHit[]): void
   includes(path: string): boolean
 }
@@ -102,7 +102,7 @@ flowchart LR
     Dispatcher["ToolDispatcher [Engine]<br/>Responsibility: owns what one tool call does"]
     Approval["OpenApproval [Engine, new]<br/>Responsibility: owns asking whether a model-chosen open may proceed"]
     Harness["HarnessTools [Engine]<br/>Responsibility: owns the release 4 tools and open_note"]
-    Seen["SeenPaths [Search, new]<br/>Holds: the paths search offered this turn"]
+    Seen["PathsReturnedByVaultRepository [Search, new]<br/>Holds: the paths search offered this turn"]
     Turn["TurnRepository [Engine]<br/>Responsibility: owns what one turn holds"]
     Factory["TurnFactory [Engine]<br/>Responsibility: owns opening a turn"]
     Main["OwlPlugin [Main]<br/>Responsibility: owns wiring the engine to the panel"]
@@ -135,7 +135,7 @@ sequenceDiagram
     participant Engine as EditEngine [Engine]
     participant Dispatcher as ToolDispatcher [Engine]
     participant Harness as HarnessTools [Engine]
-    participant Seen as SeenPaths [Search, new]
+    participant Seen as PathsReturnedByVaultRepository [Search, new]
     participant Approval as OpenApproval [Engine, new]
     participant Panel as SessionPanel [Session]
     participant Session as SessionRepository [Session]

@@ -22,7 +22,7 @@ export class SearchTools {
     turn.searchRan()
     const pattern = call.argument('pattern')
     const result = this.noteGlob.find(pattern, SearchTools.orderOf(call))
-    turn.pathsSeenInThisSession.recordPaths(result.paths)
+    turn.pathsReturnedByVault.recordPaths(result.paths)
     return new TextResult(
       SearchReport.ofGlob(pattern, result),
       TurnStep.globbed(pattern, result.total),
@@ -37,7 +37,7 @@ export class SearchTools {
   }
 
   private static reported(pattern: string, result: GrepResult, turn: TurnState): HarnessResult {
-    turn.pathsSeenInThisSession.recordPaths(result.hits.map((hit) => hit.path))
+    turn.pathsReturnedByVault.recordPaths(result.hits.map((hit) => hit.path))
     return new TextResult(
       SearchReport.ofGrep(pattern, result),
       TurnStep.grepped(pattern, result.total),

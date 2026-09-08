@@ -6,7 +6,7 @@ import { HarnessTools } from '../tools/harness-tools'
 import { NoteChoice } from '../waiting/note-choice'
 import { NoteOpener } from '../note-binding/note-opener'
 import { TurnCancellation } from '../turn/turn-cancellation'
-import { ChosenNotes } from '../turn/chosen-notes'
+import { NotesChosenByUserRepository } from '../turn/notes-chosen-by-user-repository'
 import { UserQuestion } from '../waiting/user-question'
 import { AnswerRequest } from '../tools/answer-request'
 import { Outcomes } from '../../shared/models/outcome'
@@ -76,10 +76,10 @@ describe('EditEngine', () => {
   }
 
   const engineOf = (
-    buildChoice: (cancellation: TurnCancellation, chosen: ChosenNotes) => NoteChoice = (
-      _cancellation,
-      chosen,
-    ) => NoteChoice.automatic(chosen),
+    buildChoice: (
+      cancellation: TurnCancellation,
+      chosen: NotesChosenByUserRepository,
+    ) => NoteChoice = (_cancellation, chosen) => NoteChoice.automatic(chosen),
     answer = '',
     noteOpener: NoteOpener | null = null,
   ) =>
@@ -110,22 +110,24 @@ describe('EditEngine', () => {
 
   // Picks the named path when it is offered, so a test states which note the
   // user pointed at rather than wiring a choice per case. A null declines.
-  const picking = (pick: string | null) => (_cancellation: TurnCancellation, chosen: ChosenNotes) =>
-    NoteChoice.of(
-      (request) => {
-        asked.push(...request.candidates)
-        return Promise.resolve(request.candidates.includes(pick ?? '') ? pick : null)
-      },
-      new TurnCancellation(),
-      chosen,
-    )
+  const picking =
+    (pick: string | null) =>
+    (_cancellation: TurnCancellation, chosen: NotesChosenByUserRepository) =>
+      NoteChoice.of(
+        (request) => {
+          asked.push(...request.candidates)
+          return Promise.resolve(request.candidates.includes(pick ?? '') ? pick : null)
+        },
+        new TurnCancellation(),
+        chosen,
+      )
 
   const respondsWith = (...turns: ReturnType<typeof aToolTurn>[]) => {
     turns.forEach((turn) => complete.mockResolvedValueOnce(Outcomes.success(turn)))
     complete.mockResolvedValue(Outcomes.success(aTextTurn('done')))
   }
 
-  // A glob rather than a search: this helper exists to put a path in SeenPaths
+  // A glob rather than a search: this helper exists to put a path in PathsReturnedByVaultRepository
   // so open_note will accept it, and a glob does that as well as a search did.
   const findsTodo = () =>
     aToolTurn(aToolCall('glob_notes', { pattern: 'Journal/Weekly/Week-36/*.md' }))

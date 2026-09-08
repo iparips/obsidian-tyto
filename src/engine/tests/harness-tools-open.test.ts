@@ -4,7 +4,7 @@ import { HarnessTools } from '../tools/harness-tools'
 import { HarnessResult, TurnState } from '../tools/harness-result'
 import { HarnessResultKind } from '../tools/harness-result-kind'
 import { TurnBudget } from '../turn/turn-budget'
-import { SeenPaths } from '../../search/models/seen-paths'
+import { PathsReturnedByVaultRepository } from '../../search/models/paths-returned-by-vault-repository'
 import { SearchHit } from '../../search/models/search-hit'
 import { ObsidianCommandCatalogue } from '../../commands/obsidian-command-catalogue'
 import { ObsidianCommandRegistry } from '../../commands/obsidian-command-registry'
@@ -28,7 +28,7 @@ describe('HarnessTools', () => {
     vault = new FakeVault().withNote(TODO, '- [ ] milk')
     turn = {
       turnBudget: new TurnBudget(),
-      pathsSeenInThisSession: new SeenPaths(),
+      pathsReturnedByVault: new PathsReturnedByVaultRepository(),
       searchRan: () => undefined,
     }
   })
@@ -60,7 +60,7 @@ describe('HarnessTools', () => {
   const openedPathOf = (harnessResult: HarnessResult): string | null =>
     harnessResult.kind === HarnessResultKind.OpenNote ? harnessResult.openNoteAtPath : null
 
-  // A glob rather than a search: this helper exists to put a path in SeenPaths
+  // A glob rather than a search: this helper exists to put a path in PathsReturnedByVaultRepository
   // so open_note will accept it, and a glob does that as well as a search did.
   const findsTodo = () =>
     toolsOf().execute(aToolCall('glob_notes', { pattern: 'Journal/Weekly/Week-36/*.md' }), turn)
@@ -83,7 +83,7 @@ describe('HarnessTools', () => {
     })
 
     it('refuses the open when no note exists at the path', async () => {
-      turn.pathsSeenInThisSession.record([new SearchHit('Gone/away.md', 1, '')])
+      turn.pathsReturnedByVault.record([new SearchHit('Gone/away.md', 1, '')])
 
       const harnessResult = await openNote('Gone/away.md')
 
@@ -91,7 +91,7 @@ describe('HarnessTools', () => {
     })
 
     it('offers no path when no note exists at the path', async () => {
-      turn.pathsSeenInThisSession.record([new SearchHit('Gone/away.md', 1, '')])
+      turn.pathsReturnedByVault.record([new SearchHit('Gone/away.md', 1, '')])
 
       const harnessResult = await openNote('Gone/away.md')
 
@@ -125,7 +125,7 @@ describe('HarnessTools', () => {
     })
 
     it('refuses a second note when the cap is reached, naming it', async () => {
-      turn.pathsSeenInThisSession.recordPaths(['Journal/Weekly/Week-36/other.md'])
+      turn.pathsReturnedByVault.recordPaths(['Journal/Weekly/Week-36/other.md'])
 
       const harnessResult = await openNote('Journal/Weekly/Week-36/other.md')
 
@@ -176,7 +176,7 @@ describe('HarnessTools', () => {
     it('records the paths of a search when hits come back', async () => {
       await findsTodo()
 
-      expect(turn.pathsSeenInThisSession.includes(TODO)).toBe(true)
+      expect(turn.pathsReturnedByVault.includes(TODO)).toBe(true)
     })
   })
 })
