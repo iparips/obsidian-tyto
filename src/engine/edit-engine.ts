@@ -5,6 +5,7 @@ import { SessionRepository } from '../session/session-repository'
 import { TargetNoteResolver } from './note-binding/target-note-resolver'
 import { TurnProgressPublisher } from './turn-progress-publisher'
 import { UtteranceQueue } from './utterance-queue'
+import { ChatMessage } from '../providers/types'
 
 export class EditEngine {
   // Null between turns, so a cancel arriving after one finished reaches nothing.
@@ -36,7 +37,7 @@ export class EditEngine {
     if (!this.runningTurn) return
     const maybeNote = await this.targetNoteResolver.resolveOrNothing()
     if (maybeNote === null) return
-    this.runningTurn?.retargetTo(maybeNote)
+    this.runningTurn.retargetTo(maybeNote)
   }
 
   // Ignored between turns: a cancel that arrives after the turn finished has
@@ -50,7 +51,8 @@ export class EditEngine {
   }
 
   private async runTurn(text: string): Promise<Outcome<string>> {
-    const turnOutcome = await this.turnFactory.openTurn(text)
+    this.sessionRepository.appendChatMessage(ChatMessage.user(text))
+    const turnOutcome = await this.turnFactory.openTurn()
     if (turnOutcome.hasFailed()) return Outcomes.failure(turnOutcome.step, turnOutcome.message)
     this.runningTurn = turnOutcome.value
     try {

@@ -16,7 +16,6 @@ import { NotesOpenedCounter } from './notes-opened-counter'
 import { UserQuestionService } from '../waiting/user-question-service'
 import { SessionRepository } from '../../session/session-repository'
 import { Attempt, Outcomes } from '../../shared/models/outcome'
-import { ChatMessage } from '../../providers/types'
 import { ModelCaller } from '../model-caller'
 import { TurnConclusionService } from '../turn-conclusion-service'
 import { TurnIteration } from './turn-iteration'
@@ -55,12 +54,9 @@ export class TurnFactory {
   // better answer than refusing one the user watched the model find.
   private readonly pathsReturnedByVault = new PathsReturnedByVaultRepository()
 
-  // The utterance is recorded before the note resolves, because a turn that
-  // cannot open still had something said to it. Left unrecorded, the history
-  // ends at the last instruction that ran, and a following "retry" retries that
-  // one.
-  async openTurn(text: string): Promise<Attempt<Turn>> {
-    this.sessionRepository.appendChatMessage(ChatMessage.user(text))
+  // Opened on the utterance EditEngine has already recorded, so a turn that
+  // cannot open still leaves the history holding what was said to it.
+  async openTurn(): Promise<Attempt<Turn>> {
     const resolution = await this.targetNoteResolver.resolve()
     // The one caller that tells the three states apart: a named note nothing
     // can show refuses the turn so the message reaches the user, where an

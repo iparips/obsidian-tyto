@@ -17,8 +17,8 @@ sequenceDiagram
     participant Conclusion as TurnConclusionService [Engine]
 
     Note over Engine,Conclusion: OPENING
-    Engine->>Factory: openTurn(text) [new]
-    Factory->>Session: appendChatMessage(ChatMessage.user(text))
+    Engine->>Session: appendChatMessage(ChatMessage.user(text))
+    Engine->>Factory: openTurn() [new]
     Factory->>Factory: targetNoteResolver.resolve()
     Factory-->>Engine: Attempt of Turn
     Engine->>Turn: run() [new]
@@ -61,8 +61,10 @@ sequenceDiagram
 Arrows: uses-relationship (client to supplier).
 
 Two calls change owner rather than shape. The four appendChatMessage calls that
-EditEngine makes today are made by TurnIteration and TurnConclusionService, and
-the fifth moves from EditEngine into openTurn.
+EditEngine makes today are made by TurnIteration and TurnConclusionService. The
+fifth, the utterance, stays with EditEngine, recorded where the text arrives and
+before openTurn runs: see
+[5-design-self-running-turn.md](5-design-self-running-turn.md#moved-back-after-the-fact).
 
 ## What each class is
 

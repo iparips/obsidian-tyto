@@ -43,19 +43,23 @@ export class Turn {
   // Null when the turn should keep going, which is the one shape a pass that
   // either ends or continues can return.
   private async runPass(spend: TurnSpend, pass: number): Promise<Outcome<string> | null> {
-    if (this.cancellationController.isCancelled()) return this.concludeCancelled()
+    if (this.cancellationController.isCancelled())
+      return this.concludeCancelled()
+
     const answer = await this.iteration.askModel()
     this.iteration.logPass(pass, answer)
-    const modelAnswer = answer.outcome
 
+    const modelAnswer = answer.outcome
     if (!modelAnswer.succeeded())
       return this.turnConclusionService.unfinished(modelAnswer, this.repository.writtenNotes())
 
-    if (modelAnswer.value.isText()) return this.concludeUtterance(modelAnswer.value.content)
-    return this.actOn(modelAnswer.value.calls, spend)
+    if (modelAnswer.value.isText())
+      return this.concludeUtterance(modelAnswer.value.content)
+
+    return this.executeToolCalls(modelAnswer.value.calls, spend)
   }
 
-  private async actOn(calls: ToolCall[], spend: TurnSpend): Promise<Outcome<string> | null> {
+  private async executeToolCalls(calls: ToolCall[], spend: TurnSpend): Promise<Outcome<string> | null> {
     await this.iteration.executeToolCalls(calls, spend.repeatedRefusalCounter)
 
     if (spend.repeatedRefusalCounter.isStuck())

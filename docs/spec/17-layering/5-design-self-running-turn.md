@@ -54,7 +54,8 @@ flowchart LR
 Arrows: uses-relationship (client to supplier).
 
 Four of the five writes land inside the turn without anyone extracting a writer.
-The fifth, the utterance, moves into openTurn where the turn begins.
+The fifth, the utterance, moves into openTurn where the turn begins, and later
+back to EditEngine: see [Moved back, after the fact](#moved-back-after-the-fact).
 EditEngine drops from 159 lines to roughly 40. Turn exceeds 100 with the loop in
 it, which is what TurnIteration is for: ask the model, execute the calls, record
 the refusal.
@@ -88,6 +89,23 @@ sequenceDiagram
 The guarantee survives because the record lands in SessionRepository, which is
 session-scoped, before anything can fail.
 
+### Moved back, after the fact
+
+The record went back to EditEngine.runTurn, where the utterance arrives. What
+this section moved into openTurn is the write, not the guarantee: the record
+still lands in SessionRepository before the resolve that is the only way opening
+fails, so a turn that cannot open still holds what was said to it.
+
+The reason for moving it is what a maintainer sees. runTurn takes the user's
+words as a parameter and passed them straight to a collaborator, so the one
+input the whole turn exists to serve was consumed out of sight. Recording it on
+the line after it arrives makes the text's fate readable where the text is.
+
+What this costs is what the section above claimed: openTurn() takes nothing, so
+the signature no longer stops a caller opening a turn without recording the
+utterance. EditEngine holds that ordering as two adjacent statements instead.
+With one caller, that is a smaller risk than the invisibility it buys back.
+
 ## Running and stopping
 
 Turn ends up with two entry points called from different places. run is awaited
@@ -105,7 +123,8 @@ makes the pair visible rather than introducing it.
   constructor in the codebase.
 - Every test building an engine builds a turn that runs, so the seams move.
 - openTurn takes the utterance text, so no caller can open a turn without saying
-  what opened it. Arguably a fix rather than a cost.
+  what opened it. Arguably a fix rather than a cost. Reversed later, for the
+  reason in [Moved back, after the fact](#moved-back-after-the-fact).
 
 ## What this does not fix
 
