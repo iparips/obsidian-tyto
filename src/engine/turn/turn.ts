@@ -44,7 +44,9 @@ export class Turn {
   // either ends or continues can return.
   private async runPass(spend: TurnSpend, pass: number): Promise<Outcome<string> | null> {
     if (this.cancellationController.isCancelled()) return this.concludeCancelled()
-    const modelAnswer = await this.iteration.askModel(pass)
+    const answer = await this.iteration.askModel()
+    this.iteration.logPass(pass, answer)
+    const modelAnswer = answer.outcome
 
     if (!modelAnswer.succeeded())
       return this.turnConclusionService.unfinished(modelAnswer, this.repository.writtenNotes())
