@@ -50,8 +50,8 @@ sequenceDiagram
     Conclusion-->>Turn: Success of string
 
     Note over Engine,Conclusion: ENDING ON A CANCEL
-    Turn->>TurnRepo: writtenNotes()
-    Turn->>Conclusion: cancelled(writtenNotes)
+    Turn->>TurnRepo: notesWritten()
+    Turn->>Conclusion: cancelled(notesWritten)
     Conclusion->>Session: appendChatMessage(ChatMessage.model(cancelNote))
     Conclusion-->>Turn: Cancelled of string
 

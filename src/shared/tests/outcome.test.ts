@@ -36,11 +36,11 @@ describe('Outcomes', () => {
     })
 
     it('holds the notes the turn wrote before it stopped', () => {
-      expect(Outcomes.cancelled('chat', ['note.md']).writtenNotes).toEqual(['note.md'])
+      expect(Outcomes.cancelled('chat', ['note.md']).notesWritten).toEqual(['note.md'])
     })
 
     it('holds no note when the turn wrote nothing', () => {
-      expect(Outcomes.cancelled('chat').writtenNotes).toEqual([])
+      expect(Outcomes.cancelled('chat').notesWritten).toEqual([])
     })
   })
 

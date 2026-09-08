@@ -31,21 +31,21 @@ export class TurnConclusionService {
 
   // The history keeps the fact rather than the partial results, so the next turn
   // knows the work stopped without being invited to resume it.
-  cancelled(writtenNotes: readonly string[]): Outcome<string> {
+  cancelled(notesWritten: readonly string[]): Outcome<string> {
     this.sessionRepository.appendChatMessage(
-      ChatMessage.model(TurnConclusionService.cancelledNote(writtenNotes)),
+      ChatMessage.model(TurnConclusionService.cancelledNote(notesWritten)),
     )
-    return Outcomes.cancelled('chat', writtenNotes)
+    return Outcomes.cancelled('chat', notesWritten)
   }
 
   // An aborted request is the user's cancel arriving mid-flight, so the turn
   // ends the way a cancel between calls does rather than as a chat failure.
   unfinished(
     answer: Failure<ChatTurn> | Cancelled<ChatTurn>,
-    writtenNotes: readonly string[],
+    notesWritten: readonly string[],
   ): Outcome<string> {
     if (answer.hasFailed()) return Outcomes.failure(answer.step, answer.message)
-    return this.cancelled(writtenNotes)
+    return this.cancelled(notesWritten)
   }
 
   // Ends on the reason itself, since a model refused the same way twice will

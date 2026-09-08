@@ -80,13 +80,19 @@ export class TurnRunnerFactory {
     toolDispatcher: ToolDispatcher,
     cancellationController: TurnCancellationController,
   ): ConversationTurnRunner {
-    return new ConversationTurnRunner(repository, cancellationController, new TurnStepService(
-      this.sessionRepository,
+    return new ConversationTurnRunner(
       repository,
-      toolDispatcher,
       cancellationController,
-      this.modelCaller,
-    ), this.turnConclusionService, this.turnProgressPublisher)
+      new TurnStepService(
+        this.sessionRepository,
+        repository,
+        toolDispatcher,
+        cancellationController,
+        this.modelCaller,
+      ),
+      this.turnConclusionService,
+      this.turnProgressPublisher,
+    )
   }
 
   private askersFor(

@@ -88,19 +88,19 @@ describe('TurnRepository', () => {
 
   describe('when naming what the turn wrote', () => {
     it('holds no written note before any edit lands', () => {
-      expect(turn.writtenNotes()).toEqual([])
+      expect(turn.notesWritten()).toEqual([])
     })
 
     it('holds no written note when a call changed nothing', () => {
       turn.storeCursorPositionAndWrittenNote(undefined)
 
-      expect(turn.writtenNotes()).toEqual([])
+      expect(turn.notesWritten()).toEqual([])
     })
 
     it('holds the note when an edit lands', () => {
       turn.storeCursorPositionAndWrittenNote({ line: 2, ch: 4 })
 
-      expect(turn.writtenNotes()).toEqual(['note.md'])
+      expect(turn.notesWritten()).toEqual(['note.md'])
     })
 
     it('holds one entry when the same note is written twice', () => {
@@ -108,7 +108,7 @@ describe('TurnRepository', () => {
 
       turn.storeCursorPositionAndWrittenNote({ line: 3, ch: 0 })
 
-      expect(turn.writtenNotes()).toEqual(['note.md'])
+      expect(turn.notesWritten()).toEqual(['note.md'])
     })
 
     it('holds both notes in order when a turn writes to two', () => {
@@ -117,7 +117,7 @@ describe('TurnRepository', () => {
 
       turn.storeCursorPositionAndWrittenNote({ line: 1, ch: 0 })
 
-      expect(turn.writtenNotes()).toEqual(['note.md', 'Journal/day.md'])
+      expect(turn.notesWritten()).toEqual(['note.md', 'Journal/day.md'])
     })
   })
 })

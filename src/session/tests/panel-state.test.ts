@@ -38,13 +38,13 @@ describe('PanelReducer', () => {
     })
 
     it('returns to idle', () => {
-      const state = PanelReducer.reduce(cancelling, { type: 'turnCancelled', writtenNotes: [] })
+      const state = PanelReducer.reduce(cancelling, { type: 'turnCancelled', notesWritten: [] })
 
       expect(state.phase).toBe('idle')
     })
 
     it('appends an entry saying nothing changed when no note was written', () => {
-      const state = PanelReducer.reduce(cancelling, { type: 'turnCancelled', writtenNotes: [] })
+      const state = PanelReducer.reduce(cancelling, { type: 'turnCancelled', notesWritten: [] })
 
       expect(state.entries.at(-1)).toEqual({
         kind: 'cancelled',
@@ -55,7 +55,7 @@ describe('PanelReducer', () => {
     it('appends an entry naming the note when one was written', () => {
       const state = PanelReducer.reduce(cancelling, {
         type: 'turnCancelled',
-        writtenNotes: ['note.md'],
+        notesWritten: ['note.md'],
       })
 
       expect(state.entries.at(-1)).toEqual({
@@ -67,7 +67,7 @@ describe('PanelReducer', () => {
     it('names every note when the turn wrote to more than one', () => {
       const state = PanelReducer.reduce(cancelling, {
         type: 'turnCancelled',
-        writtenNotes: ['note.md', 'Journal/day.md'],
+        notesWritten: ['note.md', 'Journal/day.md'],
       })
 
       expect(state.entries.at(-1)).toEqual({
@@ -193,7 +193,7 @@ describe('PanelReducer', () => {
     })
 
     it('settles a pending choice when the turn is cancelled', () => {
-      const state = PanelReducer.reduce(choosing, { type: 'turnCancelled', writtenNotes: [] })
+      const state = PanelReducer.reduce(choosing, { type: 'turnCancelled', notesWritten: [] })
 
       expect(state.entries.at(-2)).toMatchObject({ pending: false })
     })
@@ -283,7 +283,7 @@ describe('PanelReducer', () => {
     })
 
     it('drops the question buttons when the turn is cancelled unanswered', () => {
-      const state = PanelReducer.reduce(asking, { type: 'turnCancelled', writtenNotes: [] })
+      const state = PanelReducer.reduce(asking, { type: 'turnCancelled', notesWritten: [] })
 
       expect(state.entries.at(-2)).toMatchObject({ pending: false })
     })

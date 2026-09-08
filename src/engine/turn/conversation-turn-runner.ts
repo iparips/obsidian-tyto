@@ -39,16 +39,16 @@ export class ConversationTurnRunner {
     return TurnConclusionService.exhausted()
   }
 
-  private async runTurnStep(spend: TurnSpend, step: number): Promise<TurnStepResult> {
+  private async runTurnStep(spend: TurnSpend, stepNumber: number): Promise<TurnStepResult> {
     if (this.cancellationController.isCancelled())
       return TurnStepResults.ended(this.concludeCancelled())
 
-    const modelAnswer = await this.turnStepService.askModel(step)
+    const modelAnswer = await this.turnStepService.askModel(stepNumber)
 
     if (!modelAnswer.succeeded()) {
       const outcome = this.turnConclusionService.unfinished(
         modelAnswer,
-        this.repository.writtenNotes(),
+        this.repository.notesWritten(),
       )
       return TurnStepResults.ended(outcome)
     }
@@ -77,7 +77,7 @@ export class ConversationTurnRunner {
   }
 
   private concludeCancelled(): Outcome<string> {
-    return this.turnConclusionService.cancelled(this.repository.writtenNotes())
+    return this.turnConclusionService.cancelled(this.repository.notesWritten())
   }
 
   private concludeUtterance(summary: string): Outcome<string> {

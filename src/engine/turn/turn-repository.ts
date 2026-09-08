@@ -116,7 +116,7 @@ export class TurnRepository {
 
   // The paths written this turn, in order, so a cancelled turn can say what it
   // left rather than the user reading the note to find out.
-  writtenNotes(): readonly string[] {
+  notesWritten(): readonly string[] {
     return this.written
   }
 

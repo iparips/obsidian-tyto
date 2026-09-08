@@ -95,7 +95,7 @@ export class PanelReducer {
       case 'turnCancelled':
         return AskedEntries.turnEnded(state).withEntry('idle', {
           kind: 'cancelled',
-          text: PanelReducer.cancelledText(action.writtenNotes),
+          text: PanelReducer.cancelledText(action.notesWritten),
         })
       case 'choiceRequested':
         return state.withEntry('choosing', {
@@ -142,8 +142,8 @@ export class PanelReducer {
 
   // Naming the notes is the whole of what a cancel owes the user: nothing is
   // reverted, so the panel says where to look.
-  private static cancelledText(writtenNotes: readonly string[]): string {
-    if (writtenNotes.length === 0) return 'Stopped. Nothing was changed.'
-    return `Stopped. Already changed: ${writtenNotes.join(', ')}`
+  private static cancelledText(notesWritten: readonly string[]): string {
+    if (notesWritten.length === 0) return 'Stopped. Nothing was changed.'
+    return `Stopped. Already changed: ${notesWritten.join(', ')}`
   }
 }

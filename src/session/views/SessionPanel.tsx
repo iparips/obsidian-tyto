@@ -47,7 +47,7 @@ export const SessionPanel = (props: SessionPanelProps) => {
       dispatch({ type: 'summary', text: outcome.value })
       props.onTurnFinished?.(outcome.value)
     } else if (outcome.wasCancelled())
-      dispatch({ type: 'turnCancelled', writtenNotes: outcome.writtenNotes })
+      dispatch({ type: 'turnCancelled', notesWritten: outcome.notesWritten })
     else {
       dispatch({ type: 'failed', step: outcome.step, message: outcome.message })
       props.onTurnFailed?.(outcome.message)

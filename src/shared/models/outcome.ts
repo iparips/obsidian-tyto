@@ -40,7 +40,7 @@ export class Failure<T> {
 export class Cancelled<T> {
   constructor(
     readonly step: FailureStep,
-    readonly writtenNotes: readonly string[] = [],
+    readonly notesWritten: readonly string[] = [],
   ) {}
 
   succeeded(): this is Success<T> {
@@ -76,14 +76,14 @@ export class Outcomes {
     return new Failure<T>(step, message)
   }
 
-  static cancelled<T>(step: FailureStep, writtenNotes: readonly string[] = []): Cancelled<T> {
-    return new Cancelled<T>(step, writtenNotes)
+  static cancelled<T>(step: FailureStep, notesWritten: readonly string[] = []): Cancelled<T> {
+    return new Cancelled<T>(step, notesWritten)
   }
 
   // Relays an outcome a caller cannot use, so a caller that only wanted the
   // value does not have to know which of the two non-success cases it holds.
   static relay<T>(outcome: Failure<unknown> | Cancelled<unknown>): Outcome<T> {
-    if (outcome instanceof Cancelled) return Outcomes.cancelled(outcome.step, outcome.writtenNotes)
+    if (outcome instanceof Cancelled) return Outcomes.cancelled(outcome.step, outcome.notesWritten)
     return Outcomes.failure(outcome.step, outcome.message)
   }
 }
