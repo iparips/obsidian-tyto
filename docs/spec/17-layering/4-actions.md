@@ -5,6 +5,8 @@
 - [ ] Make the scope visible where the classes live
 - [ ] Decide the six ambiguous service names
 
+One option was considered and rejected, at the end.
+
 ## Done: eight renames
 
 Four classes carried value object names while being mutable, two records said
@@ -77,7 +79,7 @@ failure.
 The churn is small. Whether it is worth it depends on how much the ambiguity
 costs when reading the dispatcher.
 
-## Not doing: a Repository suffix for everything stateful
+## Rejected: a Repository suffix for everything stateful
 
 The word already covers two things here, and a third group would leave it
 meaning only that a class has fields. TurnSpend is an entity, the three counters
