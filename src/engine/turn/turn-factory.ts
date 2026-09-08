@@ -16,6 +16,10 @@ import { NotesOpenedCounter } from './notes-opened-counter'
 import { UserQuestionService } from '../waiting/user-question-service'
 import { SessionRepository } from '../../session/session-repository'
 import { Attempt, Outcomes } from '../../shared/models/outcome'
+import { ChatMessage } from '../../providers/types'
+import { ModelCaller } from '../model-caller'
+import { TurnConclusionService } from '../turn-conclusion-service'
+import { TurnIteration } from './turn-iteration'
 
 // Holds what outlives a turn and builds what does not, so the turn-scoped
 // boundary is one class rather than a convention spread across the loop.
@@ -27,6 +31,8 @@ export class TurnFactory {
     private noteEditor: NoteEditor,
     private harnessToolsService: HarnessToolsService,
     private turnProgressPublisher: TurnProgressPublisher,
+    private modelCaller: ModelCaller,
+    private turnConclusionService: TurnConclusionService,
     // Null where nothing can open a note, which is every test that exercises the
     // guards rather than the workspace.
     private noteOpener: NoteOpener | null = null,
@@ -49,7 +55,12 @@ export class TurnFactory {
   // better answer than refusing one the user watched the model find.
   private readonly pathsReturnedByVault = new PathsReturnedByVaultRepository()
 
-  async openTurn(): Promise<Attempt<Turn>> {
+  // The utterance is recorded before the note resolves, because a turn that
+  // cannot open still had something said to it. Left unrecorded, the history
+  // ends at the last instruction that ran, and a following "retry" retries that
+  // one.
+  async openTurn(text: string): Promise<Attempt<Turn>> {
+    this.sessionRepository.appendChatMessage(ChatMessage.user(text))
     const resolvedNote = await this.targetNoteResolver.resolve()
     if (resolvedNote.hasFailed()) return Outcomes.failure(resolvedNote.step, resolvedNote.message)
     const skills = await this.skillRepository.listSkills()
@@ -62,7 +73,28 @@ export class TurnFactory {
     const cancellationController = new TurnCancellationController()
     const askers = this.askersFor(cancellationController, turnRepository.notesChosenByUser)
     const toolDispatcher = this.dispatcherFor(turnRepository, cancellationController, askers)
-    return Outcomes.success(new Turn(turnRepository, toolDispatcher, cancellationController))
+    return Outcomes.success(this.buildTurn(turnRepository, toolDispatcher, cancellationController))
+  }
+
+  private buildTurn(
+    repository: TurnRepository,
+    toolDispatcher: ToolDispatcher,
+    cancellationController: TurnCancellationController,
+  ): Turn {
+    return new Turn(
+      repository,
+      toolDispatcher,
+      cancellationController,
+      new TurnIteration(
+        this.sessionRepository,
+        repository,
+        toolDispatcher,
+        cancellationController,
+        this.modelCaller,
+      ),
+      this.turnConclusionService,
+      this.turnProgressPublisher,
+    )
   }
 
   private askersFor(

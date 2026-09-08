@@ -3,6 +3,7 @@
 - [x] Rename the eight classes whose names said the wrong shape
 - [x] Record the naming rules in the code-generation skill
 - [x] Suffix the six ambiguous service names
+- [x] Move the agent loop into the turn it drives
 - [ ] Make the scope visible where the classes live
 
 One option was considered and rejected, at the end.
@@ -78,6 +79,19 @@ A package comment in engine/turn stating that everything there dies with the
 turn would carry that at the point of use, and rename nothing. The same comment
 gives the scoped-state category in [3-what-does-not.md](3-what-does-not.md) the
 name the layered model does not have.
+
+## Done: the loop moved into the turn
+
+Chat history was written from five places across EditEngine and
+TurnConclusionService, so neither owned recording. The cause was that the loop
+sat outside the turn it drove: seven of nine private methods on EditEngine took
+a turn as a parameter.
+
+Turn now runs itself, TurnIteration runs one pass, and TurnFactory records the
+utterance as it opens. All five writes are turn-scoped, and EditEngine dropped
+from 159 lines to 47.
+
+Designed in [5-design-self-running-turn.md](5-design-self-running-turn.md).
 
 ## Rejected: a Repository suffix for everything stateful
 

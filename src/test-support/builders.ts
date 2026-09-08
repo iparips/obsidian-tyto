@@ -74,19 +74,15 @@ export const anEngine = (modelProvider: ChatProvider, options: EnginePartsOption
     new NoteEditor(),
     harness,
     progress,
+    new ModelCaller(modelProvider, harness),
+    new TurnConclusionService(options.sessions, new NoteEditor()),
     options.noteOpener ?? null,
     options.noteChoiceService ??
       ((_cancellationController, notesChosenByUser) =>
         NoteChoiceService.automatic(notesChosenByUser)),
     options.userQuestionService ?? (() => UserQuestionService.unanswered()),
   )
-  return new EditEngine(
-    options.sessions,
-    turnFactory,
-    new ModelCaller(modelProvider, harness),
-    new TurnConclusionService(options.sessions, new NoteEditor()),
-    progress,
-  )
+  return new EditEngine(options.sessions, turnFactory, progress)
 }
 
 export const aSession = (path = 'note.md'): SessionRepository =>

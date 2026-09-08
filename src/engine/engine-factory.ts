@@ -64,9 +64,14 @@ export class EngineFactory {
     const harnessToolsService = this.buildHarnessTools()
     return new EditEngine(
       sessions,
-      this.buildTurnFactory(sessions, targetNote, harnessToolsService, progress, askers),
-      new ModelCaller(modelProvider, harnessToolsService),
-      new TurnConclusionService(sessions, new NoteEditor()),
+      this.buildTurnFactory(
+        sessions,
+        targetNote,
+        harnessToolsService,
+        progress,
+        askers,
+        modelProvider,
+      ),
       progress,
     )
   }
@@ -77,6 +82,7 @@ export class EngineFactory {
     harnessToolsService: HarnessToolsService,
     progress: TurnProgressPublisher,
     askers: EngineAskers,
+    modelProvider: ChatProvider,
   ): TurnFactory {
     return new TurnFactory(
       sessions,
@@ -85,6 +91,8 @@ export class EngineFactory {
       new NoteEditor(),
       harnessToolsService,
       progress,
+      new ModelCaller(modelProvider, harnessToolsService),
+      new TurnConclusionService(sessions, new NoteEditor()),
       new NoteOpener(this.app, new OpenedNoteWait(this.app)),
       askers.noteChoiceService ??
         ((_cancellationController, notesChosenByUser) =>
