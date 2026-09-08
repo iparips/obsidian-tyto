@@ -34,9 +34,9 @@ export class EditEngine {
   // what a command opening an unfollowable note already does.
   private async retargetRunningTurn(): Promise<void> {
     if (!this.runningTurn) return
-    const resolved = await this.targetNoteResolver.resolve()
-    if (!resolved.succeeded() || resolved.value === null) return
-    this.runningTurn?.retargetTo(resolved.value)
+    const maybeNote = await this.targetNoteResolver.resolveOrNothing()
+    if (maybeNote === null) return
+    this.runningTurn?.retargetTo(maybeNote)
   }
 
   // Ignored between turns: a cancel that arrives after the turn finished has

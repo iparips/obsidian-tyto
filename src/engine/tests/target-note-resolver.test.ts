@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { TargetNoteResolver } from '../note-binding/target-note-resolver'
+import { NoNoteBound, ResolutionFailed, TargetResolved } from '../note-binding/target-resolution'
 import { TurnProgressPublisher } from '../turn-progress-publisher'
 import { AgentsMdRepository } from '../../agents/agents-md-repository'
 import { SessionRepository } from '../../session/session-repository'
@@ -26,16 +27,16 @@ describe('TargetNoteResolver', () => {
     )
 
   describe('when the session is unbound', () => {
-    it('yields no note when no note is open', async () => {
-      const resolved = await resolverFor(new SessionRepository(null)).resolve()
+    it('says no note is bound when no note is open', async () => {
+      const resolution = await resolverFor(new SessionRepository(null)).resolve()
 
-      expect(resolved.value).toBeNull()
+      expect(resolution).toBeInstanceOf(NoNoteBound)
     })
 
-    it('succeeds rather than failing when no note is open', async () => {
-      const resolved = await resolverFor(new SessionRepository(null)).resolve()
+    it('yields no note to write to when no note is open', async () => {
+      const resolution = await resolverFor(new SessionRepository(null)).resolve()
 
-      expect(resolved.hasFailed()).toBe(false)
+      expect(resolution.noteOrNull()).toBeNull()
     })
 
     it('reads no instruction file when no note is open', async () => {
@@ -46,16 +47,44 @@ describe('TargetNoteResolver', () => {
   })
 
   describe('when the session is bound', () => {
-    it('yields the note it is bound to', async () => {
-      const resolved = await resolverFor(aSession()).resolve()
+    it('resolves the target when an editor is showing it', async () => {
+      const resolution = await resolverFor(aSession()).resolve()
 
-      expect(resolved.value?.note.path).toBe('note.md')
+      expect(resolution).toBeInstanceOf(TargetResolved)
     })
 
-    it('fails when the bound note is not open in an editor', async () => {
-      const resolved = await resolverFor(aSession('closed.md')).resolve()
+    it('yields the note it is bound to', async () => {
+      const resolution = await resolverFor(aSession()).resolve()
 
-      expect(resolved.message).toBe('closed.md is not open in an editor')
+      expect(resolution.noteOrNull()?.note.path).toBe('note.md')
+    })
+  })
+
+  describe('when the bound note is not open in an editor', () => {
+    it('fails to resolve when no editor is showing the note', async () => {
+      const resolution = await resolverFor(aSession('closed.md')).resolve()
+
+      expect(resolution).toBeInstanceOf(ResolutionFailed)
+    })
+
+    it('names the note it could not reach, so the turn can say which one', async () => {
+      const resolution = await resolverFor(aSession('closed.md')).resolve()
+
+      expect(resolution instanceof ResolutionFailed && resolution.path).toBe('closed.md')
+    })
+
+    it('carries the reason it could not reach the note', async () => {
+      const resolution = await resolverFor(aSession('closed.md')).resolve()
+
+      expect(resolution instanceof ResolutionFailed && resolution.reason).toBe(
+        'closed.md is not open in an editor',
+      )
+    })
+
+    it('yields no note to write to when the note cannot be reached', async () => {
+      const resolution = await resolverFor(aSession('closed.md')).resolve()
+
+      expect(resolution.noteOrNull()).toBeNull()
     })
   })
 })

@@ -61,11 +61,14 @@ export class TurnFactory {
   // one.
   async openTurn(text: string): Promise<Attempt<Turn>> {
     this.sessionRepository.appendChatMessage(ChatMessage.user(text))
-    const resolvedNote = await this.targetNoteResolver.resolve()
-    if (resolvedNote.hasFailed()) return Outcomes.failure(resolvedNote.step, resolvedNote.message)
+    const resolution = await this.targetNoteResolver.resolve()
+    // The one caller that tells the three states apart: a named note nothing
+    // can show refuses the turn so the message reaches the user, where an
+    // unbound session opens one that searches and answers without writing.
+    if (resolution.hasFailed()) return Outcomes.failure('apply', resolution.reason)
     const skills = await this.skillRepository.listSkills()
     const turnRepository = new TurnRepository(
-      resolvedNote.value,
+      resolution.noteOrNull(),
       skills,
       new NotesOpenedCounter(),
       this.pathsReturnedByVault,

@@ -230,12 +230,12 @@ export class ToolDispatcher {
   // strands the session on a note no retry can reach.
   private async moveSessionTargetNoteTo(path: string): Promise<boolean> {
     this.sessionRepository.changeTargetNote(path)
-    const resolvedNoteOutcome = await this.targetNoteResolver.resolve()
-    if (!resolvedNoteOutcome.succeeded() || resolvedNoteOutcome.value === null) {
+    const maybeNote = await this.targetNoteResolver.resolveOrNothing()
+    if (maybeNote === null) {
       this.turnRepository.cannotWriteTo(path)
       return false
     }
-    this.turnRepository.retargetTo(resolvedNoteOutcome.value)
+    this.turnRepository.retargetTo(maybeNote)
     this.turnProgressPublisher.retargeted(path)
     return true
   }
