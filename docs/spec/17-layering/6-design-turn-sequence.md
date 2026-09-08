@@ -70,21 +70,21 @@ Blocks are the categories in [2-what-maps.md](2-what-maps.md) and
 [3-what-does-not.md](3-what-does-not.md). The loop moves between classes; no
 class changes what kind of thing it is.
 
-| Class                 | Block         | Holds                                    |
-| --------------------- | ------------- | ---------------------------------------- |
-| EditEngine            | Controller    | Collaborators, the running turn          |
-| TurnFactory           | Service       | Collaborators, one session-scoped Set    |
-| Turn                  | Service       | Collaborators only                       |
-| TurnIteration         | Service, new  | Collaborators only                       |
-| TurnConclusionService | Service       | Collaborators only                       |
-| ModelCaller           | Service       | Collaborators only                       |
-| ToolDispatcher        | Service       | Collaborators only                       |
-| SessionRepository     | Repository    | The target path and the chat history     |
-| TurnRepository        | Repository    | What one turn opened, wrote and settled  |
-| TurnSpend             | Entity        | This turn's two counters                 |
-| ChatMessage           | Value object  | One message, immutable                   |
-| ModelRequest          | Value object  | The five arguments of one model call     |
-| Outcome               | Value object  | A success, failure or cancellation       |
+| Class                 | Block        | Holds                                   |
+| --------------------- | ------------ | --------------------------------------- |
+| EditEngine            | Controller   | Collaborators, the running turn         |
+| TurnFactory           | Service      | Collaborators, one session-scoped Set   |
+| Turn                  | Service      | Collaborators only                      |
+| TurnIteration         | Service, new | Collaborators only                      |
+| TurnConclusionService | Service      | Collaborators only                      |
+| ModelCaller           | Service      | Collaborators only                      |
+| ToolDispatcher        | Service      | Collaborators only                      |
+| SessionRepository     | Repository   | The target path and the chat history    |
+| TurnRepository        | Repository   | What one turn opened, wrote and settled |
+| TurnSpend             | Entity       | This turn's two counters                |
+| ChatMessage           | Value object | One message, immutable                  |
+| ModelRequest          | Value object | The five arguments of one model call    |
+| Outcome               | Value object | A success, failure or cancellation      |
 
 Turn stays a service, which is the point worth stating. It gains a loop but no
 field it mutates: the spend it drives lives in TurnSpend, and the flag the

@@ -44,17 +44,17 @@ await today.
 
 Removed, since they assert the guard.
 
-| Test                                                              | In                            |
-| ----------------------------------------------------------------- | ----------------------------- |
-| refuses an edit to the inherited note once the model has searched  | edit-engine-model-chosen      |
+| Test                                                                     | In                       |
+| ------------------------------------------------------------------------ | ------------------------ |
+| refuses an edit to the inherited note once the model has searched        | edit-engine-model-chosen |
 | tells the model to open the note before editing when it skipped the open | edit-engine-model-chosen |
 
 Kept unchanged, since they assert what still holds.
 
-| Test                                                       | In                       |
-| ---------------------------------------------------------- | ------------------------ |
-| edits the inherited note when no search has run             | edit-engine-model-chosen |
-| applies the edit once the note is actually opened           | edit-engine-model-chosen |
+| Test                                                         | In                       |
+| ------------------------------------------------------------ | ------------------------ |
+| edits the inherited note when no search has run              | edit-engine-model-chosen |
+| applies the edit once the note is actually opened            | edit-engine-model-chosen |
 | refuses the open when the path was never offered by a search | edit-engine-model-chosen |
 
 New, one per branch.

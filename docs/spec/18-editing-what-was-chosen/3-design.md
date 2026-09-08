@@ -32,9 +32,9 @@ went wrong.
 
 ## The fields that go
 
-| Field                | Was                                    | Now  |
-| -------------------- | -------------------------------------- | ---- |
-| noteTheTurnStartedOn | Permitted the note the turn started on | Gone |
+| Field                | Was                                     | Now  |
+| -------------------- | --------------------------------------- | ---- |
+| noteTheTurnStartedOn | Permitted the note the turn started on  | Gone |
 | reachedOut           | Withdrew that permission after a search | Gone |
 | openedThisTurn       | Permitted notes opened this turn        | Gone |
 
