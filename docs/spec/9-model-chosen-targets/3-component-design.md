@@ -35,7 +35,7 @@ returns void, by design.
 
 ## A Fifth Tool, Bounded by What Search Returned
 
-HarnessTools (Engine) gains open_note beside the four it has. It takes a path
+HarnessToolsService (Engine) gains open_note beside the four it has. It takes a path
 and retargets the session to it.
 
 ```typescript
@@ -101,13 +101,13 @@ dispatcher (NFR3).
 flowchart LR
     Dispatcher["ToolDispatcher [Engine]<br/>Responsibility: owns what one tool call does"]
     Approval["OpenApproval [Engine, new]<br/>Responsibility: owns asking whether a model-chosen open may proceed"]
-    Harness["HarnessTools [Engine]<br/>Responsibility: owns the release 4 tools and open_note"]
+    Harness["HarnessToolsService [Engine]<br/>Responsibility: owns the release 4 tools and open_note"]
     Seen["PathsReturnedByVaultRepository [Search, new]<br/>Holds: the paths search offered this turn"]
     Turn["TurnRepository [Engine]<br/>Responsibility: owns what one turn holds"]
     Factory["TurnFactory [Engine]<br/>Responsibility: owns opening a turn"]
     Main["OwlPlugin [Main]<br/>Responsibility: owns wiring the engine to the panel"]
     Panel["SessionPanel [Session]<br/>Responsibility: owns the conversation on screen"]
-    Question["UserQuestion [Engine, new]<br/>Responsibility: owns asking the user a question the model wrote"]
+    Question["UserQuestionService [Engine, new]<br/>Responsibility: owns asking the user a question the model wrote"]
     Pending["PendingAnswer [Engine, new]<br/>Responsibility: owns parking a turn until an answer or a cancellation"]
     Notices["TurnNotices [Session, new]<br/>Responsibility: owns telling a user whose panel is closed"]
 
@@ -134,7 +134,7 @@ Arrows: uses-relationship (client to supplier).
 sequenceDiagram
     participant Engine as EditEngine [Engine]
     participant Dispatcher as ToolDispatcher [Engine]
-    participant Harness as HarnessTools [Engine]
+    participant Harness as HarnessToolsService [Engine]
     participant Seen as PathsReturnedByVaultRepository [Search, new]
     participant Approval as OpenApproval [Engine, new]
     participant Panel as SessionPanel [Session]
@@ -249,10 +249,10 @@ export class PendingAnswer<T> {
 PendingAnswer (Engine, new) is the shared part. OpenApproval (Engine, new) keeps
 its own name and its per-path hold, and delegates the parking.
 
-| Asker        | Answer  | Cancelled gives |
-| ------------ | ------- | --------------- |
-| OpenApproval | boolean | false, declined |
-| UserQuestion | string  | an empty answer |
+| Asker               | Answer  | Cancelled gives |
+| ------------------- | ------- | --------------- |
+| OpenApproval        | boolean | false, declined |
+| UserQuestionService | string  | an empty answer |
 
 Two askers rather than one, because what they hold differs. OpenApproval
 remembers which paths were approved for the turn; a question remembers nothing,
@@ -275,7 +275,7 @@ export class AnswerRequest {
 
 ## A Sixth Tool, for the Cases No Route Resolves
 
-HarnessTools (Engine) gains ask_user beside open_note and the four before it.
+HarnessToolsService (Engine) gains ask_user beside open_note and the four before it.
 
 ```typescript
 // harness-tools.ts, beside openNote
@@ -288,8 +288,8 @@ Its arguments are the question and, optionally, the suggestions. NotesOpenedCoun
 (Engine) gains a question counter beside the command, search and open ones, so
 FR30 costs no new mechanism.
 
-The parking happens in ToolDispatcher (Engine) rather than in HarnessTools
-(Engine), matching where the open confirmation parks. HarnessTools stays the
+The parking happens in ToolDispatcher (Engine) rather than in HarnessToolsService
+(Engine), matching where the open confirmation parks. HarnessToolsService stays the
 place that runs a tool, not the place that waits on a person.
 
 A cancelled question returns an empty answer as its tool result, and the loop

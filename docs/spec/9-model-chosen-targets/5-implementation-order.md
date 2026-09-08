@@ -34,7 +34,7 @@ shared parking mechanism before the second asker exists.
 Each step leaves the suite green.
 
 1. `src/search/models/paths-returned-by-vault-repository.ts`: the turn-scoped record of what search
-   offered. Held on TurnRepository (Engine), recorded by HarnessTools (Engine)
+   offered. Held on TurnRepository (Engine), recorded by HarnessToolsService (Engine)
    when a search returns.
 
    Nothing reads it yet, so this step is the guard's data with no behaviour
@@ -117,7 +117,7 @@ it rather than closing the one before.
     ask_user, its schema, and its arguments.
 
     The parking stays in ToolDispatcher (Engine), where the open confirmation
-    parks. HarnessTools runs a tool; it does not wait on a person.
+    parks. HarnessToolsService runs a tool; it does not wait on a person.
 
 15. `src/session/models/panel-state.ts`: the question entry, the asking phase,
     and keeping an unanswered question's text when the turn ends.
@@ -131,7 +131,7 @@ it rather than closing the one before.
 17. `src/session/turn-notices.ts`: the three notices, and the visibility check
     that shows none when the panel is open.
 
-18. `src/main.ts`: build UserQuestion (Engine) wired to the panel, and
+18. `src/main.ts`: build UserQuestionService (Engine) wired to the panel, and
     TurnNotices (Session) wired to the workspace.
 
     The notice needs to know whether the session leaf is visible, which only the

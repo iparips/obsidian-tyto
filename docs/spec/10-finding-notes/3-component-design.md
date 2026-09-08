@@ -28,7 +28,7 @@ what it reads. So the matcher is one collaborator that neither owns.
 
 ```mermaid
 flowchart LR
-    Harness["HarnessTools [Engine]<br/>Responsibility: owns what one tool call does"]
+    Harness["HarnessToolsService [Engine]<br/>Responsibility: owns what one tool call does"]
     Glob["NoteGlob [Search, new]<br/>Responsibility: owns finding notes by path"]
     Grep["NoteGrep [Search, new]<br/>Responsibility: owns finding notes by content"]
     Matcher["PathPattern [Search, new]<br/>Responsibility: owns whether one path matches one pattern"]
@@ -104,7 +104,7 @@ Matching is case-insensitive. Obsidian's own search is, macOS vault paths are
 case-insensitive on disk, and a model that recalls `week-35` should not miss
 `Week-35`.
 
-An unparseable pattern is an Attempt failure, so HarnessTools refuses it the way
+An unparseable pattern is an Attempt failure, so HarnessToolsService refuses it the way
 it refuses every other bad argument rather than throwing.
 
 ## Two Searchers Over One Pass
@@ -129,7 +129,7 @@ export class NoteGrep {
 
 GrepRequest (Search, new) carries the expression, the two narrowings, and
 whether paths alone are wanted. A value rather than four arguments, because
-HarnessTools builds it from the tool call and nothing else constructs one.
+HarnessToolsService builds it from the tool call and nothing else constructs one.
 
 ```typescript
 // grep-request.ts
@@ -324,7 +324,7 @@ the model to read meaning into them.
 sequenceDiagram
     participant Engine as EditEngine [Engine]
     participant Dispatcher as ToolDispatcher [Engine]
-    participant Harness as HarnessTools [Engine]
+    participant Harness as HarnessToolsService [Engine]
     participant Glob as NoteGlob [Search, new]
     participant Grep as NoteGrep [Search, new]
     participant Seen as PathsReturnedByVaultRepository [Search]
@@ -373,7 +373,7 @@ recordPaths(paths: readonly string[]): void
 record keeps its signature and delegates: it only ever read hit.path, so the two
 methods are one behaviour with two shapes of argument.
 
-HarnessTools records after each call, as it already does for a search. A glob
+HarnessToolsService records after each call, as it already does for a search. A glob
 records its paths; a grep records the paths of its hits, including when
 paths_only left them without excerpts.
 

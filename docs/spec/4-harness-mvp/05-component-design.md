@@ -69,7 +69,7 @@ flowchart LR
         Locator["WorkspaceNoteLocator [Engine]<br/>Responsibility: owns finding the editor showing a given path"]
         AgentsMd["AgentsMdRepository [Agents]<br/>Responsibility: owns the instruction chain for a folder"]
         Skills["SkillRepository [Skills]<br/>Responsibility: owns the vault's skills"]
-        Harness["HarnessTools [Engine, new]<br/>Responsibility: owns the four release 4 tools"]
+        Harness["HarnessToolsService [Engine, new]<br/>Responsibility: owns the four release 4 tools"]
         Editor["NoteEditor [Engine]<br/>Responsibility: owns applying one edit through the editor API"]
         Progress["TurnProgressPublisher [Engine, new]<br/>Responsibility: owns publishing what a turn does as it runs"]
         Prompt["PromptFactory [Engine]<br/>Responsibility: owns the messages one model call is made of"]

@@ -7,20 +7,20 @@ const NO_ANSWER = ''
 // Asks the user a question the model wrote, and hands back what they said.
 // Holds nothing between questions: each is asked once and answered once, which
 // is what separates it from the per-path hold on an approval (FR15, FR16).
-export class UserQuestion {
+export class UserQuestionService {
   constructor(private pending: PendingAnswer<AnswerRequest, string>) {}
 
   static of(
     ask: (request: AnswerRequest) => Promise<string>,
     cancellationController = new TurnCancellationController(),
-  ): UserQuestion {
-    return new UserQuestion(new PendingAnswer(ask, cancellationController))
+  ): UserQuestionService {
+    return new UserQuestionService(new PendingAnswer(ask, cancellationController))
   }
 
   // Silent, and what a test constructs when the question is not what it is
   // exercising.
-  static unanswered(): UserQuestion {
-    return UserQuestion.of(() => Promise.resolve(NO_ANSWER))
+  static unanswered(): UserQuestionService {
+    return UserQuestionService.of(() => Promise.resolve(NO_ANSWER))
   }
 
   // An empty answer when the turn is cancelled, so the loop ends on the

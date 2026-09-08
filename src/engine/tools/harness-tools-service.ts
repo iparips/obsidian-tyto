@@ -8,16 +8,16 @@ import { ToolCatalogue } from './tool-schemas'
 import { TurnStep } from '../turn-step'
 import { HarnessResult, Refusal, TurnState } from './harness-result'
 import { ObsidianCommandRanResult, OpenNoteResult, TextResult } from './harness-results'
-import { SearchTools } from './search-tools'
+import { SearchToolsService } from './search-tools-service'
 import { NotePathsShortlistTool } from './note-paths-shortlist-tool'
 
-export class HarnessTools {
+export class HarnessToolsService {
   constructor(
     private commandRunner: ObsidianCommandRunner,
     private noteReader: NoteReader,
     private commandCatalogue: ObsidianCommandCatalogue,
     private searchEnabled: boolean,
-    private searchTools: SearchTools,
+    private searchToolsService: SearchToolsService,
     // Auto mode opens the first note the model offers, so the tool that asks is
     // absent rather than answering itself (FR13). A flag here rather than a
     // branch in the loop, so the offered set states the mode in one place.
@@ -52,8 +52,8 @@ export class HarnessTools {
   async execute(call: ToolCall, turn: TurnState): Promise<HarnessResult> {
     if (call.isRunObsidianCommand()) return this.runObsidianCommand(call)
     if (!this.searchEnabled) return Refusal.of('searching the vault is turned off in settings')
-    if (call.isGlobNotes()) return this.searchTools.glob(call, turn)
-    if (call.isGrepNotes()) return this.searchTools.grep(call, turn)
+    if (call.isGlobNotes()) return this.searchToolsService.glob(call, turn)
+    if (call.isGrepNotes()) return this.searchToolsService.grep(call, turn)
     if (call.isReadNote()) return this.readNote(call, turn)
     if (call.isOpenNote()) return this.openNote(call, turn)
     return NotePathsShortlistTool.offerPaths(call, turn)
@@ -75,7 +75,7 @@ export class HarnessTools {
   private async openNote(call: ToolCall, turn: TurnState): Promise<HarnessResult> {
     const path = call.argument('path')
     if (!turn.pathsReturnedByVault.includes(path))
-      return Refusal.of(HarnessTools.unseenMessage(path))
+      return Refusal.of(HarnessToolsService.unseenMessage(path))
     if (!turn.notesOpenedCounter.canOpen(path))
       return Refusal.of(NotesOpenedCounter.openCapMessage())
     const contentsOutcome = await this.noteReader.read(path)

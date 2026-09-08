@@ -90,7 +90,7 @@ Each step leaves the suite green.
    The path filter runs before the read. A grep narrowed to a folder that reads
    every note in the vault passes its tests and fails NFR1.
 
-9. `src/search/models/grep-request.ts`: the value HarnessTools builds from the
+9. `src/search/models/grep-request.ts`: the value HarnessToolsService builds from the
    tool call, and its admits.
 
    Worth its own file rather than four arguments, since both narrowings and

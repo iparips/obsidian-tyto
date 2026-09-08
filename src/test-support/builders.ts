@@ -1,6 +1,6 @@
 import { ChatTurn, ToolCall } from '../providers/types'
 import { App } from 'obsidian'
-import { HarnessTools } from '../engine/tools/harness-tools'
+import { HarnessToolsService } from '../engine/tools/harness-tools-service'
 import { ObsidianCommandRunner } from '../commands/obsidian-command-runner'
 import { OpenedNoteWait } from '../commands/opened-note-wait'
 import { ObsidianCommandCatalogue } from '../commands/obsidian-command-catalogue'
@@ -8,13 +8,13 @@ import { ObsidianCommandRegistry } from '../commands/obsidian-command-registry'
 import { AllowList } from '../commands/allow-list'
 import { NoteGlob } from '../search/note-glob'
 import { NoteGrep } from '../search/note-grep'
-import { SearchTools } from '../engine/tools/search-tools'
+import { SearchToolsService } from '../engine/tools/search-tools-service'
 import { NoteReader } from '../search/note-reader'
 import { FakeVault } from './fake-vault'
 import { FakeAdapter } from './fake-adapter'
 import { EditEngine } from '../engine/edit-engine'
 import { ModelCaller } from '../engine/model-caller'
-import { TurnConclusion } from '../engine/turn-conclusion'
+import { TurnConclusionService } from '../engine/turn-conclusion-service'
 import { NoteEditor } from '../engine/note-editing/note-editor'
 import { TargetNoteResolver } from '../engine/note-binding/target-note-resolver'
 import { TurnProgressPublisher } from '../engine/turn-progress-publisher'
@@ -25,11 +25,11 @@ import { SessionRepository } from '../session/session-repository'
 import { AgentsMdRepository } from '../agents/agents-md-repository'
 import { SkillRepository } from '../skills/skill-repository'
 import { ChatProvider } from '../providers/types'
-import { NoteChoice } from '../engine/waiting/note-choice'
+import { NoteChoiceService } from '../engine/waiting/note-choice-service'
 import { NoteOpener } from '../engine/note-binding/note-opener'
 import { NotesChosenByUserRepository } from '../engine/turn/notes-chosen-by-user-repository'
 import { TurnCancellationController } from '../engine/turn/turn-cancellation-controller'
-import { UserQuestion } from '../engine/waiting/user-question'
+import { UserQuestionService } from '../engine/waiting/user-question-service'
 
 let nextCallId = 0
 
@@ -45,21 +45,21 @@ export interface EnginePartsOptions {
   noteLocator: WorkspaceNoteLocator
   agentsMdRepository: AgentsMdRepository
   skillRepository?: SkillRepository
-  harnessTools?: HarnessTools
+  harnessToolsService?: HarnessToolsService
   progress?: TurnProgressPublisher
   noteOpener?: NoteOpener | null
-  noteChoice?: (
+  noteChoiceService?: (
     cancellationController: TurnCancellationController,
     notesChosenByUser: NotesChosenByUserRepository,
-  ) => NoteChoice
-  userQuestion?: (cancellationController: TurnCancellationController) => UserQuestion
+  ) => NoteChoiceService
+  userQuestionService?: (cancellationController: TurnCancellationController) => UserQuestionService
 }
 
 // The resolver and dispatcher a test needs beside an engine, wired the way
 // EngineFactory wires them, so a test states only what it varies.
 export const anEngine = (modelProvider: ChatProvider, options: EnginePartsOptions): EditEngine => {
   const skills = options.skillRepository ?? new SkillRepository(new FakeAdapter().asAdapter(), '')
-  const harness = options.harnessTools ?? noHarness()
+  const harness = options.harnessToolsService ?? noHarness()
   const progress = options.progress ?? TurnProgressPublisher.silent()
   const targetNote = new TargetNoteResolver(
     options.sessions,
@@ -75,15 +75,16 @@ export const anEngine = (modelProvider: ChatProvider, options: EnginePartsOption
     harness,
     progress,
     options.noteOpener ?? null,
-    options.noteChoice ??
-      ((_cancellationController, notesChosenByUser) => NoteChoice.automatic(notesChosenByUser)),
-    options.userQuestion ?? (() => UserQuestion.unanswered()),
+    options.noteChoiceService ??
+      ((_cancellationController, notesChosenByUser) =>
+        NoteChoiceService.automatic(notesChosenByUser)),
+    options.userQuestionService ?? (() => UserQuestionService.unanswered()),
   )
   return new EditEngine(
     options.sessions,
     turnFactory,
     new ModelCaller(modelProvider, harness),
-    new TurnConclusion(options.sessions, new NoteEditor()),
+    new TurnConclusionService(options.sessions, new NoteEditor()),
     progress,
   )
 }
@@ -91,8 +92,8 @@ export const anEngine = (modelProvider: ChatProvider, options: EnginePartsOption
 export const aSession = (path = 'note.md'): SessionRepository =>
   new SessionRepository({ path, basename: path.replace(/\.md$/, '') } as TFile)
 
-export const noHarness = (): HarnessTools =>
-  new HarnessTools(
+export const noHarness = (): HarnessToolsService =>
+  new HarnessToolsService(
     new ObsidianCommandRunner(
       {} as App,
       new ObsidianCommandCatalogue(new ObsidianCommandRegistry({} as App), new AllowList([])),
@@ -102,7 +103,7 @@ export const noHarness = (): HarnessTools =>
     new NoteReader(new FakeVault().asVault()),
     new ObsidianCommandCatalogue(new ObsidianCommandRegistry({} as App), new AllowList([])),
     false,
-    new SearchTools(
+    new SearchToolsService(
       new NoteGlob(new FakeVault().asVault()),
       new NoteGrep(new FakeVault().asVault()),
     ),

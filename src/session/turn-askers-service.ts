@@ -1,9 +1,9 @@
 import { Asker } from './session-listeners'
 import { TurnNotices } from './turn-notices'
-import { NoteChoice } from '../engine/waiting/note-choice'
+import { NoteChoiceService } from '../engine/waiting/note-choice-service'
 import { NotesChosenByUserRepository } from '../engine/turn/notes-chosen-by-user-repository'
 import { ChoiceRequest } from '../engine/tools/choice-request'
-import { UserQuestion } from '../engine/waiting/user-question'
+import { UserQuestionService } from '../engine/waiting/user-question-service'
 import { TurnCancellationController } from '../engine/turn/turn-cancellation-controller'
 import { QuestionRequest } from './views/SessionPanel'
 import { OpenMode } from '../settings/settings'
@@ -11,7 +11,7 @@ import { OpenMode } from '../settings/settings'
 // The two things a session parks a turn on, wired to the panel that answers and
 // the notices that say a turn is waiting. One collaborator, so the plugin hands
 // out a pair rather than assembling one per call site.
-export class TurnAskers {
+export class TurnAskersService {
   readonly choices = new Asker<ChoiceRequest, string | null>(null)
   readonly questions = new Asker<QuestionRequest, string>('')
 
@@ -24,13 +24,13 @@ export class TurnAskers {
   // dispatcher, so every refusal above it runs in both modes (FR13). The set
   // comes from the turn, so a note chosen in one turn is asked about again in
   // the next (FR5).
-  noteChoice(
+  noteChoiceService(
     cancellationController: TurnCancellationController,
     notesChosenByUser: NotesChosenByUserRepository,
-  ): NoteChoice {
-    if (this.mode === 'auto') return NoteChoice.automatic(notesChosenByUser)
-    return NoteChoice.of(
-      (request) => this.noticed(TurnAskers.noticeFor(request), this.choices.ask(request)),
+  ): NoteChoiceService {
+    if (this.mode === 'auto') return NoteChoiceService.automatic(notesChosenByUser)
+    return NoteChoiceService.of(
+      (request) => this.noticed(TurnAskersService.noticeFor(request), this.choices.ask(request)),
       cancellationController,
       notesChosenByUser,
     )
@@ -43,8 +43,8 @@ export class TurnAskers {
     return `Owl found ${candidates.length} notes and wants you to pick one.`
   }
 
-  userQuestion(cancellationController: TurnCancellationController): UserQuestion {
-    return UserQuestion.of(
+  userQuestionService(cancellationController: TurnCancellationController): UserQuestionService {
+    return UserQuestionService.of(
       (request) => this.noticed(request.question, this.questions.ask(request)),
       cancellationController,
     )

@@ -6,7 +6,7 @@ import { TurnCancellationController } from '../turn/turn-cancellation-controller
 // One choice, asked of whoever supplied it. The engine awaits a path without
 // knowing that a panel row is what produces it. The parking itself is
 // PendingAnswer's, so a choice and a question share one mechanism.
-export class NoteChoice {
+export class NoteChoiceService {
   constructor(
     private pending: PendingAnswer<ChoiceRequest, string | null>,
     // Turn-scoped, so a note chosen in one turn is asked about again in the
@@ -21,14 +21,14 @@ export class NoteChoice {
     ask: (request: ChoiceRequest) => Promise<string | null>,
     cancellationController = new TurnCancellationController(),
     notesChosenByUser = new NotesChosenByUserRepository(),
-  ): NoteChoice {
-    return new NoteChoice(new PendingAnswer(ask, cancellationController), notesChosenByUser)
+  ): NoteChoiceService {
+    return new NoteChoiceService(new PendingAnswer(ask, cancellationController), notesChosenByUser)
   }
 
   // Auto mode, and what a test constructs when the choice is not what it is
   // exercising. The mode is a choice of collaborator, not a branch (FR13).
-  static automatic(notesChosenByUser = new NotesChosenByUserRepository()): NoteChoice {
-    return NoteChoice.of(
+  static automatic(notesChosenByUser = new NotesChosenByUserRepository()): NoteChoiceService {
+    return NoteChoiceService.of(
       (request) => Promise.resolve(request.candidates[0] ?? null),
       undefined,
       notesChosenByUser,

@@ -1,6 +1,6 @@
 import { PathPattern } from './path-pattern'
 
-// What HarnessTools builds from the tool call: the expression, the two
+// What HarnessToolsService builds from the tool call: the expression, the two
 // narrowings, and whether paths alone are wanted. A value rather than four
 // arguments, because nothing else constructs one.
 export class GrepRequest {

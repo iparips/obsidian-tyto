@@ -11,7 +11,7 @@ import { SessionRepository } from '../session/session-repository'
 // The five ways a turn ends. Each writes what happened to the history before
 // returning, so the next turn reads how the last one finished rather than
 // finding the record stopping mid-sentence.
-export class TurnConclusion {
+export class TurnConclusionService {
   constructor(
     private sessionRepository: SessionRepository,
     private noteEditor: NoteEditor,
@@ -33,7 +33,7 @@ export class TurnConclusion {
   // knows the work stopped without being invited to resume it.
   cancelled(writtenNotes: readonly string[]): Outcome<string> {
     this.sessionRepository.appendChatMessage(
-      ChatMessage.model(TurnConclusion.cancelledNote(writtenNotes)),
+      ChatMessage.model(TurnConclusionService.cancelledNote(writtenNotes)),
     )
     return Outcomes.cancelled('chat', writtenNotes)
   }

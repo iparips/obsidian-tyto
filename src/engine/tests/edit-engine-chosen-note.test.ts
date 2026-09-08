@@ -2,9 +2,9 @@ import { beforeEach, describe, expect, it, Mock, vi } from 'vitest'
 import { App } from 'obsidian'
 import { SessionRepository } from '../../session/session-repository'
 import { TurnProgressPublisher } from '../turn-progress-publisher'
-import { HarnessTools } from '../tools/harness-tools'
-import { SearchTools } from '../tools/search-tools'
-import { NoteChoice } from '../waiting/note-choice'
+import { HarnessToolsService } from '../tools/harness-tools-service'
+import { SearchToolsService } from '../tools/search-tools-service'
+import { NoteChoiceService } from '../waiting/note-choice-service'
 import { NotesChosenByUserRepository } from '../turn/notes-chosen-by-user-repository'
 import { TurnCancellationController } from '../turn/turn-cancellation-controller'
 import { Outcomes } from '../../shared/models/outcome'
@@ -68,7 +68,7 @@ describe('EditEngine', () => {
     }
   }
 
-  const harnessOf = (): HarnessTools => {
+  const harnessOf = (): HarnessToolsService => {
     const app = {
       ...registry.asApp(),
       workspace: workspace.asWorkspace(),
@@ -78,12 +78,12 @@ describe('EditEngine', () => {
       commandRegistry,
       new AllowList(['daily-notes:*']),
     )
-    return new HarnessTools(
+    return new HarnessToolsService(
       new ObsidianCommandRunner(app, catalogue, new OpenedNoteWait(app, 30), commandRegistry),
       new NoteReader(vault.asVault()),
       catalogue,
       true,
-      new SearchTools(new NoteGlob(vault.asVault()), new NoteGrep(vault.asVault())),
+      new SearchToolsService(new NoteGlob(vault.asVault()), new NoteGrep(vault.asVault())),
     )
   }
 
@@ -92,7 +92,7 @@ describe('EditEngine', () => {
   const picking =
     (pick: string | null) =>
     (cancellation: TurnCancellationController, chosen: NotesChosenByUserRepository) =>
-      NoteChoice.of(
+      NoteChoiceService.of(
         (request) => {
           asked.push(...request.candidates)
           return Promise.resolve(request.candidates.includes(pick ?? '') ? pick : null)
@@ -111,8 +111,8 @@ describe('EditEngine', () => {
           .withOpenNote(TOMORROW, new FakeEditor('# Tomorrow\n'))
           .withOpenNote(FRIDAY, fridayEditor),
         agentsMdRepository: new AgentsMdRepository(new FakeAdapter().asAdapter()),
-        harnessTools: harnessOf(),
-        noteChoice: picking(pick),
+        harnessToolsService: harnessOf(),
+        noteChoiceService: picking(pick),
         progress: TurnProgressPublisher.silent(),
       },
     )

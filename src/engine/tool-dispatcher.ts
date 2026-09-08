@@ -2,7 +2,7 @@ import { ToolCall } from '../providers/types'
 import { NoteEditTool } from './tools/note-edit-tool'
 import { ToolCallOutcome } from './tools/tool-call-outcome'
 import { SkillRepository } from '../skills/skill-repository'
-import { HarnessTools } from './tools/harness-tools'
+import { HarnessToolsService } from './tools/harness-tools-service'
 import { HarnessResult } from './tools/harness-result'
 import { HarnessResultKind } from './tools/harness-result-kind'
 import { NoteOpenedByObsidianCommand } from '../commands/models/note-opened-by-obsidian-command'
@@ -11,9 +11,9 @@ import { TargetNoteResolver } from './note-binding/target-note-resolver'
 import { SessionRepository } from '../session/session-repository'
 import { TurnProgressPublisher } from './turn-progress-publisher'
 import { TurnCancellationController } from './turn/turn-cancellation-controller'
-import { NoteChoice } from './waiting/note-choice'
+import { NoteChoiceService } from './waiting/note-choice-service'
 import { NoteOpener } from './note-binding/note-opener'
-import { UserQuestion } from './waiting/user-question'
+import { UserQuestionService } from './waiting/user-question-service'
 import { AnswerRequest } from './tools/answer-request'
 import { ModelAnswer } from './tools/model-answer'
 import { ChoiceRequest } from './tools/choice-request'
@@ -37,12 +37,12 @@ export class ToolDispatcher {
     private targetNoteResolver: TargetNoteResolver,
     private skillRepository: SkillRepository,
     private noteEditTool: NoteEditTool,
-    private harnessTools: HarnessTools,
+    private harnessToolsService: HarnessToolsService,
     private turnProgressPublisher: TurnProgressPublisher,
     private turnRepository: TurnRepository,
     private cancellationController: TurnCancellationController,
-    private noteChoice: NoteChoice,
-    private userQuestion: UserQuestion,
+    private noteChoiceService: NoteChoiceService,
+    private userQuestionService: UserQuestionService,
     // Absent in tests that exercise the guards rather than the opening, and in a
     // vault whose notes a command always opens.
     private noteOpener: NoteOpener | null = null,
@@ -104,7 +104,10 @@ export class ToolDispatcher {
 
   // ToolCall that a model wants the harness to execute
   private async callHarnessTool(call: ToolCall): Promise<ToolCallOutcome> {
-    const harnessResult: HarnessResult = await this.harnessTools.execute(call, this.turnRepository)
+    const harnessResult: HarnessResult = await this.harnessToolsService.execute(
+      call,
+      this.turnRepository,
+    )
     this.publishStepSummary(harnessResult)
     return this.handleToolResult(harnessResult)
   }
@@ -119,7 +122,8 @@ export class ToolDispatcher {
   // Refused as well as absent from the schemas, so the offered tool list is
   // never the only thing keeping a disabled flow out of reach.
   private answerFromSearch(call: ToolCall): ToolCallOutcome {
-    if (!this.harnessTools.hasSearchEnabled()) return ToolCallOutcome.refused(SEARCH_OFF_RESULT)
+    if (!this.harnessToolsService.hasSearchEnabled())
+      return ToolCallOutcome.refused(SEARCH_OFF_RESULT)
     return this.publishModelAnswer(ModelAnswer.from(call))
   }
 
@@ -160,7 +164,7 @@ export class ToolDispatcher {
   // rather than the user restating the instruction (FR15, FR16).
   private async askUser(request: AnswerRequest): Promise<ToolCallOutcome> {
     this.turnProgressPublisher.publishStepTaken(TurnStep.asked(request.question))
-    const answer = await this.userQuestion.answerTo(request)
+    const answer = await this.userQuestionService.answerTo(request)
     return ToolCallOutcome.of(answer === '' ? NO_ANSWER_RESULT : `the user answered: ${answer}`)
   }
 
@@ -168,7 +172,7 @@ export class ToolDispatcher {
   // rather than inferring one from prose (FR4). A decline is a result too, not
   // an exception (FR6, NFR3).
   private async chooseNote(request: ChoiceRequest): Promise<ToolCallOutcome> {
-    const chosen = await this.noteChoice.choose(request)
+    const chosen = await this.noteChoiceService.choose(request)
     if (chosen === null) return ToolCallOutcome.of(DECLINED_RESULT)
     return ToolCallOutcome.of(`the user chose ${chosen}; open it with open_note`)
   }
@@ -176,7 +180,7 @@ export class ToolDispatcher {
   // A refusal is a tool result, not an exception: the model reads that it was
   // refused and reports what stopped rather than claiming an edit (NFR1).
   private async openModelChosenNote(path: string): Promise<ToolCallOutcome> {
-    if (!this.noteChoice.holds(path)) return this.refuseUnchosen(path)
+    if (!this.noteChoiceService.holds(path)) return this.refuseUnchosen(path)
     this.turnRepository.recordOpen(path)
     // Opened before the target moves, because retargeting resolves against an
     // editor: a note the user has never had on screen has none until this runs.

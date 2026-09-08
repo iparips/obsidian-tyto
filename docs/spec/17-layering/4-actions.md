@@ -2,8 +2,8 @@
 
 - [x] Rename the eight classes whose names said the wrong shape
 - [x] Record the naming rules in the code-generation skill
+- [x] Suffix the six ambiguous service names
 - [ ] Make the scope visible where the classes live
-- [ ] Decide the six ambiguous service names
 
 One option was considered and rejected, at the end.
 
@@ -39,6 +39,31 @@ document.
 - A counter is not a value object either, though Budget and Quota read like one
 - A class of static methods that construct is a Factory, not a Builder
 
+## Done: six ambiguous service names
+
+A Service suffix on every service would produce NoteReaderService and
+TargetNoteResolverService, which the naming rule argues against: an agent noun
+already announces behaviour.
+
+Six names did not announce it. Each read as a noun or a collection while being
+injected behaviour, so each took the suffix.
+
+| Was            | Reads as     | Is                                    |
+| -------------- | ------------ | ------------------------------------- |
+| TurnConclusion | A record     | Five ways of ending a turn            |
+| NoteChoice     | A pick       | Parks the turn until the user answers |
+| UserQuestion   | A question   | Parks the turn until the user answers |
+| HarnessTools   | A collection | Runs the tool the model named         |
+| SearchTools    | A collection | Globs and greps the vault             |
+| TurnAskers     | A collection | Chooses who answers, per mode         |
+
+The three plurals were the weakest: they promised collections and held none,
+which the plural rule in the naming skill already calls a failure.
+
+Every other service keeps its agent noun. NoteReader, TargetNoteResolver and
+NoteEditor say they act without a suffix, so adding one would only make them
+longer.
+
 ## Not done: make the scope visible
 
 Six classes carry the name Repository and two of them survive a reload. The rest
@@ -53,31 +78,6 @@ A package comment in engine/turn stating that everything there dies with the
 turn would carry that at the point of use, and rename nothing. The same comment
 gives the scoped-state category in [3-what-does-not.md](3-what-does-not.md) the
 name the layered model does not have.
-
-## Not done: six ambiguous service names
-
-A Service suffix on every service would produce NoteReaderService and
-TargetNoteResolverService, which the naming rule argues against: an agent noun
-already announces behaviour.
-
-Six names do not announce it. Each reads as a noun or a collection while being
-injected behaviour.
-
-| Class          | Reads as     | Is                                    |
-| -------------- | ------------ | ------------------------------------- |
-| TurnConclusion | A record     | Five ways of ending a turn            |
-| NoteChoice     | A pick       | Parks the turn until the user answers |
-| UserQuestion   | A question   | Parks the turn until the user answers |
-| HarnessTools   | A collection | Runs the tool the model named         |
-| SearchTools    | A collection | Globs and greps the vault             |
-| TurnAskers     | A collection | Chooses who answers, per mode         |
-
-The plurals are the weakest: HarnessTools and SearchTools promise collections
-and hold none, which the plural rule in the naming skill already calls a
-failure.
-
-The churn is small. Whether it is worth it depends on how much the ambiguity
-costs when reading the dispatcher.
 
 ## Rejected: a Repository suffix for everything stateful
 

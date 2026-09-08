@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, Mock, vi } from 'vitest'
 import { App } from 'obsidian'
 import { SessionRepository } from '../../session/session-repository'
 import { TurnProgressPublisher } from '../turn-progress-publisher'
-import { HarnessTools } from '../tools/harness-tools'
+import { HarnessToolsService } from '../tools/harness-tools-service'
 import { Outcomes } from '../../shared/models/outcome'
 import { ChatMessage, ChatProvider } from '../../providers/types'
 import { AgentsMdRepository } from '../../agents/agents-md-repository'
@@ -13,7 +13,7 @@ import { ObsidianCommandRunner } from '../../commands/obsidian-command-runner'
 import { OpenedNoteWait } from '../../commands/opened-note-wait'
 import { NoteGlob } from '../../search/note-glob'
 import { NoteGrep } from '../../search/note-grep'
-import { SearchTools } from '../tools/search-tools'
+import { SearchToolsService } from '../tools/search-tools-service'
 import { NoteReader } from '../../search/note-reader'
 import { FakeAdapter } from '../../test-support/fake-adapter'
 import { FakeEditor } from '../../test-support/fake-editor'
@@ -68,16 +68,16 @@ describe('EditEngine', () => {
   const appOf = (): App =>
     ({ ...registry.asApp(), workspace: workspace.asWorkspace() }) as unknown as App
 
-  const harnessOf = (allowed: string[], searchEnabled: boolean): HarnessTools => {
+  const harnessOf = (allowed: string[], searchEnabled: boolean): HarnessToolsService => {
     const app = appOf()
     const commandRegistry = new ObsidianCommandRegistry(app)
     const catalogue = new ObsidianCommandCatalogue(commandRegistry, new AllowList(allowed))
-    return new HarnessTools(
+    return new HarnessToolsService(
       new ObsidianCommandRunner(app, catalogue, new OpenedNoteWait(app, 30), commandRegistry),
       new NoteReader(vault.asVault()),
       catalogue,
       searchEnabled,
-      new SearchTools(new NoteGlob(vault.asVault()), new NoteGrep(vault.asVault())),
+      new SearchToolsService(new NoteGlob(vault.asVault()), new NoteGrep(vault.asVault())),
     )
   }
 
@@ -88,7 +88,7 @@ describe('EditEngine', () => {
         sessions,
         noteLocator,
         agentsMdRepository: new AgentsMdRepository(adapter.asAdapter()),
-        harnessTools: harnessOf(allowed, searchEnabled),
+        harnessToolsService: harnessOf(allowed, searchEnabled),
         progress: new TurnProgressPublisher(
           (text, sources) => answers.push({ text, sources }),
           (path) => retargets.push(path),

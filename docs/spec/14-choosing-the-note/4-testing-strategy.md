@@ -14,15 +14,15 @@ passed every test in the suite.
 
 ## Table of Contents
 
-1. [NoteChoice (Engine, new)](#notechoice-engine-new)
+1. [NoteChoiceService (Engine, new)](#notechoice-engine-new)
 2. [NotesChosenByUserRepository (Engine, new)](#chosennotes-engine-new)
-3. [HarnessTools (Engine, changed)](#harnesstools-engine-changed)
+3. [HarnessToolsService (Engine, changed)](#harnesstools-engine-changed)
 4. [ToolDispatcher (Engine, changed)](#tooldispatcher-engine-changed)
 5. [PanelReducer (Session, changed)](#panelreducer-session-changed)
 6. [RuleBuilder (Engine, changed)](#rulebuilder-engine-changed)
 7. [EditEngine (Engine, changed)](#editengine-engine-changed)
 
-## NoteChoice (Engine, new)
+## NoteChoiceService (Engine, new)
 
 - Returns the path the user picked when they pick one.
 - Names every candidate in the question when a shortlist is offered.
@@ -45,7 +45,7 @@ passed every test in the suite.
 - Excludes a path the user did not choose.
 - Keeps a path from an earlier choice when a second is recorded.
 
-## HarnessTools (Engine, changed)
+## HarnessToolsService (Engine, changed)
 
 - Runs a choice when choose_note is called.
 - Offers only the candidates a search returned, so an invented path is dropped.

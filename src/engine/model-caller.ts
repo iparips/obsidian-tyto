@@ -6,14 +6,14 @@ import { Today } from './prompting/today'
 import { OpenNote } from './note-editing/open-note'
 import { Skill } from '../skills/skill'
 import { AgentsMdChain } from '../agents/agents-md-chain'
-import { HarnessTools } from './tools/harness-tools'
+import { HarnessToolsService } from './tools/harness-tools-service'
 
 // What one turn tells the model, and what the model may call back. The loop
 // knows when to ask; this knows what the asking is made of.
 export class ModelCaller {
   constructor(
     private modelProvider: ChatProvider,
-    private harnessTools: HarnessTools,
+    private harnessToolsService: HarnessToolsService,
   ) {}
 
   // Ordered by how stale a copy the history could hold: the rules first, then
@@ -21,7 +21,7 @@ export class ModelCaller {
   async ask(request: ModelRequest): Promise<Outcome<ChatTurn>> {
     return this.modelProvider.complete(
       this.messagesFor(request),
-      this.harnessTools.schemas(request.skills.length > 0),
+      this.harnessToolsService.schemas(request.skills.length > 0),
       request.abortSignal,
     )
   }
@@ -41,16 +41,16 @@ export class ModelCaller {
     return PromptFactory.standingRules(
       request.skills,
       request.agentsMdChain,
-      this.harnessTools.allowedCommands(),
-      this.harnessTools.hasSearchEnabled(),
+      this.harnessToolsService.allowedCommands(),
+      this.harnessToolsService.hasSearchEnabled(),
     )
   }
 
   private finalContext(note: OpenNote | null): ChatMessage {
     if (note) return PromptFactory.noteContext(note.details())
     return PromptFactory.unboundContext(
-      this.harnessTools.hasWhitelistedCommands(),
-      this.harnessTools.hasSearchEnabled(),
+      this.harnessToolsService.hasWhitelistedCommands(),
+      this.harnessToolsService.hasSearchEnabled(),
     )
   }
 }

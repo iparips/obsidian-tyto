@@ -1,19 +1,19 @@
 import { SkillRepository } from '../../skills/skill-repository'
 import { NoteEditor } from '../note-editing/note-editor'
 import { NoteEditTool } from '../tools/note-edit-tool'
-import { HarnessTools } from '../tools/harness-tools'
+import { HarnessToolsService } from '../tools/harness-tools-service'
 import { TargetNoteResolver } from '../note-binding/target-note-resolver'
 import { ToolDispatcher } from '../tool-dispatcher'
 import { Turn } from './turn'
 import { TurnRepository } from './turn-repository'
 import { TurnProgressPublisher } from '../turn-progress-publisher'
 import { TurnCancellationController } from './turn-cancellation-controller'
-import { NoteChoice } from '../waiting/note-choice'
+import { NoteChoiceService } from '../waiting/note-choice-service'
 import { NoteOpener } from '../note-binding/note-opener'
 import { NotesChosenByUserRepository } from './notes-chosen-by-user-repository'
 import { PathsReturnedByVaultRepository } from '../../search/models/paths-returned-by-vault-repository'
 import { NotesOpenedCounter } from './notes-opened-counter'
-import { UserQuestion } from '../waiting/user-question'
+import { UserQuestionService } from '../waiting/user-question-service'
 import { SessionRepository } from '../../session/session-repository'
 import { Attempt, Outcomes } from '../../shared/models/outcome'
 
@@ -25,7 +25,7 @@ export class TurnFactory {
     private targetNoteResolver: TargetNoteResolver,
     private skillRepository: SkillRepository,
     private noteEditor: NoteEditor,
-    private harnessTools: HarnessTools,
+    private harnessToolsService: HarnessToolsService,
     private turnProgressPublisher: TurnProgressPublisher,
     // Null where nothing can open a note, which is every test that exercises the
     // guards rather than the workspace.
@@ -37,11 +37,11 @@ export class TurnFactory {
     private buildNoteChoice: (
       cancellationController: TurnCancellationController,
       notesChosenByUser: NotesChosenByUserRepository,
-    ) => NoteChoice = (_cancellationController, notesChosenByUser) =>
-      NoteChoice.automatic(notesChosenByUser),
+    ) => NoteChoiceService = (_cancellationController, notesChosenByUser) =>
+      NoteChoiceService.automatic(notesChosenByUser),
     private buildUserQuestion: (
       cancellationController: TurnCancellationController,
-    ) => UserQuestion = () => UserQuestion.unanswered(),
+    ) => UserQuestionService = () => UserQuestionService.unanswered(),
   ) {}
 
   // Session-scoped, so a note found in one turn can still be opened in the
@@ -68,29 +68,29 @@ export class TurnFactory {
   private askersFor(
     turnCancellation: TurnCancellationController,
     notesChosenByUser: NotesChosenByUserRepository,
-  ): TurnAskers {
+  ): TurnAskersService {
     return {
-      noteChoice: this.buildNoteChoice(turnCancellation, notesChosenByUser),
-      userQuestion: this.buildUserQuestion(turnCancellation),
+      noteChoiceService: this.buildNoteChoice(turnCancellation, notesChosenByUser),
+      userQuestionService: this.buildUserQuestion(turnCancellation),
     }
   }
 
   private dispatcherFor(
     repository: TurnRepository,
     cancellationController: TurnCancellationController,
-    askers: TurnAskers,
+    askers: TurnAskersService,
   ): ToolDispatcher {
     return new ToolDispatcher(
       this.sessionRepository,
       this.targetNoteResolver,
       this.skillRepository,
       new NoteEditTool(this.noteEditor, repository),
-      this.harnessTools,
+      this.harnessToolsService,
       this.turnProgressPublisher,
       repository,
       cancellationController,
-      askers.noteChoice,
-      askers.userQuestion,
+      askers.noteChoiceService,
+      askers.userQuestionService,
       this.noteOpener,
     )
   }
@@ -98,7 +98,7 @@ export class TurnFactory {
 
 // The two things a turn parks on, built together so a cancellation reaches both
 // or neither.
-interface TurnAskers {
-  noteChoice: NoteChoice
-  userQuestion: UserQuestion
+interface TurnAskersService {
+  noteChoiceService: NoteChoiceService
+  userQuestionService: UserQuestionService
 }

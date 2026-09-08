@@ -1,9 +1,9 @@
 import { App, TFile } from 'obsidian'
 import { EditEngine } from './edit-engine'
 import { ModelCaller } from './model-caller'
-import { TurnConclusion } from './turn-conclusion'
+import { TurnConclusionService } from './turn-conclusion-service'
 import { NoteEditor } from './note-editing/note-editor'
-import { HarnessTools } from './tools/harness-tools'
+import { HarnessToolsService } from './tools/harness-tools-service'
 import { TargetNoteResolver } from './note-binding/target-note-resolver'
 import { TurnProgressPublisher } from './turn-progress-publisher'
 import { TurnFactory } from './turn/turn-factory'
@@ -19,23 +19,23 @@ import { ObsidianCommandRunner } from '../commands/obsidian-command-runner'
 import { OpenedNoteWait } from '../commands/opened-note-wait'
 import { NoteGlob } from '../search/note-glob'
 import { NoteGrep } from '../search/note-grep'
-import { SearchTools } from './tools/search-tools'
+import { SearchToolsService } from './tools/search-tools-service'
 import { NoteReader } from '../search/note-reader'
 import { OwlSettings } from '../settings/settings'
-import { NoteChoice } from './waiting/note-choice'
+import { NoteChoiceService } from './waiting/note-choice-service'
 import { NoteOpener } from './note-binding/note-opener'
 import { NotesChosenByUserRepository } from './turn/notes-chosen-by-user-repository'
 import { TurnCancellationController } from './turn/turn-cancellation-controller'
-import { UserQuestion } from './waiting/user-question'
+import { UserQuestionService } from './waiting/user-question-service'
 
 // How a session builds what a turn parks on. Both take the turn's cancellation,
 // so a parked question settles on a cancel rather than parking the loop.
 export interface EngineAskers {
-  noteChoice?(
+  noteChoiceService?(
     cancellationController: TurnCancellationController,
     notesChosenByUser: NotesChosenByUserRepository,
-  ): NoteChoice
-  userQuestion?(cancellationController: TurnCancellationController): UserQuestion
+  ): NoteChoiceService
+  userQuestionService?(cancellationController: TurnCancellationController): UserQuestionService
 }
 
 // Assembles one session's engine. Every collaborator is explicit, and this is
@@ -61,12 +61,12 @@ export class EngineFactory {
       this.agentsMdRepository,
       progress,
     )
-    const harnessTools = this.buildHarnessTools()
+    const harnessToolsService = this.buildHarnessTools()
     return new EditEngine(
       sessions,
-      this.buildTurnFactory(sessions, targetNote, harnessTools, progress, askers),
-      new ModelCaller(modelProvider, harnessTools),
-      new TurnConclusion(sessions, new NoteEditor()),
+      this.buildTurnFactory(sessions, targetNote, harnessToolsService, progress, askers),
+      new ModelCaller(modelProvider, harnessToolsService),
+      new TurnConclusionService(sessions, new NoteEditor()),
       progress,
     )
   }
@@ -74,7 +74,7 @@ export class EngineFactory {
   private buildTurnFactory(
     sessions: SessionRepository,
     targetNote: TargetNoteResolver,
-    harnessTools: HarnessTools,
+    harnessToolsService: HarnessToolsService,
     progress: TurnProgressPublisher,
     askers: EngineAskers,
   ): TurnFactory {
@@ -83,27 +83,28 @@ export class EngineFactory {
       targetNote,
       this.skillRepository,
       new NoteEditor(),
-      harnessTools,
+      harnessToolsService,
       progress,
       new NoteOpener(this.app, new OpenedNoteWait(this.app)),
-      askers.noteChoice ??
-        ((_cancellationController, notesChosenByUser) => NoteChoice.automatic(notesChosenByUser)),
-      askers.userQuestion ?? (() => UserQuestion.unanswered()),
+      askers.noteChoiceService ??
+        ((_cancellationController, notesChosenByUser) =>
+          NoteChoiceService.automatic(notesChosenByUser)),
+      askers.userQuestionService ?? (() => UserQuestionService.unanswered()),
     )
   }
 
-  private buildHarnessTools(): HarnessTools {
+  private buildHarnessTools(): HarnessToolsService {
     const registry = new ObsidianCommandRegistry(this.app)
     const catalogue = new ObsidianCommandCatalogue(
       registry,
       new AllowList(this.settings.commandAllowList),
     )
-    return new HarnessTools(
+    return new HarnessToolsService(
       new ObsidianCommandRunner(this.app, catalogue, new OpenedNoteWait(this.app), registry),
       new NoteReader(this.app.vault),
       catalogue,
       this.settings.searchEnabled,
-      new SearchTools(new NoteGlob(this.app.vault), new NoteGrep(this.app.vault)),
+      new SearchToolsService(new NoteGlob(this.app.vault), new NoteGrep(this.app.vault)),
       this.settings.openMode === 'confirm',
     )
   }

@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { App } from 'obsidian'
-import { HarnessTools } from '../tools/harness-tools'
+import { HarnessToolsService } from '../tools/harness-tools-service'
 import { TurnState } from '../tools/harness-result'
 import { NotesOpenedCounter } from '../turn/notes-opened-counter'
 import { PathsReturnedByVaultRepository } from '../../search/models/paths-returned-by-vault-repository'
@@ -11,7 +11,7 @@ import { OpenedNoteWait } from '../../commands/opened-note-wait'
 import { AllowList } from '../../commands/allow-list'
 import { NoteGlob } from '../../search/note-glob'
 import { NoteGrep } from '../../search/note-grep'
-import { SearchTools } from '../tools/search-tools'
+import { SearchToolsService } from '../tools/search-tools-service'
 import { NoteReader } from '../../search/note-reader'
 import { FakeVault } from '../../test-support/fake-vault'
 import { aToolCall } from '../../test-support/builders'
@@ -20,7 +20,7 @@ const WEEK = '1 - Journal/Weekly/Week-35'
 const FRIDAY = `${WEEK}/04-09-Fri.md`
 const THURSDAY = `${WEEK}/03-09-Thu.md`
 
-describe('HarnessTools', () => {
+describe('HarnessToolsService', () => {
   let vault: FakeVault
   let turn: TurnState
 
@@ -33,13 +33,13 @@ describe('HarnessTools', () => {
     }
   })
 
-  const toolsOf = (searchEnabled = true): HarnessTools => {
+  const toolsOf = (searchEnabled = true): HarnessToolsService => {
     const app = {} as App
     const catalogue = new ObsidianCommandCatalogue(
       new ObsidianCommandRegistry(app),
       new AllowList([]),
     )
-    return new HarnessTools(
+    return new HarnessToolsService(
       new ObsidianCommandRunner(
         app,
         catalogue,
@@ -49,14 +49,14 @@ describe('HarnessTools', () => {
       new NoteReader(vault.asVault()),
       catalogue,
       searchEnabled,
-      new SearchTools(new NoteGlob(vault.asVault()), new NoteGrep(vault.asVault())),
+      new SearchToolsService(new NoteGlob(vault.asVault()), new NoteGrep(vault.asVault())),
     )
   }
 
   const glob = (pattern: string, args: Record<string, unknown> = {}) =>
     toolsOf().execute(aToolCall('glob_notes', { pattern, ...args }), turn)
 
-  const namesOf = (tools: HarnessTools, spent: readonly string[] = []) =>
+  const namesOf = (tools: HarnessToolsService, spent: readonly string[] = []) =>
     tools.schemas(spent).map((schema) => schema.name)
 
   describe('when a glob matches notes', () => {

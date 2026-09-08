@@ -29,7 +29,7 @@ turn rather than the session.
 ```mermaid
 flowchart LR
     Dispatcher["ToolDispatcher [Engine]<br/>Responsibility: owns what one tool call does"]
-    Picker["NoteChoice [Engine, new]<br/>Responsibility: owns asking which note and holding the answer"]
+    Picker["NoteChoiceService [Engine, new]<br/>Responsibility: owns asking which note and holding the answer"]
     Pending["PendingAnswer [Engine]<br/>Responsibility: owns parking a turn on the user"]
     Chosen["NotesChosenByUserRepository [Engine, new]<br/>Holds: the paths the user chose this turn"]
     Seen["PathsReturnedByVaultRepository [Search]<br/>Holds: the paths a search returned this session"]
@@ -42,7 +42,7 @@ flowchart LR
 
 Arrows: uses-relationship (client to supplier).
 
-NoteChoice (Engine, new) replaces OpenApproval (Engine) one for one: same
+NoteChoiceService (Engine, new) replaces OpenApproval (Engine) one for one: same
 position in the dispatcher, same construction per turn, same cancellation.
 
 ## The Tool Is Named for the Act
@@ -69,25 +69,25 @@ second records consent.
 
 OpenApproval (Engine) goes. Its three pieces land differently.
 
-| OpenApproval held       | Becomes                                                             |
-| ----------------------- | ------------------------------------------------------------------- |
-| The parked yes/no       | NoteChoice's parked pick, over the same PendingAnswer               |
-| The per-path grant set  | NotesChosenByUserRepository, turn-scoped rather than session-scoped |
-| The auto-mode granted() | NoteChoice.automatic(), which chooses the first candidate (FR13)    |
+| OpenApproval held       | Becomes                                                                 |
+| ----------------------- | ----------------------------------------------------------------------- |
+| The parked yes/no       | NoteChoiceService's parked pick, over the same PendingAnswer            |
+| The per-path grant set  | NotesChosenByUserRepository, turn-scoped rather than session-scoped     |
+| The auto-mode granted() | NoteChoiceService.automatic(), which chooses the first candidate (FR13) |
 
 ```typescript
 // note-choice.ts
 // Built per turn, because it takes the turn's cancellation and because what the
 // user chose is about this turn's write (FR5).
-export class NoteChoice {
+export class NoteChoiceService {
   static of(
     ask: (candidates: readonly string[]) => Promise<string | null>,
     cancellation?: TurnCancellationController,
-  ): NoteChoice
+  ): NoteChoiceService
 
   // Auto mode: the first candidate, without asking. The mode is a choice of
   // collaborator rather than a branch in the dispatcher.
-  static automatic(): NoteChoice
+  static automatic(): NoteChoiceService
 
   // Null when the user declined every candidate, which is an answer rather
   // than a failure (FR6).
@@ -110,26 +110,26 @@ shortlist gives it several, and the first is the model's own best guess.
 Deleting the confirmation reaches sixteen production files, and the compile
 errors are the smaller half.
 
-| File                                          | Change                                                                       |
-| --------------------------------------------- | ---------------------------------------------------------------------------- |
-| `engine/open-approval.ts` and its test        | Deleted, replaced by note-choice.ts                                          |
-| `session/approval-repository.ts` and its test | Deleted; NotesChosenByUserRepository replaces it at turn scope               |
-| `engine/tool-dispatcher.ts`                   | Holds NoteChoice; openModelChosenNote checks holds rather than granting      |
-| `engine/turn-factory.ts`                      | buildOpenApproval becomes buildNoteChoice; TurnAskers renames its field      |
-| `engine/engine-factory.ts`                    | EngineAskers renames openApproval to noteChoice                              |
-| `session/turn-askers.ts`                      | openApproval becomes noteChoice; drops the ApprovalRepository it held        |
-| `session/session-builder.ts`                  | Renames the asker it wires, and onOpenRequested to onChoiceRequested         |
-| `session/models/panel-action.ts`              | openRequested and openAnswered become choiceRequested and choiceAnswered     |
-| `session/models/panel-state.ts`               | The confirm entry kind becomes choice; the confirming phase becomes choosing |
-| `session/models/asked-entries.ts`             | settledConfirm becomes settledChoice, naming the pick rather than a yes      |
-| `session/models/entry-weight.ts`              | The confirm weight is keyed choice                                           |
-| `session/views/EntryConfirm.tsx`              | Becomes EntryChoice.tsx: a list of paths and a decline                       |
-| `session/views/HistoryEntry.tsx`              | Renders EntryChoice; onAnswerOpen becomes onChooseNote                       |
-| `session/views/HistoryList.tsx`               | Threads the renamed prop                                                     |
-| `session/views/SessionPanel.tsx`              | settleOpen becomes settleChoice, carrying a path or null                     |
-| `session/views/useParkedAnswers.ts`           | The held resolver returns a path or null rather than a boolean               |
-| `test-support/builders.ts`                    | anEngine's openApproval option becomes noteChoice                            |
-| `styles.css`                                  | owl-entry-confirm becomes owl-entry-choice, stacked rather than a row        |
+| File                                          | Change                                                                         |
+| --------------------------------------------- | ------------------------------------------------------------------------------ |
+| `engine/open-approval.ts` and its test        | Deleted, replaced by note-choice.ts                                            |
+| `session/approval-repository.ts` and its test | Deleted; NotesChosenByUserRepository replaces it at turn scope                 |
+| `engine/tool-dispatcher.ts`                   | Holds NoteChoiceService; openModelChosenNote checks holds rather than granting |
+| `engine/turn-factory.ts`                      | buildOpenApproval becomes buildNoteChoice; TurnAskersService renames its field |
+| `engine/engine-factory.ts`                    | EngineAskers renames openApproval to noteChoice                                |
+| `session/turn-askers.ts`                      | openApproval becomes noteChoice; drops the ApprovalRepository it held          |
+| `session/session-builder.ts`                  | Renames the asker it wires, and onOpenRequested to onChoiceRequested           |
+| `session/models/panel-action.ts`              | openRequested and openAnswered become choiceRequested and choiceAnswered       |
+| `session/models/panel-state.ts`               | The confirm entry kind becomes choice; the confirming phase becomes choosing   |
+| `session/models/asked-entries.ts`             | settledConfirm becomes settledChoice, naming the pick rather than a yes        |
+| `session/models/entry-weight.ts`              | The confirm weight is keyed choice                                             |
+| `session/views/EntryConfirm.tsx`              | Becomes EntryChoice.tsx: a list of paths and a decline                         |
+| `session/views/HistoryEntry.tsx`              | Renders EntryChoice; onAnswerOpen becomes onChooseNote                         |
+| `session/views/HistoryList.tsx`               | Threads the renamed prop                                                       |
+| `session/views/SessionPanel.tsx`              | settleOpen becomes settleChoice, carrying a path or null                       |
+| `session/views/useParkedAnswers.ts`           | The held resolver returns a path or null rather than a boolean                 |
+| `test-support/builders.ts`                    | anEngine's openApproval option becomes noteChoice                              |
+| `styles.css`                                  | owl-entry-confirm becomes owl-entry-choice, stacked rather than a row          |
 
 The settling is the piece to get right. AskedEntries (Session) turns a pending
 entry into a record of what happened, and a choice has three outcomes where a
@@ -226,7 +226,7 @@ a different mistake from one the user has not picked.
 sequenceDiagram
     participant Engine as EditEngine [Engine]
     participant Dispatcher as ToolDispatcher [Engine]
-    participant Choice as NoteChoice [Engine, new]
+    participant Choice as NoteChoiceService [Engine, new]
     participant Chosen as NotesChosenByUserRepository [Engine, new]
     participant Panel as SessionPanel [Session]
 

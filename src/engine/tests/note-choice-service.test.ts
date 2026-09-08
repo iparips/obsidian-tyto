@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { NoteChoice } from '../waiting/note-choice'
+import { NoteChoiceService } from '../waiting/note-choice-service'
 import { ChoiceRequest } from '../tools/choice-request'
 import { NotesChosenByUserRepository } from '../turn/notes-chosen-by-user-repository'
 import { TurnCancellationController } from '../turn/turn-cancellation-controller'
@@ -10,7 +10,7 @@ const BOTH = [TODO, SHOPPING]
 const offering = (candidates: readonly string[] = BOTH) =>
   new ChoiceRequest(candidates, 'add an item')
 
-describe('NoteChoice', () => {
+describe('NoteChoiceService', () => {
   let offered: (readonly string[])[]
 
   beforeEach(() => {
@@ -26,10 +26,10 @@ describe('NoteChoice', () => {
   }
 
   describe('when the user picks a candidate', () => {
-    let choice: NoteChoice
+    let choice: NoteChoiceService
 
     beforeEach(() => {
-      choice = NoteChoice.of(picking(TODO))
+      choice = NoteChoiceService.of(picking(TODO))
     })
 
     it('returns the path the user picked when they pick one', async () => {
@@ -70,10 +70,10 @@ describe('NoteChoice', () => {
   })
 
   describe('when the user declines every candidate', () => {
-    let choice: NoteChoice
+    let choice: NoteChoiceService
 
     beforeEach(() => {
-      choice = NoteChoice.of(picking(null))
+      choice = NoteChoiceService.of(picking(null))
     })
 
     it('returns null when the user declines every candidate', async () => {
@@ -89,13 +89,13 @@ describe('NoteChoice', () => {
 
   describe('when the panel answers with a path never offered', () => {
     it('declines a path outside the shortlist, so a pick licenses only a candidate', async () => {
-      const choice = NoteChoice.of(() => Promise.resolve('Lists/invented.md'))
+      const choice = NoteChoiceService.of(() => Promise.resolve('Lists/invented.md'))
 
       expect(await choice.choose(offering())).toBeNull()
     })
 
     it('holds a path outside the shortlist nowhere, so nothing opens on it', async () => {
-      const choice = NoteChoice.of(() => Promise.resolve('Lists/invented.md'))
+      const choice = NoteChoiceService.of(() => Promise.resolve('Lists/invented.md'))
 
       await choice.choose(offering())
 
@@ -104,10 +104,10 @@ describe('NoteChoice', () => {
   })
 
   describe('when the mode is automatic', () => {
-    let choice: NoteChoice
+    let choice: NoteChoiceService
 
     beforeEach(() => {
-      choice = NoteChoice.automatic()
+      choice = NoteChoiceService.automatic()
     })
 
     it('returns the first candidate without asking when constructed automatic', async () => {
@@ -129,11 +129,11 @@ describe('NoteChoice', () => {
 
   describe('when the turn is cancelled rather than answered', () => {
     let cancellationController: TurnCancellationController
-    let choice: NoteChoice
+    let choice: NoteChoiceService
 
     beforeEach(() => {
       cancellationController = new TurnCancellationController()
-      choice = NoteChoice.of(() => new Promise(() => undefined), cancellationController)
+      choice = NoteChoiceService.of(() => new Promise(() => undefined), cancellationController)
     })
 
     it('declines when the turn is cancelled rather than answered', async () => {
@@ -156,7 +156,7 @@ describe('NoteChoice', () => {
     it('records the pick in the turn-scoped set, so the dispatcher reads it', async () => {
       const chosen = new NotesChosenByUserRepository()
 
-      await NoteChoice.of(picking(TODO), new TurnCancellationController(), chosen).choose(
+      await NoteChoiceService.of(picking(TODO), new TurnCancellationController(), chosen).choose(
         offering(),
       )
 

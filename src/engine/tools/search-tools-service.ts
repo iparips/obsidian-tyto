@@ -12,7 +12,7 @@ import { TurnStep } from '../turn-step'
 // The two ways the model reaches a note it cannot name: a glob over paths and a
 // grep over content. Both record what they found, or open_note refuses
 // everything they offered.
-export class SearchTools {
+export class SearchToolsService {
   constructor(
     private noteGlob: NoteGlob,
     private noteGrep: NoteGrep,
@@ -21,7 +21,7 @@ export class SearchTools {
   glob(call: ToolCall, turn: TurnState): HarnessResult {
     turn.searchRan()
     const pattern = call.argument('pattern')
-    const result = this.noteGlob.find(pattern, SearchTools.orderOf(call))
+    const result = this.noteGlob.find(pattern, SearchToolsService.orderOf(call))
     turn.pathsReturnedByVault.recordPaths(result.paths)
     return new TextResult(
       SearchReport.ofGlob(pattern, result),
@@ -31,9 +31,12 @@ export class SearchTools {
 
   async grep(call: ToolCall, turn: TurnState): Promise<HarnessResult> {
     turn.searchRan()
-    const outcome = await this.noteGrep.find(SearchTools.requestOf(call), SearchTools.orderOf(call))
+    const outcome = await this.noteGrep.find(
+      SearchToolsService.requestOf(call),
+      SearchToolsService.orderOf(call),
+    )
     if (outcome.hasFailed()) return Refusal.of(outcome.message)
-    return SearchTools.reported(call.argument('pattern'), outcome.value, turn)
+    return SearchToolsService.reported(call.argument('pattern'), outcome.value, turn)
   }
 
   private static reported(pattern: string, result: GrepResult, turn: TurnState): HarnessResult {

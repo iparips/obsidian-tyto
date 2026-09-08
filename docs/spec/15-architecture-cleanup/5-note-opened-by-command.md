@@ -14,7 +14,7 @@ flowchart LR
     ObsidianCommandRunner["ObsidianCommandRunner [Commands]<br/>Responsibility: owns the run by reading the active note before and after"]
     OpenedNoteWait["OpenedNoteWait [Commands]<br/>Responsibility: owns the timing by waiting for a note to finish opening"]
     NoteOpenedByObsidianCommand["NoteOpenedByObsidianCommand [Commands, value object]<br/>Responsibility: records which note the run opened, if any"]
-    HarnessTools["HarnessTools [Engine]<br/>Responsibility: owns the tool run, carrying the effect back untouched"]
+    HarnessToolsService["HarnessToolsService [Engine]<br/>Responsibility: owns the tool run, carrying the effect back untouched"]
     ToolDispatcher["ToolDispatcher [Engine]<br/>Responsibility: owns the reaction by publishing it and moving the session"]
     Publisher["TurnProgressPublisher [Engine]<br/>Responsibility: owns the steps list the user reads"]
     SessionRepository["SessionRepository [Session]<br/>Responsibility: owns which note the session points at"]
@@ -22,8 +22,8 @@ flowchart LR
 
     ObsidianCommandRunner --> OpenedNoteWait
     ObsidianCommandRunner --> NoteOpenedByObsidianCommand
-    HarnessTools --> ObsidianCommandRunner
-    ToolDispatcher --> HarnessTools
+    HarnessToolsService --> ObsidianCommandRunner
+    ToolDispatcher --> HarnessToolsService
     ToolDispatcher --> NoteOpenedByObsidianCommand
     ToolDispatcher --> Publisher
     ToolDispatcher --> SessionRepository
@@ -51,7 +51,7 @@ does not move.
 ```mermaid
 sequenceDiagram
     participant Dispatcher as ToolDispatcher [Engine]
-    participant Harness as HarnessTools [Engine]
+    participant Harness as HarnessToolsService [Engine]
     participant Runner as ObsidianCommandRunner [Commands]
     participant Wait as OpenedNoteWait [Commands]
     participant Session as SessionRepository [Session]
@@ -88,7 +88,7 @@ is distinct from opening nothing, because a retry still reaches it.
 
 ## Why the dispatcher reacts rather than the tool
 
-HarnessTools can run the command; it cannot move the session. Only the
+HarnessToolsService can run the command; it cannot move the session. Only the
 dispatcher holds SessionRepository (Session), so the effect travels back as a
 HarnessResult and the dispatcher decides what it means.
 

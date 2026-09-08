@@ -25,10 +25,10 @@ classes, most already named for the verb they perform.
 | Class                 | Package   | Does                                   |
 | --------------------- | --------- | -------------------------------------- |
 | ModelCaller           | Engine    | Turns a turn into a model call         |
-| TurnConclusion        | Engine    | Ends a turn five ways                  |
+| TurnConclusionService | Engine    | Ends a turn five ways                  |
 | TargetNoteResolver    | Engine    | Path to a live editor                  |
 | NoteEditor            | Engine    | Applies one operation                  |
-| NoteChoice            | Engine    | Parks a turn until the user picks      |
+| NoteChoiceService     | Engine    | Parks a turn until the user picks      |
 | ObsidianCommandRunner | Commands  | Runs a command and reports what opened |
 | MistralProvider       | Providers | Calls the model API                    |
 

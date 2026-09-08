@@ -12,34 +12,34 @@ consent to write.
 ```mermaid
 flowchart LR
     ShortlistTool["NotePathsShortlistTool [Engine]<br/>Responsibility: owns the offer by refusing paths no search returned"]
-    HarnessTools["HarnessTools [Engine]<br/>Responsibility: owns the tool surface by running the call the model named"]
+    HarnessToolsService["HarnessToolsService [Engine]<br/>Responsibility: owns the tool surface by running the call the model named"]
     ToolDispatcher["ToolDispatcher [Engine]<br/>Responsibility: owns the branch by awaiting the person once a tool returns a request"]
-    NoteChoice["NoteChoice [Engine]<br/>Responsibility: owns the pick by parking the turn and recording what was chosen"]
+    NoteChoiceService["NoteChoiceService [Engine]<br/>Responsibility: owns the pick by parking the turn and recording what was chosen"]
     PendingAnswer["PendingAnswer [Engine]<br/>Responsibility: owns the parking by racing an answer against a cancellation"]
     NotesChosenByUserRepository["NotesChosenByUserRepository [Engine]<br/>Responsibility: owns the consent record for one turn, one entry per note"]
     ChoiceRequest["ChoiceRequest [Engine]<br/>Responsibility: carries the candidates and the purpose the user consents to"]
-    TurnAskers["TurnAskers [Session]<br/>Responsibility: owns the mode by choosing whether a person or auto answers"]
+    TurnAskersService["TurnAskersService [Session]<br/>Responsibility: owns the mode by choosing whether a person or auto answers"]
     Asker["Asker [Session]<br/>Responsibility: owns the panel hand-off, answering itself when nobody listens"]
     SessionPanel["SessionPanel [Session]<br/>Responsibility: owns the rows the person clicks"]
     PathsReturnedByVaultRepository["PathsReturnedByVaultRepository [Search]<br/>Responsibility: owns what the vault offered, for the session"]
 
     ShortlistTool --> PathsReturnedByVaultRepository
     ShortlistTool --> ChoiceRequest
-    ToolDispatcher --> HarnessTools
-    HarnessTools --> ShortlistTool
-    ToolDispatcher --> NoteChoice
-    NoteChoice --> PendingAnswer
-    NoteChoice --> NotesChosenByUserRepository
-    NoteChoice --> TurnAskers
-    TurnAskers --> Asker
+    ToolDispatcher --> HarnessToolsService
+    HarnessToolsService --> ShortlistTool
+    ToolDispatcher --> NoteChoiceService
+    NoteChoiceService --> PendingAnswer
+    NoteChoiceService --> NotesChosenByUserRepository
+    NoteChoiceService --> TurnAskersService
+    TurnAskersService --> Asker
     Asker --> SessionPanel
 
     classDef engine fill:#4a5568,color:#fff
-    class ShortlistTool,HarnessTools,ToolDispatcher,NoteChoice,PendingAnswer,NotesChosenByUserRepository,ChoiceRequest engine
+    class ShortlistTool,HarnessToolsService,ToolDispatcher,NoteChoiceService,PendingAnswer,NotesChosenByUserRepository,ChoiceRequest engine
 ```
 
 Arrows: uses-relationship (client to supplier). Grey marks the engine side. The
-chain leaves it at TurnAskers (Session), where the mode is decided.
+chain leaves it at TurnAskersService (Session), where the mode is decided.
 
 ## One choice, end to end
 
@@ -47,9 +47,9 @@ chain leaves it at TurnAskers (Session), where the mode is decided.
 sequenceDiagram
     participant Model as Chat Provider [Providers, service]
     participant Dispatcher as ToolDispatcher [Engine, service]
-    participant Harness as HarnessTools [Engine, service]
+    participant Harness as HarnessToolsService [Engine, service]
     participant Shortlist as NotePathsShortlistTool [Engine, stateless service]
-    participant Choice as NoteChoice [Engine, service]
+    participant Choice as NoteChoiceService [Engine, service]
     participant Chosen as NotesChosenByUserRepository [Engine, repository]
     participant Panel as SessionPanel [Session, UI]
 
@@ -75,7 +75,7 @@ sequenceDiagram
 
 Blocks, and where the code departs from them:
 
-- Domain services: ToolDispatcher, HarnessTools, NoteChoice and
+- Domain services: ToolDispatcher, HarnessToolsService, NoteChoiceService and
   NotePathsShortlistTool (Engine). Behaviour belonging to no single object. The
   shortlist tool is all-static, the stateless case stated in the type.
 - Repository: NotesChosenByUserRepository (Engine). A collection-like record of what the user
@@ -85,7 +85,7 @@ Blocks, and where the code departs from them:
 - Neither: PendingAnswer (Engine), absent above because it carries no domain
   meaning. It races an answer against a cancellation and is generic over both.
 
-NoteChoice (Engine) bends the service rule: it holds NotesChosenByUserRepository, and a service
+NoteChoiceService (Engine) bends the service rule: it holds NotesChosenByUserRepository, and a service
 is not supposed to hold the state it operates on. That is what forces it to be
 rebuilt per turn. The alternative is for it to return the pick and let
 ToolDispatcher (Engine) do the recording, which would leave the consent record
@@ -103,11 +103,11 @@ names the tool it missed.
 
 ## The three records, and why they are separate
 
-| Record                         | Scope   | Holds                          | Written by                |
-| ------------------------------ | ------- | ------------------------------ | ------------------------- |
-| PathsReturnedByVaultRepository | Session | What a search or read returned | SearchTools, HarnessTools |
-| NotesChosenByUserRepository    | Turn    | What the user picked           | NoteChoice                |
-| openedThisTurn                 | Turn    | What actually opened           | TurnRepository            |
+| Record                         | Scope   | Holds                          | Written by                              |
+| ------------------------------ | ------- | ------------------------------ | --------------------------------------- |
+| PathsReturnedByVaultRepository | Session | What a search or read returned | SearchToolsService, HarnessToolsService |
+| NotesChosenByUserRepository    | Turn    | What the user picked           | NoteChoiceService                       |
+| openedThisTurn                 | Turn    | What actually opened           | TurnRepository                          |
 
 The scopes differ because the facts do. Finding a note is knowledge and does not
 expire, so a note found in one turn opens in a later one without searching
@@ -121,8 +121,8 @@ fallback. A cancelled choice resolves to null, the value a decline already
 produced, so cancellation needed no new handling.
 
 - PendingAnswer (Engine) races the person against the turn's cancellation. This
-  is why TurnAskers (Session) builds both askers from one cancellation.
-- NoteChoice.automatic (Engine) answers itself in auto mode, picking the first
+  is why TurnAskersService (Session) builds both askers from one cancellation.
+- NoteChoiceService.automatic (Engine) answers itself in auto mode, picking the first
   candidate. The mode is a choice of collaborator rather than a branch, so every
   refusal above it runs identically in both modes.
 - Asker (Session) resolves to its fallback when no panel is subscribed.

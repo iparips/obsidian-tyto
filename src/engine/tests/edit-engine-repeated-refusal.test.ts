@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, Mock, vi } from 'vitest'
 import { App } from 'obsidian'
 import { SessionRepository } from '../../session/session-repository'
 import { TurnProgressPublisher } from '../turn-progress-publisher'
-import { HarnessTools } from '../tools/harness-tools'
+import { HarnessToolsService } from '../tools/harness-tools-service'
 import { Outcomes } from '../../shared/models/outcome'
 import { ChatProvider } from '../../providers/types'
 import { AgentsMdRepository } from '../../agents/agents-md-repository'
@@ -13,7 +13,7 @@ import { ObsidianCommandRunner } from '../../commands/obsidian-command-runner'
 import { OpenedNoteWait } from '../../commands/opened-note-wait'
 import { NoteGlob } from '../../search/note-glob'
 import { NoteGrep } from '../../search/note-grep'
-import { SearchTools } from '../tools/search-tools'
+import { SearchToolsService } from '../tools/search-tools-service'
 import { NoteReader } from '../../search/note-reader'
 import { FakeAdapter } from '../../test-support/fake-adapter'
 import { FakeEditor } from '../../test-support/fake-editor'
@@ -44,19 +44,19 @@ describe('EditEngine', () => {
     sessions = aSession()
   })
 
-  const harnessOf = (): HarnessTools => {
+  const harnessOf = (): HarnessToolsService => {
     const app = {
       ...new FakeCommandRegistry().asApp(),
       workspace: new FakeWorkspace('note.md').asWorkspace(),
     } as unknown as App
     const commandRegistry = new ObsidianCommandRegistry(app)
     const catalogue = new ObsidianCommandCatalogue(commandRegistry, new AllowList([]))
-    return new HarnessTools(
+    return new HarnessToolsService(
       new ObsidianCommandRunner(app, catalogue, new OpenedNoteWait(app, 30), commandRegistry),
       new NoteReader(vault.asVault()),
       catalogue,
       true,
-      new SearchTools(new NoteGlob(vault.asVault()), new NoteGrep(vault.asVault())),
+      new SearchToolsService(new NoteGlob(vault.asVault()), new NoteGrep(vault.asVault())),
     )
   }
 
@@ -67,7 +67,7 @@ describe('EditEngine', () => {
         sessions,
         noteLocator: new FakeNoteLocator().withOpenNote('note.md', editor),
         agentsMdRepository: new AgentsMdRepository(new FakeAdapter().asAdapter()),
-        harnessTools: harnessOf(),
+        harnessToolsService: harnessOf(),
         progress: new TurnProgressPublisher(
           () => undefined,
           () => undefined,

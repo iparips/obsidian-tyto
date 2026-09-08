@@ -23,7 +23,7 @@ a shape the class does not name.
 - concludeStuck reports the same refusal twice
 - concludeExhausted reports the spent budget
 
-Extracted as TurnConclusion, the loop would read as five named endings rather
+Extracted as TurnConclusionService, the loop would read as five named endings rather
 than five methods sharing a prefix. It would take six methods out of the class,
 and give the question "how can a turn end" one file to answer.
 
@@ -43,7 +43,7 @@ the conclusions move first and the class still reads as two things.
 ## Third: the model call
 
 askModel takes five parameters, calls PromptFactory four times, asks
-HarnessTools five questions, and calls the provider. It is the whole of turning
+HarnessToolsService five questions, and calls the provider. It is the whole of turning
 a turn into a model call, and the only place either collaborator is used for
 prompting.
 
@@ -52,12 +52,12 @@ remaining uses of the two are inside this one method.
 
 ## What the counts become
 
-| Class          | Dependencies                                                   |
-| -------------- | -------------------------------------------------------------- |
-| EditEngine     | 4: turnFactory, modelCaller, turnConclusion, sessionRepository |
-| UtteranceQueue | 1: the engine                                                  |
-| ModelCaller    | 2: modelProvider, harnessTools                                 |
-| TurnConclusion | 2: sessionRepository, noteEditor                               |
+| Class                 | Dependencies                                                   |
+| --------------------- | -------------------------------------------------------------- |
+| EditEngine            | 4: turnFactory, modelCaller, turnConclusion, sessionRepository |
+| UtteranceQueue        | 1: the engine                                                  |
+| ModelCaller           | 2: modelProvider, harnessTools                                 |
+| TurnConclusionService | 2: sessionRepository, noteEditor                               |
 
 EditEngine goes from six to four, and nothing it gains holds more than two.
 

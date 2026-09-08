@@ -1,11 +1,11 @@
 import { beforeEach, describe, expect, it, Mock, vi } from 'vitest'
-import { UserQuestion } from '../waiting/user-question'
+import { UserQuestionService } from '../waiting/user-question-service'
 import { AnswerRequest } from '../tools/answer-request'
 import { TurnCancellationController } from '../turn/turn-cancellation-controller'
 
 const WHICH_LIST = new AnswerRequest('which shopping list?', ['Lists/a.md', 'Lists/b.md'])
 
-describe('UserQuestion', () => {
+describe('UserQuestionService', () => {
   let ask: Mock<[AnswerRequest], Promise<string>>
 
   beforeEach(() => {
@@ -15,17 +15,17 @@ describe('UserQuestion', () => {
 
   describe('when the user answers', () => {
     it('returns the answer when one is given', async () => {
-      expect(await UserQuestion.of(ask).answerTo(WHICH_LIST)).toBe('the one in Lists')
+      expect(await UserQuestionService.of(ask).answerTo(WHICH_LIST)).toBe('the one in Lists')
     })
 
     it('passes the question and its suggestions to whoever asks', async () => {
-      await UserQuestion.of(ask).answerTo(WHICH_LIST)
+      await UserQuestionService.of(ask).answerTo(WHICH_LIST)
 
       expect(ask).toHaveBeenCalledWith(WHICH_LIST)
     })
 
     it('asks again for a second question, so it holds nothing between them', async () => {
-      const question = UserQuestion.of(ask)
+      const question = UserQuestionService.of(ask)
       await question.answerTo(WHICH_LIST)
 
       await question.answerTo(WHICH_LIST)
@@ -43,7 +43,7 @@ describe('UserQuestion', () => {
     })
 
     it('returns an empty answer when the turn is cancelled', async () => {
-      const answer = UserQuestion.of(ask, cancellationController).answerTo(WHICH_LIST)
+      const answer = UserQuestionService.of(ask, cancellationController).answerTo(WHICH_LIST)
 
       cancellationController.cancel()
 
@@ -53,7 +53,7 @@ describe('UserQuestion', () => {
 
   describe('when nothing can answer', () => {
     it('returns an empty answer when constructed unanswered', async () => {
-      expect(await UserQuestion.unanswered().answerTo(WHICH_LIST)).toBe('')
+      expect(await UserQuestionService.unanswered().answerTo(WHICH_LIST)).toBe('')
     })
   })
 })

@@ -7,7 +7,7 @@ import { EngineFactory } from '../engine/engine-factory'
 import { InstructionListeners } from './instruction-listeners'
 import { SessionListeners } from './session-listeners'
 import { SessionProgress } from './session-progress'
-import { TurnAskers } from './turn-askers'
+import { TurnAskersService } from './turn-askers-service'
 import { TurnNotices } from './turn-notices'
 import { OwlSettings } from '../settings/settings'
 
@@ -16,7 +16,7 @@ import { OwlSettings } from '../settings/settings'
 interface SessionChannels {
   listeners: InstructionListeners
   session: SessionListeners
-  askers: TurnAskers
+  askers: TurnAskersService
   notices: TurnNotices
 }
 
@@ -84,7 +84,7 @@ export class SessionBuilder {
       listeners: new InstructionListeners(),
       session: new SessionListeners(),
       notices,
-      askers: new TurnAskers(notices, this.settings.openMode),
+      askers: new TurnAskersService(notices, this.settings.openMode),
     }
   }
 
@@ -98,8 +98,8 @@ export class SessionBuilder {
       file,
       new SessionProgress(session).publisher(),
       {
-        noteChoice: (cancellation, chosen) => askers.noteChoice(cancellation, chosen),
-        userQuestion: (cancellation) => askers.userQuestion(cancellation),
+        noteChoiceService: (cancellation, chosen) => askers.noteChoiceService(cancellation, chosen),
+        userQuestionService: (cancellation) => askers.userQuestionService(cancellation),
       },
     )
     this.followEngine(engine)

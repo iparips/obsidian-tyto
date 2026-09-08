@@ -17,15 +17,15 @@ flowchart LR
     end
 
     subgraph Tools["tools/"]
-        HarnessTools["HarnessTools [Engine]<br/>Responsibility: owns the model-facing surface by running the call it names"]
-        SearchTools["SearchTools [Engine]<br/>Responsibility: owns vault lookup by globbing paths and grepping content"]
+        HarnessToolsService["HarnessToolsService [Engine]<br/>Responsibility: owns the model-facing surface by running the call it names"]
+        SearchToolsService["SearchToolsService [Engine]<br/>Responsibility: owns vault lookup by globbing paths and grepping content"]
         ShortlistTool["ShortlistTool [Engine]<br/>Responsibility: owns the offer by filtering paths no search returned"]
         NoteEditTool["NoteEditTool [Engine]<br/>Responsibility: owns the write guard by refusing an edit to an unopened note"]
     end
 
     subgraph Waiting["waiting/"]
-        NoteChoice["NoteChoice [Engine]<br/>Responsibility: owns the pick by parking the turn until the user chooses"]
-        UserQuestion["UserQuestion [Engine]<br/>Responsibility: owns the answer by parking the turn until the user replies"]
+        NoteChoiceService["NoteChoiceService [Engine]<br/>Responsibility: owns the pick by parking the turn until the user chooses"]
+        UserQuestionService["UserQuestionService [Engine]<br/>Responsibility: owns the answer by parking the turn until the user replies"]
         PendingAnswer["PendingAnswer [Engine]<br/>Responsibility: owns the parking by racing an answer against a cancellation"]
     end
 
@@ -51,16 +51,16 @@ flowchart LR
     TurnFactory --> TurnRepository
     TurnFactory --> ToolDispatcher
     TurnFactory --> TargetNoteResolver
-    ToolDispatcher --> HarnessTools
+    ToolDispatcher --> HarnessToolsService
     ToolDispatcher --> NoteEditTool
-    ToolDispatcher --> NoteChoice
-    ToolDispatcher --> UserQuestion
+    ToolDispatcher --> NoteChoiceService
+    ToolDispatcher --> UserQuestionService
     ToolDispatcher --> TurnRepository
     ToolDispatcher --> Progress
-    HarnessTools --> SearchTools
-    HarnessTools --> ShortlistTool
-    NoteChoice --> PendingAnswer
-    UserQuestion --> PendingAnswer
+    HarnessToolsService --> SearchToolsService
+    HarnessToolsService --> ShortlistTool
+    NoteChoiceService --> PendingAnswer
+    UserQuestionService --> PendingAnswer
     NoteEditTool --> NoteOperationParser
     NoteEditTool --> NoteEditor
     NoteEditTool --> TurnRepository
@@ -98,22 +98,22 @@ separable group in the package.
 ```mermaid
 flowchart LR
     Model["Chat Provider [Providers]<br/>Responsibility: owns the model call by returning tool calls or text"]
-    HarnessTools["HarnessTools [Engine]<br/>Responsibility: owns the tool run by producing a request value"]
+    HarnessToolsService["HarnessToolsService [Engine]<br/>Responsibility: owns the tool run by producing a request value"]
     ToolDispatcher["ToolDispatcher [Engine]<br/>Responsibility: owns the branch by awaiting the person after the tool returned"]
-    NoteChoice["NoteChoice [Engine]<br/>Responsibility: owns the pick by parking until the user chooses"]
-    TurnAskers["TurnAskers [Session]<br/>Responsibility: owns the mode by choosing who answers"]
+    NoteChoiceService["NoteChoiceService [Engine]<br/>Responsibility: owns the pick by parking until the user chooses"]
+    TurnAskersService["TurnAskersService [Session]<br/>Responsibility: owns the mode by choosing who answers"]
     Panel["SessionPanel [Session]<br/>Responsibility: owns the person by rendering the choice"]
 
     Model --> ToolDispatcher
-    ToolDispatcher --> HarnessTools
-    ToolDispatcher --> NoteChoice
-    NoteChoice --> TurnAskers
-    TurnAskers --> Panel
+    ToolDispatcher --> HarnessToolsService
+    ToolDispatcher --> NoteChoiceService
+    NoteChoiceService --> TurnAskersService
+    TurnAskersService --> Panel
 ```
 
 Arrows: uses-relationship (client to supplier).
 
-choose_note is a tool, so HarnessTools (Engine) runs it. That run produces a
-ChoiceRequest, not a pick. The pick comes from a person, and NoteChoice
-(Engine) waits for one. The chain leaves the engine at TurnAskers (Session), so
+choose_note is a tool, so HarnessToolsService (Engine) runs it. That run produces a
+ChoiceRequest, not a pick. The pick comes from a person, and NoteChoiceService
+(Engine) waits for one. The chain leaves the engine at TurnAskersService (Session), so
 the boundary already exists in the code.

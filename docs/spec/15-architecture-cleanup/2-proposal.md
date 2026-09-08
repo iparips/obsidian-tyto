@@ -25,7 +25,7 @@ NoteEditor (Engine) applies that to an Obsidian editor.
 
 ### tools/ - what the model can call
 
-- HarnessTools, SearchTools, ShortlistTool, NoteEditTool (Engine)
+- HarnessToolsService, SearchToolsService, ShortlistTool, NoteEditTool (Engine)
 - HarnessResult, TurnState, Refusal, ToolSchemas, ToolCallOutcome (Engine)
 - AnswerRequest, ChoiceRequest (Engine)
 
@@ -44,7 +44,7 @@ the overrun.
 
 ### waiting/ - what parks a turn on a person
 
-- PendingAnswer, NoteChoice, UserQuestion (Engine)
+- PendingAnswer, NoteChoiceService, UserQuestionService (Engine)
 
 ### prompting/ - what the model is told
 
@@ -76,8 +76,8 @@ Being in the schema does not settle it. Editing, searching, choosing and asking
 are all declared tools, so that test puts four of the six folders in one.
 
 The test that separates them: does the class take a ToolCall and return a
-ToolCallOutcome. NoteEditTool and HarnessTools (Engine) do, so they are tools.
-NoteEditor (Engine) takes an EditOperation and NoteChoice (Engine) takes a
+ToolCallOutcome. NoteEditTool and HarnessToolsService (Engine) do, so they are tools.
+NoteEditor (Engine) takes an EditOperation and NoteChoiceService (Engine) takes a
 ChoiceRequest, so neither is.
 
 That line puts the tool surface in tools/ and the machinery each tool drives in
@@ -86,28 +86,28 @@ the folder named for what it does.
 ## The open question: waiting/ or tools/
 
 Both ask_user and choose_note are tools. They sit in the schema and dispatch
-through HarnessTools (Engine) like any other call. That is the case for folding
+through HarnessToolsService (Engine) like any other call. That is the case for folding
 waiting/ into tools/.
 
 The case against is what the call graph shows. ToolDispatcher (Engine) is the
-only runtime caller of NoteChoice and UserQuestion (Engine), at three call
+only runtime caller of NoteChoiceService and UserQuestionService (Engine), at three call
 sites. PendingAnswer (Engine) has no caller outside those two.
 
 | Axis               | Fold into tools/                     | Keep waiting/ separate                         |
 | ------------------ | ------------------------------------ | ---------------------------------------------- |
 | Schema             | Both are declared tools              | Same, so this axis does not separate them      |
 | What the code does | Runs and returns                     | Suspends until a person answers                |
-| Who calls it       | HarnessTools dispatches              | ToolDispatcher awaits, after the tool returned |
-| Constructed by     | EngineFactory, once                  | TurnAskers (Session), per turn                 |
+| Who calls it       | HarnessToolsService dispatches       | ToolDispatcher awaits, after the tool returned |
+| Constructed by     | EngineFactory, once                  | TurnAskersService (Session), per turn          |
 | Cost of folding    | tools/ reaches 9 files, near the cap | Six folders instead of five                    |
 
 Recommendation: keep waiting/ separate.
 
 The tools return a request value and finish. Something else then suspends the
 turn until a human settles it. ShortlistTool (Engine) building a ChoiceRequest
-is tool work; NoteChoice (Engine) awaiting the pick is not.
+is tool work; NoteChoiceService (Engine) awaiting the pick is not.
 
-The seam is already drawn outside the engine. TurnAskers (Session) constructs
+The seam is already drawn outside the engine. TurnAskersService (Session) constructs
 both, because only the panel can answer. That file names the boundary, and
 waiting/ is the engine side of it.
 

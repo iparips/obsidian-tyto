@@ -8,7 +8,7 @@ import { SessionRepository } from '../session/session-repository'
 import { TurnProgressPublisher } from './turn-progress-publisher'
 import { RepeatedRefusalCounter } from './turn/repeated-refusal-counter'
 import { ModelCaller, ModelRequest } from './model-caller'
-import { TurnConclusion } from './turn-conclusion'
+import { TurnConclusionService } from './turn-conclusion-service'
 import { UtteranceQueue } from './utterance-queue'
 import { TurnSpend } from './turn/turn-spend'
 
@@ -21,7 +21,7 @@ export class EditEngine {
     private sessionRepository: SessionRepository,
     private turnFactory: TurnFactory,
     private modelCaller: ModelCaller,
-    private turnConclusion: TurnConclusion,
+    private turnConclusionService: TurnConclusionService,
     private turnProgressPublisher: TurnProgressPublisher,
   ) {}
 
@@ -64,7 +64,7 @@ export class EditEngine {
       const ended = await this.runIteration(turn, spend, iteration)
       if (ended) return ended
     }
-    return TurnConclusion.exhausted()
+    return TurnConclusionService.exhausted()
   }
 
   // Null when the turn should keep going, which is the one shape an iteration
@@ -78,13 +78,13 @@ export class EditEngine {
     const modelAnswer = await this.askModel(turn, iteration)
 
     if (!modelAnswer.succeeded())
-      return this.turnConclusion.unfinished(modelAnswer, turn.repository.writtenNotes())
+      return this.turnConclusionService.unfinished(modelAnswer, turn.repository.writtenNotes())
 
     if (modelAnswer.value.isText()) return this.concludeUtterance(turn, modelAnswer.value.content)
     await this.executeToolCalls(modelAnswer.value.calls, turn, spend.repeatedRefusalCounter)
 
     if (spend.repeatedRefusalCounter.isStuck())
-      return TurnConclusion.stuck(spend.repeatedRefusalCounter)
+      return TurnConclusionService.stuck(spend.repeatedRefusalCounter)
     this.spendOn(spend, modelAnswer.value.calls.length)
 
     return null
@@ -117,11 +117,11 @@ export class EditEngine {
   }
 
   private concludeCancelled(turn: Turn): Outcome<string> {
-    return this.turnConclusion.cancelled(turn.repository.writtenNotes())
+    return this.turnConclusionService.cancelled(turn.repository.writtenNotes())
   }
 
   private concludeUtterance(turn: Turn, summary: string): Outcome<string> {
-    return this.turnConclusion.utterance(
+    return this.turnConclusionService.utterance(
       summary,
       turn.repository.targetNote(),
       turn.repository.editEnd(),

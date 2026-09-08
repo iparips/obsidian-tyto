@@ -14,7 +14,7 @@ match a real vault's paths, so the fixtures use the shape that failed:
 2. [ResultOrder (Search, new)](#resultorder-search-new)
 3. [NoteGlob (Search, new)](#noteglob-search-new)
 4. [NoteGrep (Search, new)](#notegrep-search-new)
-5. [HarnessTools (Engine, changed)](#harnesstools-engine-changed)
+5. [HarnessToolsService (Engine, changed)](#harnesstools-engine-changed)
 6. [NotesOpenedCounter (Engine, changed)](#turnbudget-engine-changed)
 7. [RuleBuilder (Engine, changed)](#rulebuilder-engine-changed)
 8. [EditEngine (Engine, changed)](#editengine-engine-changed)
@@ -77,7 +77,7 @@ match a real vault's paths, so the fixtures use the shape that failed:
 - Refuses an invalid expression by saying so, rather than failing the turn.
 - Caps the results when more notes match than the cap.
 
-## HarnessTools (Engine, changed)
+## HarnessToolsService (Engine, changed)
 
 - Runs a glob when glob_notes is called.
 - Runs a grep when grep_notes is called.

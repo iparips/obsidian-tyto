@@ -13,10 +13,10 @@ second is tested by running the same refusal cases with a granted approval.
 1. [PathsReturnedByVaultRepository (Search, new)](#pathsreturnedbyvaultrepository-search-new)
 2. [OpenApproval (Engine, new)](#openapproval-engine-new)
 3. [PendingAnswer (Engine, new)](#pendinganswer-engine-new)
-4. [UserQuestion (Engine, new)](#userquestion-engine-new)
+4. [UserQuestionService (Engine, new)](#userquestion-engine-new)
 5. [AnswerRequest (Engine, new)](#answerrequest-engine-new)
 6. [TurnNotices (Session, new)](#turnnotices-session-new)
-7. [HarnessTools (Engine, changed)](#harnesstools-engine-changed)
+7. [HarnessToolsService (Engine, changed)](#harnesstools-engine-changed)
 8. [ToolDispatcher (Engine, changed)](#tooldispatcher-engine-changed)
 9. [NotesOpenedCounter (Engine, changed)](#turnbudget-engine-changed)
 10. [RuleBuilder (Engine, changed)](#rulebuilder-engine-changed)
@@ -48,7 +48,7 @@ second is tested by running the same refusal cases with a granted approval.
 - Resolves once when an answer and a cancellation arrive together.
 - Passes the question and its suggestions to whoever asks.
 
-## UserQuestion (Engine, new)
+## UserQuestionService (Engine, new)
 
 - Returns the user's answer when one is given.
 - Returns an empty answer when the turn is cancelled.
@@ -70,7 +70,7 @@ second is tested by running the same refusal cases with a granted approval.
 - Reveals the session leaf when a notice is acted on.
 - Opens no panel on its own.
 
-## HarnessTools (Engine, changed)
+## HarnessToolsService (Engine, changed)
 
 - Refuses an open when the budget is spent, naming the cap.
 - Refuses an open when the path was never returned by a search.

@@ -2,12 +2,12 @@ import { beforeEach, describe, expect, it, Mock, vi } from 'vitest'
 import { App } from 'obsidian'
 import { SessionRepository } from '../../session/session-repository'
 import { TurnProgressPublisher } from '../turn-progress-publisher'
-import { HarnessTools } from '../tools/harness-tools'
-import { NoteChoice } from '../waiting/note-choice'
+import { HarnessToolsService } from '../tools/harness-tools-service'
+import { NoteChoiceService } from '../waiting/note-choice-service'
 import { NoteOpener } from '../note-binding/note-opener'
 import { TurnCancellationController } from '../turn/turn-cancellation-controller'
 import { NotesChosenByUserRepository } from '../turn/notes-chosen-by-user-repository'
-import { UserQuestion } from '../waiting/user-question'
+import { UserQuestionService } from '../waiting/user-question-service'
 import { AnswerRequest } from '../tools/answer-request'
 import { Outcomes } from '../../shared/models/outcome'
 import { ChatMessage, ChatProvider } from '../../providers/types'
@@ -19,7 +19,7 @@ import { ObsidianCommandRunner } from '../../commands/obsidian-command-runner'
 import { OpenedNoteWait } from '../../commands/opened-note-wait'
 import { NoteGlob } from '../../search/note-glob'
 import { NoteGrep } from '../../search/note-grep'
-import { SearchTools } from '../tools/search-tools'
+import { SearchToolsService } from '../tools/search-tools-service'
 import { NoteReader } from '../../search/note-reader'
 import { FakeAdapter } from '../../test-support/fake-adapter'
 import { FakeEditor } from '../../test-support/fake-editor'
@@ -59,19 +59,19 @@ describe('EditEngine', () => {
       .withOpenNote(TODO, todoEditor)
   })
 
-  const harnessOf = (): HarnessTools => {
+  const harnessOf = (): HarnessToolsService => {
     const app = {
       ...new FakeCommandRegistry().asApp(),
       workspace: new FakeWorkspace('note.md').asWorkspace(),
     } as unknown as App
     const registry = new ObsidianCommandRegistry(app)
     const catalogue = new ObsidianCommandCatalogue(registry, new AllowList([]))
-    return new HarnessTools(
+    return new HarnessToolsService(
       new ObsidianCommandRunner(app, catalogue, new OpenedNoteWait(app, 30), registry),
       new NoteReader(vault.asVault()),
       catalogue,
       true,
-      new SearchTools(new NoteGlob(vault.asVault()), new NoteGrep(vault.asVault())),
+      new SearchToolsService(new NoteGlob(vault.asVault()), new NoteGrep(vault.asVault())),
     )
   }
 
@@ -79,7 +79,7 @@ describe('EditEngine', () => {
     buildChoice: (
       cancellation: TurnCancellationController,
       chosen: NotesChosenByUserRepository,
-    ) => NoteChoice = (_cancellation, chosen) => NoteChoice.automatic(chosen),
+    ) => NoteChoiceService = (_cancellation, chosen) => NoteChoiceService.automatic(chosen),
     answer = '',
     noteOpener: NoteOpener | null = null,
   ) =>
@@ -89,11 +89,11 @@ describe('EditEngine', () => {
         sessions,
         noteLocator,
         agentsMdRepository: new AgentsMdRepository(new FakeAdapter().asAdapter()),
-        harnessTools: harnessOf(),
-        noteChoice: buildChoice,
+        harnessToolsService: harnessOf(),
+        noteChoiceService: buildChoice,
         noteOpener,
-        userQuestion: () =>
-          UserQuestion.of((request) => {
+        userQuestionService: () =>
+          UserQuestionService.of((request) => {
             questions.push(request)
             return Promise.resolve(answer)
           }),
@@ -113,7 +113,7 @@ describe('EditEngine', () => {
   const picking =
     (pick: string | null) =>
     (_cancellation: TurnCancellationController, chosen: NotesChosenByUserRepository) =>
-      NoteChoice.of(
+      NoteChoiceService.of(
         (request) => {
           asked.push(...request.candidates)
           return Promise.resolve(request.candidates.includes(pick ?? '') ? pick : null)

@@ -12,19 +12,19 @@ That needs machinery the rest of the codebase does not.
 
 | Class                      | Package | Answers                                        |
 | -------------------------- | ------- | ---------------------------------------------- |
-| NoteChoice                 | Engine  | What is being asked, in domain terms           |
+| NoteChoiceService          | Engine  | What is being asked, in domain terms           |
 | PendingAnswer              | Engine  | Answer or cancel, whichever settles first      |
 | TurnCancellationController | Engine  | Has this turn been cancelled, asked three ways |
 | Asker                      | Session | Who answers, and what if nobody is listening   |
 
-UserQuestion sits beside NoteChoice and works the same way, so only one is drawn.
+UserQuestionService sits beside NoteChoiceService and works the same way, so only one is drawn.
 
 ## One choice, from tool call to settled promise
 
 ```mermaid
 sequenceDiagram
     participant Model as Chat Provider [Providers]
-    participant Choice as NoteChoice [Engine]
+    participant Choice as NoteChoiceService [Engine]
     participant Pending as PendingAnswer [Engine]
     participant Cancel as TurnCancellationController [Engine]
     participant Asker as Asker [Session]
@@ -60,7 +60,7 @@ sequenceDiagram
     participant Cancel as TurnCancellationController [Engine]
     participant Controller as AbortController [Browser]
     participant Pending as PendingAnswer [Engine]
-    participant Choice as NoteChoice [Engine]
+    participant Choice as NoteChoiceService [Engine]
 
     Note over Pending: Still suspended from the diagram above
 
@@ -78,7 +78,7 @@ handling of its own.
 
 ## What each one is for
 
-NoteChoice states the domain question. It knows a shortlist is being offered and
+NoteChoiceService states the domain question. It knows a shortlist is being offered and
 records the pick as consent to write. It does not know a panel exists.
 
 PendingAnswer is the race, and the whole of it:
@@ -114,4 +114,4 @@ Three fallbacks, each owned by a different collaborator.
 
 - Asker resolves to its default when no panel is subscribed
 - PendingAnswer settles on the cancel when the person never answers
-- NoteChoice.automatic answers itself in auto mode, so the turn never parks
+- NoteChoiceService.automatic answers itself in auto mode, so the turn never parks
