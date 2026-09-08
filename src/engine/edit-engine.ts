@@ -36,7 +36,7 @@ export class EditEngine {
     if (!this.runningTurn) return
     const resolved = await this.targetNoteResolver.resolve()
     if (!resolved.succeeded() || resolved.value === null) return
-    this.runningTurn?.repository.retargetTo(resolved.value)
+    this.runningTurn?.retargetTo(resolved.value)
   }
 
   // Ignored between turns: a cancel that arrives after the turn finished has
