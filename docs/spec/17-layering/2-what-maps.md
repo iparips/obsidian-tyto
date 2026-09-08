@@ -70,9 +70,10 @@ word.
 | TurnRepository                 | Fields    | One turn       |
 | NotesChosenByUserRepository    | A Set     | One turn       |
 
-The first two survive a reload because the vault does. The rest are gone when
-the plugin unloads, which is the distinction the shared name hides. Scope is the
-thing to read, not the suffix.
+All six persist, in the sense that state survives between calls to their own
+methods. What differs is for how long, and whether they can supply something
+they were never given: only the vault-backed two can. Scope is the thing to
+read, not the suffix.
 
 NoteGlob, NoteGrep and NoteReader read the vault and return values without
 holding any, so they are services despite doing what a repository does.

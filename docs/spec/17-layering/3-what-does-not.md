@@ -65,12 +65,15 @@ no slot for.
 Naming these Service would make them longer without making them clearer. What
 they need is a category of their own, which this file is.
 
-## The name that misleads
+## What the name does and does not say
 
-Four classes end in Repository and two of them read the vault. The other two
-hold fields.
+Six classes end in Repository. Two read the vault, four hold a Set or a field.
 
-A reader who knows the layered model reads SessionRepository and expects
-persistence. What they get is a chat history in memory, discarded when the
-plugin reloads. That is the single clearest mismatch between the model and the
-code.
+The suffix is accurate for all six: persistence is holding state across calls,
+and in-memory persistence is persistence. What it does not say is how long the
+holding lasts, and that is the difference that matters. SkillRepository can be
+asked for a skill it was never given; TurnRepository can only be asked what this
+turn put there.
+
+Scope is what a reader needs, and no suffix carries it. The package a class
+lives in does: everything under engine/turn dies with the turn.
