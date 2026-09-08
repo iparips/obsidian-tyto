@@ -3,7 +3,12 @@ import { WorkspaceNoteLocator } from './workspace-note-locator'
 import { AgentsMdRepository } from '../../agents/agents-md-repository'
 import { AgentsMdChain } from '../../agents/agents-md-chain'
 import { ResolvedNote } from './resolved-note'
-import { NoNoteBound, ResolutionFailed, TargetResolution, TargetResolved } from './target-resolution'
+import {
+  NoNoteBound,
+  ResolutionFailed,
+  TargetResolution,
+  TargetResolved,
+} from './target-resolution'
 import { OpenNote } from '../note-editing/open-note'
 import { TurnProgressPublisher } from '../turn-progress-publisher'
 

@@ -6,7 +6,7 @@ import { NoteEditor } from './note-editing/note-editor'
 import { HarnessToolsService } from './tools/harness-tools-service'
 import { TargetNoteResolver } from './note-binding/target-note-resolver'
 import { TurnProgressPublisher } from './turn-progress-publisher'
-import { TurnFactory } from './turn/turn-factory'
+import { TurnRunnerFactory } from './turn/turn-runner-factory'
 import { WorkspaceNoteLocator } from './note-binding/workspace-note-locator'
 import { SessionRepository } from '../session/session-repository'
 import { AgentsMdRepository } from '../agents/agents-md-repository'
@@ -84,8 +84,8 @@ export class EngineFactory {
     progress: TurnProgressPublisher,
     askers: EngineAskers,
     modelProvider: ChatProvider,
-  ): TurnFactory {
-    return new TurnFactory(
+  ): TurnRunnerFactory {
+    return new TurnRunnerFactory(
       sessions,
       targetNote,
       this.skillRepository,

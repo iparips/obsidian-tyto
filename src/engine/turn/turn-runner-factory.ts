@@ -4,7 +4,7 @@ import { NoteEditTool } from '../tools/note-edit-tool'
 import { HarnessToolsService } from '../tools/harness-tools-service'
 import { TargetNoteResolver } from '../note-binding/target-note-resolver'
 import { ToolDispatcher } from '../tool-dispatcher'
-import { Turn } from './turn'
+import { ConversationTurnRunner } from './conversation-turn-runner'
 import { TurnRepository } from './turn-repository'
 import { TurnProgressPublisher } from '../turn-progress-publisher'
 import { TurnCancellationController } from './turn-cancellation-controller'
@@ -18,11 +18,11 @@ import { SessionRepository } from '../../session/session-repository'
 import { Attempt, Outcomes } from '../../shared/models/outcome'
 import { ModelCaller } from '../model-caller'
 import { TurnConclusionService } from '../turn-conclusion-service'
-import { TurnIteration } from './turn-iteration'
+import { TurnStepService } from './turn-step-service'
 
 // Holds what outlives a turn and builds what does not, so the turn-scoped
 // boundary is one class rather than a convention spread across the loop.
-export class TurnFactory {
+export class TurnRunnerFactory {
   constructor(
     private sessionRepository: SessionRepository,
     private targetNoteResolver: TargetNoteResolver,
@@ -56,7 +56,7 @@ export class TurnFactory {
 
   // Opened on the utterance EditEngine has already recorded, so a turn that
   // cannot open still leaves the history holding what was said to it.
-  async openTurn(): Promise<Attempt<Turn>> {
+  async build(): Promise<Attempt<ConversationTurnRunner>> {
     const resolution = await this.targetNoteResolver.resolve()
     // The one caller that tells the three states apart: a named note nothing
     // can show refuses the turn so the message reaches the user, where an
@@ -79,12 +79,12 @@ export class TurnFactory {
     repository: TurnRepository,
     toolDispatcher: ToolDispatcher,
     cancellationController: TurnCancellationController,
-  ): Turn {
-    return new Turn(
+  ): ConversationTurnRunner {
+    return new ConversationTurnRunner(
       repository,
       toolDispatcher,
       cancellationController,
-      new TurnIteration(
+      new TurnStepService(
         this.sessionRepository,
         repository,
         toolDispatcher,

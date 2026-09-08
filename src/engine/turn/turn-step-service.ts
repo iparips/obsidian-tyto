@@ -8,18 +8,9 @@ import { ToolDispatcher } from '../tool-dispatcher'
 import { TurnCancellationController } from './turn-cancellation-controller'
 import { TurnRepository } from './turn-repository'
 
-// What one model call cost, kept together so the loop can log the answer with
-// the wait that produced it.
-export class TimedAnswer {
-  constructor(
-    readonly outcome: Outcome<ChatTurn>,
-    readonly waitedMs: number,
-  ) {}
-}
-
 // The two outward calls a pass makes: asking the model, and running what it
-// called back. The loop that decides when to make them is Turn.
-export class TurnIteration {
+// called back. The loop that decides when to make them is ConversationTurnRunner.
+export class TurnStepService {
   constructor(
     private sessionRepository: SessionRepository,
     private turnRepository: TurnRepository,
@@ -28,13 +19,13 @@ export class TurnIteration {
     private modelCaller: ModelCaller,
   ) {}
 
-  // Timed around the call rather than after it, since a turn that feels slow is
+  // Logged around the call rather than after it, since a turn that feels slow is
   // one model call taking its time rather than the loop doing work between them.
-  // The pass it belongs to is the loop's to say, so Turn logs what comes back.
-  async askModel(): Promise<TimedAnswer> {
+  async askModel(pass: number): Promise<Outcome<ChatTurn>> {
     const askedAt = Date.now()
     const answer = await this.modelCaller.ask(this.requestForModel())
-    return new TimedAnswer(answer, Date.now() - askedAt)
+    if (answer.succeeded()) this.logPass(pass, answer.value, Date.now() - askedAt)
+    return answer
   }
 
   private requestForModel(): ModelRequest {
@@ -49,12 +40,10 @@ export class TurnIteration {
 
   // The only record of why a turn spent its iterations: the panel shows commands
   // and answers, but not the edits the model retried or the note it aimed at.
-  logPass(pass: number, answer: TimedAnswer): void {
-    if (!answer.outcome.succeeded()) return
-    const turn = answer.outcome.value
+  private logPass(pass: number, turn: ChatTurn, waitedMs: number): void {
     const calls = turn.isText() ? 'text' : turn.calls.map((call) => call.name).join(', ')
     const path = this.turnRepository.targetNote()?.path ?? 'no note'
-    console.debug(`[owl] iteration ${pass + 1} on ${path}: ${calls} (${answer.waitedMs}ms)`)
+    console.debug(`[owl] iteration ${pass + 1} on ${path}: ${calls} (${waitedMs}ms)`)
   }
 
   async executeToolCalls(toolCalls: ToolCall[], refusals: RepeatedRefusalCounter): Promise<void> {

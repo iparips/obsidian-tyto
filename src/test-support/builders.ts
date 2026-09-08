@@ -18,7 +18,7 @@ import { TurnConclusionService } from '../engine/turn-conclusion-service'
 import { NoteEditor } from '../engine/note-editing/note-editor'
 import { TargetNoteResolver } from '../engine/note-binding/target-note-resolver'
 import { TurnProgressPublisher } from '../engine/turn-progress-publisher'
-import { TurnFactory } from '../engine/turn/turn-factory'
+import { TurnRunnerFactory } from '../engine/turn/turn-runner-factory'
 import { WorkspaceNoteLocator } from '../engine/note-binding/workspace-note-locator'
 import { TFile } from 'obsidian'
 import { SessionRepository } from '../session/session-repository'
@@ -67,7 +67,7 @@ export const anEngine = (modelProvider: ChatProvider, options: EnginePartsOption
     options.agentsMdRepository,
     progress,
   )
-  const turnFactory = new TurnFactory(
+  const turnFactory = new TurnRunnerFactory(
     options.sessions,
     targetNote,
     skills,

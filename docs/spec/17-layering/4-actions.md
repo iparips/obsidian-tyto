@@ -87,7 +87,7 @@ TurnConclusionService, so neither owned recording. The cause was that the loop
 sat outside the turn it drove: seven of nine private methods on EditEngine took
 a turn as a parameter.
 
-Turn now runs itself, TurnIteration runs one pass, and TurnFactory records the
+Turn now runs itself, TurnStepService runs one pass, and TurnFactory records the
 utterance as it opens. All five writes are turn-scoped, and EditEngine dropped
 from 159 lines to 47.
 

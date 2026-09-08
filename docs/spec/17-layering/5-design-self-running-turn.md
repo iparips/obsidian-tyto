@@ -35,19 +35,19 @@ does: queue an utterance, follow the active note, open a turn, run it.
 flowchart LR
     EditEngine["EditEngine [Engine]<br/>Responsibility: owns the session by opening a turn per utterance"]
     Factory["TurnFactory [Engine Turn]<br/>Responsibility: builds what one turn needs"]
-    Turn["Turn [Engine Turn]<br/>Responsibility: takes one turn to its outcome"]
-    Iteration["TurnIteration [Engine Turn, new]<br/>Responsibility: runs one pass of the loop"]
+    Turn["ConversationTurnRunner [Engine Turn]<br/>Responsibility: takes one turn to its outcome"]
+    StepService["TurnStepService [Engine Turn, new]<br/>Responsibility: runs one pass of the loop"]
     Conclusion["TurnConclusionService [Engine]<br/>Responsibility: builds and records each ending"]
     Session["SessionRepository [Session]<br/>Responsibility: holds what survives across turns"]
 
     EditEngine --> Factory
     EditEngine --> Turn
     Factory --> Turn
-    Turn --> Iteration
+    Turn --> StepService
     Turn --> Conclusion
-    Iteration --> Conclusion
+    StepService --> Conclusion
     Conclusion --> Session
-    Iteration --> Session
+    StepService --> Session
     EditEngine --> Session
 ```
 
@@ -57,7 +57,7 @@ Four of the five writes land inside the turn without anyone extracting a writer.
 The fifth, the utterance, moves into openTurn where the turn begins, and later
 back to EditEngine: see [Moved back, after the fact](#moved-back-after-the-fact).
 EditEngine drops from 159 lines to roughly 40. Turn exceeds 100 with the loop in
-it, which is what TurnIteration is for: ask the model, execute the calls, record
+it, which is what TurnStepService is for: ask the model, execute the calls, record
 the refusal.
 
 The call-level view, with parameters and the block each class belongs to, is in
@@ -75,13 +75,13 @@ sequenceDiagram
     participant Factory as TurnFactory [Engine Turn]
     participant Session as SessionRepository [Session]
     participant Resolver as TargetNoteResolver [Note Binding]
-    participant Turn as Turn [Engine Turn]
+    participant Turn as ConversationTurnRunner [Engine Turn]
 
-    Engine->>Factory: openTurn [new]
+    Engine->>Factory: buildRunnerForCurrentTurn [new]
     Factory->>Session: appendChatMessage
     Factory->>Resolver: resolve
     Note over Factory,Resolver: A failed resolve returns before a Turn exists, and the utterance is already recorded
-    Factory-->>Engine: Turn
+    Factory-->>Engine: ConversationTurnRunner
     Engine->>Turn: run [new]
     Turn-->>Engine: Outcome
 ```

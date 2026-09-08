@@ -1,6 +1,6 @@
 import { Outcome, Outcomes } from '../shared/models/outcome'
-import { Turn } from './turn/turn'
-import { TurnFactory } from './turn/turn-factory'
+import { ConversationTurnRunner } from './turn/conversation-turn-runner'
+import { TurnRunnerFactory } from './turn/turn-runner-factory'
 import { SessionRepository } from '../session/session-repository'
 import { TargetNoteResolver } from './note-binding/target-note-resolver'
 import { TurnProgressPublisher } from './turn-progress-publisher'
@@ -9,12 +9,12 @@ import { ChatMessage } from '../providers/types'
 
 export class EditEngine {
   // Null between turns, so a cancel arriving after one finished reaches nothing.
-  private runningTurn: Turn | null = null
+  private currentTurnRunner: ConversationTurnRunner | null = null
   private readonly utterances = new UtteranceQueue((text) => this.runTurn(text))
 
   constructor(
     private sessionRepository: SessionRepository,
-    private turnFactory: TurnFactory,
+    private currentTurnRunnerFactory: TurnRunnerFactory,
     private turnProgressPublisher: TurnProgressPublisher,
     private targetNoteResolver: TargetNoteResolver,
   ) {}
@@ -34,16 +34,16 @@ export class EditEngine {
   // reads. A resolve that fails leaves the turn on the note it had, which is
   // what a command opening an unfollowable note already does.
   private async retargetRunningTurn(): Promise<void> {
-    if (!this.runningTurn) return
+    if (!this.currentTurnRunner) return
     const maybeNote = await this.targetNoteResolver.resolveOrNothing()
     if (maybeNote === null) return
-    this.runningTurn.retargetTo(maybeNote)
+    this.currentTurnRunner.retargetTo(maybeNote)
   }
 
   // Ignored between turns: a cancel that arrives after the turn finished has
   // nothing left to stop.
   cancelTurn(): void {
-    this.runningTurn?.cancel()
+    this.currentTurnRunner?.cancel()
   }
 
   processUtterance(text: string): Promise<Outcome<string>> {
@@ -52,13 +52,17 @@ export class EditEngine {
 
   private async runTurn(text: string): Promise<Outcome<string>> {
     this.sessionRepository.appendChatMessage(ChatMessage.user(text))
-    const turnOutcome = await this.turnFactory.openTurn()
-    if (turnOutcome.hasFailed()) return Outcomes.failure(turnOutcome.step, turnOutcome.message)
-    this.runningTurn = turnOutcome.value
+    const runnerCreationOutcome = await this.currentTurnRunnerFactory.build()
+
+    if (runnerCreationOutcome.hasFailed())
+      return Outcomes.failure(runnerCreationOutcome.step, runnerCreationOutcome.message)
+
+    this.currentTurnRunner = runnerCreationOutcome.value
+
     try {
-      return await turnOutcome.value.run()
+      return await this.currentTurnRunner.run()
     } finally {
-      this.runningTurn = null
+      this.currentTurnRunner = null
     }
   }
 }
