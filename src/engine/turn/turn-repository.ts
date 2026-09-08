@@ -35,10 +35,10 @@ export class TurnRepository {
   // no choice: it is the note the user was looking at when they spoke.
   private readonly noteTheTurnStartedOn: string | null = this.resolvedNote?.note.path ?? null
 
-  // Set once the model reaches past the note it started on. From then the turn
-  // is working on a note the user has to have chosen and the loop has to have
-  // opened, because the inherited binding may be a path whose editor Obsidian
-  // still reports but no longer shows.
+  // Set once the model reaches past the note it started on. From then an edit
+  // needs a note this turn opened, so the note the model chose and the note the
+  // edit lands on are the same one. Nothing else keeps the two together: a
+  // choice moves neither the session binding nor the turn's target.
   private reachedOut = false
 
   // A glob or grep is the model looking for a note other than the one in front

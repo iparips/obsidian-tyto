@@ -34,9 +34,10 @@ export class NoteEditTool {
     // retrying an edit that cannot land.
     if (!note)
       return ToolCallOutcome.of('no note is open; tell the user to open one before editing')
-    // The binding a turn inherits is a path, and the editor it resolves to may
-    // be one Obsidian still reports but no longer shows. Once the model has
-    // searched, only a note it chose and opened this turn is known to be live.
+    // A turn inherits its binding from the session, and choosing a note moves
+    // neither that binding nor the turn's target. Once the model has searched,
+    // an edit needs a note this turn opened, so a chosen note cannot be written
+    // to until the open that makes it the target has run.
     if (!this.turnRepository.mayEdit(note.path))
       return ToolCallOutcome.of(NoteEditTool.unopenedMessage(note.path))
     return this.callToolOnNote(call, note)

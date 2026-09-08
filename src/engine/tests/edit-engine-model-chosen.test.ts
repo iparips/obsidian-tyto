@@ -258,9 +258,9 @@ describe('EditEngine', () => {
   })
 
   // The reported failure: the model globbed, was refused an unchosen open,
-  // called choose_note, then edited without ever opening. The edit landed on the
-  // binding the turn inherited, whose editor Obsidian still reported but no
-  // longer showed, so the panel claimed an edit the file never received.
+  // called choose_note, then edited without ever opening. Choosing moves no
+  // binding, so the edit landed on the note the turn inherited while the panel
+  // named the note the model chose.
   describe('when the model edits without opening what it chose', () => {
     const offersStart = () =>
       aToolTurn(aToolCall('choose_note', { paths: ['note.md'], purpose: 'add a line' }))
