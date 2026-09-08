@@ -34,7 +34,7 @@ does: queue an utterance, follow the active note, open a turn, run it.
 ```mermaid
 flowchart LR
     EditEngine["EditEngine [Engine]<br/>Responsibility: owns the session by opening a turn per utterance"]
-    Factory["TurnFactory [Engine Turn]<br/>Responsibility: builds what one turn needs"]
+    Factory["TurnRunnerFactory [Engine Turn]<br/>Responsibility: builds what one turn needs"]
     Turn["ConversationTurnRunner [Engine Turn]<br/>Responsibility: takes one turn to its outcome"]
     StepService["TurnStepService [Engine Turn, new]<br/>Responsibility: runs one pass of the loop"]
     Conclusion["TurnConclusionService [Engine]<br/>Responsibility: builds and records each ending"]
@@ -72,7 +72,7 @@ the write into openTurn, ahead of the resolve that is the only way opening fails
 ```mermaid
 sequenceDiagram
     participant Engine as EditEngine [Engine]
-    participant Factory as TurnFactory [Engine Turn]
+    participant Factory as TurnRunnerFactory [Engine Turn]
     participant Session as SessionRepository [Session]
     participant Resolver as TargetNoteResolver [Note Binding]
     participant Turn as ConversationTurnRunner [Engine Turn]

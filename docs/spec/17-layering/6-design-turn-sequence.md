@@ -7,7 +7,7 @@ each collaborator calls, what it passes, and the block each class belongs to.
 ```mermaid
 sequenceDiagram
     participant Engine as EditEngine [Engine]
-    participant Factory as TurnFactory [Engine Turn]
+    participant Factory as TurnRunnerFactory [Engine Turn]
     participant Session as SessionRepository [Session]
     participant Turn as ConversationTurnRunner [Engine Turn]
     participant StepService as TurnStepService [Engine Turn, new]
@@ -23,26 +23,28 @@ sequenceDiagram
     Factory-->>Engine: Attempt of ConversationTurnRunner
     Engine->>Turn: run() [new]
 
-    Note over Engine,Conclusion: ONE ITERATION
+    Note over Engine,Conclusion: ONE STEP
     Turn->>Turn: cancellationController.isCancelled()
-    Turn->>StepService: run(spend, iteration) [new]
+    Turn->>StepService: askModel(step) [new]
     StepService->>TurnRepo: targetNote(), skills(), agentMdChain()
     StepService->>Session: chatHistory()
     StepService->>Caller: ask(ModelRequest)
     Caller-->>StepService: Outcome of ChatTurn
+    StepService-->>Turn: Outcome of ChatTurn, logged as one step
 
-    Note over StepService,Dispatcher: TOOL CALLS, ONE PASS PER CALL
+    Note over Turn,Dispatcher: TOOL CALLS, ONE PASS PER CALL
+    Turn->>StepService: executeToolCalls(calls, repeatedRefusalCounter)
     StepService->>Session: appendChatMessage(ChatMessage.modelToolCalls(calls))
     StepService->>Dispatcher: execute(call)
     Dispatcher-->>StepService: ToolCallOutcome
     StepService->>Session: appendChatMessage(ChatMessage.toolCallResult(call.id, result))
     StepService->>TurnRepo: storeCursorPositionAndWrittenNote(editEndPosition)
     StepService->>StepService: repeatedRefusalCounter.record(refusal)
-    StepService-->>Turn: null while the turn keeps going
+    Note over Turn: TurnStepResults.keepGoing when the turn has more to do
 
     Note over Engine,Conclusion: ENDING ON AN ANSWER
-    StepService->>TurnRepo: targetNote(), editEnd()
-    StepService->>Conclusion: utterance(summary, note, editEndPosition)
+    Turn->>TurnRepo: targetNote(), editEnd()
+    Turn->>Conclusion: utterance(summary, note, editEndPosition)
     Conclusion->>Session: appendChatMessage(ChatMessage.model(summary))
     Conclusion->>Conclusion: noteEditor.focusEdit(editor, position)
     Conclusion-->>Turn: Success of string
@@ -75,7 +77,7 @@ class changes what kind of thing it is.
 | Class                  | Block        | Holds                                   |
 | ---------------------- | ------------ | --------------------------------------- |
 | EditEngine             | Controller   | Collaborators, the running turn         |
-| TurnFactory            | Service      | Collaborators, one session-scoped Set   |
+| TurnRunnerFactory      | Service      | Collaborators, one session-scoped Set   |
 | ConversationTurnRunner | Service      | Collaborators only                      |
 | TurnStepService        | Service, new | Collaborators only                      |
 | TurnConclusionService  | Service      | Collaborators only                      |
@@ -88,10 +90,11 @@ class changes what kind of thing it is.
 | ModelRequest           | Value object | The five arguments of one model call    |
 | Outcome                | Value object | A success, failure or cancellation      |
 
-Turn stays a service, which is the point worth stating. It gains a loop but no
-field it mutates: the spend it drives lives in TurnSpend, and the flag the
-cancel flips lives in TurnCancellationController. A class holding only
-collaborators is a service however much it does.
+ConversationTurnRunner stays a service, which is the point worth stating. It
+gains a loop but no field it mutates: the spend it drives lives in TurnSpend,
+and the flag the cancel flips lives in TurnCancellationController. A class
+holding only collaborators is a service however much it does.
 
-TurnStepService is the same shape. It is built per pass, so it holds the spend and
-the turn it runs against, and mutates neither.
+TurnStepService is the same shape. It is built once per turn, holds only
+collaborators, and takes the step number and the refusal counter as parameters
+rather than fields.

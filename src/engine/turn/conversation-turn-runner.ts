@@ -1,20 +1,19 @@
 import { Outcome } from '../../shared/models/outcome'
 import { ResolvedNote } from '../note-binding/resolved-note'
 import { ToolCall } from '../../providers/types'
-import { ToolDispatcher } from '../tool-dispatcher'
 import { TurnCancellationController } from './turn-cancellation-controller'
 import { TurnConclusionService } from '../turn-conclusion-service'
 import { TurnStepService } from './turn-step-service'
 import { TurnProgressPublisher } from '../turn-progress-publisher'
 import { TurnRepository } from './turn-repository'
 import { TurnSpend } from './turn-spend'
+import { TurnStepResult, TurnStepResults } from './turn-step-result'
 
 // One turn, from the utterance that opened it to the outcome it returns. Holds
 // its collaborators and drives them; what it spends lives in TurnSpend.
 export class ConversationTurnRunner {
   constructor(
     private repository: TurnRepository,
-    private toolDispatcher: ToolDispatcher,
     private cancellationController: TurnCancellationController,
     private turnStepService: TurnStepService,
     private turnConclusionService: TurnConclusionService,
@@ -33,39 +32,42 @@ export class ConversationTurnRunner {
 
   async run(): Promise<Outcome<string>> {
     const spend = new TurnSpend()
-    for (let pass = 0; !spend.isExhausted(); pass++) {
-      const ended = await this.runPass(spend, pass)
-      if (ended) return ended
+    for (let step = 0; !spend.isExhausted(); step++) {
+      const result = await this.runTurnStep(spend, step)
+      if (result.hasEnded()) return result.outcome
     }
     return TurnConclusionService.exhausted()
   }
 
-  // Null when the turn should keep going, which is the one shape a pass that
-  // either ends or continues can return.
-  private async runPass(spend: TurnSpend, pass: number): Promise<Outcome<string> | null> {
-    if (this.cancellationController.isCancelled()) return this.concludeCancelled()
+  private async runTurnStep(spend: TurnSpend, step: number): Promise<TurnStepResult> {
+    if (this.cancellationController.isCancelled())
+      return TurnStepResults.ended(this.concludeCancelled())
 
-    const modelAnswer = await this.turnStepService.askModel(pass)
+    const modelAnswer = await this.turnStepService.askModel(step)
 
-    if (!modelAnswer.succeeded())
-      return this.turnConclusionService.unfinished(modelAnswer, this.repository.writtenNotes())
+    if (!modelAnswer.succeeded()) {
+      const outcome = this.turnConclusionService.unfinished(
+        modelAnswer,
+        this.repository.writtenNotes(),
+      )
+      return TurnStepResults.ended(outcome)
+    }
 
-    if (modelAnswer.value.isText()) return this.concludeUtterance(modelAnswer.value.content)
+    if (modelAnswer.value.isText())
+      return TurnStepResults.ended(this.concludeUtterance(modelAnswer.value.content))
 
     return this.executeToolCalls(modelAnswer.value.calls, spend)
   }
 
-  private async executeToolCalls(
-    calls: ToolCall[],
-    spend: TurnSpend,
-  ): Promise<Outcome<string> | null> {
+  private async executeToolCalls(calls: ToolCall[], spend: TurnSpend): Promise<TurnStepResult> {
     await this.turnStepService.executeToolCalls(calls, spend.repeatedRefusalCounter)
 
     if (spend.repeatedRefusalCounter.isStuck())
-      return TurnConclusionService.stuck(spend.repeatedRefusalCounter)
+      return TurnStepResults.ended(TurnConclusionService.stuck(spend.repeatedRefusalCounter))
+
     this.spendOn(spend, calls.length)
 
-    return null
+    return TurnStepResults.keepGoing()
   }
 
   private spendOn(spend: TurnSpend, calls: number): void {
