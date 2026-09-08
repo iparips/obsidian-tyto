@@ -11,6 +11,7 @@ import { RepeatedRefusal } from './turn/repeated-refusal'
 import { ModelCaller, ModelRequest } from './model-caller'
 import { TurnConclusion } from './turn-conclusion'
 import { UtteranceQueue } from './utterance-queue'
+import { TurnSpend } from './turn/turn-spend'
 
 export class EditEngine {
   // Null between turns, so a cancel arriving after one finished reaches nothing.
@@ -59,21 +60,41 @@ export class EditEngine {
   }
 
   private async runAgentLoop(turn: Turn): Promise<Outcome<string>> {
-    const iterationBudget = new IterationBudget()
-    const repeatedRefusal = new RepeatedRefusal()
-    for (let iteration = 0; !iterationBudget.isSpent(); iteration++) {
-      if (turn.cancellation.isCancelled()) return this.concludeCancelled(turn)
-      const modelAnswer = await this.askModel(turn, iteration)
-      if (!modelAnswer.succeeded())
-        return this.turnConclusion.unfinished(modelAnswer, turn.repository.writtenNotes())
-      if (modelAnswer.value.isText()) return this.concludeUtterance(turn, modelAnswer.value.content)
-      await this.executeToolCalls(modelAnswer.value.calls, turn, repeatedRefusal)
-      if (repeatedRefusal.isStuck()) return TurnConclusion.stuck(repeatedRefusal)
-      iterationBudget.spend(modelAnswer.value.calls.length)
-      if (iterationBudget.justRanLow())
-        this.turnProgressPublisher.runningLow(iterationBudget.warning())
+    const spend = new TurnSpend()
+    for (let iteration = 0; !spend.isExhausted(); iteration++) {
+      const ended = await this.runIteration(turn, spend, iteration)
+      if (ended) return ended
     }
     return TurnConclusion.exhausted()
+  }
+
+  // Null when the turn should keep going, which is the one shape an iteration
+  // that either ends or continues can return.
+  private async runIteration(
+    turn: Turn,
+    spend: TurnSpend,
+    iteration: number,
+  ): Promise<Outcome<string> | null> {
+
+    if (turn.cancellation.isCancelled()) return this.concludeCancelled(turn)
+    const modelAnswer = await this.askModel(turn, iteration)
+
+    if (!modelAnswer.succeeded())
+      return this.turnConclusion.unfinished(modelAnswer, turn.repository.writtenNotes())
+
+    if (modelAnswer.value.isText()) return this.concludeUtterance(turn, modelAnswer.value.content)
+    await this.executeToolCalls(modelAnswer.value.calls, turn, spend.repeatedRefusal)
+
+    if (spend.repeatedRefusal.isStuck()) return TurnConclusion.stuck(spend.repeatedRefusal)
+    this.spendOn(spend, modelAnswer.value.calls.length)
+
+    return null
+  }
+
+  private spendOn(spend: TurnSpend, calls: number): void {
+    spend.iterationBudget.spend(calls)
+    if (spend.iterationBudget.justRanLow())
+      this.turnProgressPublisher.runningLow(spend.iterationBudget.warning())
   }
 
   // Logged around the call rather than after it, since a turn that feels slow is
