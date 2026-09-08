@@ -18,5 +18,5 @@ consent mechanism this leaves intact and relies on.
 - [3-design.md](3-design.md) - the step that names its note, the fields that go, and the turn following the user
 - [4-tasks.md](4-tasks.md) - build order in three commits, with the tests that hold each
 
-Not built. The investigation behind it is in
+Built. The investigation behind it is in
 [17-layering/7-what-the-guard-defends.md](../17-layering/7-what-the-guard-defends.md).

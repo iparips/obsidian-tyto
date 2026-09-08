@@ -22,6 +22,7 @@ import { FakeCommandRegistry } from '../../test-support/fake-command-registry'
 import { FakeWorkspace } from '../../test-support/fake-workspace'
 import { FakeNoteLocator } from '../../test-support/fake-note-locator'
 import { aSession, aTextTurn, aToolCall, aToolTurn, anEngine } from '../../test-support/builders'
+import { EditEngine } from '../edit-engine'
 
 const DAILY = 'Journal/2026-09-02.md'
 
@@ -426,6 +427,41 @@ describe('EditEngine', () => {
       engineOf().followActiveNote('note.md')
 
       expect(retargets).toEqual([])
+    })
+  })
+
+  // The user switching tabs mid-turn is a retarget like any other, so the turn
+  // running behind it edits the note now in front of them.
+  describe('when the user opens a note while a turn is running', () => {
+    const editsNoteEnd = () =>
+      aToolTurn(aToolCall('insert_at', { location: 'note_end', content: '- plates\n' }))
+
+    // Fired between the first model call and the edit, which is the window the
+    // running turn has to hear about.
+    const opensMidTurn = (engine: EditEngine, path: string) => {
+      complete.mockImplementationOnce(async () => {
+        await engine.followActiveNote(path)
+        return Outcomes.success(editsNoteEnd())
+      })
+      complete.mockResolvedValue(Outcomes.success(aTextTurn('done')))
+    }
+
+    it('edits the note the user opened mid-turn, since the running turn followed it', async () => {
+      const engine = engineOf()
+      opensMidTurn(engine, DAILY)
+
+      await engine.processUtterance('add plates to the list')
+
+      expect(dailyEditor.content).toBe('# Today\n\n## Meetings\n- plates\n')
+    })
+
+    it('leaves the turn on its note when a mid-turn open will not resolve', async () => {
+      const engine = engineOf()
+      opensMidTurn(engine, 'Journal/never-opened.md')
+
+      await engine.processUtterance('add plates to the list')
+
+      expect(editor.content).toBe('# Budget\n\nbody- plates\n')
     })
   })
 

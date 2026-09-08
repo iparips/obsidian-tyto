@@ -73,6 +73,7 @@ export class EngineFactory {
         modelProvider,
       ),
       progress,
+      targetNote,
     )
   }
 

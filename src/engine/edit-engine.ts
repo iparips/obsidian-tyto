@@ -2,6 +2,7 @@ import { Outcome, Outcomes } from '../shared/models/outcome'
 import { Turn } from './turn/turn'
 import { TurnFactory } from './turn/turn-factory'
 import { SessionRepository } from '../session/session-repository'
+import { TargetNoteResolver } from './note-binding/target-note-resolver'
 import { TurnProgressPublisher } from './turn-progress-publisher'
 import { UtteranceQueue } from './utterance-queue'
 
@@ -14,14 +15,28 @@ export class EditEngine {
     private sessionRepository: SessionRepository,
     private turnFactory: TurnFactory,
     private turnProgressPublisher: TurnProgressPublisher,
+    private targetNoteResolver: TargetNoteResolver,
   ) {}
 
   // A note the user opened themselves is as much a retarget as one a command
   // opened, so the session follows rather than editing the note behind them.
-  followActiveNote(path: string): void {
+  // A turn already running follows too, or the next edit lands on the note the
+  // user just moved off.
+  async followActiveNote(path: string): Promise<void> {
     if (path === this.sessionRepository.targetNote()) return
     this.sessionRepository.changeTargetNote(path)
     this.turnProgressPublisher.retargeted(path)
+    await this.retargetRunningTurn()
+  }
+
+  // Resolved after the session target moved, since that is what the resolver
+  // reads. A resolve that fails leaves the turn on the note it had, which is
+  // what a command opening an unfollowable note already does.
+  private async retargetRunningTurn(): Promise<void> {
+    if (!this.runningTurn) return
+    const resolved = await this.targetNoteResolver.resolve()
+    if (!resolved.succeeded() || resolved.value === null) return
+    this.runningTurn?.repository.retargetTo(resolved.value)
   }
 
   // Ignored between turns: a cancel that arrives after the turn finished has
