@@ -35,10 +35,10 @@ Dependencies point one way: session to engine, engine to model and skills,
 everything to shared. A package that needs a type from a package above it is a
 signal that the type belongs lower down, not that the arrow should reverse.
 
-Model and engine are the one exception, and it is a cycle: engine calls
-ModelCaller, while model reads OpenNote, NoteDetails and HarnessToolsService
-back out of engine. The three are what a prompt is made of, so the way out is to
-move them below both rather than to reverse either arrow.
+Model and engine are the one exception, and it is a cycle: engine calls into
+model, while model reads OpenNote and NoteDetails back out of engine. Both are
+what a prompt is made of, so the way out is to move them below both packages
+rather than to reverse either arrow.
 
 ```mermaid
 flowchart LR

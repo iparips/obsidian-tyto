@@ -1,6 +1,5 @@
 import { App, TFile } from 'obsidian'
 import { EditEngine } from './edit-engine'
-import { ModelCaller } from '../model/model-caller'
 import { TurnEndingService } from './turn-ending-service'
 import { NoteEditor } from './note-editing/note-editor'
 import { HarnessToolsService } from './tools/harness-tools-service'
@@ -92,7 +91,7 @@ export class EngineFactory {
       new NoteEditor(),
       harnessToolsService,
       progress,
-      new ModelCaller(modelProvider, harnessToolsService),
+      modelProvider,
       new TurnEndingService(sessions, new NoteEditor()),
       new NoteOpener(this.app, new OpenedNoteWait(this.app)),
       askers.noteChoiceService ??

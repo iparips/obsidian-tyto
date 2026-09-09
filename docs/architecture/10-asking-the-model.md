@@ -6,7 +6,7 @@ Turn), covered by [8-parking-a-turn.md](8-parking-a-turn.md).
 
 The loop decides when to ask, ModelService gathers what the ask needs, and
 ModelRequestMapper (Model) turns that into the messages sent. It is static, the
-request and the harness reach being all it needs.
+request being all it needs.
 
 ## Who holds whom
 
@@ -18,11 +18,10 @@ and constructs what does not, so the turn-scoped boundary is one class.
 | SessionRepository          | Session | The chat history, across turns         |
 | TurnRepository             | Turn    | Target note, skills, AGENTS.md chain   |
 | TurnCancellationController | Turn    | The abort signal the provider takes    |
-| ModelCaller                | Session | The completion call, schemas and reach |
 | HarnessToolsService        | Session | Tool schemas, allowed commands, search |
 | ChatProvider               | Session | The completion itself                  |
 
-Only the history is session-scoped among the five inputs. An editor handle
+Only the history and the harness reach are session-scoped. An editor handle
 cannot outlive its turn, so the note reaches the request through TurnRepository.
 
 ## One ask, end to end
@@ -34,7 +33,6 @@ sequenceDiagram
     participant TurnRepo as TurnRepository [Engine Turn]
     participant Session as SessionRepository [Session]
     participant Cancel as TurnCancellationController [Engine Turn]
-    participant Caller as ModelCaller [Model]
     participant Mapper as ModelRequestMapper [Model]
     participant Prompts as PromptFactory [Model]
     participant Harness as HarnessToolsService [Engine Tools]
@@ -42,20 +40,17 @@ sequenceDiagram
 
     Runner->>Model: askModel(step)
 
-    Note over Model,Cancel: GATHER THE FIVE INPUTS INTO ONE VALUE
+    Note over Model,Harness: GATHER THE INPUTS INTO ONE VALUE
     Model->>TurnRepo: targetNote
     Model->>TurnRepo: skills
     Model->>TurnRepo: agentMdChain
     Model->>Session: chatHistory
-    Model->>Cancel: signal
-    Note over Model: The five travel as ModelRequest, not as five arguments
+    Model->>Harness: allowedCommands
+    Model->>Harness: hasSearchEnabled
+    Note over Model: They travel as one ModelRequest, not as six arguments
 
     Note over Model,Provider: BUILD THE MESSAGES
-    Model->>Caller: ask(ModelRequest)
-    Caller->>Harness: allowedCommands
-    Caller->>Harness: hasSearchEnabled
-    Note over Caller: The two travel as HarnessReach, read once per call
-    Caller->>Mapper: toMessages(ModelRequest, HarnessReach)
+    Model->>Mapper: toMessages(ModelRequest)
     Mapper->>Prompts: standingRules(vaultDefinesSkills, chain, commands, search)
     Prompts-->>Mapper: ChatMessage
     Mapper->>Prompts: date(Today.of)
@@ -65,14 +60,14 @@ sequenceDiagram
     Prompts-->>Mapper: ChatMessage or null
     Mapper->>Prompts: noteContext or unboundContext
     Prompts-->>Mapper: ChatMessage
-    Mapper-->>Caller: ChatMessage list
+    Mapper-->>Model: ChatMessage list
 
-    Note over Caller,Provider: CALL OUT
-    Caller->>Harness: getToolCallSchemas(skillsExist)
-    Harness-->>Caller: ToolSchema list
-    Caller->>Provider: complete(messages, tools, signal)
-    Provider-->>Caller: Outcome of ChatTurn
-    Caller-->>Model: Outcome of ChatTurn
+    Note over Model,Provider: CALL OUT
+    Model->>Harness: getToolCallSchemas(definesSkills)
+    Note over Model,Harness: Fixed for the turn, so no tool drops out part way through
+    Model->>Cancel: signal
+    Model->>Provider: complete(messages, schemas, signal)
+    Provider-->>Model: Outcome of ChatTurn
 
     Note over Model,TurnRepo: LOG WHAT THE STEP COST
     Model->>TurnRepo: targetNote

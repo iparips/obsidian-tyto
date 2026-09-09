@@ -13,7 +13,6 @@ import { NoteReader } from '../search/note-reader'
 import { FakeVault } from './fake-vault'
 import { FakeAdapter } from './fake-adapter'
 import { EditEngine } from '../engine/edit-engine'
-import { ModelCaller } from '../model/model-caller'
 import { TurnEndingService } from '../engine/turn-ending-service'
 import { NoteEditor } from '../engine/note-editing/note-editor'
 import { TargetNoteResolver } from '../engine/note-binding/target-note-resolver'
@@ -74,7 +73,7 @@ export const anEngine = (modelProvider: ChatProvider, options: EnginePartsOption
     new NoteEditor(),
     harness,
     progress,
-    new ModelCaller(modelProvider, harness),
+    modelProvider,
     new TurnEndingService(options.sessions, new NoteEditor()),
     options.noteOpener ?? null,
     options.noteChoiceService ??

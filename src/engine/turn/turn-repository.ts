@@ -51,6 +51,12 @@ export class TurnRepository {
     return this.vaultSkills
   }
 
+  // What decides whether the skill tools are offered and the skill rules stated,
+  // so a vault defining none is unchanged by either.
+  definesSkills(): boolean {
+    return this.vaultSkills.length > 0
+  }
+
   // Whether the model has settled the skill question this turn, either by
   // loading one or by saying none applies. The harness never decides which
   // skill fits: it only holds the model to deciding before it writes.
@@ -82,7 +88,7 @@ export class TurnRepository {
   // A vault with no skills has nothing to settle, so the check is invisible
   // there and the release 3 turn is unchanged.
   mustSettleSkills(): boolean {
-    return this.vaultSkills.length > 0 && !this.skillsSettled
+    return this.definesSkills() && !this.skillsSettled
   }
 
   getSkillNamed(name: string): Skill | undefined {

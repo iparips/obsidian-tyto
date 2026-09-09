@@ -16,7 +16,7 @@ import { NotesOpenedCounter } from './notes-opened-counter'
 import { UserQuestionService } from '../waiting/user-question-service'
 import { SessionRepository } from '../../session/session-repository'
 import { Attempt, Outcomes } from '../../shared/models/outcome'
-import { ModelCaller } from '../../model/model-caller'
+import { ChatProvider } from '../../model/providers/types'
 import { TurnEndingService } from '../turn-ending-service'
 import { ModelService } from './model-service'
 import { ToolCallExecutor } from './tool-call-executor'
@@ -31,7 +31,7 @@ export class TurnRunnerFactory {
     private noteEditor: NoteEditor,
     private harnessToolsService: HarnessToolsService,
     private turnProgressPublisher: TurnProgressPublisher,
-    private modelCaller: ModelCaller,
+    private modelProvider: ChatProvider,
     private turnEnding: TurnEndingService,
     // Null where nothing can open a note, which is every test that exercises the
     // guards rather than the workspace.
@@ -88,7 +88,8 @@ export class TurnRunnerFactory {
         this.sessionRepository,
         repository,
         cancellationController,
-        this.modelCaller,
+        this.modelProvider,
+        this.harnessToolsService,
       ),
       new ToolCallExecutor(this.sessionRepository, repository, toolDispatcher),
       this.turnEnding,

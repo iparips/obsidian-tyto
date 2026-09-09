@@ -30,7 +30,7 @@ export class PromptFactory {
   // Its own message rather than a paragraph inside another, so the names the
   // model must match the utterance against are not read as a footnote to
   // whatever it was appended to.
-  // Null when the vault defines none, so ModelCaller sends no empty message.
+  // Null when the vault defines none, so the mapper sends no empty message.
   static skillCatalogue(skills: readonly Skill[] = []): ChatMessage | null {
     if (skills.length === 0) return null
     return ChatMessage.system(

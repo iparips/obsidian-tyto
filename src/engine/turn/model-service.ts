@@ -1,7 +1,9 @@
 import { ChatTurn } from '../../model/providers/models/chat-turn'
 import { Outcome } from '../../shared/models/outcome'
-import { ModelCaller } from '../../model/model-caller'
+import { ChatProvider } from '../../model/providers/types'
 import { ModelRequest } from '../../model/model-request'
+import { ModelRequestMapper } from '../../model/model-request-mapper'
+import { HarnessToolsService } from '../tools/harness-tools-service'
 import { SessionRepository } from '../../session/session-repository'
 import { TurnCancellationController } from './turn-cancellation-controller'
 import { TurnRepository } from './turn-repository'
@@ -13,25 +15,35 @@ export class ModelService {
     private sessionRepository: SessionRepository,
     private turnRepository: TurnRepository,
     private turnCancellationController: TurnCancellationController,
-    private modelCaller: ModelCaller,
+    private modelProvider: ChatProvider,
+    private harnessToolsService: HarnessToolsService,
   ) {}
 
   // Logged around the call rather than after it, since a turn that feels slow is
   // one model call taking its time rather than the loop doing work between them.
   async askModel(step: number): Promise<Outcome<ChatTurn>> {
     const askedAt = Date.now()
-    const answer = await this.modelCaller.ask(this.requestForModel())
+
+    const answer = await this.modelProvider.complete(
+      ModelRequestMapper.toMessages(this.requestForModel()),
+      this.harnessToolsService.getToolCallSchemas(this.turnRepository.definesSkills()),
+      this.turnCancellationController.signal(),
+    )
+
     if (answer.succeeded()) this.logStep(step, answer.value, Date.now() - askedAt)
     return answer
   }
 
+  // The reach is read here rather than deeper down, so every message the turn
+  // sends states the same one.
   private requestForModel(): ModelRequest {
     return new ModelRequest(
       this.turnRepository.targetNote(),
       this.turnRepository.skills(),
       this.turnRepository.agentMdChain(),
       this.sessionRepository.chatHistory(),
-      this.turnCancellationController.signal(),
+      this.harnessToolsService.allowedCommands(),
+      this.harnessToolsService.hasSearchEnabled(),
     )
   }
 
