@@ -1,11 +1,11 @@
-import { ChatMessage, ToolCall } from '../../providers/types'
+import { ChatMessage, ToolCall } from '../../model/providers/types'
 import { RepeatedRefusalCounter } from './repeated-refusal-counter'
 import { SessionRepository } from '../../session/session-repository'
 import { ToolDispatcher } from '../tool-dispatcher'
 import { TurnRepository } from './turn-repository'
 
 // One of the two outward calls a step makes: running back what the model asked
-// for. What asked for it is ModelAsker.
+// for. What asked for it is ModelService.
 export class ToolCallExecutor {
   constructor(
     private sessionRepository: SessionRepository,

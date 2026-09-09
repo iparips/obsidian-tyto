@@ -1,5 +1,5 @@
 import { TFile } from 'obsidian'
-import { ChatMessage } from '../providers/types'
+import { ChatMessage } from '../model/providers/types'
 
 // The state one session carries across its turns. Queried and updated only
 // through here, so no tool moves the target note in passing.

@@ -1,32 +1,43 @@
-import { Skill } from '../../skills/skill'
+import { Skill } from '../skills/skill'
 import { RuleBuilder } from './rule-builder'
-import { NoteDetails } from '../note-editing/note-details'
-import { AgentsMdChain } from '../../agents/agents-md-chain'
-import { AgentsMdFile } from '../../agents/agents-md-file'
-import { AllowedObsidianCommand } from '../../commands/models/allowed-obsidian-command'
-import { ChatMessage } from '../../providers/types'
+import { NoteDetails } from '../engine/note-editing/note-details'
+import { AgentsMdChain } from '../agents/agents-md-chain'
+import { AgentsMdFile } from '../agents/agents-md-file'
+import { AllowedObsidianCommand } from '../commands/models/allowed-obsidian-command'
+import { ChatMessage } from './providers/types'
 import { Today } from './today'
 
 export class PromptFactory {
   // The note itself is not here: EditEngine sends it as the last message, so the
   // current copy sits after every stale one in the conversation.
   static standingRules(
-    skills: readonly Skill[] = [],
+    vaultDefinesSkills = false,
     instructions: AgentsMdChain = new AgentsMdChain(),
     commands: readonly AllowedObsidianCommand[] = [],
     searchEnabled = false,
   ): ChatMessage {
     return ChatMessage.system(
-      PromptFactory.standingRulesText(skills, instructions, commands, searchEnabled),
+      PromptFactory.standingRulesText(vaultDefinesSkills, instructions, commands, searchEnabled),
     )
   }
 
   // Next to last, where a stale copy is least likely to win: a date the model
-  // reads off a note name, and a skill it half-remembers from the rules, are
-  // both mistakes the freshest position prevents.
-  static dateAndSkills(today: Today = Today.of(), skills: readonly Skill[] = []): ChatMessage {
+  // reads off a note name is a mistake the freshest position prevents.
+  static date(today: Today = Today.of()): ChatMessage {
+    return ChatMessage.system(PromptFactory.dateLine(today))
+  }
+
+  // Its own message rather than a paragraph inside another, so the names the
+  // model must match the utterance against are not read as a footnote to
+  // whatever it was appended to.
+  // Null when the vault defines none, so ModelCaller sends no empty message.
+  static skillCatalogue(skills: readonly Skill[] = []): ChatMessage | null {
+    if (skills.length === 0) return null
     return ChatMessage.system(
-      [PromptFactory.dateLine(today), ...PromptFactory.skillCatalogue(skills)].join('\n'),
+      [
+        'This vault defines these skills. Match the user against them before you act:',
+        ...PromptFactory.skillLines(skills),
+      ].join('\n'),
     )
   }
 
@@ -69,7 +80,7 @@ export class PromptFactory {
   }
 
   private static standingRulesText(
-    skills: readonly Skill[],
+    vaultDefinesSkills: boolean,
     instructions: AgentsMdChain,
     commands: readonly AllowedObsidianCommand[],
     searchEnabled: boolean,
@@ -78,7 +89,7 @@ export class PromptFactory {
       RuleBuilder.roleRules(PromptFactory.reachOf(commands, searchEnabled)),
       RuleBuilder.dictationRules(),
       ...PromptFactory.instructionSection(instructions),
-      ...PromptFactory.skillSection(skills, commands.length > 0),
+      ...PromptFactory.skillSection(vaultDefinesSkills, commands.length > 0),
       ...PromptFactory.commandSection(commands),
       ...PromptFactory.searchSection(searchEnabled),
       ...PromptFactory.questionSection(commands.length > 0, searchEnabled),
@@ -138,34 +149,20 @@ export class PromptFactory {
     ].join('\n')
   }
 
-  // The rules only. The list of skills travels with the final context instead,
-  // because a trigger phrase the model reads last is one it still has in mind
-  // when it decides what to do.
-  // Omitted entirely when the catalogue is empty, so a vault without skills
+  // How a skill works, never which ones exist: the names live in the catalogue
+  // message, late, because a trigger phrase the model reads last is one it
+  // still has in mind when it decides what to do.
+  // Omitted entirely when the vault defines none, so a vault without skills
   // produces the three-section prompt byte for byte (FR38).
-  private static skillSection(skills: readonly Skill[], canLeaveNote: boolean): string[] {
-    if (skills.length === 0) return []
+  private static skillSection(vaultDefinesSkills: boolean, canLeaveNote: boolean): string[] {
+    if (!vaultDefinesSkills) return []
     return [PromptFactory.skillRules(canLeaveNote)]
-  }
-
-  // Where the skills are actually listed: last, beside the note. The standing
-  // rules say how a skill works and this says which ones exist, so the names
-  // and their triggers sit in the position the final context was given for the
-  // same reason.
-  static skillCatalogue(skills: readonly Skill[]): string[] {
-    if (skills.length === 0) return []
-    return [
-      '',
-      'This vault defines these skills. Match the user against them before you act:',
-      ...PromptFactory.skillLines(skills),
-      '',
-    ]
   }
 
   static skillRules(canLeaveNote = false): string {
     return [
-      'This vault defines the skills below. When an utterance matches one, follow its',
-      'workflow rather than improvising.',
+      'This vault defines skills, listed by name in a later message. When an utterance',
+      'matches one, follow its workflow rather than improvising.',
       "Call load_skill to read a skill's steps before following it; the line below is only a summary.",
       'Answer the skill question before your first edit: call load_skill for the one',
       'that covers this, or no_skill_applies when none does. Loading a skill has already',
@@ -203,7 +200,7 @@ export class PromptFactory {
     return skills.map((skill) => `${skill.name} - ${skill.description}`)
   }
 
-  // Sent with the note rather than with the standing rules, because it goes
+  // Sent near the note rather than with the standing rules, because it goes
   // stale the same way the note does: the chat history holds yesterday's copy,
   // and this is the only current one.
   private static dateLine(today: Today): string {

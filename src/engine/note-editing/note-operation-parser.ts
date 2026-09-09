@@ -1,4 +1,4 @@
-import { ToolCall } from '../../providers/types'
+import { ToolCall } from '../../model/providers/types'
 import { EditOperation } from './note-editor'
 import { Attempt, Outcomes } from '../../shared/models/outcome'
 

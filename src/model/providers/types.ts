@@ -1,4 +1,4 @@
-import { Attempt, Outcome } from '../shared/models/outcome'
+import { Attempt, Outcome } from '../../shared/models/outcome'
 import { ChatMessage } from './models/chat-message'
 import { ChatTurn } from './models/chat-turn'
 import { ToolCall } from './models/tool-call'

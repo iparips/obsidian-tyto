@@ -5,7 +5,7 @@ import {
   FailureStep,
   Outcome,
   Outcomes,
-} from '../shared/models/outcome'
+} from '../../shared/models/outcome'
 import { ApiMessage, MistralMapper } from './mistral-mapper'
 import { ChatMessage, ChatProvider, ChatTurn, ToolSchema, TranscriptionProvider } from './types'
 

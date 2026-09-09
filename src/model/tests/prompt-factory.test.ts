@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { NoteDetails } from '../note-editing/note-details'
-import { Today } from '../prompting/today'
-import { PromptFactory } from '../prompting/prompt-factory'
+import { NoteDetails } from '../../engine/note-editing/note-details'
+import { Today } from '../today'
+import { PromptFactory } from '../prompt-factory'
 import { Skill } from '../../skills/skill'
 import { AgentsMdChain } from '../../agents/agents-md-chain'
 import { AgentsMdFile } from '../../agents/agents-md-file'
@@ -35,7 +35,7 @@ describe('PromptFactory', () => {
     it('labels the block with the folder when one file applies', () => {
       const chain = aChain(new AgentsMdFile('Journal', 'AGENTS.md', 'Write in second person.'))
 
-      const prompt = standingRulesText([], chain)
+      const prompt = standingRulesText(false, chain)
 
       expect(prompt).toContain('Instructions from Journal (AGENTS.md):')
     })
@@ -43,7 +43,7 @@ describe('PromptFactory', () => {
     it('labels the block as the vault root when the file sits there', () => {
       const chain = aChain(new AgentsMdFile('', 'AGENTS.md', 'Use full names.'))
 
-      const prompt = standingRulesText([], chain)
+      const prompt = standingRulesText(false, chain)
 
       expect(prompt).toContain('Instructions from vault root (AGENTS.md):')
     })
@@ -51,7 +51,7 @@ describe('PromptFactory', () => {
     it('renders the file contents when one file applies', () => {
       const chain = aChain(new AgentsMdFile('Journal', 'AGENTS.md', 'Write in second person.'))
 
-      const prompt = standingRulesText([], chain)
+      const prompt = standingRulesText(false, chain)
 
       expect(prompt).toContain('Write in second person.')
     })
@@ -59,7 +59,7 @@ describe('PromptFactory', () => {
     it('states that a later block wins when instructions apply', () => {
       const chain = aChain(new AgentsMdFile('Journal', 'AGENTS.md', 'Write in second person.'))
 
-      const prompt = standingRulesText([], chain)
+      const prompt = standingRulesText(false, chain)
 
       expect(prompt).toContain('wins wherever it conflicts with an earlier one')
     })
@@ -70,7 +70,7 @@ describe('PromptFactory', () => {
         new AgentsMdFile('Journal', 'AGENTS.md', 'Write in second person.'),
       )
 
-      const prompt = standingRulesText([], chain)
+      const prompt = standingRulesText(false, chain)
 
       expect(prompt.indexOf('Use full names.')).toBeLessThan(
         prompt.indexOf('Write in second person.'),
@@ -80,57 +80,69 @@ describe('PromptFactory', () => {
     it('places the instructions before the skill catalogue when both apply', () => {
       const chain = aChain(new AgentsMdFile('Journal', 'AGENTS.md', 'Write in second person.'))
 
-      const prompt = standingRulesText([aSkill('todo', 'Archives.')], chain)
+      const prompt = standingRulesText(true, chain)
 
       expect(prompt.indexOf('Instructions from Journal')).toBeLessThan(
-        prompt.indexOf('This vault defines the skills below'),
+        prompt.indexOf('This vault defines skills, listed by name in a later message'),
       )
     })
   })
 
   describe('when no folder holds instructions', () => {
     it('omits the instructions section when the chain is empty', () => {
-      const prompt = standingRulesText([], new AgentsMdChain())
+      const prompt = standingRulesText(false, new AgentsMdChain())
 
       expect(prompt).not.toContain('standing instructions below')
     })
 
     it('produces the same prompt when the chain is omitted entirely', () => {
-      const prompt = standingRulesText([])
+      const prompt = standingRulesText(false)
 
-      expect(prompt).toBe(standingRulesText([], new AgentsMdChain()))
+      expect(prompt).toBe(standingRulesText(false, new AgentsMdChain()))
     })
   })
 
   describe('when the catalogue has entries', () => {
     const catalogue = [aSkill('tidy-notes', 'Tidies a note.'), aSkill('weekly-review', 'Reviews.')]
 
-    // The list travels with the date rather than the standing rules, so the
+    // The list is its own message rather than the standing rules, so the
     // trigger phrases sit in the freshest position rather than behind the whole
     // chat history and the note body.
-    it('lists one line per skill beside the note, where the model reads last', () => {
-      const snapshot = PromptFactory.dateAndSkills(Today.of(), catalogue).content
+    it('lists one line per skill in a message of its own', () => {
+      const snapshot = PromptFactory.skillCatalogue(catalogue)?.content
 
       expect(snapshot).toContain('tidy-notes - Tidies a note.')
       expect(snapshot).toContain('weekly-review - Reviews.')
     })
 
-    it('names no skill in the standing rules, since the list moved to the note', () => {
-      expect(standingRulesText(catalogue)).not.toContain('tidy-notes - Tidies a note.')
+    it('carries no date, so the names are not read as a footnote to one', () => {
+      const snapshot = PromptFactory.skillCatalogue(catalogue)?.content
+
+      expect(snapshot).not.toContain('Today is')
+    })
+
+    it('has no catalogue message when the vault defines no skills', () => {
+      expect(PromptFactory.skillCatalogue([])).toBeNull()
+    })
+
+    it('names no skill in the standing rules, since the list is its own message', () => {
+      expect(standingRulesText(true)).not.toContain('tidy-notes - Tidies a note.')
     })
 
     it('keeps the rules in the standing rules, since how a skill works is fixed', () => {
-      expect(standingRulesText(catalogue)).toContain('This vault defines the skills below')
+      expect(standingRulesText(true)).toContain(
+        'This vault defines skills, listed by name in a later message',
+      )
     })
 
     it('states the single-note rule when the catalogue has entries', () => {
-      const prompt = standingRulesText(catalogue)
+      const prompt = standingRulesText(true)
 
       expect(prompt).toContain(PromptFactory.skillRules())
     })
 
     it('omits the note content when the prompt is built', () => {
-      const prompt = standingRulesText(catalogue)
+      const prompt = standingRulesText(true)
 
       expect(prompt).not.toContain('Note path:')
     })
@@ -165,10 +177,8 @@ describe('PromptFactory', () => {
   })
 
   describe('when the vault defines skills', () => {
-    const catalogue = [aSkill('todo', 'Archives ticked items.')]
-
     it('tells the model to load a skill before following it when skills exist', () => {
-      const prompt = standingRulesText(catalogue)
+      const prompt = standingRulesText(true)
 
       expect(prompt).toContain('Call load_skill')
     })
@@ -176,25 +186,25 @@ describe('PromptFactory', () => {
     // A command opened the right note, so the edit looked like success and the
     // skill's own steps were skipped without anything saying so.
     it('tells the model to answer the skill question before its first edit', () => {
-      const prompt = standingRulesText(catalogue)
+      const prompt = standingRulesText(true)
 
       expect(prompt).toContain('Answer the skill question before your first edit')
     })
 
     it('names no_skill_applies, so the model is never stuck when none fits', () => {
-      const prompt = standingRulesText(catalogue)
+      const prompt = standingRulesText(true)
 
       expect(prompt).toContain('no_skill_applies when none does')
     })
 
     it('says the model decides which skill applies, not the harness', () => {
-      const prompt = standingRulesText(catalogue)
+      const prompt = standingRulesText(true)
 
       expect(prompt).toContain('You decide which applies')
     })
 
     it('tells the model the summary says when a skill applies, not how to do it', () => {
-      const prompt = standingRulesText(catalogue)
+      const prompt = standingRulesText(true)
 
       expect(prompt).toContain('never how to carry it out')
     })
@@ -203,27 +213,27 @@ describe('PromptFactory', () => {
     // was declined as "no skill for opening a dated note", for a note under
     // that root.
     it('tells the model a MUST-load skill is not a judgement call', () => {
-      const prompt = standingRulesText(catalogue)
+      const prompt = standingRulesText(true)
 
       expect(prompt).toContain('is not a judgement call')
     })
 
     it('tells the model the note it is about to edit can be the match', () => {
-      const prompt = standingRulesText(catalogue)
+      const prompt = standingRulesText(true)
 
       expect(prompt).toContain('whatever words the user used')
     })
 
     it('tells the model to write under a heading the note already has', () => {
-      expect(standingRulesText([])).toContain('Write under a heading the note already has')
+      expect(standingRulesText(false)).toContain('Write under a heading the note already has')
     })
 
     it('tells the model loose wording still names the same section', () => {
-      expect(standingRulesText([])).toContain('do not make it a different section')
+      expect(standingRulesText(false)).toContain('do not make it a different section')
     })
 
     it('tells the model that reaching the note is not doing the work', () => {
-      const prompt = standingRulesText(catalogue)
+      const prompt = standingRulesText(true)
 
       expect(prompt).toContain('Reaching the right note is not the same as doing the work.')
     })
@@ -231,15 +241,15 @@ describe('PromptFactory', () => {
 
   describe('when the catalogue is empty', () => {
     it('omits the skills section when the catalogue is empty', () => {
-      const prompt = standingRulesText([])
+      const prompt = standingRulesText(false)
 
-      expect(prompt).not.toContain('This vault defines the skills below')
+      expect(prompt).not.toContain('This vault defines skills, listed by name in a later message')
     })
 
     it('produces the same prompt when the catalogue is omitted entirely', () => {
       const prompt = standingRulesText()
 
-      expect(prompt).toBe(standingRulesText([]))
+      expect(prompt).toBe(standingRulesText(false))
     })
   })
 
@@ -250,32 +260,32 @@ describe('PromptFactory', () => {
     ]
 
     it('lists one line per command when the catalogue has entries', () => {
-      const prompt = standingRulesText([], new AgentsMdChain(), catalogue)
+      const prompt = standingRulesText(false, new AgentsMdChain(), catalogue)
 
       expect(prompt).toContain('daily-notes:goto-today - Open todays daily note')
       expect(prompt).toContain('shopping:add - Add to shopping list')
     })
 
     it('tells the model to decline a command it cannot identify when commands exist', () => {
-      const prompt = standingRulesText([], new AgentsMdChain(), catalogue)
+      const prompt = standingRulesText(false, new AgentsMdChain(), catalogue)
 
       expect(prompt).toContain('Decline a command whose effect you cannot determine')
     })
 
     it('tells the model to prefer a listed command that opens the destination', () => {
-      const prompt = standingRulesText([], new AgentsMdChain(), catalogue)
+      const prompt = standingRulesText(false, new AgentsMdChain(), catalogue)
 
       expect(prompt).toContain('prefer a listed command that opens it')
     })
 
     it('tells the model a command only opens the note, so a matched skill still leads', () => {
-      const prompt = standingRulesText([], new AgentsMdChain(), catalogue)
+      const prompt = standingRulesText(false, new AgentsMdChain(), catalogue)
 
       expect(prompt).toContain('A command only opens the note.')
     })
 
     it('tells the model to search only when no command reaches the destination', () => {
-      const prompt = standingRulesText([], new AgentsMdChain(), catalogue)
+      const prompt = standingRulesText(false, new AgentsMdChain(), catalogue)
 
       expect(prompt).toContain(
         'Search for the note only when no listed command reaches it, then open what you found.',
@@ -283,13 +293,13 @@ describe('PromptFactory', () => {
     })
 
     it('states the preference identically whichever mode is on, since the mode is not in the prompt', () => {
-      const prompt = standingRulesText([], new AgentsMdChain(), catalogue)
+      const prompt = standingRulesText(false, new AgentsMdChain(), catalogue)
 
       expect(prompt).not.toContain('confirm')
     })
 
     it('tells the model to ask only when no command and no search resolves the destination', () => {
-      const prompt = standingRulesText([], new AgentsMdChain(), catalogue)
+      const prompt = standingRulesText(false, new AgentsMdChain(), catalogue)
 
       expect(prompt).toContain(
         'Ask only when no listed command and no search resolves what the instruction named:',
@@ -297,7 +307,7 @@ describe('PromptFactory', () => {
     })
 
     it('tells the model to offer suggestions when the answer is not a note', () => {
-      const prompt = standingRulesText([], new AgentsMdChain(), catalogue)
+      const prompt = standingRulesText(false, new AgentsMdChain(), catalogue)
 
       expect(prompt).toContain('Offer suggestions when the answer is not a note')
     })
@@ -306,13 +316,13 @@ describe('PromptFactory', () => {
     // Left in the question rules, it routes the model to ask in prose, which is
     // the second question 14-choosing-the-note exists to remove.
     it('tells the model never to ask which of several notes the user meant', () => {
-      const prompt = standingRulesText([], new AgentsMdChain(), catalogue)
+      const prompt = standingRulesText(false, new AgentsMdChain(), catalogue)
 
       expect(prompt).toContain('Never ask which of several notes the user meant.')
     })
 
     it('names several matching notes nowhere as a reason to ask, since choosing covers it', () => {
-      const prompt = standingRulesText([], new AgentsMdChain(), catalogue)
+      const prompt = standingRulesText(false, new AgentsMdChain(), catalogue)
 
       expect(prompt).not.toContain('when several notes match equally')
     })
@@ -320,32 +330,32 @@ describe('PromptFactory', () => {
 
   describe('when the vault allows no commands', () => {
     it('omits the command section when the catalogue is empty', () => {
-      const prompt = standingRulesText([], new AgentsMdChain(), [])
+      const prompt = standingRulesText(false, new AgentsMdChain(), [])
 
       expect(prompt).not.toContain('You can run the Obsidian commands below')
     })
 
     it('omits the question section when no route exists to exhaust', () => {
-      const prompt = standingRulesText([], new AgentsMdChain(), [], false)
+      const prompt = standingRulesText(false, new AgentsMdChain(), [], false)
 
       expect(prompt).not.toContain('You can ask the user one question')
     })
 
     it('keeps the question section when search alone is available', () => {
-      const prompt = standingRulesText([], new AgentsMdChain(), [], true)
+      const prompt = standingRulesText(false, new AgentsMdChain(), [], true)
 
       expect(prompt).toContain('You can ask the user one question')
     })
 
     it('produces the release 3 prompt when commands and search are absent', () => {
-      const prompt = standingRulesText([], new AgentsMdChain(), [], false)
+      const prompt = standingRulesText(false, new AgentsMdChain(), [], false)
 
       expect(prompt).toBe(RELEASE_3_PROMPT)
     })
   })
 
   describe('when search is enabled', () => {
-    const withSearch = () => standingRulesText([], new AgentsMdChain(), [], true)
+    const withSearch = () => standingRulesText(false, new AgentsMdChain(), [], true)
 
     it('states that a search never changes the edited note when search is enabled', () => {
       expect(withSearch()).toContain('Searching never changes')
@@ -420,31 +430,31 @@ describe('PromptFactory', () => {
     // A turn globbed Week-*/Week-*.md, then walked archived week folders and
     // asked the user which week held a date it had already resolved.
     it('tells the model to glob for the file once it knows the name', () => {
-      expect(standingRulesText([], new AgentsMdChain(), [], true)).toContain(
+      expect(standingRulesText(false, new AgentsMdChain(), [], true)).toContain(
         'Name the file, not the folder.',
       )
     })
 
     it('tells the model never to ask which folder or week a note is in', () => {
-      expect(standingRulesText([], new AgentsMdChain(), [], true)).toContain(
+      expect(standingRulesText(false, new AgentsMdChain(), [], true)).toContain(
         'which folder holds it, or',
       )
     })
 
     it('tells the model to read what two globs returned rather than glob again', () => {
-      expect(standingRulesText([], new AgentsMdChain(), [], true)).toContain(
+      expect(standingRulesText(false, new AgentsMdChain(), [], true)).toContain(
         'Two globs that returned notes are enough.',
       )
     })
 
     it('tells the model a glob matches notes rather than folders', () => {
-      expect(standingRulesText([], new AgentsMdChain(), [], true)).toContain(
+      expect(standingRulesText(false, new AgentsMdChain(), [], true)).toContain(
         'A glob matches notes, never folders.',
       )
     })
 
     const withCommands = () =>
-      standingRulesText([], new AgentsMdChain(), [
+      standingRulesText(false, new AgentsMdChain(), [
         new AllowedObsidianCommand('daily-notes:goto-today', 'Open todays daily note'),
       ])
 
@@ -459,13 +469,13 @@ describe('PromptFactory', () => {
     })
 
     it('mentions the retired confirmation nowhere, since that mechanism is gone', () => {
-      expect(standingRulesText([], new AgentsMdChain(), [], true)).not.toContain('confirm')
+      expect(standingRulesText(false, new AgentsMdChain(), [], true)).not.toContain('confirm')
     })
   })
 
   describe('when search is disabled', () => {
     it('omits the search section when search is disabled', () => {
-      const prompt = standingRulesText([], new AgentsMdChain(), [], false)
+      const prompt = standingRulesText(false, new AgentsMdChain(), [], false)
 
       expect(prompt).not.toContain('Reach a note in this order:')
     })
@@ -567,53 +577,51 @@ describe('PromptFactory', () => {
     const catalogue = [new AllowedObsidianCommand('daily-notes:goto-today', 'Open today')]
 
     it('does not claim other files are unreachable when a command is allowed', () => {
-      const prompt = standingRulesText([], new AgentsMdChain(), catalogue)
+      const prompt = standingRulesText(false, new AgentsMdChain(), catalogue)
 
       expect(prompt).not.toContain('You cannot read or write any file other than this note')
     })
 
     it('does not claim other files are unreachable when search is enabled', () => {
-      const prompt = standingRulesText([], new AgentsMdChain(), [], true)
+      const prompt = standingRulesText(false, new AgentsMdChain(), [], true)
 
       expect(prompt).not.toContain('You cannot read or write any file other than this note')
     })
 
     it('says a command can open another note when one is allowed', () => {
-      const prompt = standingRulesText([], new AgentsMdChain(), catalogue)
+      const prompt = standingRulesText(false, new AgentsMdChain(), catalogue)
 
       expect(prompt).toContain('open another note by running one of the commands listed below')
     })
 
     it('says search can read other notes when search is enabled', () => {
-      const prompt = standingRulesText([], new AgentsMdChain(), [], true)
+      const prompt = standingRulesText(false, new AgentsMdChain(), [], true)
 
       expect(prompt).toContain('read other notes by searching the vault')
     })
 
     it('names both reaches when commands and search are both available', () => {
-      const prompt = standingRulesText([], new AgentsMdChain(), catalogue, true)
+      const prompt = standingRulesText(false, new AgentsMdChain(), catalogue, true)
 
       expect(prompt).toContain('open another note')
       expect(prompt).toContain('read other notes')
     })
 
     it('keeps the no-undo warning when the reach widens', () => {
-      const prompt = standingRulesText([], new AgentsMdChain(), catalogue, true)
+      const prompt = standingRulesText(false, new AgentsMdChain(), catalogue, true)
 
       expect(prompt).toContain('no undo tool')
     })
 
     it('tells a skill to run the command rather than decline when one is allowed', () => {
-      const skills = [aSkill('todo', 'Manages todo.md files.')]
-      const prompt = standingRulesText(skills, new AgentsMdChain(), catalogue)
+      const prompt = standingRulesText(true, new AgentsMdChain(), catalogue)
 
       expect(prompt).toContain('run the command that opens it')
       expect(prompt).not.toContain('editing other files is not supported yet')
     })
 
     it('keeps the skill refusal when no command is allowed', () => {
-      const skills = [aSkill('todo', 'Manages todo.md files.')]
-      const prompt = standingRulesText(skills, new AgentsMdChain(), [])
+      const prompt = standingRulesText(true, new AgentsMdChain(), [])
 
       expect(prompt).toContain('editing other files is not supported yet')
     })
@@ -623,13 +631,13 @@ describe('PromptFactory', () => {
     const THURSDAY = new Today(new Date(2026, 8, 3))
 
     it('names today whether or not a note is open', () => {
-      const snapshot = PromptFactory.dateAndSkills(THURSDAY)
+      const snapshot = PromptFactory.date(THURSDAY)
 
       expect(snapshot.content).toContain('Today is 2026-09-03 (Thursday).')
     })
 
     it('tells the model not to resolve a date against a note name', () => {
-      const snapshot = PromptFactory.dateAndSkills(THURSDAY)
+      const snapshot = PromptFactory.date(THURSDAY)
 
       expect(snapshot.content).toContain(
         'A note named for a date is not\nevidence of what today is.',
@@ -637,7 +645,7 @@ describe('PromptFactory', () => {
     })
 
     it('names no note, since the note travels in its own message', () => {
-      const snapshot = PromptFactory.dateAndSkills(THURSDAY)
+      const snapshot = PromptFactory.date(THURSDAY)
 
       expect(snapshot.content).not.toContain('Note path:')
     })

@@ -1,4 +1,4 @@
-import { ToolSchema } from '../../providers/types'
+import { ToolSchema } from '../../model/providers/types'
 import {
   ANSWER_FROM_SEARCH,
   ASK_USER,
@@ -10,7 +10,7 @@ import {
   OPEN_NOTE,
   READ_NOTE,
   RUN_COMMAND,
-} from '../../providers/models/tool-call'
+} from '../../model/providers/models/tool-call'
 
 const ANCHOR_DESCRIPTION =
   'Exact text currently in the note. Must match exactly once. Include enough surrounding text to be unique.'

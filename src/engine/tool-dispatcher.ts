@@ -1,4 +1,4 @@
-import { ToolCall } from '../providers/types'
+import { ToolCall } from '../model/providers/types'
 import { NoteEditTool } from './tools/note-edit-tool'
 import { ToolCallOutcome } from './tools/tool-call-outcome'
 import { SkillRepository } from '../skills/skill-repository'

@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { TFile } from 'obsidian'
 import { SessionRepository } from '../session-repository'
-import { ChatMessage } from '../../providers/types'
+import { ChatMessage } from '../../model/providers/types'
 
 describe('SessionRepository', () => {
   let sessions: SessionRepository

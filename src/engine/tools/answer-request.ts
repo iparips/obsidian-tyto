@@ -1,4 +1,4 @@
-import { ToolCall } from '../../providers/types'
+import { ToolCall } from '../../model/providers/types'
 
 // A value: what to ask and what to offer. Holds no collaborator, so the panel
 // renders it without reaching back into the engine.

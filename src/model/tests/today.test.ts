@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { Today } from '../prompting/today'
+import { Today } from '../today'
 
 describe('Today', () => {
   describe('when the date is described', () => {

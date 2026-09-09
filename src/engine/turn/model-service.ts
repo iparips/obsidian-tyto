@@ -1,17 +1,18 @@
-import { ChatTurn } from '../../providers/models/chat-turn'
+import { ChatTurn } from '../../model/providers/models/chat-turn'
 import { Outcome } from '../../shared/models/outcome'
-import { ModelCaller, ModelRequest } from '../model-caller'
+import { ModelCaller } from '../../model/model-caller'
+import { ModelRequest } from '../../model/model-request'
 import { SessionRepository } from '../../session/session-repository'
 import { TurnCancellationController } from './turn-cancellation-controller'
 import { TurnRepository } from './turn-repository'
 
 // One of the two outward calls a step makes. The loop that decides when to make
 // it is ConversationTurnRunner; what it calls back is ToolCallExecutor.
-export class ModelAsker {
+export class ModelService {
   constructor(
     private sessionRepository: SessionRepository,
     private turnRepository: TurnRepository,
-    private cancellationController: TurnCancellationController,
+    private turnCancellationController: TurnCancellationController,
     private modelCaller: ModelCaller,
   ) {}
 
@@ -30,7 +31,7 @@ export class ModelAsker {
       this.turnRepository.skills(),
       this.turnRepository.agentMdChain(),
       this.sessionRepository.chatHistory(),
-      this.cancellationController.signal(),
+      this.turnCancellationController.signal(),
     )
   }
 

@@ -1,6 +1,6 @@
 import { Notice, TFile } from 'obsidian'
 import { Recorder } from '../capture/recorder'
-import { MistralProvider } from '../providers/mistral-provider'
+import { MistralProvider } from '../model/providers/mistral-provider'
 import { SessionPanelProps } from './views/SessionPanel'
 import { EditEngine } from '../engine/edit-engine'
 import { EngineFactory } from '../engine/engine-factory'

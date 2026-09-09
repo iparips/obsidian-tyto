@@ -1,6 +1,6 @@
 import { EditorPosition } from 'obsidian'
-import { ChatMessage } from '../providers/types'
-import { ChatTurn } from '../providers/models/chat-turn'
+import { ChatMessage } from '../model/providers/types'
+import { ChatTurn } from '../model/providers/models/chat-turn'
 import { Cancelled, Failure, Outcome, Outcomes } from '../shared/models/outcome'
 import { NoteEditor } from './note-editing/note-editor'
 import { OpenNote } from './note-editing/open-note'

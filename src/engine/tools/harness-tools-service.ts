@@ -1,4 +1,4 @@
-import { ToolCall, ToolSchema } from '../../providers/types'
+import { ToolCall, ToolSchema } from '../../model/providers/types'
 import { ObsidianCommandRunner } from '../../commands/obsidian-command-runner'
 import { NoteReader } from '../../search/note-reader'
 import { NotesOpenedCounter } from '../turn/notes-opened-counter'

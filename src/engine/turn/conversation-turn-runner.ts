@@ -1,9 +1,9 @@
 import { Outcome } from '../../shared/models/outcome'
 import { ResolvedNote } from '../note-binding/resolved-note'
-import { ToolCall } from '../../providers/types'
+import { ToolCall } from '../../model/providers/types'
 import { TurnCancellationController } from './turn-cancellation-controller'
 import { TurnEndingService } from '../turn-ending-service'
-import { ModelAsker } from './model-asker'
+import { ModelService } from './model-service'
 import { ToolCallExecutor } from './tool-call-executor'
 import { TurnProgressPublisher } from '../turn-progress-publisher'
 import { TurnRepository } from './turn-repository'
@@ -17,7 +17,7 @@ export class ConversationTurnRunner {
   constructor(
     private repository: TurnRepository,
     private cancellationController: TurnCancellationController,
-    private modelAsker: ModelAsker,
+    private modelService: ModelService,
     private toolCallExecutor: ToolCallExecutor,
     private turnEndingService: TurnEndingService,
     private turnProgressPublisher: TurnProgressPublisher,
@@ -48,7 +48,7 @@ export class ConversationTurnRunner {
       return TurnStepOutcomes.turnEnded(outcome)
     }
 
-    const modelAnswer = await this.modelAsker.askModel(stepNumber)
+    const modelAnswer = await this.modelService.askModel(stepNumber)
 
     if (!modelAnswer.succeeded()) {
       const outcome = this.turnEndingService.endTurnAsUnfinished(

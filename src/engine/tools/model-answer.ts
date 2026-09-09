@@ -1,4 +1,4 @@
-import { ToolCall } from '../../providers/types'
+import { ToolCall } from '../../model/providers/types'
 
 // A value: the answer the model drew from the vault, and the notes it drew on.
 // Holds no collaborator, so the panel renders it without reaching back.

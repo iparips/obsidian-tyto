@@ -1,4 +1,4 @@
-import { ToolCall } from '../../providers/types'
+import { ToolCall } from '../../model/providers/types'
 import { EditOperation, NoteEditor } from '../note-editing/note-editor'
 import { NoteOperationParser } from '../note-editing/note-operation-parser'
 import { OpenNote } from '../note-editing/open-note'

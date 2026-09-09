@@ -1,4 +1,4 @@
-import { ToolCall } from '../../providers/types'
+import { ToolCall } from '../../model/providers/types'
 import { NoteGlob } from '../../search/note-glob'
 import { NoteGrep } from '../../search/note-grep'
 import { SearchReport } from '../../search/search-report'

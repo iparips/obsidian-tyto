@@ -10,7 +10,7 @@ import { NotesChosenByUserRepository } from '../turn/notes-chosen-by-user-reposi
 import { UserQuestionService } from '../waiting/user-question-service'
 import { AnswerRequest } from '../tools/answer-request'
 import { Outcomes } from '../../shared/models/outcome'
-import { ChatMessage, ChatProvider } from '../../providers/types'
+import { ChatMessage, ChatProvider } from '../../model/providers/types'
 import { AgentsMdRepository } from '../../agents/agents-md-repository'
 import { AllowList } from '../../commands/allow-list'
 import { ObsidianCommandCatalogue } from '../../commands/obsidian-command-catalogue'

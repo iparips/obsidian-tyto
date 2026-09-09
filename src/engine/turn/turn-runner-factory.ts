@@ -16,9 +16,9 @@ import { NotesOpenedCounter } from './notes-opened-counter'
 import { UserQuestionService } from '../waiting/user-question-service'
 import { SessionRepository } from '../../session/session-repository'
 import { Attempt, Outcomes } from '../../shared/models/outcome'
-import { ModelCaller } from '../model-caller'
+import { ModelCaller } from '../../model/model-caller'
 import { TurnEndingService } from '../turn-ending-service'
-import { ModelAsker } from './model-asker'
+import { ModelService } from './model-service'
 import { ToolCallExecutor } from './tool-call-executor'
 
 // Holds what outlives a turn and builds what does not, so the turn-scoped
@@ -84,7 +84,12 @@ export class TurnRunnerFactory {
     return new ConversationTurnRunner(
       repository,
       cancellationController,
-      new ModelAsker(this.sessionRepository, repository, cancellationController, this.modelCaller),
+      new ModelService(
+        this.sessionRepository,
+        repository,
+        cancellationController,
+        this.modelCaller,
+      ),
       new ToolCallExecutor(this.sessionRepository, repository, toolDispatcher),
       this.turnEnding,
       this.turnProgressPublisher,

@@ -5,7 +5,7 @@ import { SessionRepository } from '../session/session-repository'
 import { TargetNoteResolver } from './note-binding/target-note-resolver'
 import { TurnProgressPublisher } from './turn-progress-publisher'
 import { UtteranceQueue } from './utterance-queue'
-import { ChatMessage } from '../providers/types'
+import { ChatMessage } from '../model/providers/types'
 
 export class EditEngine {
   // Null between turns, so a cancel arriving after one finished reaches nothing.
