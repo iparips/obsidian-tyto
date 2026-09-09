@@ -450,9 +450,18 @@ describe('the prompt messages', () => {
       )
     })
 
-    it('tells the model to read what two globs returned rather than glob again', () => {
+    // A budget says how many calls are left; a stop condition says what to do
+    // with the note already in hand. The reported turn globbed three more times
+    // after the fourth call had returned the right note.
+    it('tells the model a glob that found notes ends the search', () => {
       expect(systemPromptText(new AgentsMdChain(), [], [], true)).toContain(
-        'Two globs that returned notes are enough.',
+        'A glob that returned notes has answered the question. Offer what it found',
+      )
+    })
+
+    it('holds a later glob to a format a listing already returned', () => {
+      expect(systemPromptText(new AgentsMdChain(), [], [], true)).toContain(
+        'their names are the vault format',
       )
     })
 
