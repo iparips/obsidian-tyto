@@ -40,7 +40,7 @@ sequenceDiagram
     StepService->>Session: appendChatMessage(ChatMessage.toolCallResult(call.id, result))
     StepService->>TurnRepo: storeCursorPositionAndWrittenNote(editEndPosition)
     StepService->>StepService: repeatedRefusalCounter.record(refusal)
-    Note over Turn: TurnStepResults.keepGoing when the turn has more to do
+    Note over Turn: TurnStepOutcomes.keepGoing when the turn has more to do
 
     Note over Engine,Conclusion: ENDING ON AN ANSWER
     Turn->>TurnRepo: targetNote(), editEnd()

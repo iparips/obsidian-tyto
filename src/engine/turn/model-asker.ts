@@ -1,20 +1,16 @@
-import { ChatMessage, ToolCall } from '../../providers/types'
 import { ChatTurn } from '../../providers/models/chat-turn'
 import { Outcome } from '../../shared/models/outcome'
 import { ModelCaller, ModelRequest } from '../model-caller'
-import { RepeatedRefusalCounter } from './repeated-refusal-counter'
 import { SessionRepository } from '../../session/session-repository'
-import { ToolDispatcher } from '../tool-dispatcher'
 import { TurnCancellationController } from './turn-cancellation-controller'
 import { TurnRepository } from './turn-repository'
 
-// The two outward calls a step makes: asking the model, and running what it
-// called back. The loop that decides when to make them is ConversationTurnRunner.
-export class TurnStepService {
+// One of the two outward calls a step makes. The loop that decides when to make
+// it is ConversationTurnRunner; what it calls back is ToolCallExecutor.
+export class ModelAsker {
   constructor(
     private sessionRepository: SessionRepository,
     private turnRepository: TurnRepository,
-    private toolDispatcher: ToolDispatcher,
     private cancellationController: TurnCancellationController,
     private modelCaller: ModelCaller,
   ) {}
@@ -44,21 +40,5 @@ export class TurnStepService {
     const calls = turn.isText() ? 'text' : turn.calls.map((call) => call.name).join(', ')
     const path = this.turnRepository.targetNote()?.path ?? 'no note'
     console.debug(`[owl] iteration ${step + 1} on ${path}: ${calls} (${waitedMs}ms)`)
-  }
-
-  async executeToolCalls(toolCalls: ToolCall[], refusals: RepeatedRefusalCounter): Promise<void> {
-    this.sessionRepository.appendChatMessage(ChatMessage.modelToolCalls(toolCalls))
-    for (const call of toolCalls) {
-      await this.executeToolCall(call, refusals)
-    }
-  }
-
-  private async executeToolCall(call: ToolCall, refusals: RepeatedRefusalCounter): Promise<void> {
-    const toolCallOutcome = await this.toolDispatcher.execute(call)
-    this.sessionRepository.appendChatMessage(
-      ChatMessage.toolCallResult(call.id, toolCallOutcome.result),
-    )
-    this.turnRepository.storeCursorPositionAndWrittenNote(toolCallOutcome.editEndPosition)
-    refusals.record(toolCallOutcome.refusal ?? null)
   }
 }

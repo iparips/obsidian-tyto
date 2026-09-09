@@ -14,7 +14,7 @@ import { FakeVault } from './fake-vault'
 import { FakeAdapter } from './fake-adapter'
 import { EditEngine } from '../engine/edit-engine'
 import { ModelCaller } from '../engine/model-caller'
-import { TurnConclusionService } from '../engine/turn-conclusion-service'
+import { TurnEndingService } from '../engine/turn-ending-service'
 import { NoteEditor } from '../engine/note-editing/note-editor'
 import { TargetNoteResolver } from '../engine/note-binding/target-note-resolver'
 import { TurnProgressPublisher } from '../engine/turn-progress-publisher'
@@ -75,7 +75,7 @@ export const anEngine = (modelProvider: ChatProvider, options: EnginePartsOption
     harness,
     progress,
     new ModelCaller(modelProvider, harness),
-    new TurnConclusionService(options.sessions, new NoteEditor()),
+    new TurnEndingService(options.sessions, new NoteEditor()),
     options.noteOpener ?? null,
     options.noteChoiceService ??
       ((_cancellationController, notesChosenByUser) =>

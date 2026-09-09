@@ -17,8 +17,9 @@ import { UserQuestionService } from '../waiting/user-question-service'
 import { SessionRepository } from '../../session/session-repository'
 import { Attempt, Outcomes } from '../../shared/models/outcome'
 import { ModelCaller } from '../model-caller'
-import { TurnConclusionService } from '../turn-conclusion-service'
-import { TurnStepService } from './turn-step-service'
+import { TurnEndingService } from '../turn-ending-service'
+import { ModelAsker } from './model-asker'
+import { ToolCallExecutor } from './tool-call-executor'
 
 // Holds what outlives a turn and builds what does not, so the turn-scoped
 // boundary is one class rather than a convention spread across the loop.
@@ -31,7 +32,7 @@ export class TurnRunnerFactory {
     private harnessToolsService: HarnessToolsService,
     private turnProgressPublisher: TurnProgressPublisher,
     private modelCaller: ModelCaller,
-    private turnConclusionService: TurnConclusionService,
+    private turnEnding: TurnEndingService,
     // Null where nothing can open a note, which is every test that exercises the
     // guards rather than the workspace.
     private noteOpener: NoteOpener | null = null,
@@ -83,14 +84,9 @@ export class TurnRunnerFactory {
     return new ConversationTurnRunner(
       repository,
       cancellationController,
-      new TurnStepService(
-        this.sessionRepository,
-        repository,
-        toolDispatcher,
-        cancellationController,
-        this.modelCaller,
-      ),
-      this.turnConclusionService,
+      new ModelAsker(this.sessionRepository, repository, cancellationController, this.modelCaller),
+      new ToolCallExecutor(this.sessionRepository, repository, toolDispatcher),
+      this.turnEnding,
       this.turnProgressPublisher,
     )
   }
