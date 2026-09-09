@@ -21,7 +21,7 @@ export class ModelCaller {
   async ask(request: ModelRequest): Promise<Outcome<ChatTurn>> {
     return this.modelProvider.complete(
       this.messagesFor(request),
-      this.harnessToolsService.schemas(request.skills.length > 0),
+      this.harnessToolsService.getToolCallSchemas(request.skills.length > 0),
       request.abortSignal,
     )
   }

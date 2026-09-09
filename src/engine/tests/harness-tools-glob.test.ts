@@ -56,7 +56,7 @@ describe('HarnessToolsService', () => {
     toolsOf().execute(aToolCall('glob_notes', { pattern, ...args }), turn)
 
   const namesOf = (tools: HarnessToolsService, spent: readonly string[] = []) =>
-    tools.schemas(spent).map((schema) => schema.name)
+    tools.getToolCallSchemas(spent).map((schema) => schema.name)
 
   describe('when a glob matches notes', () => {
     it('runs a glob when glob_notes is called, listing one path per line', async () => {

@@ -166,7 +166,7 @@ describe('HarnessToolsService', () => {
 
   describe('when search is disabled', () => {
     it('omits choose_note from the schemas when search is disabled', () => {
-      expect(namesOf(toolsOf(false).schemas())).not.toContain('choose_note')
+      expect(namesOf(toolsOf(false).getToolCallSchemas())).not.toContain('choose_note')
     })
 
     it('refuses the call when search is disabled', async () => {
@@ -183,15 +183,15 @@ describe('HarnessToolsService', () => {
 
   describe('when the vault is in auto mode', () => {
     it('omits choose_note from the schemas in auto mode', () => {
-      expect(namesOf(toolsOf(true, false).schemas())).not.toContain('choose_note')
+      expect(namesOf(toolsOf(true, false).getToolCallSchemas())).not.toContain('choose_note')
     })
 
     it('offers open_note beside it, since choosing and opening are separate calls', () => {
-      expect(namesOf(toolsOf().schemas())).toContain('open_note')
+      expect(namesOf(toolsOf().getToolCallSchemas())).toContain('open_note')
     })
 
     it('offers choose_note when the vault asks which note, so the mode is what drops it', () => {
-      expect(namesOf(toolsOf().schemas())).toContain('choose_note')
+      expect(namesOf(toolsOf().getToolCallSchemas())).toContain('choose_note')
     })
   })
 })

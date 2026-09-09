@@ -59,14 +59,14 @@ Arrows: uses-relationship (client to supplier).
 Files group by concept, not by kind, and a value object sits beside the service
 that reads it. Engine is large enough to split into six concept folders:
 
-| Folder       | Holds                                                        |
-| ------------ | ------------------------------------------------------------ |
+| Folder       | Holds                                                         |
+| ------------ | ------------------------------------------------------------- |
 | turn         | The loop, its counters, outcomes and turn-scoped repositories |
-| tools        | Tool services, their results and the tool schemas            |
-| waiting      | Parking a turn on a question or a choice                     |
-| note-editing | The note editor, its parser and positions                    |
-| note-binding | Resolving and opening the target note                        |
-| prompting    | Prompt assembly                                              |
+| tools        | Tool services, their results and the tool schemas             |
+| waiting      | Parking a turn on a question or a choice                      |
+| note-editing | The note editor, its parser and positions                     |
+| note-binding | Resolving and opening the target note                         |
+| prompting    | Prompt assembly                                               |
 
 The root holds only what spans the folders. The placement test for tools/ is
 written down: a tool takes a ToolCall and returns a result, so NoteEditor,
@@ -83,16 +83,16 @@ it in the root, so skills keeps skill.ts beside skill-repository.ts.
 The limit is 10 files per folder, counting the package root as a folder of its
 own. Tests are counted against their own folder and exempt from the limit.
 
-| Package   | Root | Sub-folders                                                      | tests |
-| --------- | ---- | ---------------------------------------------------------------- | ----- |
-| shared    | -    | models 1                                                         | 1     |
-| capture   | 1    | -                                                                | 1     |
-| commands  | 6    | models 4                                                         | 7     |
-| engine    | 8    | turn 13, tools 12, note-binding 5, note-editing 5, waiting 3, prompting 3 | 29 |
-| providers | 3    | models 3                                                         | 2     |
-| session   | 8    | views 16, models 4                                               | 5     |
-| settings  | 1    | -                                                                | 4     |
-| skills    | 3    | -                                                                | 2     |
+| Package   | Root | Sub-folders                                                               | tests |
+| --------- | ---- | ------------------------------------------------------------------------- | ----- |
+| shared    | -    | models 1                                                                  | 1     |
+| capture   | 1    | -                                                                         | 1     |
+| commands  | 6    | models 4                                                                  | 7     |
+| engine    | 8    | turn 13, tools 12, note-binding 5, note-editing 5, waiting 3, prompting 3 | 29    |
+| providers | 3    | models 3                                                                  | 2     |
+| session   | 8    | views 16, models 4                                                        | 5     |
+| settings  | 1    | -                                                                         | 4     |
+| skills    | 3    | -                                                                         | 2     |
 
 Over the limit today: engine/turn, engine/tools and session/views. Each is a
 split waiting to be specified, not a reason to raise the limit.

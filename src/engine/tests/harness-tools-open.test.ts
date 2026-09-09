@@ -156,7 +156,7 @@ describe('HarnessToolsService', () => {
     it('omits open_note from the schemas when search is disabled', () => {
       expect(
         toolsOf(false)
-          .schemas()
+          .getToolCallSchemas()
           .map((schema) => schema.name),
       ).not.toContain('open_note')
     })

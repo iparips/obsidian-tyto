@@ -56,7 +56,7 @@ describe('HarnessToolsService', () => {
     toolsOf().execute(aToolCall('grep_notes', { pattern, ...args }), turn)
 
   const namesOf = (tools: HarnessToolsService, spent: readonly string[] = []) =>
-    tools.schemas(spent).map((schema) => schema.name)
+    tools.getToolCallSchemas(spent).map((schema) => schema.name)
 
   describe('when a grep matches notes', () => {
     it('runs a grep when grep_notes is called, naming the note and its count', async () => {

@@ -38,7 +38,7 @@ export class HarnessToolsService {
 
   // The offered set is fixed for a turn: one budget bounds the cost, so no tool
   // drops out part way through and a model never sees the list change under it.
-  schemas(skillsExist = false): ToolSchema[] {
+  getToolCallSchemas(skillsExist = false): ToolSchema[] {
     return ToolCatalogue.forCapabilities(
       this.hasWhitelistedCommands(),
       this.searchEnabled,
