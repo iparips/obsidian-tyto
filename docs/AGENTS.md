@@ -1,7 +1,8 @@
-# Working On This Repo With An Agent
+# Repo Conventions
 
-Repo-specific conventions for AI coding agents. Human setup and build commands
-are in [CONTRIBUTING.md](CONTRIBUTING.md).
+Repo-specific conventions for AI coding agents. Branching rules are in the root
+[AGENTS.md](../AGENTS.md); human setup and build commands are in
+[CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Code Conventions
 
@@ -21,10 +22,14 @@ specific to this repo.
 Files group by concept, not by kind. A value object sits beside the service
 that reads it, so the folder explains both.
 
-- Engine splits into six concept folders: turn, tools, waiting, note-editing,
-  note-binding, prompting. The root holds only what spans them: EditEngine,
-  EngineFactory, ToolDispatcher, TurnProgressPublisher, TurnStep, ModelCaller,
-  TurnEndingService, UtteranceQueue.
+- Engine splits into five concept folders: turn, tools, waiting, note-editing,
+  note-binding. The root holds only what spans them: EditEngine, EngineFactory,
+  ToolDispatcher, TurnProgressPublisher, TurnStep, TurnEndingService,
+  UtteranceQueue.
+- Model holds everything about talking to the provider: the request, the mapper
+  that turns it into messages, prompt/ and providers/. Under prompt/, one class
+  per message, and system-prompt-sections/ holds one per section of the system
+  prompt. Each section owns its own text and decides whether it appears.
 - The placement test for tools/: it takes a ToolCall and returns a result.
   NoteEditor takes an EditOperation, so it lives in note-editing.
 - Smaller packages keep a models/ folder for value objects. A package with a
@@ -61,18 +66,22 @@ Two things to know about `bun run build`:
 
 ## Prompt Changes Are Behaviour Changes
 
-The system prompt is assembled in src/engine/prompt-factory.ts. Editing it
-changes what the model does, and the unit tests cannot catch a regression there.
-Test a prompt change against a real vault and a real API key.
+The system prompt is assembled in src/model/prompt/system-prompt.ts from the
+sections beside it. Editing any of them changes what the model does, and the
+unit tests cannot catch a regression in judgement. Test a prompt change against
+a real vault and a real API key.
 
-One prompt rule is load-bearing: a vault with no skills must produce the same
-prompt as before vault skills existed, byte for byte. Verify against git rather
-than by eye:
+One prompt rule is load-bearing: a vault with no commands, no search and no
+skills must produce the release 3 prompt byte for byte. That one is guarded by a
+fixture, so the suite does catch it:
 
-```bash
-git show <ref>:src/engine/prompt-factory.ts > /tmp/old.ts
-# build both, compare PromptFactory.build() output for an empty catalogue
 ```
+src/model/prompt/tests/fixtures/release-3-prompt.txt
+```
+
+A change that moves prompt text between files should leave that test green. A
+change that alters what the model is told will not, and the fixture is then the
+thing to re-record deliberately rather than to work around.
 
 ## Skill Files Are Untrusted
 
