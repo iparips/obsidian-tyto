@@ -21,4 +21,5 @@ this narrows.
 - [3-design.md](3-design.md) - the week anchor Today gains, and the two rules that change
 - [4-tasks.md](4-tasks.md) - build order in three commits, with the tests that hold each
 
-Not built.
+Built. The week anchor, the date line and the two glob rules landed in three
+commits; the end-to-end case is a model outcome and is checked by hand.

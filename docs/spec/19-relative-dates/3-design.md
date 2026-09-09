@@ -15,13 +15,13 @@ found its note from searching past it.
 
 ## The week anchor
 
-Today (Engine Prompting) owns the calendar, so the anchor is computed there
-rather than assembled in the prompt. It gains the ISO week number and the date
-that week began, both from the instant it already holds.
+Today (Model) owns the calendar, so the anchor is computed there rather than
+assembled in the prompt. It gains the ISO week number and the date that week
+began, both from the instant it already holds.
 
 `describe` keeps its shape for the callers wanting the plain date.
-`describeWithWeek` carries the anchor, and PromptFactory (Engine Prompting)
-reads it in place of the old call.
+`describeWithWeek` carries the anchor, and DateMessage (Model Prompt) reads it
+in place of the old call.
 
 ISO weeks start on Monday, and the number is the one the vault's folders use.
 Both facts are computed, never asked of the model.
@@ -77,7 +77,7 @@ length without changing the failure.
 
 ## Test plan
 
-Today, PromptFactory and RuleBuilder are all pure, so every case below runs
+Today, DateMessage and SearchSection are all pure, so every case below runs
 without a model.
 
 - Today emits the ISO week number for a date mid-week
@@ -109,7 +109,9 @@ the suite.
 ## References
 
 - [2-requirements.md](2-requirements.md) - the reported turn, step by step, and what a correct one does
-- src/engine/prompting/today.ts:15 - `describe`, which the anchor joins
-- src/engine/prompting/prompt-factory.ts:209 - `dateLine`, the only caller that changes
-- src/engine/prompting/rule-builder.ts:109 - the unseen-date rule gaining a clause
-- src/engine/prompting/rule-builder.ts:113 - the glob budget becoming a stop condition
+- src/model/today.ts - `describe`, which the anchor joins
+- src/model/prompt/date-message.ts - the only caller that changes
+- src/model/prompt/system-prompt-sections/search-section.ts - the unseen-date rule and the glob budget
+
+Paths are as built. The spec was written against src/engine/prompting, which
+moved to src/model before this shipped.

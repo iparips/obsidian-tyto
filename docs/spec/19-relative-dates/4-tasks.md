@@ -23,24 +23,24 @@ so the rest of the suite stays green.
 
 ## Commit 2: the date line states the week
 
-`PromptFactory.dateLine` reads `describeWithWeek` instead of `describe`. The
-instruction beneath it is unchanged.
+`DateMessage` reads `describeWithWeek` instead of `describe`. The instruction
+beneath it is unchanged.
 
 - The line names the week number and the Monday it began
 - The resolve-against-today sentence stays word for word
 
-The PromptFactory tests asserting the old line change with it.
+The tests asserting the old line change with it.
 
 ## Commit 3: the glob rules stop a finished search
 
-Two edits in `RuleBuilder.searchRules`, both to existing bullets.
+Two edits in `SearchSection`, both to existing bullets.
 
 - The two-globs budget becomes a stop condition naming choose_note
 - The unseen-date rule gains a clause holding a later glob to a format a
   listing already returned
 
-Prompt text only, so the RuleBuilder tests asserting those bullets are the only
-ones affected.
+Prompt text only, so the tests asserting those bullets are the only ones
+affected.
 
 ## After the commits
 
