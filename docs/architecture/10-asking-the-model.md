@@ -34,7 +34,8 @@ sequenceDiagram
     participant Session as SessionRepository [Session]
     participant Cancel as TurnCancellationController [Engine Turn]
     participant Mapper as ModelRequestMapper [Model]
-    participant Prompts as PromptFactory [Model]
+    participant System as SystemPrompt [Model Prompt]
+    participant Messages as Date and Note messages [Model Prompt]
     participant Harness as HarnessToolsService [Engine Tools]
     participant Provider as ChatProvider [Model Providers]
 
@@ -51,15 +52,13 @@ sequenceDiagram
 
     Note over Model,Provider: BUILD THE MESSAGES
     Model->>Mapper: toMessages(ModelRequest)
-    Mapper->>Prompts: standingRules(vaultDefinesSkills, chain, commands, search)
-    Prompts-->>Mapper: ChatMessage
-    Mapper->>Prompts: date(Today.of)
-    Note over Mapper,Prompts: Today is read per call, so a turn past midnight resolves to the day it is on
-    Prompts-->>Mapper: ChatMessage
-    Mapper->>Prompts: skillCatalogue(skills)
-    Prompts-->>Mapper: ChatMessage or null
-    Mapper->>Prompts: noteContext or unboundContext
-    Prompts-->>Mapper: ChatMessage
+    Mapper->>System: build(chain, commands, skills, search)
+    System-->>Mapper: ChatMessage
+    Mapper->>Messages: DateMessage.build(Today.of)
+    Note over Mapper,Messages: Today is read per call, so a turn past midnight resolves to the day it is on
+    Messages-->>Mapper: ChatMessage
+    Mapper->>Messages: NoteContextMessage or NoNoteBoundMessage
+    Messages-->>Mapper: ChatMessage
     Mapper-->>Model: ChatMessage list
 
     Note over Model,Provider: CALL OUT
@@ -79,25 +78,30 @@ Arrows: uses-relationship (client to supplier).
 
 ## Message order
 
-The mapper orders messages by how stale a copy the history could hold: standing
-rules first, then the conversation, then the date, the skill catalogue and the
-final context. The last three sit after the history so the model cannot read any
-of them off an earlier turn.
+The mapper orders messages by how stale a copy the history could hold: the
+system prompt first, then the conversation, then the date and the final
+context. The last two sit after the history so the model cannot read either off
+an earlier turn.
+
+The date and the note are system-role messages that sit outside the system
+prompt, because the history holds a stale copy of each and only the last read
+wins. VaultInstructions is turn-scoped too, but stays inside: its blocks are
+quoted vault content, and the rules fencing them off hold only while they sit
+above the quote.
 
 The final context has two shapes: a bound session gets the note's details, an
-unbound one gets what it may still reach.
+unbound one what it may still reach.
 
 ## Where skills enter
 
-| What               | Built by                 | Carries              |
-| ------------------ | ------------------------ | -------------------- |
-| How a skill works  | standingRules            | Rules only, no names |
-| Which skills exist | skillCatalogue           | Name and description |
-| A skill's steps    | ToolDispatcher.loadSkill | The full body        |
+| What                           | Built by                 | Where             |
+| ------------------------------ | ------------------------ | ----------------- |
+| How they work, and which exist | SkillSection             | The system prompt |
+| A skill's steps                | ToolDispatcher.loadSkill | A tool result     |
 
-The catalogue is its own message rather than a paragraph appended to the date,
-so the names the model matches an utterance against are not read as a footnote
-to something else. It is null for a vault defining none, which the mapper drops.
+The rules and the names are one section: the rules mean nothing without the
+names, and the names are what an utterance is matched against. A vault defining
+no skills omits the section entirely.
 
 The body never passes through message assembly. It arrives as a load_skill tool
 result, which ToolCallExecutor appends to the history, so the next iteration
@@ -107,8 +111,8 @@ only holds the model to answering before it writes.
 ## What ModelService does not do
 
 It returns the outcome untouched, appending nothing to the history and ending no
-turn. A text answer is ended by TurnEndingService (Engine), a failed ask by
-ConversationTurnRunner (Engine Turn).
+turn. A text answer is ended by TurnEndingService, a failed ask by
+ConversationTurnRunner (both Engine).
 
 Its one side effect is the debug line, the only record of why a turn spent its
 iterations: the panel shows commands and answers, not the edits retried.

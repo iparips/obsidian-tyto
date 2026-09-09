@@ -21,9 +21,11 @@ and WorkspaceNoteLocator, which finds the editor holding the bound note. Session
 is left as the UI package, so it depends on engine for nothing.
 
 Model owns one turn's conversation with the provider: the request value, the
-mapper that turns it into messages, the prompt text and the API client. What
-decides when to ask stays in engine, so ModelService sits in engine/turn beside
-ToolCallExecutor, the other outward call a step makes.
+mapper that turns it into messages, and two folders under it. Prompt holds one
+class per message, and under it one per section of the system prompt, each
+owning its own text and deciding whether it appears; providers holds the API
+client. What decides when to ask stays in engine, so ModelService sits
+in engine/turn beside ToolCallExecutor, the other outward call a step makes.
 
 WorkspaceNoteLocator is a concrete class with no interface. It has one consumer
 and one implementation, so the indirection bought nothing that a spy on locate
@@ -98,7 +100,7 @@ own. Tests are counted against their own folder and exempt from the limit.
 | capture  | 1    | -                                                            | 1     |
 | commands | 6    | models 4                                                     | 7     |
 | engine   | 7    | turn 13, tools 12, note-binding 5, note-editing 5, waiting 3 | 27    |
-| model    | 6    | providers 3, providers/models 3                              | 4     |
+| model    | 3    | prompt 5, its sections 7, providers 3, providers/models 3    | 4     |
 | session  | 8    | views 16, models 4                                           | 5     |
 | settings | 1    | -                                                            | 4     |
 | skills   | 3    | -                                                            | 2     |
