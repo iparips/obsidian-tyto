@@ -648,7 +648,17 @@ describe('the prompt messages', () => {
     it('names today whether or not a note is open', () => {
       const snapshot = DateMessage.build(THURSDAY)
 
-      expect(snapshot.content).toContain('Today is 2026-09-03 (Thursday).')
+      expect(snapshot.content).toContain('Today is 2026-09-03 (Thursday)')
+    })
+
+    // The vault's folders are week numbers, so the model is told the current
+    // one rather than deriving it from the date.
+    it('names the week and the day it began, so neither is derived', () => {
+      const snapshot = DateMessage.build(THURSDAY)
+
+      expect(snapshot.content).toContain(
+        'Today is 2026-09-03 (Thursday), in week 36, which began Monday 2026-08-31.',
+      )
     })
 
     it('tells the model not to resolve a date against a note name', () => {

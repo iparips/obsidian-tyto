@@ -8,7 +8,7 @@ export class DateMessage {
   static build(today: Today = Today.of()): ChatMessage {
     return ChatMessage.system(
       [
-        `Today is ${today.describe()}.`,
+        `Today is ${today.describeWithWeek()}.`,
         'Resolve every relative date in the instruction against it, never against',
         'a date in the conversation or a note name. A note named for a date is not',
         'evidence of what today is.',
