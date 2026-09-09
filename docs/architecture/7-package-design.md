@@ -56,30 +56,43 @@ Arrows: uses-relationship (client to supplier).
 
 ## Layout Within a Package
 
-Services sit in the package root. Three subfolders hold everything else, each
-added only when a package has enough to fill it:
+Files group by concept, not by kind, and a value object sits beside the service
+that reads it. Engine is large enough to split into six concept folders:
 
-- models holds the package's value objects. The naming rule already says which
-  kind a type is; the folder puts the same answer in the path.
-- views holds anything that renders: React components and Obsidian view classes.
-- tests holds the package's test files, beside the code they cover. Vitest
-  matches on filename, not directory, so the folder needs no configuration.
+| Folder       | Holds                                                        |
+| ------------ | ------------------------------------------------------------ |
+| turn         | The loop, its counters, outcomes and turn-scoped repositories |
+| tools        | Tool services, their results and the tool schemas            |
+| waiting      | Parking a turn on a question or a choice                     |
+| note-editing | The note editor, its parser and positions                    |
+| note-binding | Resolving and opening the target note                        |
+| prompting    | Prompt assembly                                              |
 
-A package with a single value object keeps it in the root. A folder holding one
-file costs the reader more than it saves, so skills keeps skill.ts beside
-skill-repository.ts.
+The root holds only what spans the folders. The placement test for tools/ is
+written down: a tool takes a ToolCall and returns a result, so NoteEditor,
+which takes an EditOperation, is not one.
+
+Smaller packages keep three subfolders, each added only when there is enough to
+fill it: models for value objects, views for anything that renders, and tests
+for the package's test files. Vitest matches on filename, not directory, so the
+tests folder needs no configuration. A package with a single value object keeps
+it in the root, so skills keeps skill.ts beside skill-repository.ts.
 
 ## Size
 
-The limit is 7 files per package, counting the services in the package root.
-Models, views and tests are counted against their own folders.
+The limit is 10 files per folder, counting the package root as a folder of its
+own. Tests are counted against their own folder and exempt from the limit.
 
-| Package   | Root | models | views | tests |
-| --------- | ---- | ------ | ----- | ----- |
-| shared    | -    | 1      | -     | -     |
-| capture   | 1    | -      | -     | 1     |
-| engine    | 7    | 4      | -     | 3     |
-| providers | 3    | 3      | -     | 2     |
-| session   | -    | 1      | 5     | 2     |
-| settings  | 3    | -      | -     | -     |
-| skills    | 3    | -      | -     | 2     |
+| Package   | Root | Sub-folders                                                      | tests |
+| --------- | ---- | ---------------------------------------------------------------- | ----- |
+| shared    | -    | models 1                                                         | 1     |
+| capture   | 1    | -                                                                | 1     |
+| commands  | 6    | models 4                                                         | 7     |
+| engine    | 8    | turn 13, tools 12, note-binding 5, note-editing 5, waiting 3, prompting 3 | 29 |
+| providers | 3    | models 3                                                         | 2     |
+| session   | 8    | views 16, models 4                                               | 5     |
+| settings  | 1    | -                                                                | 4     |
+| skills    | 3    | -                                                                | 2     |
+
+Over the limit today: engine/turn, engine/tools and session/views. Each is a
+split waiting to be specified, not a reason to raise the limit.
