@@ -1,6 +1,6 @@
 ---
 created: 2026-09-10
-updated: 2026-09-10
+updated: 2026-09-11
 ---
 
 # Copying the Session Transcript: Spec
@@ -9,15 +9,16 @@ A session that failed is worth keeping, and the panel is its only record.
 Nothing there can be copied as a whole: the steps list collapses, a screenshot
 truncates it, and the inputs that produced the failure were never on screen.
 
-One button in the header, beside Reset, off until a setting turns it on, puts
-the session on the clipboard as Markdown, nested the way the engine runs: a conversation turn per utterance,
-holding the turn steps it spent. Anything unchanged between steps goes to an
-appendix and is cited from the steps that used it.
+One button in the header, beside Reset and off until a setting turns it on, puts
+the session on the clipboard as Markdown. It nests the way the engine runs: a
+conversation turn per utterance, holding the turn steps it spent. Anything
+unchanged between steps goes to an appendix, cited from the steps that used it.
 
 The clipboard call and its copied-state feedback already exist on each reply
 entry. This widens the same gesture to the session.
 
-- [2-requirements.md](2-requirements.md) - what a filed session must carry, and the two open questions
+- [0-prompt.md](0-prompt.md) - paste this to a fresh agent to build it
+- [2-requirements.md](2-requirements.md) - what a filed session must carry, and what is still open
 - [3-design.md](3-design.md) - the goal, what is out of scope, and where the detail lives
 - [3a-document-shape.md](3a-document-shape.md) - the two groupings, and what a turn step sends
 - [3b-wiring.md](3b-wiring.md) - the store, the setting, and the button
