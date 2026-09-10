@@ -18,7 +18,8 @@ caller yet, so nothing else in the suite moves.
 - A part is kept only when its text differs from the last kept for that part,
   and a step cites the version it used
 - A recorded ending holds its kind and the step it was reached at
-- A counter for panel steps, incremented from outside
+- The open step's panel range advances as panel steps are published from
+  outside, and closes on the next recording or the turn's end
 
 Tests are the TranscriptRepository cases in [5-test-plan.md](5-test-plan.md).
 
@@ -32,7 +33,7 @@ sent.
   ModelService and ConversationTurnRunner
 - ModelService records the four parts before the provider call
 - ConversationTurnRunner records the ending on each of its five return paths
-- SessionProgress increments the panel step counter in publishStep
+- SessionProgress advances the open panel range in publishStep
 
 The suite stays green: every constructor gains an argument, and the builders in
 src/test-support cover them for the tests that build a turn.
