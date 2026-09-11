@@ -20,6 +20,7 @@ import { OpenedNoteWait } from '../commands/opened-note-wait'
 import { NoteGlob } from '../search/note-glob'
 import { NoteGrep } from '../search/note-grep'
 import { SearchToolsService } from './tools/search-tools-service'
+import { DateToolService } from './tools/date-tool-service'
 import { NoteReader } from '../search/note-reader'
 import { OwlSettings } from '../settings/settings'
 import { NoteChoiceService } from './waiting/note-choice-service'
@@ -121,6 +122,7 @@ export class EngineFactory {
       catalogue,
       this.settings.searchEnabled,
       new SearchToolsService(new NoteGlob(this.app.vault), new NoteGrep(this.app.vault)),
+      new DateToolService(),
       this.settings.openMode === 'confirm',
     )
   }

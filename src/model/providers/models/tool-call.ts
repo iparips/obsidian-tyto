@@ -8,6 +8,7 @@ export const ANSWER_FROM_SEARCH = 'answer_from_search'
 export const OPEN_NOTE = 'open_note'
 export const CHOOSE_NOTE = 'choose_note'
 export const ASK_USER = 'ask_user'
+export const RESOLVE_DATE = 'resolve_date'
 
 // One tool call the model asked for. It classifies itself, so callers dispatch
 // on a method rather than comparing the raw name at each site.
@@ -58,8 +59,14 @@ export class ToolCall {
     return this.name === ASK_USER
   }
 
+  isResolveDate(): boolean {
+    return this.name === RESOLVE_DATE
+  }
+
   // The tools that reach the vault or the command registry. Asking and
   // answering are dispatched before this, since neither touches either.
+  // resolve_date reaches neither, but it is refused with the search tools when
+  // search is off, so it routes with them rather than being a second exception.
   isHarnessTool(): boolean {
     return (
       this.isRunObsidianCommand() ||
@@ -67,7 +74,8 @@ export class ToolCall {
       this.isGrepNotes() ||
       this.isReadNote() ||
       this.isOpenNote() ||
-      this.isChooseNote()
+      this.isChooseNote() ||
+      this.isResolveDate()
     )
   }
 

@@ -53,6 +53,12 @@ export class TurnStep {
     return new TurnStep('Ran command', detail)
   }
 
+  // Both halves, because a resolve the user did not mean is only visible if the
+  // panel shows the phrase beside the date the turn then worked from.
+  static resolved(phrase: string, isoDate: string): TurnStep {
+    return new TurnStep('Resolved', `${phrase} — ${isoDate}`)
+  }
+
   static instructionsApplied(summary: string): TurnStep {
     return new TurnStep('Loaded agent instructions', summary)
   }

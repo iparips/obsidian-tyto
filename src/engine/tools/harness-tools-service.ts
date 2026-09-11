@@ -10,6 +10,7 @@ import { HarnessResult, Refusal, TurnState } from './harness-result'
 import { ObsidianCommandRanResult, OpenNoteResult, TextResult } from './harness-results'
 import { SearchToolsService } from './search-tools-service'
 import { NotePathsShortlistTool } from './note-paths-shortlist-tool'
+import { DateToolService } from './date-tool-service'
 
 export class HarnessToolsService {
   constructor(
@@ -18,6 +19,7 @@ export class HarnessToolsService {
     private commandCatalogue: ObsidianCommandCatalogue,
     private searchEnabled: boolean,
     private searchToolsService: SearchToolsService,
+    private dateToolService: DateToolService,
     // Auto mode opens the first note the model offers, so the tool that asks is
     // absent rather than answering itself (FR13). A flag here rather than a
     // branch in the loop, so the offered set states the mode in one place.
@@ -54,6 +56,7 @@ export class HarnessToolsService {
     if (!this.searchEnabled) return Refusal.of('searching the vault is turned off in settings')
     if (call.isGlobNotes()) return this.searchToolsService.glob(call, turn)
     if (call.isGrepNotes()) return this.searchToolsService.grep(call, turn)
+    if (call.isResolveDate()) return this.dateToolService.resolve(call)
     if (call.isReadNote()) return this.readNote(call, turn)
     if (call.isOpenNote()) return this.openNote(call, turn)
     return NotePathsShortlistTool.offerPaths(call, turn)

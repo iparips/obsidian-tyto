@@ -4,6 +4,7 @@ import { SessionRepository } from '../../session/session-repository'
 import { TurnProgressPublisher } from '../turn-progress-publisher'
 import { HarnessToolsService } from '../tools/harness-tools-service'
 import { SearchToolsService } from '../tools/search-tools-service'
+import { DateToolService } from '../tools/date-tool-service'
 import { NoteChoiceService } from '../waiting/note-choice-service'
 import { NotesChosenByUserRepository } from '../turn/notes-chosen-by-user-repository'
 import { TurnCancellationController } from '../turn/turn-cancellation-controller'
@@ -84,6 +85,7 @@ describe('EditEngine', () => {
       catalogue,
       true,
       new SearchToolsService(new NoteGlob(vault.asVault()), new NoteGrep(vault.asVault())),
+      new DateToolService(),
     )
   }
 

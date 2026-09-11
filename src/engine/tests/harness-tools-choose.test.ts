@@ -14,6 +14,7 @@ import { AllowList } from '../../commands/allow-list'
 import { NoteGlob } from '../../search/note-glob'
 import { NoteGrep } from '../../search/note-grep'
 import { SearchToolsService } from '../tools/search-tools-service'
+import { DateToolService } from '../tools/date-tool-service'
 import { NoteReader } from '../../search/note-reader'
 import { FakeVault } from '../../test-support/fake-vault'
 import { aToolCall } from '../../test-support/builders'
@@ -51,6 +52,7 @@ describe('HarnessToolsService', () => {
       catalogue,
       searchEnabled,
       new SearchToolsService(new NoteGlob(vault.asVault()), new NoteGrep(vault.asVault())),
+      new DateToolService(),
       choiceOffered,
     )
   }

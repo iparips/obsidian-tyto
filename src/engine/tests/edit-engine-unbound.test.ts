@@ -15,6 +15,7 @@ import { SkillRepository } from '../../skills/skill-repository'
 import { NoteGlob } from '../../search/note-glob'
 import { NoteGrep } from '../../search/note-grep'
 import { SearchToolsService } from '../tools/search-tools-service'
+import { DateToolService } from '../tools/date-tool-service'
 import { NoteReader } from '../../search/note-reader'
 import { FakeAdapter } from '../../test-support/fake-adapter'
 import { FakeEditor } from '../../test-support/fake-editor'
@@ -76,6 +77,7 @@ describe('EditEngine', () => {
       catalogue,
       true,
       new SearchToolsService(new NoteGlob(vault.asVault()), new NoteGrep(vault.asVault())),
+      new DateToolService(),
     )
   }
 

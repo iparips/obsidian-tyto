@@ -9,6 +9,7 @@ import {
   NO_SKILL_APPLIES,
   OPEN_NOTE,
   READ_NOTE,
+  RESOLVE_DATE,
   RUN_COMMAND,
 } from '../../model/providers/models/tool-call'
 
@@ -213,6 +214,22 @@ export const TOOL_SCHEMAS: ToolSchema[] = [
     },
   },
   {
+    name: RESOLVE_DATE,
+    description:
+      'Turn a date the user said in words into a calendar date. Call this before globbing for any note whose date the user gave relatively, and glob on the date it returns. Never work the date out yourself.',
+    parameters: {
+      type: 'object',
+      properties: {
+        phrase: {
+          type: 'string',
+          description:
+            'The date phrase in the user\'s own words, such as "last Friday" or "3 days ago". Send what they said, not a date you worked out from it. Surrounding words are fine.',
+        },
+      },
+      required: ['phrase'],
+    },
+  },
+  {
     name: ASK_USER,
     description:
       'Ask the user one question and act on their answer in this same turn. Use it only when a search found nothing, or the instruction itself is unclear. Never use it to ask which of several notes they meant: search, then offer them with choose_note.',
@@ -278,4 +295,14 @@ export class ToolCatalogue {
 
 // open_note joins them because a search hit is the only source of a path it
 // accepts, so a vault with search off can never offer it one (NFR4).
-const SEARCH_TOOLS: string[] = [GLOB_NOTES, GREP_NOTES, READ_NOTE, ANSWER_FROM_SEARCH, OPEN_NOTE]
+// resolve_date joins them because the date it returns has nowhere to go but a
+// glob, so a vault with search off has no use for it and release 3's tool list
+// is unchanged.
+const SEARCH_TOOLS: string[] = [
+  GLOB_NOTES,
+  GREP_NOTES,
+  READ_NOTE,
+  ANSWER_FROM_SEARCH,
+  OPEN_NOTE,
+  RESOLVE_DATE,
+]
