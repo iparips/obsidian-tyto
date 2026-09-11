@@ -14,9 +14,9 @@ utterance, holding the turn steps it spent, and each step carries three blocks
 in the order the loop runs them:
 
 - Request to model: the prompt parts cited by version, then what is new in the
-  conversation since the step before.
-- Response from model: the tool calls it asked for, or the text that ends the
-  turn.
+  conversation since the step before, each tool result fenced as text.
+- Response from model: the tool calls it asked for, each with its arguments as
+  prettified JSON, or the text that ends the turn.
 - Harness: what running those tool calls did, as the panel showed it.
 
 A step's Harness block is what the next step's Request carries as a tool result,
@@ -30,21 +30,24 @@ failure or a cancel. The model never ends a turn. Most steps say continue; the
 one that ends the turn names the ending and carries the message the user got.
 
 Lines in square brackets are this sample's abridgement markers. The real
-transcript writes every step in full. Prompt parts go to the appendix and are cited by
-version, which is what keeps a repeated step to a few lines. The settings sit in
-the metadata because they decide which sections the system prompt carries. The
-API key is never written.
+transcript writes every step in full. Prompt parts go to the appendix and are
+cited by version, which is what keeps a repeated step to a few lines. The
+settings sit in the metadata because they decide which sections the system
+prompt carries. The API key is never written.
 
-````markdown
+An appendix fence is one backtick longer than the longest run the part holds, so
+a note quoting a fenced block cannot close it early.
+
+`````markdown
 # Owl session transcript
 
 ## Session metadata
 
 | Field    | Value                                   |
-|----------|-----------------------------------------|
+| -------- | --------------------------------------- |
 | Copied   | 2026-09-10 15:25                        |
 | Plugin   | Owl 0.1.0                               |
-| Note     | 1 - Journal/Weekly/Week-37/09-09-Wed.md  |
+| Note     | 1 - Journal/Weekly/Week-37/09-09-Wed.md |
 | Model    | mistral-medium-latest                   |
 | Search   | enabled                                 |
 | Open     | confirm                                 |
@@ -64,28 +67,49 @@ great day.
 ### Turn step 1
 
 Request to model
+
 - system prompt v1, date v1, note context v1
 - user: Find a note from last week's Saturday and on top write that it was a
   great day.
 
 Response from model
-- tool call glob {"pattern": "**/*30*Sat.md"}
+
+- tool call glob_notes
+
+  ```json
+  {
+    "pattern": "**/*30*Sat.md"
+  }
+  ```
 
 Harness
+
 - Globbed - **/*30*Sat.md - 1 note
-- Result: 1 - Journal/Weekly/Week-35/08-30-Sat.md
 - Outcome: continue
 
 ### Turn step 2
 
 Request to model
+
 - system prompt v1, date v1, note context v1
-- tool result: 1 - Journal/Weekly/Week-35/08-30-Sat.md
+- tool result
+
+  ```text
+  1 - Journal/Weekly/Week-35/08-30-Sat.md
+  ```
 
 Response from model
-- tool call glob {"pattern": "**/*30-08-Sat.md"}
+
+- tool call glob_notes
+
+  ```json
+  {
+    "pattern": "**/*30-08-Sat.md"
+  }
+  ```
 
 Harness
+
 - Globbed - **/*30-08-Sat.md - nothing matched
 - Outcome: continue
 
@@ -95,48 +119,90 @@ returns two tool calls, so its Harness block holds two panel steps]
 ### Turn step 6
 
 Request to model
+
 - system prompt v1, date v1, note context v1
-- tool result: 10 notes in 1 - Journal/Weekly/Week-36
+- tool result
+
+  ```text
+  10 notes in 1 - Journal/Weekly/Week-36
+  ```
 
 Response from model
-- tool call load_skill {"name": "journal"}
+
+- tool call load_skill
+
+  ```json
+  {
+    "name": "journal"
+  }
+  ```
 
 Harness
+
 - Loaded skill - journal
-- Result: journal skill, 340 words
 - Outcome: continue
 
 ### Turn step 8
 
 Request to model
+
 - system prompt v2, date v1, note context v1
-- tool result: 1 - Journal/Weekly/Week-36/09-06-Sun.md
+- tool result
+
+  ```text
+  1 - Journal/Weekly/Week-36/09-06-Sun.md
+  ```
 
 Response from model
-- tool call glob {"pattern": "**/Week-36/09-06-Sat.md"}
+
+- tool call glob_notes
+
+  ```json
+  {
+    "pattern": "**/Week-36/09-06-Sat.md"
+  }
+  ```
 
 Harness
+
 - Globbed - **/Week-36/09-06-Sat.md - nothing matched
 - Outcome: continue
 
-[abridged: step 7 globs 09-06-Sun.md and is the first to cite v2. Steps 9 to 19
-repeat step 8 exactly: same request lines, same pattern, same nothing matched]
+[abridged: step 7 is the first to cite v2, and its tool result is the line
+`- tool result: skill journal, in the appendix`. It globs 09-06-Sun.md. Steps 9
+to 19 repeat step 8 exactly: same request lines, same pattern, same nothing
+matched]
 
 ### Turn step 20
 
 Request to model
+
 - system prompt v2, date v1, note context v1
-- tool result: nothing matched
+- tool result
+
+  ```text
+  nothing matched
+  ```
 
 Response from model
-- tool call glob {"pattern": "**/Week-36/09-06-Sat.md"}
+
+- tool call glob_notes
+
+  ```json
+  {
+    "pattern": "**/Week-36/09-06-Sat.md"
+  }
+  ```
 
 Harness
+
 - Globbed - **/Week-36/09-06-Sat.md - nothing matched
-- Warned - Owl is taking longer than usual: 3 steps left this turn
-- Outcome: exhausted - Owl ran out of steps for this turn after 20. The steps
-  list shows where they went. Try a smaller instruction, or say which note to
-  use.
+- Outcome: exhausted
+
+- Warned - Owl is taking longer than usual: 3 steps left this turn.
+
+Error (chat): Owl ran out of steps for this turn after 20. The steps list shows
+where they went. Try a smaller instruction, or say which note to use.
 
 ## Appendix: prompt parts
 
@@ -151,13 +217,14 @@ You are Owl, an assistant that edits the note the user has open.
 
 ### System prompt v2
 
-Differs from v1 by the journal skill, loaded in step 7.
+Changed from v1:
 
-```text
-[unchanged through the search section, then:]
-
-## Skills
-- journal: how this vault names and files its daily notes
+```diff
+  ...
+  Answer from the search results rather than from memory.
++
++ ## Skills
++ - journal: how this vault names and files its daily notes
 ```
 
 ### Date message v1
@@ -171,16 +238,31 @@ evidence of what today is.
 
 ### Note context v1
 
-```text
+````text
 Note path: 1 - Journal/Weekly/Week-37/09-09-Wed.md
 Cursor line: 0
 This is the note as it is right now, re-read from the editor. It supersedes any
 earlier copy or description in this conversation, including your own. The user may
 have edited it since the last turn. Never answer from an earlier copy.
-Note content, fenced as markdown:
+Note content:
+```markdown
 # Wednesday
 ```
 ````
+
+## Appendix: skills loaded
+
+Each body is written once here and cited from the turn step that loaded it.
+
+### Skill journal
+
+```text
+# Journal
+
+This vault files daily notes under 1 - Journal/Weekly, one folder per week.
+[full body, as the skill file holds it]
+```
+`````
 
 ## What the nesting buys
 

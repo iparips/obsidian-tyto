@@ -46,7 +46,8 @@
   unicode-bidi: plaintext;
 }
 
-.owl-new-session {
+.owl-new-session,
+.owl-copy-transcript {
   flex: 0 0 auto;
   font-size: var(--font-smallest);
   padding: 0 var(--size-4-2);

@@ -20,7 +20,7 @@ ahead of the engine's iterations.
 
 The document follows that nesting: metadata, then one section per conversation
 turn holding its utterance, its turn steps and the outcome, then an appendix of
-prompt parts.
+prompt parts and one of skill bodies.
 
 Not everything a turn does sits in a step. TurnRunnerFactory (Engine) resolves
 the target note, collects its AGENTS.md chain and lists skills before the loop
@@ -31,8 +31,9 @@ model call produced.
 A turn step carries three labelled blocks, in the order runTurnStep runs them:
 
 - Request to model: the prompt parts, cited by version, then what is new in the
-  chat history since the step before.
-- Response from model: the tool calls returned, or the text ending the turn.
+  chat history since the step before, each tool result fenced as text.
+- Response from model: the tool calls returned, each naming its tool and fencing
+  its arguments as prettified JSON, or the text ending the turn.
 - Harness: the panel steps that running those tool calls produced, closing on an
   Outcome line.
 
@@ -53,21 +54,38 @@ Which of the five endings it was cannot be read off PanelState, nor off the
 Outcome (Shared) the turn returns: TurnOutcomes (Engine) builds exhausted and
 stuck as the same chat failure, so both reach the panel as one message with no
 kind. Only the runner holds the distinction, so it takes TranscriptRepository
-(Session, new) as a seventh constructor argument and records the verdict on each
-return path, including the step it was reached at. Outcome stays as it is: it is
-the repo's universal result type, and widening it for one feature would reach
-every package that returns one.
+(Session, new) as a seventh constructor argument and records the verdict,
+including the step it was reached at. Outcome stays as it is: it is the repo's
+universal result type, and widening it for one feature would reach every package
+that returns one.
+
+EndedTurn (Engine) carries the kind beside the outcome, so each path that ends a
+turn names its ending and returns, and run records it in one place. Widening
+EndedTurn rather than Outcome keeps the kind inside the loop that knows it: it is
+the loop's own signal, read by nothing outside the runner.
+
+The five endings are not five return paths. ConversationTurnRunner (Engine) has
+four, because one of them serves two endings: TurnEndingService (Engine) reads
+an aborted request as the user's cancel arriving mid-flight, so a model answer
+that did not succeed ends as cancelled or as failed depending on which the
+answer was. A cancel landing between two steps takes its own path, which is the
+fifth.
+
+Which ending each is belongs to whoever decides it. TurnEndingService returns a
+EndedTurn naming its ending, and so does TurnOutcomes (Engine) for the two it
+builds, so the runner relays what comes back and names no kind itself. Neither
+records: run does that once, on whatever EndedTurn reaches it.
 
 ## What a turn step sends
 
 ModelRequestMapper (Model) builds four parts per model call, in this order:
 
-| Part           | Changes                                        | Stored as                          |
-|----------------|------------------------------------------------|------------------------------------|
-| System prompt  | On a skill load or an AGENTS.md resolve         | Once per distinct text, then cited |
-| Chat history   | Grows per step, and holds the model's replies   | Not stored; already in the session |
-| Date message   | Across local midnight only                      | Once per distinct text, then cited |
-| Session target | Every step, re-read from the editor by design   | Once per distinct text, then cited |
+| Part           | Changes                                       | Stored as                          |
+| -------------- | --------------------------------------------- | ---------------------------------- |
+| System prompt  | On a skill load or an AGENTS.md resolve       | Once per distinct text, then cited |
+| Chat history   | Grows per step, and holds the model's replies | Not stored; already in the session |
+| Date message   | Across local midnight only                    | Once per distinct text, then cited |
+| Session target | Every step, re-read from the editor by design | Once per distinct text, then cited |
 
 The history is the spine. Each recorded step holds the range of history it was
 sent, firstMessage and lastMessage, so the export walks the history once and
@@ -75,13 +93,35 @@ slots each step's inputs in at the right offset, writing no message twice.
 
 That range is an index into SessionRepository (Session), which is the one
 coupling this design creates: the store is only meaningful beside the history it
-points into. The two are built together in SessionBuilder (Session) and reset
-together, so nothing today can separate them. Anything that later writes a
-session down has to write both, and restore both, or every step cites the wrong
-slice.
+points into. SessionRepository was built inside EngineFactory (Engine), which
+returns only an EditEngine (Engine), so the panel could not read the history the
+ranges point at. Both are now built in SessionBuilder (Session) and passed down,
+so they are created together and reset together and nothing can separate them.
+Anything that later writes a session down has to write both, and restore both,
+or every step cites the wrong slice.
 
 Distinct text is what makes a version, so the reported session keeps two system
 prompts across twenty turn steps: it loaded a skill in step 7.
+
+Only the first version of a part is written in full. Every later one is a diff
+against the version before it, built by TextDiff (Session, new), with runs of
+unchanged lines collapsed to an ellipsis. The note context is what makes this
+worth doing: it is re-read from the editor every step by design, so a user who
+types one character mid-session would otherwise get the whole note written
+again under a new version. The store still keeps the full text of each version,
+because a diff can only be built from both sides.
+
+A skill body is the other thing worth writing once. It is not a prompt part:
+ToolDispatcher (Engine) returns it as the tool result of a load_skill call, so
+it enters the chat history and every step after it carries it. Inlining it puts
+several hundred words in the step's Request block, above the one line saying
+what the step did. The body goes to its own appendix section instead, and the
+step cites the skill by name. A load that was refused stays in the step, where
+the refusal is the thing worth reading.
+
+Nothing new is recorded for it. The body is already in the history, and
+LoadedSkills (Session, new) finds it there by matching a tool result to the
+load_skill call that asked for it.
 
 ## Finding the turn step boundary
 

@@ -11,6 +11,7 @@ import { TurnAskersService } from './turn-askers-service'
 import { TurnNotices } from './turn-notices'
 import { OwlSettings } from '../settings/settings'
 import { TranscriptRepository } from './transcript/transcript-repository'
+import { TranscriptBuilder } from './transcript/transcript-builder'
 import { SessionRepository } from './session-repository'
 
 // Everything one session publishes on and parks on, built together so the panel
@@ -38,6 +39,9 @@ export class SessionBuilder {
     private settings: OwlSettings,
     private engineFactory: EngineFactory,
     private followEngine: (engine: EditEngine) => void,
+    // From the manifest, so a transcript read months later says which build of
+    // the plugin produced it.
+    private pluginVersion = 'unknown',
   ) {}
 
   build(file: TFile | null, presence: PanelPresence): SessionPanelProps {
@@ -57,8 +61,17 @@ export class SessionBuilder {
       startNewSession: () => presence.startNewSession(),
       onHidden: (listener) => presence.onHidden(listener),
       notify: (message) => void new Notice(message),
+      settings: this.settings,
+      transcriptOf: (entries) => this.transcriptBuilder(sessions, transcript).build(entries),
       ...SessionBuilder.enginePanelProps(engine, channels),
     }
+  }
+
+  private transcriptBuilder(
+    sessions: SessionRepository,
+    transcript: TranscriptRepository,
+  ): TranscriptBuilder {
+    return new TranscriptBuilder(this.settings, this.pluginVersion, sessions, transcript)
   }
 
   // Everything the panel reads off a running turn, and everything it answers a

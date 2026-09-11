@@ -14,13 +14,18 @@ TranscriptRepository sits beside SessionRepository (Session), which the mapper
 reads to build a request, so a fault in the transcript store cannot change what
 the model is sent.
 
-Both the engine and the panel need it, and EngineFactory (Engine) builds the
+Both the engine and the panel need it, and EngineFactory (Engine) built the
 session repository internally and returns only an EditEngine (Engine), so a
-store built there cannot be read back. SessionBuilder (Session) already builds
-both sides of a session, so it constructs the store and passes it two ways: into
-EngineFactory.build as a new argument, which forwards it through
+store built there could not be read back. SessionBuilder (Session) already
+builds both sides of a session, so it constructs the store and passes it two
+ways: into EngineFactory.build as a new argument, which forwards it through
 TurnRunnerFactory (Engine) to ModelService (Engine) and ConversationTurnRunner
 (Engine); and onto the panel props, beside the settings the metadata needs.
+
+SessionRepository (Session) moves the same way and for the same reason. The
+recorded ranges index into its history, and the panel has to read that history
+to render a step, so it too is built in SessionBuilder and passed into
+EngineFactory.build.
 
 ```mermaid
 sequenceDiagram
@@ -63,7 +68,9 @@ Entry union case by case, as HistoryEntry (Session) does for display.
 
 TranscriptDocument (Session, new) owns the Markdown: entries, records and
 settings in, one string out, no clipboard and no React. That keeps the format
-testable without a DOM, against [4-sample-output.md](4-sample-output.md).
+testable without a DOM, against [4-sample-output.md](4-sample-output.md). The
+classes under it, and which of them hold state, are in
+[3c-classes.md](3c-classes.md).
 
 ## The setting
 

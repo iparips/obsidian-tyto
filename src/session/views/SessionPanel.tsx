@@ -1,7 +1,7 @@
 import { useReducer, useState } from 'react'
 import { Outcome } from '../../shared/models/outcome'
 import { HistoryList } from './HistoryList'
-import { INITIAL_PANEL_STATE, PanelReducer } from '../models/panel-state'
+import { Entry, INITIAL_PANEL_STATE, PanelReducer } from '../models/panel-state'
 import { PanelHeader } from './PanelHeader'
 import {
   ChoiceRequest,
@@ -13,6 +13,9 @@ import { RecorderPort, RecordingPorts, useRecording } from './useRecording'
 import { EngineEventPorts, useEngineEvents } from './useEngineEvents'
 import { TargetNotePorts, useTargetNote } from './useTargetNote'
 import { InputRow } from './InputRow'
+import { OwlSettings } from '../../settings/settings'
+import { TranscriptSource } from '../transcript/models/transcript-source'
+import { TranscriptDocument } from '../transcript/transcript-document'
 
 export type { ChoiceRequest, QuestionRequest, RecorderPort }
 
@@ -27,12 +30,17 @@ export interface SessionPanelProps
   // finished or failed turn is worth telling the user (FR22, FR23).
   onTurnFinished?(summary: string): void
   onTurnFailed?(message: string): void
+  settings?: OwlSettings
+  // What the panel cannot see: the chat history the recorded steps index into,
+  // and what each of those steps was sent. Absent until the setting is on.
+  transcriptOf?(entries: readonly Entry[]): TranscriptSource
 }
 
 export const SessionPanel = (props: SessionPanelProps) => {
   const [state, dispatch] = useReducer(PanelReducer.reduce, INITIAL_PANEL_STATE)
   const asking = state.phase === 'asking'
   const [draft, setDraft] = useState('')
+  const settings = props.settings
   const targetNote = useTargetNote(props)
   // The engine asks through these and awaits the answer, so a parked turn is a
   // promise the panel settles rather than a channel the publisher lacks.
@@ -68,6 +76,14 @@ export const SessionPanel = (props: SessionPanelProps) => {
 
   useEngineEvents(props, dispatch, () => recorded.discardOnBackground())
 
+  // Built at the click rather than held: the entries are the reducer's, and a
+  // document rebuilt per render would be thrown away every step.
+  const transcriptOf = props.transcriptOf
+  const copyTranscript =
+    settings?.transcriptCopyEnabled && transcriptOf
+      ? () => TranscriptDocument.write(transcriptOf(state.entries))
+      : undefined
+
   // A suggestion is a whole answer, so clicking one submits it rather than
   // filling the box: the user picked it to avoid typing, and leaving it as a
   // draft asks them to press send to confirm a choice they already made.
@@ -94,6 +110,8 @@ export const SessionPanel = (props: SessionPanelProps) => {
         path={targetNote.path}
         running={state.phase !== 'idle'}
         onReset={props.startNewSession}
+        onCopy={copyTranscript}
+        hasEntries={state.entries.length > 0}
       />
       <HistoryList
         entries={state.entries}

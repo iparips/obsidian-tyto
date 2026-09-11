@@ -58,8 +58,11 @@ export default class OwlPlugin extends Plugin {
   }
 
   private sessionBuilder(): SessionBuilder {
-    return new SessionBuilder(this.settings, this.engineFactory(), (engine) =>
-      this.followActiveNoteWith(engine),
+    return new SessionBuilder(
+      this.settings,
+      this.engineFactory(),
+      (engine) => this.followActiveNoteWith(engine),
+      this.manifest.version,
     )
   }
 

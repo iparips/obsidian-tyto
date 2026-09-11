@@ -10,6 +10,9 @@ export interface OwlSettings {
   commandAllowList: string[]
   searchEnabled: boolean
   openMode: OpenMode
+  // Off by default: the transcript carries note text and vault instructions
+  // verbatim, so copying one is the user's decision rather than the default.
+  transcriptCopyEnabled: boolean
 }
 
 export const DEFAULT_SETTINGS: OwlSettings = {
@@ -20,4 +23,5 @@ export const DEFAULT_SETTINGS: OwlSettings = {
   commandAllowList: ['daily-notes:*'],
   searchEnabled: true,
   openMode: 'confirm',
+  transcriptCopyEnabled: false,
 }

@@ -22,6 +22,7 @@ entry. This widens the same gesture to the session.
 - [3-design.md](3-design.md) - the goal, what is out of scope, and where the detail lives
 - [3a-document-shape.md](3a-document-shape.md) - the two groupings, and what a turn step sends
 - [3b-wiring.md](3b-wiring.md) - the store, the setting, and the button
+- [3c-classes.md](3c-classes.md) - the classes that build a transcript, and which hold state
 - [4-sample-output.md](4-sample-output.md) - the format, taken from the reported session
 - [5-test-plan.md](5-test-plan.md) - the unit cases, per class
 - [6-tasks.md](6-tasks.md) - build order in four commits

@@ -28,11 +28,17 @@ Tests are the TranscriptRepository cases in [5-test-plan.md](5-test-plan.md).
 Three call sites write to the store, and none of them changes what the model is
 sent.
 
-- SessionBuilder (Session) constructs the store and passes it to
-  EngineFactory.build, which forwards it through TurnRunnerFactory to
-  ModelService and ConversationTurnRunner
-- ModelService records the four parts before the provider call
-- ConversationTurnRunner records the ending on each of its five return paths
+- SessionBuilder (Session) constructs the store and the session repository and
+  passes both to EngineFactory.build, which forwards them through
+  TurnRunnerFactory to ModelService and ConversationTurnRunner
+- ModelRequestMapper (Model) gains toParts, so ModelService records what each
+  part said without rebuilding any of them and toMessages still returns the same
+  list
+- ModelService records the three stored parts before the provider call
+- EndedTurn (Engine) gains the ending kind beside the outcome, and run records
+  it once on whatever reaches it. TurnEndingService and TurnOutcomes each return
+  a named EndedTurn from the endings they build, so the cancel-or-failure
+  decision is made in one place and ConversationTurnRunner names no kind
 - SessionProgress advances the open panel range in publishStep
 
 The suite stays green: every constructor gains an argument, and the builders in
@@ -68,3 +74,7 @@ document needs.
 Copy a real failing session and paste it into a note. The format is a judgement
 the suite cannot make: check that the repeated steps read as repeats, and that
 the appendix holds one copy of each prompt part rather than one per step.
+
+The transcript classes sit in session/transcript rather than in the session
+root, which was already at eight files and would have gone over the ten-file
+limit with them in it.

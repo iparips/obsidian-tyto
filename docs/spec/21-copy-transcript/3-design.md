@@ -20,6 +20,8 @@ cannot be selected, carries no inputs, and truncates as a screenshot.
   step sends, and how its panel steps are found
 - [3b-wiring.md](3b-wiring.md) - the store, how it reaches both sides, and the
   button
+- [3c-classes.md](3c-classes.md) - the classes that build a transcript, and the
+  line between what holds state and what is pure
 
 ## Test plan
 

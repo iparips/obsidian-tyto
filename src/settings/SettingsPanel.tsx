@@ -74,6 +74,20 @@ export const SettingsPanel = ({
     <label className="owl-setting owl-setting-inline">
       <input
         type="checkbox"
+        aria-label="Copy the session transcript"
+        checked={settings.transcriptCopyEnabled}
+        onChange={(event) => onChange({ transcriptCopyEnabled: event.target.checked })}
+      />
+      Copy the session transcript
+    </label>
+    <p className="owl-settings-note">
+      Adds a Copy button to the panel header. The transcript holds the whole session as Markdown,
+      including your note text and any vault instructions, so a turn that went wrong can be filed
+      rather than described. Your key is never in it.
+    </p>
+    <label className="owl-setting owl-setting-inline">
+      <input
+        type="checkbox"
         aria-label="Choose the note Owl opens"
         checked={settings.openMode === 'confirm'}
         onChange={(event) => onChange({ openMode: event.target.checked ? 'confirm' : 'auto' })}
