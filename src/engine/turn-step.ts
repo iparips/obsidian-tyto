@@ -75,9 +75,23 @@ export class TurnStep {
   }
 
   // A refusal is a step too: it spent an iteration, and it is usually the thing
-  // the user most needs to see when a turn goes nowhere.
-  static refused(reason: string): TurnStep {
+  // the user most needs to see when a turn goes nowhere. The tool is named in
+  // the label like every other step, since three refusals in one turn read as
+  // one repeated failure unless the panel says which call each stopped.
+  static refused(tool: string, reason: string): TurnStep {
+    return new TurnStep(`Refused ${tool}`, reason, true)
+  }
+
+  // Built where the tool is not in hand: the many tools that refuse know their
+  // reason, and the dispatcher that routed the call names it through byTool.
+  // Named apart from refused because both arguments are strings, so one factory
+  // taking either shape mislabels a step instead of failing to compile.
+  static refusedByUnnamedTool(reason: string): TurnStep {
     return new TurnStep('Refused', reason, true)
+  }
+
+  byTool(tool: string): TurnStep {
+    return new TurnStep(`Refused ${tool}`, this.detail, true)
   }
 
   private static hitCount(hits: number): string {

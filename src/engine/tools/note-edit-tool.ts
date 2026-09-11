@@ -24,6 +24,13 @@ export class NoteEditTool {
     // none does, and the harness only holds it to deciding before it writes.
     // Refused once per turn, since either answer settles it.
     if (this.turnRepository.mustSettleSkills()) return ToolCallOutcome.of(UNSETTLED_SKILLS)
+    // Checked before the target, because a refused open leaves the previous
+    // turn's note bound and every check below it would pass on that note.
+    const refused = this.turnRepository.refusedOpen()
+    if (refused)
+      return ToolCallOutcome.of(
+        `your open of ${refused} was refused, so it is not the note this edit would reach; call choose_note with it, open it, then edit. Never edit the note bound from an earlier turn`,
+      )
     const unwritable = this.turnRepository.unwritableNote()
     if (unwritable)
       return ToolCallOutcome.of(

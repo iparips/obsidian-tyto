@@ -439,6 +439,60 @@ describe('EditEngine', () => {
       })
     })
 
+    // A turn globbed a week folder before loading the skill that held the
+    // vault's filename format, and was only refused four steps later at the
+    // edit. The prompt states the gate, so the harness holds it here too.
+    describe('when the model searches before checking the skills', () => {
+      const globs = () => aToolTurn(aToolCall('glob_notes', { pattern: '**/*.md' }))
+
+      const resultOf = (callIndex: number) =>
+        complete.mock.calls[callIndex][0].filter((m: ChatMessage) => m.isToolResult()).at(-1)
+
+      it('refuses the search until the model has checked the skills', async () => {
+        complete
+          .mockResolvedValueOnce(Outcomes.success(globs()))
+          .mockResolvedValue(Outcomes.success(aTextTurn('done')))
+
+        await engineWithTodoSkill().processUtterance('find my note')
+
+        expect(resultOf(1)).toMatchObject({
+          content:
+            'this vault defines skills and you have not checked them; call load_skill for the one that covers this, or no_skill_applies if none does, then search',
+        })
+      })
+
+      // This vault has search off, so the call reaching that refusal is what
+      // shows it passed the skill gate rather than stopping at it.
+      it('lets the search past the gate once a skill has been loaded', async () => {
+        complete
+          .mockResolvedValueOnce(
+            Outcomes.success(aToolTurn(aToolCall('load_skill', { name: 'todo' }))),
+          )
+          .mockResolvedValueOnce(Outcomes.success(globs()))
+          .mockResolvedValue(Outcomes.success(aTextTurn('done')))
+
+        await engineWithTodoSkill().processUtterance('find my note')
+
+        expect(resultOf(2)).toMatchObject({
+          content: 'searching the vault is turned off in settings',
+        })
+      })
+
+      // Resolving reaches no vault, and the phrase it reads is what tells the
+      // model which skill the turn needs: gating it would ask the question blind.
+      it('resolves a date before the skills are checked', async () => {
+        complete
+          .mockResolvedValueOnce(
+            Outcomes.success(aToolTurn(aToolCall('resolve_date', { phrase: 'last Friday' }))),
+          )
+          .mockResolvedValue(Outcomes.success(aTextTurn('done')))
+
+        await engineWithTodoSkill().processUtterance('find last Fridays note')
+
+        expect(resultOf(1)).not.toMatchObject({ content: expect.stringContaining('not checked') })
+      })
+    })
+
     it('returns the skill body as a tool result when load_skill names a skill', async () => {
       const withSkills = engineWithTodoSkill()
       complete

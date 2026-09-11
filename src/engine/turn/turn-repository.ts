@@ -14,6 +14,7 @@ import { Skill } from '../../skills/skill'
 export class TurnRepository {
   private lastEditEnd: EditorPosition | null = null
   private unwritablePath: string | null = null
+  private refusedOpenPath: string | null = null
   private readonly written: string[] = []
 
   constructor(
@@ -108,6 +109,20 @@ export class TurnRepository {
   retargetTo(resolved: ResolvedNote): void {
     this.resolvedNote = resolved
     this.unwritablePath = null
+    this.refusedOpenPath = null
+  }
+
+  // A refused open leaves the previous turn's note bound, and an edit that
+  // followed one landed on it: the model reached for Thursday, was refused, and
+  // wrote to the Friday note still open from the turn before. Held apart from
+  // an unresolvable note because the way out differs, and the model is told to
+  // take it rather than to ask the user.
+  cannotOpen(path: string): void {
+    this.refusedOpenPath = path
+  }
+
+  refusedOpen(): string | null {
+    return this.refusedOpenPath
   }
 
   // The session moved to a note this turn cannot resolve, so the note it still

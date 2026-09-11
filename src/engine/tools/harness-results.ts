@@ -19,7 +19,7 @@ export class TextResult {
   // Every refusal is a step, since it spent an iteration and is usually what the
   // user most needs to see when a turn goes nowhere.
   static refusing(reason: string): TextResult {
-    return new TextResult(reason, TurnStep.refused(reason))
+    return new TextResult(reason, TurnStep.refusedByUnnamedTool(reason))
   }
 }
 

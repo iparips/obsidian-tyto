@@ -479,6 +479,16 @@ describe('EditEngine', () => {
       })
     })
 
+    // Three refusals in one turn read as one repeated failure unless the panel
+    // says which call each of them stopped.
+    it('names the refused tool in the step, not just the reason', async () => {
+      respondsWith(aToolTurn(aToolCall('glob_notes', { pattern: 'Quotes/*.md' })))
+
+      await engineOf(['daily-notes:*'], false).processUtterance('what did I write')
+
+      expect(steps).toContain('Refused glob_notes: searching the vault is turned off in settings')
+    })
+
     // Dispatched before the harness tools, so the refusal has to be restated
     // there: the schema dropping it is never the only thing keeping it away.
     it('refuses an answer when search is disabled in settings', async () => {

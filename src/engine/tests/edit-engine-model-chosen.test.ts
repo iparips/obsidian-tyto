@@ -359,6 +359,31 @@ describe('EditEngine', () => {
     })
   })
 
+  // A turn reached for Thursday's note, had the open refused, and edited the
+  // Friday note still bound from the turn before, reporting success on it.
+  describe('when the model edits after an open was refused', () => {
+    const editsNote = () =>
+      aToolTurn(aToolCall('insert_at', { location: 'note_start', content: 'hi\n' }))
+
+    it('leaves the note bound from the earlier turn untouched', async () => {
+      respondsWith(findsTodo(), opensTodo(), editsNote())
+
+      await engineOf(picking(TODO)).processUtterance('add a line to my todo')
+
+      expect(editor.content).toBe('# Budget\n\nbody')
+    })
+
+    it('names the note whose open was refused rather than the one still bound', async () => {
+      respondsWith(findsTodo(), opensTodo(), editsNote())
+
+      await engineOf(picking(TODO)).processUtterance('add a line to my todo')
+
+      expect(toolResultsOf(3).at(-1)).toMatchObject({
+        content: `your open of ${TODO} was refused, so it is not the note this edit would reach; call choose_note with it, open it, then edit. Never edit the note bound from an earlier turn`,
+      })
+    })
+  })
+
   describe('when the model opens a note it never offered', () => {
     it('refuses an open the user never chose, naming choose_note', async () => {
       respondsWith(findsTodo(), opensTodo())
@@ -502,7 +527,7 @@ describe('EditEngine', () => {
       await engineOf(picking(TODO)).processUtterance('add toilet paper to my todo')
 
       expect(steps.at(-1)).toBe(
-        `Refused: ${TODO} was not chosen by the user this turn; call choose_note with it now, then open it. Do not ask the user in prose`,
+        `Refused open_note: ${TODO} was not chosen by the user this turn; call choose_note with it now, then open it. Do not ask the user in prose`,
       )
     })
 
@@ -511,7 +536,7 @@ describe('EditEngine', () => {
 
       await engineOf().processUtterance('add toilet paper to my todo')
 
-      expect(steps.at(-1)).toContain('Refused:')
+      expect(steps.at(-1)).toContain('Refused open_note:')
     })
 
     it('names the note in the step when an edit lands', async () => {

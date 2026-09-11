@@ -1,4 +1,5 @@
 import { ToolCall } from '../model/providers/types'
+import { OPEN_NOTE } from '../model/providers/models/tool-call'
 import { NoteEditTool } from './tools/note-edit-tool'
 import { ToolCallOutcome } from './tools/tool-call-outcome'
 import { SkillRepository } from '../skills/skill-repository'
@@ -28,6 +29,10 @@ const NO_ANSWER_RESULT = 'the user did not answer; stop and say what you were wa
 // which is the loop this replaces (FR7).
 const DECLINED_RESULT =
   'the user declined every note offered; ask them what they meant rather than searching again'
+// Names the search rather than the edit: the skill holds where its notes live
+// and how they are named, so this call is the one built on a guess.
+const UNSETTLED_SKILLS =
+  'this vault defines skills and you have not checked them; call load_skill for the one that covers this, or no_skill_applies if none does, then search'
 
 // One tool call, run and published. The loop owns the conversation; this owns
 // what a call does to the note, the session and the panel.
@@ -57,20 +62,36 @@ export class ToolDispatcher {
     // handled here rather than round-tripping through the harness tools.
     if (call.isAskUser()) return this.askUser(AnswerRequest.from(call))
     if (call.isAnswerFromSearch()) return this.answerFromSearch(call)
+    if (this.mustSettleSkillsBefore(call)) return this.refuseUnsettledSkills(call)
     if (call.isHarnessTool()) return this.callHarnessTool(call)
-    return this.recordEdit(this.noteEditTool.execute(call))
+    return this.recordEdit(call, this.noteEditTool.execute(call))
+  }
+
+  // Held at the first call that reads the vault, not only at the edit: a skill
+  // knows where its notes live and how they are named, so a search run before
+  // it is a search built on a guess. The prompt states this, and a rule the
+  // harness leaves unenforced reads to the model as advisory.
+  private mustSettleSkillsBefore(call: ToolCall): boolean {
+    return call.opensVaultAccess() && this.turnRepository.mustSettleSkills()
+  }
+
+  // Published as a step, since a refusal the panel does not show reads as a
+  // turn that stalled for no reason.
+  private refuseUnsettledSkills(call: ToolCall): ToolCallOutcome {
+    this.turnProgressPublisher.publishStepTaken(TurnStep.refused(call.name, UNSETTLED_SKILLS))
+    return ToolCallOutcome.refused(UNSETTLED_SKILLS)
   }
 
   // The edit tools are the ones a stuck turn retries, so the steps list has to
   // show them or a loop of failed anchors reads as a turn doing nothing.
-  private recordEdit(outcome: ToolCallOutcome): ToolCallOutcome {
+  private recordEdit(call: ToolCall, outcome: ToolCallOutcome): ToolCallOutcome {
     if (outcome.editEndPosition) {
       this.turnProgressPublisher.publishStepTaken(
         TurnStep.edited(outcome.result, this.turnRepository.targetNote()?.path ?? null),
       )
       return outcome
     }
-    this.turnProgressPublisher.publishStepTaken(TurnStep.refused(outcome.result))
+    this.turnProgressPublisher.publishStepTaken(TurnStep.refused(call.name, outcome.result))
     return outcome.asRefusal()
   }
 
@@ -110,15 +131,18 @@ export class ToolDispatcher {
       call,
       this.turnRepository,
     )
-    this.publishStepSummary(harnessResult)
+    this.publishStepSummary(call, harnessResult)
     return this.handleToolResult(harnessResult)
   }
 
   // What the panel shows either way, so the handling below is only about what
-  // this dispatcher does next.
-  private publishStepSummary(harnessResult: HarnessResult): void {
-    if (harnessResult.publishStepSummary)
-      this.turnProgressPublisher.publishStepTaken(harnessResult.publishStepSummary)
+  // this dispatcher does next. A refusing tool names its reason but not itself,
+  // so the call it came from is attached here rather than at each of the many
+  // places that build one.
+  private publishStepSummary(call: ToolCall, harnessResult: HarnessResult): void {
+    const step = harnessResult.publishStepSummary
+    if (!step) return
+    this.turnProgressPublisher.publishStepTaken(step.refused ? step.byTool(call.name) : step)
   }
 
   // Refused as well as absent from the schemas, so the offered tool list is
@@ -199,8 +223,11 @@ export class ToolDispatcher {
   // no search returned is a different mistake from one the user has not picked
   // (FR9, FR10).
   private refuseUnchosen(path: string): ToolCallOutcome {
+    // Recorded, or the next edit lands on whatever note is still bound: a turn
+    // refused here once wrote to the previous turn's note and reported success.
+    this.turnRepository.cannotOpen(path)
     const reason = `${path} was not chosen by the user this turn; call choose_note with it now, then open it. Do not ask the user in prose`
-    this.turnProgressPublisher.publishStepTaken(TurnStep.refused(reason))
+    this.turnProgressPublisher.publishStepTaken(TurnStep.refused(OPEN_NOTE, reason))
     return ToolCallOutcome.refused(reason)
   }
 

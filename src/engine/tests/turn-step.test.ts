@@ -74,7 +74,23 @@ describe('TurnStep', () => {
 
   describe('when the turn refuses a call', () => {
     it('marks a refusal as refused, so the panel can set it apart', () => {
-      expect(TurnStep.refused('the path was never searched').refused).toBe(true)
+      expect(TurnStep.refused('open_note', 'the path was never searched').refused).toBe(true)
+    })
+
+    // Three refusals in one turn read as one repeated failure unless the label
+    // says which call each of them stopped.
+    it('names the refused tool in the label', () => {
+      expect(TurnStep.refused('open_note', 'the path was never searched').label).toBe(
+        'Refused open_note',
+      )
+    })
+
+    it('names the tool on a refusal built without one, once the dispatcher supplies it', () => {
+      expect(TurnStep.refusedByUnnamedTool('search is off').byTool('glob_notes')).toMatchObject({
+        label: 'Refused glob_notes',
+        detail: 'search is off',
+        refused: true,
+      })
     })
 
     it('leaves a search unmarked, so only refusals stand out', () => {

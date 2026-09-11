@@ -79,6 +79,18 @@ export class ToolCall {
     )
   }
 
+  // The calls that can be the first thing a turn does to the vault, which is
+  // where the skill question has to be settled: a skill knows where its notes
+  // live and how they are named. choose_note and open_note are absent because
+  // one of these produced the path they take, so the gate has already held
+  // there; resolve_date because it reaches no vault, and reading the user's own
+  // words is what tells the model which skill the turn needs.
+  opensVaultAccess(): boolean {
+    return (
+      this.isRunObsidianCommand() || this.isGlobNotes() || this.isGrepNotes() || this.isReadNote()
+    )
+  }
+
   argument(key: string): string {
     const value = this.args[key]
     return typeof value === 'string' ? value : String(value)
