@@ -1,5 +1,5 @@
 {
-  "name": "obsidian-owl",
+  "name": "tyto",
   "version": "0.1.0",
   "description": "Edit your notes by voice. Speak an instruction and the note changes, with no fixed command phrases.",
   "main": "main.js",

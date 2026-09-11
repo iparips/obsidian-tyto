@@ -44,7 +44,7 @@ describe('RepeatedRefusalCounter', () => {
 
     it('names the reason when it reports what stopped the turn', () => {
       expect(repeatedRefusalCounter.message()).toBe(
-        'Owl was refused the same thing 2 times and stopped: todo.md was not opened this turn',
+        'Tyto was refused the same thing 2 times and stopped: todo.md was not opened this turn',
       )
     })
   })

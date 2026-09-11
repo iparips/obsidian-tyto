@@ -78,7 +78,7 @@ describe('IterationCounter', () => {
     it('names how many steps are left when it warns', () => {
       spend(17)
 
-      expect(counter.warning()).toBe('Owl is taking longer than usual: 3 steps left this turn.')
+      expect(counter.warning()).toBe('Tyto is taking longer than usual: 3 steps left this turn.')
     })
   })
 })

@@ -27,6 +27,6 @@ export class RepeatedRefusalCounter {
 
   // What the turn ends with, so the user reads the reason rather than a count.
   message(): string {
-    return `Owl was refused the same thing ${this.repeats} times and stopped: ${this.lastReason}`
+    return `Tyto was refused the same thing ${this.repeats} times and stopped: ${this.lastReason}`
   }
 }

@@ -1,6 +1,6 @@
 # Contributing
 
-Owl is an Obsidian plugin built with [Bun](https://bun.sh/) and TypeScript. Bun handles install, test, and bundling, so no separate Node toolchain is needed.
+Tyto is an Obsidian plugin built with [Bun](https://bun.sh/) and TypeScript. Bun handles install, test, and bundling, so no separate Node toolchain is needed.
 
 ## Prerequisites
 
@@ -36,7 +36,7 @@ Then run the installer:
 ./install
 ```
 
-It copies `main.js`, `manifest.json` and `styles.css` into `<vault>/.obsidian/plugins/<manifest id>`. Those three files are the plugin. The directory name must match the `id` in manifest.json (`obsidian-owl`), not the repository name, because Obsidian keys plugin settings and sync off that id. The script reads the id from the manifest, so it stays correct if the id changes.
+It copies `main.js`, `manifest.json` and `styles.css` into `<vault>/.obsidian/plugins/<manifest id>`. Those three files are the plugin. The directory name must match the `id` in manifest.json (`tyto`), not the repository name, because Obsidian keys plugin settings and sync off that id. The script reads the id from the manifest, so it stays correct if the id changes.
 
 Re-running it is safe. Your `data.json`, which holds the API key, is left where it is.
 
@@ -59,10 +59,10 @@ The link points at the repo itself, so a rebuild is picked up without reinstalli
 Linking refuses to clobber a real directory, so remove a copied or Community Plugins install first:
 
 ```bash
-rm -rf /path/to/vault/.obsidian/plugins/obsidian-owl
+rm -rf /path/to/vault/.obsidian/plugins/tyto
 ```
 
-Then in Obsidian: turn off Restricted mode, refresh installed plugins, enable Owl, and paste your Mistral API key into its settings.
+Then in Obsidian: turn off Restricted mode, refresh installed plugins, enable Tyto, and paste your Mistral API key into its settings.
 
 ## Build and Test
 

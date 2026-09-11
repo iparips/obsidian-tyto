@@ -29,7 +29,7 @@ export const AllowedEntries = ({ entries, onChange }: AllowedEntriesProps) => {
   const validate = () => setErrors(errorsOf(entriesOf(draft)))
 
   return (
-    <label className="owl-allowed-entries">
+    <label className="tyto-allowed-entries">
       Allowed commands
       <textarea
         aria-label="Allowed commands"
@@ -39,7 +39,7 @@ export const AllowedEntries = ({ entries, onChange }: AllowedEntriesProps) => {
         onBlur={validate}
       />
       {errors.length > 0 && (
-        <p className="owl-settings-error" role="alert">
+        <p className="tyto-settings-error" role="alert">
           {errors.join('; ')}
         </p>
       )}

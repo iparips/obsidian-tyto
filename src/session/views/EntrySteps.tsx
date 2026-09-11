@@ -4,13 +4,13 @@ import { PanelStep } from '../models/panel-state'
 // what the user reads, and how the turn got there is a check they open when a
 // turn surprises them.
 export const EntrySteps = ({ steps }: { steps: PanelStep[] }) => (
-  <details className="owl-entry-steps">
+  <details className="tyto-entry-steps">
     <summary>{summaryOf(steps)}</summary>
     <ol aria-label="Turn steps">
       {steps.map((step, index) => (
-        <li key={index} className={step.refused ? 'owl-step-refused' : undefined}>
-          <span className="owl-step-label">{step.label}</span>
-          <span className="owl-step-detail">{step.detail}</span>
+        <li key={index} className={step.refused ? 'tyto-step-refused' : undefined}>
+          <span className="tyto-step-label">{step.label}</span>
+          <span className="tyto-step-detail">{step.detail}</span>
         </li>
       ))}
     </ol>

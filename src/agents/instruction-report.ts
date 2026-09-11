@@ -37,7 +37,7 @@ export class InstructionReport {
   }
 
   noticeText(): string {
-    return `Owl: ${this.droppedCount} instruction file(s) dropped; the chain was over the size limit.`
+    return `Tyto: ${this.droppedCount} instruction file(s) dropped; the chain was over the size limit.`
   }
 
   private appliedText(): string {

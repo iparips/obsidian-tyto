@@ -15,7 +15,7 @@ import { RecorderPort, RecordingPorts, useRecording } from './useRecording'
 import { EngineEventPorts, useEngineEvents } from './useEngineEvents'
 import { TargetNotePorts, useTargetNote } from './useTargetNote'
 import { InputRow } from './InputRow'
-import { OwlSettings } from '../../settings/settings'
+import { TytoSettings } from '../../settings/settings'
 import { StoredSession } from '../models/stored-session'
 import { TranscriptSource } from '../transcript/models/transcript-source'
 import { TranscriptDocument } from '../transcript/transcript-document'
@@ -57,7 +57,7 @@ export interface SessionPanelProps
   // fresh. Settled and set idle on the way in, since no turn is running after
   // a load (FR5, FR6).
   entries?: Entry[]
-  settings?: OwlSettings
+  settings?: TytoSettings
   // What the panel cannot see: the chat history the recorded steps index into,
   // and what each of those steps was sent. Absent until the setting is on.
   transcriptOf?(entries: readonly Entry[]): TranscriptSource
@@ -155,7 +155,7 @@ export const SessionPanel = (props: SessionPanelProps) => {
   }
 
   return (
-    <div className="owl-panel">
+    <div className="tyto-panel">
       <PanelHeader
         name={targetNote.name}
         path={targetNote.path}

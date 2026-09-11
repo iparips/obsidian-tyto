@@ -34,13 +34,13 @@ describe('EntrySteps', () => {
     it('marks the refused row so it stands out from the muted rest', () => {
       const { container } = render(<EntrySteps steps={[aStep('Refused', 'cap', true)]} />)
 
-      expect(container.querySelector('.owl-step-refused')).not.toBeNull()
+      expect(container.querySelector('.tyto-step-refused')).not.toBeNull()
     })
 
     it('leaves an ordinary row unmarked', () => {
       const { container } = render(<EntrySteps steps={[aStep('Searched', 'milk')]} />)
 
-      expect(container.querySelector('.owl-step-refused')).toBeNull()
+      expect(container.querySelector('.tyto-step-refused')).toBeNull()
     })
   })
 

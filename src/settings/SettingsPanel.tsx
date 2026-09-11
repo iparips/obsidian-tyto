@@ -1,11 +1,11 @@
-import { OwlSettings } from './settings'
+import { TytoSettings } from './settings'
 import { AllowListEditor } from './AllowListEditor'
 import { ObsidianCommandSearch } from '../commands/obsidian-command-search'
 import { AllowedObsidianCommand } from '../commands/models/allowed-obsidian-command'
 
 export interface SettingsPanelProps {
-  settings: OwlSettings
-  onChange(update: Partial<OwlSettings>): void
+  settings: TytoSettings
+  onChange(update: Partial<TytoSettings>): void
   search: ObsidianCommandSearch
   resolvedCommands: readonly AllowedObsidianCommand[]
 }
@@ -16,8 +16,8 @@ export const SettingsPanel = ({
   search,
   resolvedCommands,
 }: SettingsPanelProps) => (
-  <div className="owl-settings">
-    <label className="owl-setting">
+  <div className="tyto-settings">
+    <label className="tyto-setting">
       Mistral API key
       <input
         type="password"
@@ -26,7 +26,7 @@ export const SettingsPanel = ({
         onChange={(event) => onChange({ mistralApiKey: event.target.value })}
       />
     </label>
-    <label className="owl-setting">
+    <label className="tyto-setting">
       Edit model
       <input
         type="text"
@@ -35,7 +35,7 @@ export const SettingsPanel = ({
         onChange={(event) => onChange({ editModel: event.target.value })}
       />
     </label>
-    <label className="owl-setting">
+    <label className="tyto-setting">
       Skills folder
       <input
         type="text"
@@ -44,7 +44,7 @@ export const SettingsPanel = ({
         onChange={(event) => onChange({ skillsPath: event.target.value })}
       />
     </label>
-    <p className="owl-settings-note">
+    <p className="tyto-settings-note">
       Vault folder holding agent skills. Their names and descriptions are sent with each
       instruction. Leave empty to disable.
     </p>
@@ -54,11 +54,11 @@ export const SettingsPanel = ({
       resolved={resolvedCommands}
       onChange={(commandAllowList) => onChange({ commandAllowList })}
     />
-    <p className="owl-settings-note">
+    <p className="tyto-settings-note">
       Search for a command by the name shown in the command palette, or type an id or namespace
-      pattern such as daily-notes:*. Owl can run these and no others.
+      pattern such as daily-notes:*. Tyto can run these and no others.
     </p>
-    <label className="owl-setting owl-setting-inline">
+    <label className="tyto-setting tyto-setting-inline">
       <input
         type="checkbox"
         aria-label="Search the vault"
@@ -67,11 +67,11 @@ export const SettingsPanel = ({
       />
       Search the vault to answer questions
     </label>
-    <p className="owl-settings-note">
-      Owl can search your notes and summarise what it finds in the panel. The summary is never
+    <p className="tyto-settings-note">
+      Tyto can search your notes and summarise what it finds in the panel. The summary is never
       written into a note.
     </p>
-    <label className="owl-setting owl-setting-inline">
+    <label className="tyto-setting tyto-setting-inline">
       <input
         type="checkbox"
         aria-label="Copy the session transcript"
@@ -80,25 +80,25 @@ export const SettingsPanel = ({
       />
       Copy the session transcript
     </label>
-    <p className="owl-settings-note">
+    <p className="tyto-settings-note">
       Adds a Copy button to the panel header. The transcript holds the whole session as Markdown,
       including your note text and any vault instructions, so a turn that went wrong can be filed
       rather than described. Your key is never in it.
     </p>
-    <label className="owl-setting owl-setting-inline">
+    <label className="tyto-setting tyto-setting-inline">
       <input
         type="checkbox"
-        aria-label="Choose the note Owl opens"
+        aria-label="Choose the note Tyto opens"
         checked={settings.openMode === 'confirm'}
         onChange={(event) => onChange({ openMode: event.target.checked ? 'confirm' : 'auto' })}
       />
-      Ask which note Owl should open
+      Ask which note Tyto should open
     </label>
-    <p className="owl-settings-note">
-      Owl can search for the note an instruction names and open it. With this on, it shows you the
+    <p className="tyto-settings-note">
+      Tyto can search for the note an instruction names and open it. With this on, it shows you the
       notes it found and waits for you to pick one. A note one of your commands opens never asks.
     </p>
-    <p className="owl-settings-note">
+    <p className="tyto-settings-note">
       Your key is stored in this vault and only ever sent to the provider. Note content and
       instructions go to the provider when you use a session; nothing else leaves your device.
     </p>

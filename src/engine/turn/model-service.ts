@@ -71,6 +71,6 @@ export class ModelService {
   private logStep(step: number, turn: ChatTurn, waitedMs: number): void {
     const calls = turn.isText() ? 'text' : turn.calls.map((call) => call.name).join(', ')
     const path = this.turnRepository.targetNote()?.path ?? 'no note'
-    console.debug(`[owl] iteration ${step + 1} on ${path}: ${calls} (${waitedMs}ms)`)
+    console.debug(`[tyto] iteration ${step + 1} on ${path}: ${calls} (${waitedMs}ms)`)
   }
 }

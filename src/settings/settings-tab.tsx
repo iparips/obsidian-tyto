@@ -1,18 +1,18 @@
 import { App, PluginSettingTab } from 'obsidian'
 import { createRoot, Root } from 'react-dom/client'
 import { SettingsPanel } from './SettingsPanel'
-import { OwlSettings } from './settings'
+import { TytoSettings } from './settings'
 import { AllowList } from '../commands/allow-list'
 import { ObsidianCommandRegistry } from '../commands/obsidian-command-registry'
 import { ObsidianCommandCatalogue } from '../commands/obsidian-command-catalogue'
 import { ObsidianCommandSearch } from '../commands/obsidian-command-search'
 
 export interface SettingsHost {
-  settings: OwlSettings
-  updateSettings(update: Partial<OwlSettings>): Promise<void>
+  settings: TytoSettings
+  updateSettings(update: Partial<TytoSettings>): Promise<void>
 }
 
-export class OwlSettingsTab extends PluginSettingTab {
+export class TytoSettingsTab extends PluginSettingTab {
   private root: Root | null = null
 
   constructor(
@@ -46,7 +46,7 @@ export class OwlSettingsTab extends PluginSettingTab {
     )
   }
 
-  private async applyUpdate(update: Partial<OwlSettings>): Promise<void> {
+  private async applyUpdate(update: Partial<TytoSettings>): Promise<void> {
     await this.host.updateSettings(update)
     this.renderPanel()
   }

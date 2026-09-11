@@ -16,7 +16,7 @@ export const InputRow = (props: InputRowProps) => {
   const recording = props.phase === 'recording'
   const running = props.phase !== 'idle'
   return (
-    <div className="owl-input-row">
+    <div className="tyto-input-row">
       <button
         aria-label={recording ? 'Stop recording' : 'Record'}
         disabled={running && !recording}

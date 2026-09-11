@@ -19,7 +19,7 @@ describe('HistoryEntry', () => {
     it('carries the utterance weight class when the entry is a user entry', () => {
       const { container } = render(<HistoryEntry entry={{ kind: 'user', text: 'do the thing' }} />)
 
-      expect(container.querySelector('.owl-entry-utterance')).not.toBeNull()
+      expect(container.querySelector('.tyto-entry-utterance')).not.toBeNull()
     })
 
     it('carries the reply weight class when the entry is an assistant entry', () => {
@@ -27,7 +27,7 @@ describe('HistoryEntry', () => {
         <HistoryEntry entry={{ kind: 'assistant', text: 'made the edit' }} />,
       )
 
-      expect(container.querySelector('.owl-entry-reply')).not.toBeNull()
+      expect(container.querySelector('.tyto-entry-reply')).not.toBeNull()
     })
   })
 
@@ -69,7 +69,7 @@ describe('HistoryEntry', () => {
         <HistoryEntry entry={{ kind: 'instructions', text: 'Instructions applied: vault root' }} />,
       )
 
-      expect(container.querySelector('.owl-entry-instructions')).not.toBeNull()
+      expect(container.querySelector('.tyto-entry-instructions')).not.toBeNull()
     })
 
     it('carries the context weight class beside the kind class', () => {
@@ -77,7 +77,7 @@ describe('HistoryEntry', () => {
         <HistoryEntry entry={{ kind: 'instructions', text: 'Instructions applied: vault root' }} />,
       )
 
-      expect(container.querySelector('.owl-entry-context')).not.toBeNull()
+      expect(container.querySelector('.tyto-entry-context')).not.toBeNull()
     })
 
     it('offers no copy control on a context line', () => {
@@ -105,9 +105,9 @@ describe('HistoryEntry', () => {
     it('keeps the sources inside the body, apart from the copy control', () => {
       const { container } = render(<HistoryEntry entry={anAnswer()} />)
 
-      const body = container.querySelector('.owl-entry-body')
+      const body = container.querySelector('.tyto-entry-body')
 
-      expect(body?.querySelector('.owl-entry-sources')).not.toBeNull()
+      expect(body?.querySelector('.tyto-entry-sources')).not.toBeNull()
     })
 
     it('copies the body alone when copy is clicked on an answer', async () => {
@@ -121,7 +121,7 @@ describe('HistoryEntry', () => {
     it('renders with its own class rather than the assistant class', () => {
       const { container } = render(<HistoryEntry entry={anAnswer()} />)
 
-      expect(container.querySelector('.owl-entry-assistant')).toBeNull()
+      expect(container.querySelector('.tyto-entry-assistant')).toBeNull()
     })
 
     it('says no notes matched when the answer cites no sources', () => {

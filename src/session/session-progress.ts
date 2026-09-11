@@ -59,7 +59,7 @@ export class SessionProgress {
 
   private static logDrops(chain: AgentsMdChain): void {
     chain.dropped.forEach((file) =>
-      console.debug('[owl] instruction file dropped:', file.fileName, 'in', file.label()),
+      console.debug('[tyto] instruction file dropped:', file.fileName, 'in', file.label()),
     )
   }
 }

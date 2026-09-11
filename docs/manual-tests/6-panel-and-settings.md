@@ -60,7 +60,7 @@ itself rather than concluding the command is unavailable.
 
 ## PS8. The mode setting keeps its stored values
 
-1. Toggle "Ask which note Owl should open" off and on.
+1. Toggle "Ask which note Tyto should open" off and on.
 
 Check: the vault's data.json still holds 'confirm' and 'auto'. No vault needs
 migrating.

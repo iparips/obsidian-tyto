@@ -7,17 +7,17 @@ import { EntrySuggestions } from './EntrySuggestions'
 import { EntrySteps } from './EntrySteps'
 
 const ENTRY_CLASSES = {
-  user: 'owl-entry-user',
-  assistant: 'owl-entry-assistant',
-  error: 'owl-entry-error',
-  instructions: 'owl-entry-instructions',
-  answer: 'owl-entry-answer',
-  cancelled: 'owl-entry-cancelled',
-  choice: 'owl-entry-choice-line',
-  question: 'owl-entry-question',
-  warning: 'owl-entry-warning',
-  steps: 'owl-entry-steps-line',
-  restored: 'owl-entry-restored',
+  user: 'tyto-entry-user',
+  assistant: 'tyto-entry-assistant',
+  error: 'tyto-entry-error',
+  instructions: 'tyto-entry-instructions',
+  answer: 'tyto-entry-answer',
+  cancelled: 'tyto-entry-cancelled',
+  choice: 'tyto-entry-choice-line',
+  question: 'tyto-entry-question',
+  warning: 'tyto-entry-warning',
+  steps: 'tyto-entry-steps-line',
+  restored: 'tyto-entry-restored',
 }
 
 const entryText = (entry: Entry) => {
@@ -45,12 +45,12 @@ export const HistoryEntry = ({ entry, onChooseNote, onPickSuggestion }: HistoryE
   }
 
   return (
-    <div className={`owl-entry owl-entry-${weight} ${ENTRY_CLASSES[entry.kind]}`}>
-      <div className="owl-entry-body">
+    <div className={`tyto-entry tyto-entry-${weight} ${ENTRY_CLASSES[entry.kind]}`}>
+      <div className="tyto-entry-body">
         {entry.kind === 'steps' ? (
           <EntrySteps steps={entry.steps} />
         ) : (
-          <div className="owl-entry-text">{text}</div>
+          <div className="tyto-entry-text">{text}</div>
         )}
         {entry.kind === 'answer' && <EntrySources sources={entry.sources} />}
         {entry.kind === 'choice' && entry.pending && onChooseNote && (
@@ -62,7 +62,7 @@ export const HistoryEntry = ({ entry, onChooseNote, onPickSuggestion }: HistoryE
       </div>
       {weight === 'reply' && (
         <button
-          className="owl-entry-copy"
+          className="tyto-entry-copy"
           aria-label={copied ? 'Copied' : 'Copy entry'}
           onClick={copy}
         >

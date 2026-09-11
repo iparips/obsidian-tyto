@@ -19,7 +19,7 @@ export class TranscriptMetadata {
     const { session, settings } = source
     return [
       ['Copied', LocalTimestamp.of(session.copiedAt)],
-      ['Plugin', `Owl ${session.pluginVersion}`],
+      ['Plugin', `Tyto ${session.pluginVersion}`],
       ['Note', session.notePath ?? 'no note open'],
       ['Model', settings.editModel],
       ['Search', settings.searchEnabled ? 'enabled' : 'disabled'],

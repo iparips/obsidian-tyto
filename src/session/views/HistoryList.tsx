@@ -15,7 +15,7 @@ export const HistoryList = ({
   onChooseNote,
   onPickSuggestion,
 }: HistoryListProps) => (
-  <div className="owl-history">
+  <div className="tyto-history">
     {entries.map((entry, index) => (
       <HistoryEntry
         key={index}

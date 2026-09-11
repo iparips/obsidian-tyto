@@ -35,18 +35,18 @@ export const PanelHeader = ({
   }
 
   return (
-    <div className="owl-header">
-      <div className="owl-header-target">
-        <span className="owl-header-name">{name ?? NO_NOTE_BOUND}</span>
+    <div className="tyto-header">
+      <div className="tyto-header-target">
+        <span className="tyto-header-name">{name ?? NO_NOTE_BOUND}</span>
         {path && (
-          <span className="owl-header-path" aria-label="Note path">
+          <span className="tyto-header-path" aria-label="Note path">
             {path}
           </span>
         )}
       </div>
       {onCopy && (
         <button
-          className="owl-copy-transcript"
+          className="tyto-copy-transcript"
           aria-label={copied ? 'Copied' : 'Copy transcript'}
           disabled={running || !hasEntries}
           onClick={copy}
@@ -56,7 +56,7 @@ export const PanelHeader = ({
       )}
       {onReset && (
         <button
-          className="owl-new-session"
+          className="tyto-new-session"
           aria-label="Reset session"
           disabled={running}
           onClick={onReset}

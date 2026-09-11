@@ -18,7 +18,7 @@ export class TranscriptDocument {
       skills,
     )
     return [
-      '# Owl session transcript',
+      '# Tyto session transcript',
       '',
       ...TranscriptMetadata.write(source),
       '',

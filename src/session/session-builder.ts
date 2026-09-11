@@ -9,7 +9,7 @@ import { SessionListeners } from './session-listeners'
 import { SessionProgress } from './session-progress'
 import { TurnAskersService } from './turn-askers-service'
 import { TurnNotices } from './turn-notices'
-import { OwlSettings } from '../settings/settings'
+import { TytoSettings } from '../settings/settings'
 import { TranscriptRepository } from './transcript/transcript-repository'
 import { TranscriptBuilder } from './transcript/transcript-builder'
 import { SessionRepository } from './session-repository'
@@ -50,7 +50,7 @@ export interface PanelPresence {
 // is the only place that knows how a panel, an engine and a notice fit together.
 export class SessionBuilder {
   constructor(
-    private settings: OwlSettings,
+    private settings: TytoSettings,
     private engineFactory: EngineFactory,
     private followEngine: (engine: EditEngine) => void,
     // From the manifest, so a transcript read months later says which build of

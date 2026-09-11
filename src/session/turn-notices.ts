@@ -28,7 +28,7 @@ export class TurnNotices {
   }
 
   failed(message: string): void {
-    this.show(`Owl failed: ${message} ${TAP_TO_VIEW}`, FADES_AFTER_MS)
+    this.show(`Tyto failed: ${message} ${TAP_TO_VIEW}`, FADES_AFTER_MS)
   }
 
   // Dismissed when the answer arrives rather than on a timer, which is what

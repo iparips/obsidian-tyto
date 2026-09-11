@@ -3,7 +3,7 @@ import { FakeAdapter } from '../../test-support/fake-adapter'
 import { STORED_SESSION_VERSION, StoredSession } from '../models/stored-session'
 import { SessionStore } from '../session-store'
 
-const PLUGIN_FOLDER = '.obsidian/plugins/owl'
+const PLUGIN_FOLDER = '.obsidian/plugins/tyto'
 const SESSION_PATH = `${PLUGIN_FOLDER}/session.json`
 
 const aStoredSession = (version = STORED_SESSION_VERSION): StoredSession => ({

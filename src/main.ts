@@ -2,8 +2,8 @@ import { Plugin, TFile, WorkspaceLeaf } from 'obsidian'
 import { RebindModal } from './session/views/rebind-modal'
 import { SessionView, VIEW_TYPE_SESSION } from './session/views/session-view'
 import { SessionPanelProps } from './session/views/SessionPanel'
-import { DEFAULT_SETTINGS, OwlSettings } from './settings/settings'
-import { OwlSettingsTab } from './settings/settings-tab'
+import { DEFAULT_SETTINGS, TytoSettings } from './settings/settings'
+import { TytoSettingsTab } from './settings/settings-tab'
 import { SkillRepository } from './skills/skill-repository'
 import { AgentsMdRepository } from './agents/agents-md-repository'
 import { EditEngine } from './engine/edit-engine'
@@ -12,8 +12,8 @@ import { PanelPresence, SessionBuilder } from './session/session-builder'
 import { SessionStore } from './session/session-store'
 import { StoredSession } from './session/models/stored-session'
 
-export default class OwlPlugin extends Plugin {
-  settings: OwlSettings = DEFAULT_SETTINGS
+export default class TytoPlugin extends Plugin {
+  settings: TytoSettings = DEFAULT_SETTINGS
   private activeEngine: EditEngine | null = null
   private followsActiveNote = false
 
@@ -23,17 +23,17 @@ export default class OwlPlugin extends Plugin {
       VIEW_TYPE_SESSION,
       (leaf) => new SessionView(leaf, (view) => this.storedPanelProps(view)),
     )
-    this.addRibbonIcon('mic', 'Start Owl session', () => this.openSession())
+    this.addRibbonIcon('mic', 'Start Tyto session', () => this.openSession())
     this.addCommand({
       id: 'start-session',
       name: 'Start session',
       icon: 'mic',
       callback: () => this.openSession(),
     })
-    this.addSettingTab(new OwlSettingsTab(this.app, this))
+    this.addSettingTab(new TytoSettingsTab(this.app, this))
   }
 
-  async updateSettings(update: Partial<OwlSettings>): Promise<void> {
+  async updateSettings(update: Partial<TytoSettings>): Promise<void> {
     this.settings = { ...this.settings, ...update }
     await this.saveData(this.settings)
   }
@@ -76,7 +76,7 @@ export default class OwlPlugin extends Plugin {
   }
 
   // Asked by the view as it opens, which is where a leaf Obsidian reopened on
-  // restart gets its session back without the user invoking Owl again.
+  // restart gets its session back without the user invoking Tyto again.
   private async storedPanelProps(view: SessionView): Promise<SessionPanelProps | null> {
     const stored = await this.sessionStore().read()
     return stored ? this.restoredPanelProps(stored, view) : null

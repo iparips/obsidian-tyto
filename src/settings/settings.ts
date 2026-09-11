@@ -2,7 +2,7 @@
 // that cannot surprise them (FR9).
 export type OpenMode = 'confirm' | 'auto'
 
-export interface OwlSettings {
+export interface TytoSettings {
   provider: 'mistral'
   mistralApiKey: string
   editModel: string
@@ -15,7 +15,7 @@ export interface OwlSettings {
   transcriptCopyEnabled: boolean
 }
 
-export const DEFAULT_SETTINGS: OwlSettings = {
+export const DEFAULT_SETTINGS: TytoSettings = {
   provider: 'mistral',
   mistralApiKey: '',
   editModel: 'mistral-medium-latest',

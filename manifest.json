@@ -1,6 +1,6 @@
 {
-  "id": "obsidian-owl",
-  "name": "Owl",
+  "id": "tyto",
+  "name": "Tyto",
   "version": "0.1.0",
   "minAppVersion": "1.5.0",
   "description": "Edit your notes by voice. Speak an instruction and the note changes, with no fixed command phrases.",

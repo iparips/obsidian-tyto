@@ -2,7 +2,7 @@ import { ItemView, WorkspaceLeaf } from 'obsidian'
 import { createRoot, Root } from 'react-dom/client'
 import { SessionPanel, SessionPanelProps } from './SessionPanel'
 
-export const VIEW_TYPE_SESSION = 'owl-session'
+export const VIEW_TYPE_SESSION = 'tyto-session'
 
 // What the view cannot answer for itself: whether a session was left behind,
 // and what its props are. Only the plugin reaches the store. It takes the view
@@ -31,7 +31,7 @@ export class SessionView extends ItemView {
   }
 
   getDisplayText(): string {
-    return 'Owl session'
+    return 'Tyto session'
   }
 
   getIcon(): string {
@@ -53,7 +53,7 @@ export class SessionView extends ItemView {
   }
 
   // Obsidian reopens the leaf itself on restart, so a session left behind must
-  // come back here rather than waiting for the user to invoke Owl again. A
+  // come back here rather than waiting for the user to invoke Tyto again. A
   // sidebar that reads empty until you know to re-open it is the failure FR4
   // names.
   async onOpen(): Promise<void> {

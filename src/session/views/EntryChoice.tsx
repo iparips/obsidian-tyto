@@ -8,14 +8,14 @@ export const EntryChoice = ({
   candidates: readonly string[]
   onChoose(chosen: string | null): void
 }) => (
-  <div className="owl-entry-choice" aria-label="Choose the note">
+  <div className="tyto-entry-choice" aria-label="Choose the note">
     {candidates.map((path) => (
       <button key={path} aria-label={`Choose ${path}`} onClick={() => onChoose(path)}>
         {path}
       </button>
     ))}
     <button
-      className="owl-entry-choice-decline"
+      className="tyto-entry-choice-decline"
       aria-label="Decline every note"
       onClick={() => onChoose(null)}
     >

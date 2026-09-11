@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { SettingsPanel } from '../SettingsPanel'
-import { DEFAULT_SETTINGS, OpenMode, OwlSettings } from '../settings'
+import { DEFAULT_SETTINGS, OpenMode, TytoSettings } from '../settings'
 import { ObsidianCommandSearch } from '../../commands/obsidian-command-search'
 import { AllowList } from '../../commands/allow-list'
 import { FakeCommandRegistry } from '../../test-support/fake-command-registry'
@@ -19,7 +19,7 @@ describe('SettingsPanel', () => {
   })
 
   const renderPanel = (openMode: OpenMode) => {
-    const settings: OwlSettings = { ...DEFAULT_SETTINGS, openMode }
+    const settings: TytoSettings = { ...DEFAULT_SETTINGS, openMode }
     return render(
       <SettingsPanel
         settings={settings}
@@ -32,7 +32,7 @@ describe('SettingsPanel', () => {
     )
   }
 
-  const checkbox = () => screen.getByLabelText('Choose the note Owl opens') as HTMLInputElement
+  const checkbox = () => screen.getByLabelText('Choose the note Tyto opens') as HTMLInputElement
 
   describe('when the stored mode is confirm', () => {
     it('reads the checkbox as on, so an upgraded vault keeps asking', () => {
@@ -70,7 +70,7 @@ describe('SettingsPanel', () => {
     it('names the checkbox for choosing a note rather than approving one', () => {
       renderPanel('confirm')
 
-      expect(screen.getByText('Ask which note Owl should open')).toBeTruthy()
+      expect(screen.getByText('Ask which note Tyto should open')).toBeTruthy()
     })
 
     it('says the panel shows the notes it found, rather than one note to approve', () => {

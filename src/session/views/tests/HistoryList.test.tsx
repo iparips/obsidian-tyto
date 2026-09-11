@@ -10,9 +10,9 @@ describe('HistoryList', () => {
     it('renders the pending line after the entries', () => {
       const { container } = render(<HistoryList entries={entries} phase="thinking" />)
 
-      const rendered = container.querySelectorAll('.owl-entry, .owl-pending')
+      const rendered = container.querySelectorAll('.tyto-entry, .tyto-pending')
 
-      expect(rendered[rendered.length - 1].className).toBe('owl-pending')
+      expect(rendered[rendered.length - 1].className).toBe('tyto-pending')
     })
 
     it('renders the pending line when the history is empty', () => {

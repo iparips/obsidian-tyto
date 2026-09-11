@@ -1,6 +1,6 @@
 import { ChatMessage } from '../../../model/providers/types'
 import { Entry } from '../../models/panel-state'
-import { OwlSettings } from '../../../settings/settings'
+import { TytoSettings } from '../../../settings/settings'
 import { RecordedEnding, RecordedTurnStep, TranscriptPart } from './transcript-record'
 
 // Where the transcript is copied from and when, so the document is a pure
@@ -17,7 +17,7 @@ export interface TranscriptSession {
 export class TranscriptSource {
   constructor(
     readonly session: TranscriptSession,
-    readonly settings: OwlSettings,
+    readonly settings: TytoSettings,
     readonly entries: readonly Entry[],
     readonly chatHistory: readonly ChatMessage[],
     readonly steps: readonly RecordedTurnStep[],

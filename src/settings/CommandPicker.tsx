@@ -22,8 +22,8 @@ export const CommandPicker = ({ entries, search, onChange }: CommandPickerProps)
   }
 
   return (
-    <div className="owl-command-picker">
-      <label className="owl-setting">
+    <div className="tyto-command-picker">
+      <label className="tyto-setting">
         Find a command
         <input
           type="search"
@@ -32,13 +32,13 @@ export const CommandPicker = ({ entries, search, onChange }: CommandPickerProps)
           onChange={(event) => setQuery(event.target.value)}
         />
       </label>
-      <ul className="owl-command-matches" aria-label="Matching commands">
+      <ul className="tyto-command-matches" aria-label="Matching commands">
         {results.matches.map((match) => (
           <CommandMatchRow key={match.command.id} match={match} onAdd={add} />
         ))}
       </ul>
       {results.overflowed && (
-        <p className="owl-settings-note">
+        <p className="tyto-settings-note">
           More commands matched than are shown. Type more to narrow the list.
         </p>
       )}

@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { SettingsPanel } from '../SettingsPanel'
-import { DEFAULT_SETTINGS, OwlSettings } from '../settings'
+import { DEFAULT_SETTINGS, TytoSettings } from '../settings'
 import { ObsidianCommandSearch } from '../../commands/obsidian-command-search'
 import { AllowList } from '../../commands/allow-list'
 import { FakeCommandRegistry } from '../../test-support/fake-command-registry'
@@ -17,7 +17,7 @@ describe('SettingsPanel transcript copy', () => {
     onChange = vi.fn()
   })
 
-  const renderPanel = (overrides: Partial<OwlSettings> = {}) =>
+  const renderPanel = (overrides: Partial<TytoSettings> = {}) =>
     render(
       <SettingsPanel
         settings={{ ...DEFAULT_SETTINGS, ...overrides }}

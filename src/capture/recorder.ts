@@ -45,7 +45,7 @@ export class Recorder {
 
   private beginRecording(stream: MediaStream): void {
     this.mimeType = Recorder.supportedMimeType()
-    console.debug('[owl] recording as', this.mimeType || 'browser default')
+    console.debug('[tyto] recording as', this.mimeType || 'browser default')
     this.chunks = []
     this.recorder = new MediaRecorder(
       stream,
@@ -63,7 +63,7 @@ export class Recorder {
   private takeUtterance(recorder: MediaRecorder): Utterance {
     const mimeType = this.mimeType || recorder.mimeType || DEFAULT_MIME_TYPE
     const utterance = new Utterance(new Blob(this.chunks, { type: mimeType }), mimeType)
-    console.debug('[owl] captured', utterance.blob.size, 'bytes as', mimeType)
+    console.debug('[tyto] captured', utterance.blob.size, 'bytes as', mimeType)
     this.releaseStream(recorder)
     this.reset()
     return utterance

@@ -25,7 +25,7 @@ export class TurnOutcomes {
       TurnEndingKind.Exhausted,
       Outcomes.failure(
         'chat',
-        `Owl ran out of steps for this turn after ${IterationCounter.max()}. The steps list shows where they went. Try a smaller instruction, or say which note to use.`,
+        `Tyto ran out of steps for this turn after ${IterationCounter.max()}. The steps list shows where they went. Try a smaller instruction, or say which note to use.`,
       ),
     )
   }

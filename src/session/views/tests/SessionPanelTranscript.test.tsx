@@ -75,7 +75,7 @@ describe('SessionPanel transcript copy', () => {
 
     expect(writeText).toHaveBeenCalledTimes(1)
     const copied = writeText.mock.calls[0][0] as string
-    expect(copied).toContain('# Owl session transcript')
+    expect(copied).toContain('# Tyto session transcript')
     expect(copied).toContain('Utterance: rename it')
     expect(copied).toContain('Reply: made the edit')
   })

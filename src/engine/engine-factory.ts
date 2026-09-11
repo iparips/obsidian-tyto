@@ -22,7 +22,7 @@ import { NoteGrep } from '../search/note-grep'
 import { SearchToolsService } from './tools/search-tools-service'
 import { DateToolService } from './tools/date-tool-service'
 import { NoteReader } from '../search/note-reader'
-import { OwlSettings } from '../settings/settings'
+import { TytoSettings } from '../settings/settings'
 import { NoteChoiceService } from './waiting/note-choice-service'
 import { NoteOpener } from './note-binding/note-opener'
 import { NotesChosenByUserRepository } from './turn/notes-chosen-by-user-repository'
@@ -44,7 +44,7 @@ export interface EngineAskers {
 export class EngineFactory {
   constructor(
     private app: App,
-    private settings: OwlSettings,
+    private settings: TytoSettings,
     private skillRepository: SkillRepository,
     private agentsMdRepository: AgentsMdRepository,
   ) {}

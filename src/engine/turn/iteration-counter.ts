@@ -35,7 +35,7 @@ export class IterationCounter {
   }
 
   warning(): string {
-    return `Owl is taking longer than usual: ${this.remaining()} steps left this turn.`
+    return `Tyto is taking longer than usual: ${this.remaining()} steps left this turn.`
   }
 
   private remaining(): number {

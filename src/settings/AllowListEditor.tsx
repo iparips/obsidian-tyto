@@ -14,9 +14,9 @@ export interface AllowListEditorProps {
 // The picker finds a command to allow; the list holds what is allowed; the
 // section below says what those entries currently reach.
 export const AllowListEditor = ({ entries, search, resolved, onChange }: AllowListEditorProps) => (
-  <div className="owl-allow-list-editor">
+  <div className="tyto-allow-list-editor">
     <CommandPicker entries={entries} search={search} onChange={onChange} />
-    <div className="owl-allow-list-entries">
+    <div className="tyto-allow-list-entries">
       <AllowedEntries entries={entries} onChange={onChange} />
       <ResolvedCommands commands={resolved} />
     </div>

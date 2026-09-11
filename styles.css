@@ -1,11 +1,11 @@
-.owl-panel {
+.tyto-panel {
   display: flex;
   flex-direction: column;
   height: 100%;
   gap: var(--size-4-2);
 }
 
-.owl-header {
+.tyto-header {
   font-weight: var(--font-semibold);
   padding: var(--size-4-2);
   border-bottom: 1px solid var(--background-modifier-border);
@@ -14,14 +14,14 @@
   gap: var(--size-4-2);
 }
 
-.owl-header-target {
+.tyto-header-target {
   flex: 1;
   min-width: 0;
   display: flex;
   flex-direction: column;
 }
 
-.owl-header-name {
+.tyto-header-name {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -33,7 +33,7 @@
 
    The head truncates, not the tail: the trailing folders say which sibling the
    note is, and that is what a path under a name answers. */
-.owl-header-path {
+.tyto-header-path {
   font-size: var(--font-ui-smaller);
   font-weight: var(--font-normal);
   color: var(--text-muted);
@@ -46,14 +46,14 @@
   unicode-bidi: plaintext;
 }
 
-.owl-new-session,
-.owl-copy-transcript {
+.tyto-new-session,
+.tyto-copy-transcript {
   flex: 0 0 auto;
   font-size: var(--font-smallest);
   padding: 0 var(--size-4-2);
 }
 
-.owl-history {
+.tyto-history {
   flex: 1;
   overflow-y: auto;
   display: flex;
@@ -62,7 +62,7 @@
   padding: var(--size-4-2);
 }
 
-.owl-entry {
+.tyto-entry {
   /* Obsidian views default to user-select: none; opt back in so entries can be
      selected and copied. */
   user-select: text;
@@ -76,7 +76,7 @@
 
    An utterance is the boundary between two turns, so it carries equal room on
    both sides. The list's own gap is the one inside a turn. */
-.owl-entry-utterance {
+.tyto-entry-utterance {
   align-self: flex-end;
   max-width: 80%;
   padding: var(--size-4-2);
@@ -90,7 +90,7 @@
 
    The copy control sits in a gutter beside the text rather than beneath it, so
    it never displaces the reply or covers it (FR8). */
-.owl-entry-reply {
+.tyto-entry-reply {
   padding: 0;
   background-color: transparent;
   display: flex;
@@ -98,7 +98,7 @@
   gap: var(--size-4-2);
 }
 
-.owl-entry-reply .owl-entry-body {
+.tyto-entry-reply .tyto-entry-body {
   flex: 1;
   min-width: 0;
 }
@@ -106,7 +106,7 @@
 /* Context is smaller and muted, and consecutive lines stack with no gap so a
    turn's notes read as one block. The gap belongs between turns, not inside
    one. */
-.owl-entry-context {
+.tyto-entry-context {
   padding: 0;
   background-color: transparent;
   color: var(--text-muted);
@@ -115,21 +115,21 @@
   font-style: italic;
 }
 
-.owl-entry-context + .owl-entry-context {
+.tyto-entry-context + .tyto-entry-context {
   margin-top: calc(-1 * var(--size-4-2));
 }
 
 /* A reply is what the notes above it were leading to, so it needs the room the
    stacked context lines gave up. */
-.owl-entry-context + .owl-entry-reply {
+.tyto-entry-context + .tyto-entry-reply {
   margin-top: var(--size-4-2);
 }
 
-.owl-entry-text {
+.tyto-entry-text {
   white-space: pre-wrap;
 }
 
-.owl-entry-copy {
+.tyto-entry-copy {
   flex: 0 0 auto;
   padding: 0 var(--size-4-1);
   font-size: var(--font-smallest);
@@ -137,25 +137,25 @@
   opacity: 0;
 }
 
-.owl-entry:hover .owl-entry-copy,
-.owl-entry-copy:focus-visible {
+.tyto-entry:hover .tyto-entry-copy,
+.tyto-entry-copy:focus-visible {
   opacity: 1;
 }
 
 /* A failure is what the turn produced, so the colour marks it rather than a box
    (FR3). */
-.owl-entry-error {
+.tyto-entry-error {
   color: var(--text-error);
 }
 
-.owl-input-row {
+.tyto-input-row {
   display: flex;
   gap: var(--size-4-1);
   padding: var(--size-4-2);
   border-top: 1px solid var(--background-modifier-border);
 }
 
-.owl-input-row input {
+.tyto-input-row input {
   flex: 1;
   /* Without this a flex item refuses to shrink past its content width, which
      pushes Send off the edge of a narrow drawer. */
@@ -170,72 +170,72 @@
   padding: 0 var(--size-4-2);
 }
 
-.owl-input-row button,
-.owl-input-row input {
+.tyto-input-row button,
+.tyto-input-row input {
   min-height: 44px;
 }
 
-.owl-input-row button {
+.tyto-input-row button {
   flex: 0 0 auto;
   white-space: nowrap;
 }
 
 /* Touch has no hover, so the copy button stays visible on mobile (FR33). */
-.is-mobile .owl-entry-copy {
+.is-mobile .tyto-entry-copy {
   opacity: 1;
   min-height: 32px;
 }
 
-.owl-settings {
+.tyto-settings {
   display: flex;
   flex-direction: column;
   gap: var(--size-4-3);
 }
 
-.owl-setting {
+.tyto-setting {
   display: flex;
   flex-direction: column;
   gap: var(--size-4-1);
   max-width: 24em;
 }
 
-.owl-settings-note {
+.tyto-settings-note {
   color: var(--text-muted);
   font-size: var(--font-ui-small);
 }
 
 /* A cancel is not a failure, so it is muted rather than coloured like one: the
    turn stopped because the user said so. */
-.owl-entry-cancelled {
+.tyto-entry-cancelled {
   color: var(--text-muted);
 }
 
 /* An answer wrote nothing, so it must not read like an edit that did (FR29).
    The rule alone says it, now that a reply carries no surface to tint. */
-.owl-entry-answer {
+.tyto-entry-answer {
   border-left: 3px solid var(--interactive-accent);
   padding-left: var(--size-4-2);
 }
 
-.owl-entry-sources {
+.tyto-entry-sources {
   margin-top: var(--size-4-1);
   color: var(--text-muted);
   font-size: var(--font-ui-smaller);
   word-break: break-word;
 }
 
-.owl-setting-inline {
+.tyto-setting-inline {
   flex-direction: row;
   align-items: center;
   gap: var(--size-4-2);
 }
 
-.owl-settings-error {
+.tyto-settings-error {
   color: var(--text-error);
   font-size: var(--font-ui-small);
 }
 
-.owl-command-picker {
+.tyto-command-picker {
   display: flex;
   flex-direction: column;
   gap: var(--size-4-2);
@@ -243,19 +243,19 @@
 
 /* The picker finds a command; the table holds what is allowed. A rule between
    them stops the two lists reading as one. */
-.owl-allow-list-editor {
+.tyto-allow-list-editor {
   display: flex;
   flex-direction: column;
   gap: var(--size-4-3);
 }
 
-.owl-allow-list-entries {
+.tyto-allow-list-entries {
   display: flex;
   flex-direction: column;
   gap: var(--size-4-1);
 }
 
-.owl-allowed-entries {
+.tyto-allowed-entries {
   display: flex;
   flex-direction: column;
   gap: var(--size-4-1);
@@ -263,7 +263,7 @@
 
 /* Capped rather than paged: a query matching more than the cap is too broad to
    pick from, and the list has to scroll on a phone (FR3, FR14). */
-.owl-command-matches {
+.tyto-command-matches {
   max-height: 14em;
   overflow-y: auto;
   margin: 0;
@@ -277,7 +277,7 @@
    form-field, not primary-alt or secondary: against the settings background of
    #1e1e1e those are #242424 and #262626, which do not separate in a dark theme.
    This is #2a2a2a, and it is the surface the fields beside it already use. */
-.owl-command-matches:not(:empty) {
+.tyto-command-matches:not(:empty) {
   padding: var(--size-4-1);
   /* border-hover, not border: the plain border is base-30 against a base-25
      panel and disappears. This one is the strongest neutral edge available. */
@@ -290,13 +290,13 @@
   box-shadow: var(--shadow-l);
 }
 
-.owl-command-match + .owl-command-match {
+.tyto-command-match + .tyto-command-match {
   border-top: 1px solid var(--background-modifier-border);
 }
 
 /* A button styled as a row: the whole option is the tap target, so it must not
    carry the chrome a button would. */
-.owl-command-match-choice {
+.tyto-command-match-choice {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -315,32 +315,32 @@
   cursor: pointer;
 }
 
-.owl-command-match-choice:hover:not(:disabled) {
+.tyto-command-match-choice:hover:not(:disabled) {
   background-color: var(--background-modifier-hover);
 }
 
-.owl-command-match-choice:disabled {
+.tyto-command-match-choice:disabled {
   cursor: default;
   opacity: 0.6;
 }
 
-.owl-command-match-name {
+.tyto-command-match-name {
   color: var(--text-normal);
   font-weight: var(--font-medium);
 }
 
-.owl-command-match-id {
+.tyto-command-match-id {
   color: var(--text-muted);
   font-size: var(--font-ui-smaller);
   word-break: break-all;
 }
 
-.owl-command-match-covered {
+.tyto-command-match-covered {
   color: var(--text-muted);
   font-size: var(--font-ui-small);
 }
 
-.owl-allowed-entries textarea {
+.tyto-allowed-entries textarea {
   width: 100%;
   font-family: var(--font-monospace);
   font-size: var(--font-ui-smaller);
@@ -349,11 +349,11 @@
 
 /* Collapsed by default: the entries are the setting, and what they resolve to
    is a check the user opens when they want it (FR10). */
-.owl-resolved-commands {
+.tyto-resolved-commands {
   margin-top: var(--size-4-2);
 }
 
-.owl-resolved-commands summary {
+.tyto-resolved-commands summary {
   cursor: pointer;
   color: var(--text-muted);
   font-size: var(--font-ui-small);
@@ -361,7 +361,7 @@
 
 /* The same surface as the results panel: both are a list of commands lifted
    off the page, so they should not read as two different kinds of thing. */
-.owl-resolved-commands ul {
+.tyto-resolved-commands ul {
   max-height: 12em;
   overflow-y: auto;
   margin: var(--size-4-2) 0 0;
@@ -373,21 +373,21 @@
   list-style: none;
 }
 
-.owl-resolved-commands li {
+.tyto-resolved-commands li {
   display: flex;
   flex-direction: column;
   padding: var(--size-4-2);
 }
 
-.owl-resolved-commands li + li {
+.tyto-resolved-commands li + li {
   border-top: 1px solid var(--background-modifier-border);
 }
 
-.owl-resolved-name {
+.tyto-resolved-name {
   font-size: var(--font-ui-small);
 }
 
-.owl-resolved-id {
+.tyto-resolved-id {
   color: var(--text-muted);
   font-size: var(--font-ui-smaller);
   word-break: break-all;
@@ -395,7 +395,7 @@
 
 /* The pending line reads as context, since a turn in progress has not produced
    anything yet. It sits where the reply will land (FR9). */
-.owl-pending {
+.tyto-pending {
   color: var(--text-muted);
   font-size: var(--font-ui-smaller);
   font-style: italic;
@@ -403,7 +403,7 @@
 
 /* Stacked rather than laid in a row: two buttons fitted a narrow drawer side by
    side, and eight paths do not (NFR5). */
-.owl-entry-choice {
+.tyto-entry-choice {
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -414,7 +414,7 @@
 /* A path wraps rather than truncating, since the segment that tells two
    candidates apart is as often the folder as the filename, and a middle
    ellipsis hides exactly the part worth reading (FR3, NFR5). */
-.owl-entry-choice button {
+.tyto-entry-choice button {
   height: auto;
   text-align: left;
   white-space: normal;
@@ -424,14 +424,14 @@
 
 /* Set apart from the candidates: declining is a different kind of answer from
    picking one, not a ninth note. */
-.owl-entry-choice-decline {
+.tyto-entry-choice-decline {
   margin-top: var(--size-4-1);
   color: var(--text-muted);
 }
 
 /* Wrapping rather than a row, since the drawer is narrow and three options do
    not fit side by side (FR19). */
-.owl-entry-suggestions {
+.tyto-entry-suggestions {
   display: flex;
   flex-wrap: wrap;
   gap: var(--size-4-2);
@@ -440,7 +440,7 @@
 
 /* Context weight, but coloured: a turn running low is worth noticing without
    competing with the reply it may not reach. */
-.owl-entry-warning {
+.tyto-entry-warning {
   color: var(--text-warning);
   font-style: normal;
 }
@@ -448,7 +448,7 @@
 /* A boundary rather than a line of narration: the rule above it is where the
    restored turns stop, which is also where the transcript starts explaining
    itself again. */
-.owl-entry-restored {
+.tyto-entry-restored {
   border-top: 1px solid var(--background-modifier-border);
   padding-top: var(--size-4-2);
   font-style: italic;
@@ -456,13 +456,13 @@
 
 /* Collapsed by default, like the resolved commands in settings. The summary
    carries the context weight; the open list indents under it. */
-.owl-entry-steps summary {
+.tyto-entry-steps summary {
   cursor: pointer;
   color: var(--text-muted);
   font-size: var(--font-ui-smaller);
 }
 
-.owl-entry-steps ol {
+.tyto-entry-steps ol {
   margin: var(--size-4-1) 0 0;
   padding-left: var(--size-4-4);
   font-size: var(--font-ui-smaller);
@@ -470,18 +470,18 @@
   font-style: normal;
 }
 
-.owl-entry-steps li {
+.tyto-entry-steps li {
   margin-bottom: var(--size-4-1);
 }
 
-.owl-step-label {
+.tyto-step-label {
   font-weight: var(--font-semibold);
   margin-right: var(--size-4-1);
 }
 
 /* A refusal is why the list gets opened, so it is the one row that stands out
    from the muted rest. */
-.owl-step-refused .owl-step-label,
-.owl-step-refused .owl-step-detail {
+.tyto-step-refused .tyto-step-label,
+.tyto-step-refused .tyto-step-detail {
   color: var(--text-warning);
 }

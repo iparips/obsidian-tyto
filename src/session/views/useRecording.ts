@@ -46,7 +46,7 @@ export const useRecording = (
   discardOnBackground.current = () => {
     if (phase !== 'recording') return
     cancel()
-    ports.notify?.('Recording discarded: Owl cannot record in the background.')
+    ports.notify?.('Recording discarded: Tyto cannot record in the background.')
   }
 
   return {

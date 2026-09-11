@@ -4,7 +4,7 @@ import { SessionView } from '../session-view'
 import { SessionPanelProps } from '../SessionPanel'
 
 // Obsidian reopens the leaf itself on restart, so onOpen is where a session
-// left behind has to come back: the user has not invoked Owl at that point.
+// left behind has to come back: the user has not invoked Tyto at that point.
 describe('SessionView', () => {
   let view: SessionView
   let restored: SessionPanelProps

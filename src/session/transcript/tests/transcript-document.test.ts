@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { TurnEndingKind } from '../../../engine/turn/turn-ending-kind'
 import { ChatMessage, ToolCall } from '../../../model/providers/types'
-import { DEFAULT_SETTINGS, OwlSettings } from '../../../settings/settings'
+import { DEFAULT_SETTINGS, TytoSettings } from '../../../settings/settings'
 import { Entry } from '../../models/panel-state'
 import { TranscriptSource } from '../models/transcript-source'
 import {
@@ -34,7 +34,7 @@ describe('TranscriptDocument', () => {
     steps?: RecordedTurnStep[]
     endings?: RecordedEnding[]
     parts?: TranscriptPart[]
-    settings?: Partial<OwlSettings>
+    settings?: Partial<TytoSettings>
     notePath?: string | null
   }) =>
     TranscriptDocument.write(
@@ -85,7 +85,7 @@ describe('TranscriptDocument', () => {
         entries: [
           { kind: 'user', text: 'rename it' },
           { kind: 'steps', steps: [{ label: 'Globbed', detail: '**/*.md', refused: false }] },
-          { kind: 'error', step: 'chat', text: 'Owl ran out of steps' },
+          { kind: 'error', step: 'chat', text: 'Tyto ran out of steps' },
         ],
         steps: [aStep(0, new StepRange(0, 0), new StepRange(0, 0))],
         endings: [new RecordedEnding(0, TurnEndingKind.Exhausted, 0)],
@@ -137,13 +137,13 @@ describe('TranscriptDocument', () => {
         entries: [
           { kind: 'user', text: 'go' },
           { kind: 'instructions', text: 'Loaded agent instructions - vault root' },
-          { kind: 'warning', text: 'Owl is taking longer than usual' },
+          { kind: 'warning', text: 'Tyto is taking longer than usual' },
           { kind: 'cancelled', text: 'Stopped. Nothing was changed.' },
         ],
       })
 
       expect(document).toContain('- Loaded agent instructions - vault root')
-      expect(document).toContain('- Warned - Owl is taking longer than usual')
+      expect(document).toContain('- Warned - Tyto is taking longer than usual')
       expect(document).toContain('Cancelled: Stopped. Nothing was changed.')
     })
 
@@ -291,14 +291,14 @@ describe('TranscriptDocument', () => {
       const document = documentOf({
         entries: [
           { kind: 'user', text: 'open it' },
-          { kind: 'error', step: 'chat', text: 'Owl was refused the same thing twice' },
+          { kind: 'error', step: 'chat', text: 'Tyto was refused the same thing twice' },
         ],
         steps: [aStep(0, new StepRange(0, 0), new StepRange(0, -1))],
         endings: [new RecordedEnding(0, TurnEndingKind.Stuck, 0)],
       })
 
       expect(document).toContain('- Outcome: stuck')
-      expect(document).toContain('Error (chat): Owl was refused the same thing twice')
+      expect(document).toContain('Error (chat): Tyto was refused the same thing twice')
     })
   })
 

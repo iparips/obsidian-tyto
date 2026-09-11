@@ -179,7 +179,7 @@ describe('EditEngine', () => {
 
       await warned.processUtterance('edit')
 
-      expect(warnings).toEqual(['Owl is taking longer than usual: 3 steps left this turn.'])
+      expect(warnings).toEqual(['Tyto is taking longer than usual: 3 steps left this turn.'])
     })
 
     it('warns nothing when the turn finishes with room to spare', async () => {

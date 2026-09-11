@@ -39,8 +39,8 @@ export class TurnAskersService {
   // The notice says the turn wants the user rather than listing the notes: the
   // panel entry carries the list, and a notice has no room for one.
   private static noticeFor({ candidates }: ChoiceRequest): string {
-    if (candidates.length === 1) return `Owl wants to open ${candidates[0]}.`
-    return `Owl found ${candidates.length} notes and wants you to pick one.`
+    if (candidates.length === 1) return `Tyto wants to open ${candidates[0]}.`
+    return `Tyto found ${candidates.length} notes and wants you to pick one.`
   }
 
   userQuestionService(cancellationController: TurnCancellationController): UserQuestionService {

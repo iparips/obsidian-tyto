@@ -31,7 +31,7 @@ export class SessionStore {
     try {
       await this.adapter.write(path, JSON.stringify(session))
     } catch {
-      console.debug('[owl] could not write the session')
+      console.debug('[tyto] could not write the session')
     }
   }
 
@@ -58,7 +58,7 @@ export class SessionStore {
     try {
       await this.adapter.remove(path)
     } catch {
-      console.debug('[owl] no stored session to remove')
+      console.debug('[tyto] no stored session to remove')
     }
   }
 

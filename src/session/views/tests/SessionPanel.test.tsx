@@ -183,7 +183,7 @@ describe('SessionPanel', () => {
       goToBackground()
 
       expect(notify).toHaveBeenCalledWith(
-        'Recording discarded: Owl cannot record in the background.',
+        'Recording discarded: Tyto cannot record in the background.',
       )
     })
 
@@ -686,10 +686,10 @@ describe('SessionPanel', () => {
         },
       })
 
-      act(() => warn('Owl is taking longer than usual: 3 steps left this turn.'))
+      act(() => warn('Tyto is taking longer than usual: 3 steps left this turn.'))
 
       expect(
-        screen.getByText('Owl is taking longer than usual: 3 steps left this turn.'),
+        screen.getByText('Tyto is taking longer than usual: 3 steps left this turn.'),
       ).toBeTruthy()
     })
   })

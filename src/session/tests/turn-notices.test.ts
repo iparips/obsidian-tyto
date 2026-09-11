@@ -51,7 +51,7 @@ describe('TurnNotices', () => {
     it('reads as a failure rather than as a turn that finished when a turn fails', () => {
       notices().failed('the key was rejected')
 
-      expect(lastNotice().message).toBe('Owl failed: the key was rejected Tap to view.')
+      expect(lastNotice().message).toBe('Tyto failed: the key was rejected Tap to view.')
     })
   })
 

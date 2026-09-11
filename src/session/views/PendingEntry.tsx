@@ -12,7 +12,7 @@ export const PendingEntry = ({ phase }: { phase: Phase }) => {
   const line = PENDING_LINES[phase]
   if (!line) return null
   return (
-    <div className="owl-pending" aria-label="Turn in progress">
+    <div className="tyto-pending" aria-label="Turn in progress">
       {line}
     </div>
   )

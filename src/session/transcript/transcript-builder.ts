@@ -1,4 +1,4 @@
-import { OwlSettings } from '../../settings/settings'
+import { TytoSettings } from '../../settings/settings'
 import { Entry } from '../models/panel-state'
 import { SessionRepository } from '../session-repository'
 import { TranscriptRepository } from './transcript-repository'
@@ -10,7 +10,7 @@ import { TranscriptSource } from './models/transcript-source'
 // moment the panel was built.
 export class TranscriptBuilder {
   constructor(
-    private settings: OwlSettings,
+    private settings: TytoSettings,
     private pluginVersion: string,
     private sessions: SessionRepository,
     private transcript: TranscriptRepository,

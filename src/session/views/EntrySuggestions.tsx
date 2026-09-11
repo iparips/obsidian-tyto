@@ -7,7 +7,7 @@ export const EntrySuggestions = ({
   suggestions: string[]
   onPick(suggestion: string): void
 }) => (
-  <div className="owl-entry-suggestions" aria-label="Suggested answers">
+  <div className="tyto-entry-suggestions" aria-label="Suggested answers">
     {suggestions.map((suggestion) => (
       <button key={suggestion} onClick={() => onPick(suggestion)}>
         {suggestion}

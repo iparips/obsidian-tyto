@@ -80,7 +80,7 @@ the choosing gate.
 
 ## CO10. Auto mode opens without asking
 
-Setup: the mode setting turned off, so Owl does not ask which note.
+Setup: the mode setting turned off, so Tyto does not ask which note.
 
 1. Run CO1.
 

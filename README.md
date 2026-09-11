@@ -1,12 +1,12 @@
-# Obsidian Owl
+# Tyto
 
 Talk to your notes and they change. Say "rename heading Budget to Costs" or "add apples, bananas and pears under Shopping", and the edit lands in the note you are looking at.
 
-Other voice plugins transcribe what you say into the note. Owl treats what you say as an instruction about the note. There is no fixed command phrasing to learn, and no chat window to copy an answer out of.
+Other voice plugins transcribe what you say into the note. Tyto treats what you say as an instruction about the note. There is no fixed command phrasing to learn, and no chat window to copy an answer out of.
 
 ## Table of Contents
 
-1. [Why Owl](#why-owl)
+1. [Why Tyto](#why-tyto)
 2. [What it does not do](#what-it-does-not-do)
 3. [Install for Development](#install-for-development)
 4. [Test It Out](#test-it-out)
@@ -15,15 +15,15 @@ Other voice plugins transcribe what you say into the note. Owl treats what you s
 7. [Troubleshooting](#troubleshooting)
 8. [Releasing](#releasing)
 
-## Why Owl
+## Why Tyto
 
 Voice as an instruction, not dictation
 
-- Speech-to-text plugins capture words. Owl parses intent and edits structure: headings, lists, and blocks.
+- Speech-to-text plugins capture words. Tyto parses intent and edits structure: headings, lists, and blocks.
 
 Edits you can undo
 
-- Changes go through the editor, so Ctrl+Z and Cmd+Z step back through them one at a time. Owl does not overwrite the file behind your back.
+- Changes go through the editor, so Ctrl+Z and Cmd+Z step back through them one at a time. Tyto does not overwrite the file behind your back.
 
 It can open the note first
 
@@ -62,7 +62,7 @@ If a step fails, the panel shows an error entry naming the failing step: transcr
 
 ## Commands and Search
 
-Owl can run an Obsidian command and then edit the note it opened, and it can
+Tyto can run an Obsidian command and then edit the note it opened, and it can
 search the vault to answer a question.
 
 - Say "open my daily note and add a paragraph under Meetings". The note opens,
@@ -75,14 +75,14 @@ pattern per line, such as daily-notes:*, and a collapsed count showing what thos
 entries currently resolve to. A pattern's plugin id must be literal, and only a
 trailing wildcard is allowed. Leave the list empty to allow no commands.
 
-Search is a checkbox in settings. With commands off and search off, Owl behaves
+Search is a checkbox in settings. With commands off and search off, Tyto behaves
 exactly as it did before this release.
 
 ## On Mobile
 
 `./install` rebuilds and copies the plugin into the vault, which is what a phone needs: Obsidian Sync does not follow symlinks. See [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md).
 
-The session panel opens as a drawer from the right sidebar. To reach it in one tap, add the command to the mobile toolbar: Settings, Mobile, Manage toolbar options, then add "Owl: Start session for active note".
+The session panel opens as a drawer from the right sidebar. To reach it in one tap, add the command to the mobile toolbar: Settings, Mobile, Manage toolbar options, then add "Tyto: Start session".
 
 Recording stops if you leave Obsidian. The partial audio is discarded and the panel returns to idle, because a backgrounded recording captures silence.
 
