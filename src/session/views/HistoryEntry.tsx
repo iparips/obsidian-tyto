@@ -17,6 +17,7 @@ const ENTRY_CLASSES = {
   question: 'owl-entry-question',
   warning: 'owl-entry-warning',
   steps: 'owl-entry-steps-line',
+  restored: 'owl-entry-restored',
 }
 
 const entryText = (entry: Entry) => {

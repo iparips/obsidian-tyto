@@ -1,7 +1,9 @@
-import { useReducer, useState } from 'react'
+import { useEffect, useReducer, useState } from 'react'
 import { Outcome } from '../../shared/models/outcome'
 import { HistoryList } from './HistoryList'
-import { Entry, INITIAL_PANEL_STATE, PanelReducer } from '../models/panel-state'
+import { AskedEntries } from '../models/asked-entries'
+import { Entry, PanelReducer, PanelState } from '../models/panel-state'
+import { TurnEndingKind } from '../../engine/turn/turn-ending-kind'
 import { PanelHeader } from './PanelHeader'
 import {
   ChoiceRequest,
@@ -14,6 +16,7 @@ import { EngineEventPorts, useEngineEvents } from './useEngineEvents'
 import { TargetNotePorts, useTargetNote } from './useTargetNote'
 import { InputRow } from './InputRow'
 import { OwlSettings } from '../../settings/settings'
+import { StoredSession } from '../models/stored-session'
 import { TranscriptSource } from '../transcript/models/transcript-source'
 import { TranscriptDocument } from '../transcript/transcript-document'
 
@@ -26,20 +29,55 @@ export interface SessionPanelProps
   // than holding it.
   cancelTurn?(): void
   startNewSession?(): void
-  // Only the plugin knows whether the panel is on screen, so it decides what a
-  // finished or failed turn is worth telling the user (FR22, FR23).
-  onTurnFinished?(summary: string): void
-  onTurnFailed?(message: string): void
+  // A turn's end reaches the plugin two ways, and they are not the same thing.
+  // These two are notices: only the plugin knows whether the panel is on
+  // screen, so it decides what a turn is worth telling the user (FR22, FR23).
+  // Each carries what its notice says, and a cancel calls neither, because the
+  // user stopped it and already knows.
+  notifySucceeded?(summary: string): void
+  notifyFailed?(message: string): void
+  // onTurnEnded is the other, and is a record rather than a notice: it fires on
+  // every ending, the cancel included, and carries no message because nothing
+  // is being said.
+  //
+  // Three of the five kinds reach it. The panel reads an Outcome, and
+  // TurnOutcomes builds Exhausted and Stuck as the same chat failure, so both
+  // arrive as Failed. The transcript records the true kind from the engine.
+  //
+  // The entries travel with it because the reducer owns them, as they do for
+  // transcriptOf: the plugin writes the record and cannot see what the panel
+  // holds.
+  onTurnEnded?(ending: TurnEndingKind, entries: readonly Entry[]): void
+  // The record the plugin writes, assembled from the entries the panel holds
+  // and the history only the builder can reach. Required, because SessionBuilder
+  // always supplies it and an optional one puts a branch in the plugin that
+  // cannot happen.
+  buildStoredSessionFromEntries(entries: readonly Entry[]): StoredSession
+  // What a restored session already holds, empty for a session that starts
+  // fresh. Settled and set idle on the way in, since no turn is running after
+  // a load (FR5, FR6).
+  entries?: Entry[]
   settings?: OwlSettings
   // What the panel cannot see: the chat history the recorded steps index into,
   // and what each of those steps was sent. Absent until the setting is on.
   transcriptOf?(entries: readonly Entry[]): TranscriptSource
 }
 
+// The stored phase is never read: the turn that set a running phase went with
+// the WebView, so a restored session opens idle whatever it was doing (FR5).
+// turnEnded settles the entries and carries the phase through unchanged,
+// because every caller in the reducer sets the phase itself, so idle is set
+// here rather than by it.
+const restoredState = (entries: Entry[]): PanelState =>
+  AskedEntries.turnEnded(new PanelState('idle', entries))
+
 export const SessionPanel = (props: SessionPanelProps) => {
-  const [state, dispatch] = useReducer(PanelReducer.reduce, INITIAL_PANEL_STATE)
+  const [state, dispatch] = useReducer(PanelReducer.reduce, props.entries ?? [], restoredState)
   const asking = state.phase === 'asking'
   const [draft, setDraft] = useState('')
+  // Held for one render, so the ending is reported with the entries it left
+  // rather than the ones the turn started on.
+  const [ending, setEnding] = useState<TurnEndingKind | null>(null)
   const settings = props.settings
   const targetNote = useTargetNote(props)
   // The engine asks through these and awaits the answer, so a parked turn is a
@@ -53,14 +91,27 @@ export const SessionPanel = (props: SessionPanelProps) => {
     const outcome = await props.processUtterance(text)
     if (outcome.succeeded()) {
       dispatch({ type: 'summary', text: outcome.value })
-      props.onTurnFinished?.(outcome.value)
-    } else if (outcome.wasCancelled())
+      props.notifySucceeded?.(outcome.value)
+      setEnding(TurnEndingKind.Replied)
+    } else if (outcome.wasCancelled()) {
       dispatch({ type: 'turnCancelled', notesWritten: outcome.notesWritten })
-    else {
+      setEnding(TurnEndingKind.Cancelled)
+    } else {
       dispatch({ type: 'failed', step: outcome.step, message: outcome.message })
-      props.onTurnFailed?.(outcome.message)
+      props.notifyFailed?.(outcome.message)
+      setEnding(TurnEndingKind.Failed)
     }
   }
+
+  // Reported after the render the ending's own dispatch produced, so the
+  // entries the plugin writes include the summary or error that ended the turn.
+  // Reading state.entries inside runTurn would read the render it started on
+  // and drop that last entry.
+  useEffect(() => {
+    if (!ending) return
+    setEnding(null)
+    props.onTurnEnded?.(ending, state.entries)
+  }, [ending])
 
   const recorded = useRecording(props, state.phase, dispatch, runTurn)
 

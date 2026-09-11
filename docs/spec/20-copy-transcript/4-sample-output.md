@@ -45,7 +45,7 @@ a note quoting a fenced block cannot close it early.
 
 | Field    | Value                                   |
 | -------- | --------------------------------------- |
-| Copied   | 2026-09-10 15:25                        |
+| Copied   | 2026-09-10 15:25 AEST                   |
 | Plugin   | Owl 0.1.0                               |
 | Note     | 1 - Journal/Weekly/Week-37/09-09-Wed.md |
 | Model    | mistral-medium-latest                   |

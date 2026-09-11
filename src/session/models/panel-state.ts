@@ -20,6 +20,10 @@ export type Entry =
   | { kind: 'steps'; steps: PanelStep[] }
   | { kind: 'answer'; text: string; sources: string[] }
   | { kind: 'cancelled'; text: string }
+  // Where a restored session picks up, naming when it was last written. A
+  // restored panel is otherwise identical to one that never went away, so
+  // without this a restore is invisible (FR7b).
+  | { kind: 'restored'; text: string }
   // pending while the rows are live; the outcome replaces them, because a row
   // that no longer does anything is worse than a line saying what happened.
   // The candidates stay once settled, so a turn that went nowhere still records

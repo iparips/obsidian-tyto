@@ -1,3 +1,8 @@
+---
+created: 2026-09-07
+updated: 2026-09-11
+---
+
 # Requirements: Session Persistence
 
 Let a user leave the app and come back to the session they left.
@@ -59,20 +64,30 @@ The session is lost because nothing writes it down.
   rather than as rows that no longer do anything.
 - As a user, Reset clears the stored session as well as the live one, so the
   thing I reset does not come back.
-- As a user on the desktop, nothing changes: the session was never lost there.
+- As a user who copies a transcript after a restore, I read the turns that came
+  back as the panel showed them, without what each step was sent, and a line
+  marking where the restore was.
+- As a user on the desktop, a session survives quitting and reopening Obsidian,
+  which is the one way it was lost there.
 
 ## What a session is
 
-Two stores hold it, and neither holds a collaborator.
+Three stores hold it, and only two must survive.
 
-| Store             | Holds                         | Why it must survive  |
-| ----------------- | ----------------------------- | -------------------- |
-| SessionRepository | The target path, the messages | What the model knows |
-| PanelState        | The phase, the entries        | What the user reads  |
+| Store                | Holds                         | Restored            |
+| -------------------- | ----------------------------- | ------------------- |
+| SessionRepository    | The target path, the messages | Yes                 |
+| PanelState           | The phase, the entries        | Yes, phase excepted |
+| TranscriptRepository | What each turn step was sent  | No                  |
 
-The phase is the exception. A restored session is never mid-turn, because the
-turn that set a running phase is gone, so the phase restores as idle whatever it
-was when the app went away.
+The phase is the first exception. A restored session is never mid-turn, because
+the turn that set a running phase is gone, so the phase restores as idle
+whatever it was when the app went away.
+
+The transcript is the second, and it is a real loss rather than a technicality.
+A user who copies a transcript after a restore gets the earlier turns as the
+panel showed them, without what each step was sent. It holds every prompt and
+note excerpt verbatim, which NFR2 keeps off disk.
 
 ## Requirements
 
@@ -89,8 +104,9 @@ session can be restored to.
 
 ### Restoring the session
 
-FR4. Restore the session when the plugin loads, before the panel first renders,
-so the user never sees an empty panel that is about to fill.
+FR4. Restore the session wherever a panel first appears, including the sidebar
+leaf Obsidian reopens by itself, so the user never swipes to an empty panel and
+has to know to invoke Owl again.
 
 FR5. Restore the panel to the idle phase whatever phase was stored, since no
 turn is running after a load.
@@ -100,6 +116,17 @@ user never answered comes back as a record rather than as live controls.
 
 FR7. Restore the target note by path, and leave the session unbound when no
 editor is showing that note.
+
+FR7a. Restore no transcript, and leave a copied transcript readable for the
+turns that preceded the restore, so a session that came back is still worth
+copying.
+
+FR7b. Say the session was restored, and name the day, time and zone it was last
+written, so a restore is visible at all and the user can tell how old the
+conversation they are resuming is.
+
+FR7c. Read a record that carries no written time, showing the line without one,
+so a session stored by an earlier build still restores.
 
 ### Discarding the session
 
@@ -128,18 +155,22 @@ chat history already carries.
 NFR3. A session that cannot be written leaves the running session untouched, and
 says nothing: the user did not ask for a write.
 
-NFR4. The desktop behaves as it does today, since a session there is never
-evicted.
+NFR4. Nothing on the desktop gets slower or changes mid-session. A session there
+is never evicted, so the only visible difference is that one survives a restart.
 
 ## What the design must settle
 
-- Whether the panel entries are stored as they are, or rebuilt from the chat
-  history, given the history holds tool calls the panel never shows.
-- What a version field costs, given FR9 needs one and a basic version has only
-  one shape so far.
+Settled in [3-component-design.md](3-component-design.md):
+
+- The entries are stored as they are, not rebuilt from the chat history.
+- A cancelled turn reaches the plugin through a new callback carrying the
+  ending, beside the two that carry a notice message.
+- The transcript is not stored, so a restored session explains its earlier turns
+  less fully than a session that never went away.
+
+Still open:
+
 - Whether a write per turn is enough on a phone, where the eviction can land
   between a turn ending and the write completing.
 - How large a session may grow before the write is worth trimming, given a long
   session carries every tool result the model was sent.
-- How a cancelled turn reaches the plugin, since the panel reports a finish and
-  a failure but deliberately reports nothing when the user stops a turn.

@@ -9,6 +9,8 @@ import { AgentsMdRepository } from './agents/agents-md-repository'
 import { EditEngine } from './engine/edit-engine'
 import { EngineFactory } from './engine/engine-factory'
 import { PanelPresence, SessionBuilder } from './session/session-builder'
+import { SessionStore } from './session/session-store'
+import { StoredSession } from './session/models/stored-session'
 
 export default class OwlPlugin extends Plugin {
   settings: OwlSettings = DEFAULT_SETTINGS
@@ -17,7 +19,10 @@ export default class OwlPlugin extends Plugin {
 
   async onload(): Promise<void> {
     this.settings = { ...DEFAULT_SETTINGS, ...(await this.loadData()) }
-    this.registerView(VIEW_TYPE_SESSION, (leaf) => new SessionView(leaf))
+    this.registerView(
+      VIEW_TYPE_SESSION,
+      (leaf) => new SessionView(leaf, (view) => this.storedPanelProps(view)),
+    )
     this.addRibbonIcon('mic', 'Start Owl session', () => this.openSession())
     this.addCommand({
       id: 'start-session',
@@ -39,6 +44,13 @@ export default class OwlPlugin extends Plugin {
     const file = this.activeNote()
     const view = await this.revealSessionView()
     if (!view) return
+    // The view restores itself as it opens, so a session left behind is
+    // usually already here. This read covers the case where the leaf existed
+    // before the plugin could restore into it.
+    if (!view.hasSession()) {
+      const stored = await this.storedPanelProps(view)
+      if (stored) return view.bindSession(stored)
+    }
     this.bindOrAskRebind(view, file)
   }
 
@@ -54,7 +66,36 @@ export default class OwlPlugin extends Plugin {
   }
 
   private buildPanelProps(file: TFile | null, view: SessionView): SessionPanelProps {
-    return this.sessionBuilder().build(file, this.panelPresence(view))
+    const props = this.sessionBuilder().build(file, this.panelPresence(view))
+    return this.withSessionWriting(props)
+  }
+
+  private restoredPanelProps(stored: StoredSession, view: SessionView): SessionPanelProps {
+    const props = this.sessionBuilder().restore(stored, this.panelPresence(view))
+    return this.withSessionWriting(props)
+  }
+
+  // Asked by the view as it opens, which is where a leaf Obsidian reopened on
+  // restart gets its session back without the user invoking Owl again.
+  private async storedPanelProps(view: SessionView): Promise<SessionPanelProps | null> {
+    const stored = await this.sessionStore().read()
+    return stored ? this.restoredPanelProps(stored, view) : null
+  }
+
+  // The write is the plugin's rather than the builder's: only the plugin knows
+  // the session can outlive the app, and the panel would write on every render.
+  // Never awaited by the turn that ended: the turn has already happened, and a
+  // failed write costs the session rather than the turn (FR10).
+  private withSessionWriting(props: SessionPanelProps): SessionPanelProps {
+    const buildStoredSession = props.buildStoredSessionFromEntries
+    return {
+      ...props,
+      onTurnEnded: (_, entries) => void this.sessionStore().write(buildStoredSession(entries)),
+    }
+  }
+
+  private sessionStore(): SessionStore {
+    return new SessionStore(this.app.vault.adapter, this.manifest.dir)
   }
 
   private sessionBuilder(): SessionBuilder {
@@ -108,7 +149,10 @@ export default class OwlPlugin extends Plugin {
   // The note is read now rather than taken from the session being replaced: a
   // reset is what the user reaches for when the binding is wrong, and handing
   // the new session the same note is what left a stranded one stranded.
+  // The stored session goes with the live one, so the session the user replaced
+  // does not come back on the next load (FR8).
   private startNewSession(view: SessionView): void {
+    void this.sessionStore().discard()
     view.bindSession(this.buildPanelProps(this.activeNote(), view))
   }
 

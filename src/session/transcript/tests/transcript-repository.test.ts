@@ -27,6 +27,24 @@ describe('TranscriptRepository', () => {
     for (let index = 0; index < count; index++) transcript.panelStepPublished()
   }
 
+  describe('when a session was restored', () => {
+    beforeEach(() => {
+      transcript = new TranscriptRepository(4)
+    })
+
+    it('starts the first recorded step past the restored history', () => {
+      recordCall(6)
+
+      expect(
+        transcript.recordedSteps().map((step) => [step.history.first, step.history.last]),
+      ).toEqual([[4, 5]])
+    })
+
+    it('holds no steps from before the restore', () => {
+      expect(transcript.isEmpty()).toBe(true)
+    })
+  })
+
   describe('when a turn step is recorded', () => {
     it('holds the history range it was sent', () => {
       recordCall(1)

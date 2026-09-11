@@ -11,6 +11,15 @@ export class SessionRepository {
     this.targetPath = originalNote?.path ?? null
   }
 
+  // From a stored path rather than a TFile, since the note a restored session
+  // was on may no longer be open or may no longer exist (FR7).
+  static restored(targetPath: string | null, messages: readonly ChatMessage[]): SessionRepository {
+    const sessions = new SessionRepository(null)
+    sessions.targetPath = targetPath
+    messages.forEach((message) => sessions.appendChatMessage(message))
+    return sessions
+  }
+
   // Null until the user opens a note, which is what an unbound session is.
   targetNote(): string | null {
     return this.targetPath

@@ -445,6 +445,15 @@
   font-style: normal;
 }
 
+/* A boundary rather than a line of narration: the rule above it is where the
+   restored turns stop, which is also where the transcript starts explaining
+   itself again. */
+.owl-entry-restored {
+  border-top: 1px solid var(--background-modifier-border);
+  padding-top: var(--size-4-2);
+  font-style: italic;
+}
+
 /* Collapsed by default, like the resolved commands in settings. The summary
    carries the context weight; the open list indents under it. */
 .owl-entry-steps summary {

@@ -1,11 +1,14 @@
 import { DataAdapter, ListedFiles } from 'obsidian'
 
 // Mirrors the adapter contract SkillRepository relies on: list() throws on a
-// missing directory, read() throws on a missing file.
+// missing directory, read() throws on a missing file. remove() throws on a
+// missing file too, which is what SessionStore swallows.
 export class FakeAdapter {
   readonly listed: string[] = []
   readonly reads: string[] = []
+  readonly removed: string[] = []
   private readonly vanishing = new Set<string>()
+  private unwritable = false
 
   constructor(private files: Record<string, string> = {}) {}
 
@@ -31,6 +34,16 @@ export class FakeAdapter {
     return this
   }
 
+  // Every write fails, as a full disk or a read-only vault does.
+  withFailingWrites(): this {
+    this.unwritable = true
+    return this
+  }
+
+  contentsOf(path: string): string | undefined {
+    return this.files[path]
+  }
+
   async list(path: string): Promise<ListedFiles> {
     this.listed.push(path)
     const folders = Object.keys(this.files)
@@ -46,5 +59,16 @@ export class FakeAdapter {
     if (source === undefined) throw new Error(`ENOENT: ${path}`)
     if (this.vanishing.has(path)) delete this.files[path]
     return source
+  }
+
+  async write(path: string, source: string): Promise<void> {
+    if (this.unwritable) throw new Error(`EACCES: ${path}`)
+    this.files[path] = source
+  }
+
+  async remove(path: string): Promise<void> {
+    if (this.files[path] === undefined) throw new Error(`ENOENT: ${path}`)
+    this.removed.push(path)
+    delete this.files[path]
   }
 }

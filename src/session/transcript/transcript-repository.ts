@@ -26,6 +26,12 @@ export class TranscriptRepository {
   private publishedPanelSteps = 0
   private turn = 0
 
+  // Where the first recorded step starts in the chat history. Zero for a
+  // session that never went away, and the restored history's length for one
+  // that did: without it the first step after a restore claims every message
+  // the previous session wrote.
+  constructor(private readonly restoredHistoryLength = 0) {}
+
   // Called before the provider call, so the parts recorded are the ones that
   // call carried rather than what the next step will change them to.
   recordCall(parts: ReadonlyMap<PartName, string>, historyLength: number): void {
@@ -104,6 +110,6 @@ export class TranscriptRepository {
   // the history once and writes no message twice.
   private historyStart(): number {
     const previous = this.steps.at(-1)
-    return previous ? previous.history.last + 1 : 0
+    return previous ? previous.history.last + 1 : this.restoredHistoryLength
   }
 }

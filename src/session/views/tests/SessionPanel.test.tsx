@@ -39,6 +39,12 @@ describe('SessionPanel', () => {
         processUtterance={processUtterance}
         onHidden={onHidden}
         notify={notify}
+        buildStoredSessionFromEntries={(entries) => ({
+          version: 1,
+          targetPath: null,
+          messages: [],
+          entries: [...entries],
+        })}
         {...overrides}
       />,
     )
@@ -615,34 +621,34 @@ describe('SessionPanel', () => {
 
   describe('when a turn ends with the panel closed', () => {
     it('reports the summary when a turn finishes', async () => {
-      const onTurnFinished = vi.fn()
-      renderPanel({ onTurnFinished })
+      const notifySucceeded = vi.fn()
+      renderPanel({ notifySucceeded })
 
       await userEvent.type(screen.getByLabelText('Instruction'), 'do it{Enter}')
 
-      expect(onTurnFinished).toHaveBeenCalledWith('made the edit')
+      expect(notifySucceeded).toHaveBeenCalledWith('made the edit')
     })
 
     it('reports the message when a turn fails', async () => {
-      const onTurnFailed = vi.fn()
+      const notifyFailed = vi.fn()
       processUtterance.mockResolvedValue(Outcomes.failure('chat', 'it broke'))
-      renderPanel({ onTurnFailed })
+      renderPanel({ notifyFailed })
 
       await userEvent.type(screen.getByLabelText('Instruction'), 'do it{Enter}')
 
-      expect(onTurnFailed).toHaveBeenCalledWith('it broke')
+      expect(notifyFailed).toHaveBeenCalledWith('it broke')
     })
 
     it('reports nothing when the turn is cancelled, since the user stopped it', async () => {
-      const onTurnFinished = vi.fn()
-      const onTurnFailed = vi.fn()
+      const notifySucceeded = vi.fn()
+      const notifyFailed = vi.fn()
       processUtterance.mockResolvedValue(Outcomes.cancelled('chat', []))
-      renderPanel({ onTurnFinished, onTurnFailed })
+      renderPanel({ notifySucceeded, notifyFailed })
 
       await userEvent.type(screen.getByLabelText('Instruction'), 'do it{Enter}')
 
-      expect(onTurnFinished).not.toHaveBeenCalled()
-      expect(onTurnFailed).not.toHaveBeenCalled()
+      expect(notifySucceeded).not.toHaveBeenCalled()
+      expect(notifyFailed).not.toHaveBeenCalled()
     })
   })
 

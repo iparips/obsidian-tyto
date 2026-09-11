@@ -1,4 +1,5 @@
 import { TranscriptSource } from './models/transcript-source'
+import { LocalTimestamp } from '../models/local-timestamp'
 
 // The table opening the transcript. The settings are here because they decide
 // which sections the system prompt carries, so a transcript read months later
@@ -17,7 +18,7 @@ export class TranscriptMetadata {
   private static rows(source: TranscriptSource): [string, string][] {
     const { session, settings } = source
     return [
-      ['Copied', TranscriptMetadata.stamp(session.copiedAt)],
+      ['Copied', LocalTimestamp.of(session.copiedAt)],
       ['Plugin', `Owl ${session.pluginVersion}`],
       ['Note', session.notePath ?? 'no note open'],
       ['Model', settings.editModel],
@@ -40,17 +41,5 @@ export class TranscriptMetadata {
 
   private static count(total: number, noun: string): string {
     return `${total} ${noun}${total === 1 ? '' : 's'}`
-  }
-
-  // Local time, since a session is read against the day the user had it rather
-  // than against UTC.
-  private static stamp(at: Date): string {
-    const date = [at.getFullYear(), at.getMonth() + 1, at.getDate()]
-      .map((part, index) => String(part).padStart(index === 0 ? 4 : 2, '0'))
-      .join('-')
-    const time = [at.getHours(), at.getMinutes()]
-      .map((part) => String(part).padStart(2, '0'))
-      .join(':')
-    return `${date} ${time}`
   }
 }

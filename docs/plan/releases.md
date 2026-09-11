@@ -85,7 +85,7 @@ Detailed design, one folder per feature:
 - [9-model-chosen-targets/1-index.md](../spec/9-model-chosen-targets/1-index.md) - opening a note the model located itself. Built; exit tests outstanding.
 - [10-finding-notes/1-index.md](../spec/10-finding-notes/1-index.md) - a glob over paths and a grep over content, replacing fuzzy search. Built; exit tests outstanding.
 - [14-choosing-the-note/1-index.md](../spec/14-choosing-the-note/1-index.md) - the user picks the note from a shortlist, which is also the permission to write to it. Built; exit tests outstanding.
-- [session-persistence/1-index.md](../spec/Upcoming/session-persistence/1-index.md) - a session that survives the app being backgrounded. Designed.
+- [session-persistence/1-index.md](../spec/22-session-persistence/1-index.md) - a session that survives the app being backgrounded. Designed.
 
 High-level design: [architecture/4-obsidian-agent-harness.md](../architecture/4-obsidian-agent-harness.md).
 

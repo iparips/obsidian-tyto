@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { NoteName } from '../models/note-name'
 
 export interface TargetNotePorts {
   // Null while the session is unbound, which the header says rather than naming
@@ -25,7 +26,7 @@ export const useTargetNote = (ports: TargetNotePorts): TargetNote => {
   useEffect(
     () =>
       ports.onTargetNoteChanged?.((changedTo) => {
-        setName(noteNameOf(changedTo))
+        setName(NoteName.of(changedTo))
         setPath(changedTo)
       }),
     [],
@@ -33,6 +34,3 @@ export const useTargetNote = (ports: TargetNotePorts): TargetNote => {
 
   return { name, path }
 }
-
-const noteNameOf = (path: string): string =>
-  path.slice(path.lastIndexOf('/') + 1).replace(/\.md$/, '')

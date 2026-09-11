@@ -18,6 +18,8 @@ export class TranscriptEntryLines {
         return [`- Warned - ${entry.text}`]
       case 'cancelled':
         return [`Cancelled: ${entry.text}`]
+      case 'restored':
+        return [`- ${entry.text}`]
       case 'answer':
         return TranscriptEntryLines.answer(entry.text, entry.sources)
       case 'choice':

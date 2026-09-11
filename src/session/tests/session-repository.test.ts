@@ -68,6 +68,30 @@ describe('SessionRepository', () => {
     })
   })
 
+  describe('when a session is restored from a record', () => {
+    beforeEach(() => {
+      sessions = SessionRepository.restored('Journal/day.md', [
+        ChatMessage.user('add a heading'),
+        ChatMessage.model('added it'),
+      ])
+    })
+
+    it('targets the stored path when the record named one', () => {
+      expect(sessions.targetNote()).toBe('Journal/day.md')
+    })
+
+    it('reports the restored messages in order, so the next turn sends them', () => {
+      expect(sessions.chatHistory().map((message) => message.content)).toEqual([
+        'add a heading',
+        'added it',
+      ])
+    })
+
+    it('reports itself unbound when the record named no target', () => {
+      expect(SessionRepository.restored(null, []).isBound()).toBe(false)
+    })
+  })
+
   describe('when the conversation grows', () => {
     it('keeps messages in the order they were appended', () => {
       sessions.appendChatMessage(ChatMessage.user('first'))

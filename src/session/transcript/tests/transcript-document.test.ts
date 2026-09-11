@@ -147,6 +147,17 @@ describe('TranscriptDocument', () => {
       expect(document).toContain('Cancelled: Stopped. Nothing was changed.')
     })
 
+    it('renders the restored line, which is what marks where a session came back', () => {
+      const document = documentOf({
+        entries: [
+          { kind: 'user', text: 'go' },
+          { kind: 'restored', text: 'Session restored from 2026-09-11 14:32 AEST.' },
+        ],
+      })
+
+      expect(document).toContain('- Session restored from 2026-09-11 14:32 AEST.')
+    })
+
     it('marks the refused steps, which is what a turn that went nowhere is made of', () => {
       const document = documentOf({
         entries: [
@@ -453,6 +464,16 @@ describe('TranscriptDocument', () => {
       expect(document).toContain('### System prompt v1')
       expect(document).toContain('### System prompt v2')
       expect(document).toContain('+ prompt v2')
+    })
+  })
+
+  describe('the copied stamp', () => {
+    // The zone is the machine's, so the row is bounded rather than named: a
+    // suite that names one zone fails on a machine in another.
+    it('names the day and time the transcript was copied', () => {
+      const document = documentOf({ entries: [{ kind: 'user', text: 'hello' }] })
+
+      expect(document).toContain('| Copied | 2026-09-10 15:25 ')
     })
   })
 
