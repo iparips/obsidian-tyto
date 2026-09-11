@@ -194,16 +194,24 @@ describe('the prompt messages', () => {
 
     // A command opened the right note, so the edit looked like success and the
     // skill's own steps were skipped without anything saying so.
-    it('tells the model to answer the skill question before its first edit', () => {
+    it('tells the model to answer the skill question before its first tool call', () => {
       const prompt = systemPromptText(new AgentsMdChain(), [], catalogue)
 
-      expect(prompt).toContain('Answer the skill question before your first edit')
+      expect(prompt).toContain('Answer the skill question before your first tool call')
+    })
+
+    // A turn globbed a guessed date order five times, then loaded the journal
+    // skill that held the vault's filename format and got it right first try.
+    it('says a search run before the skill is loaded is built on a guess', () => {
+      const prompt = systemPromptText(new AgentsMdChain(), [], catalogue)
+
+      expect(prompt).toContain('search you run before loading it is a search built on a guess')
     })
 
     it('names no_skill_applies, so the model is never stuck when none fits', () => {
       const prompt = systemPromptText(new AgentsMdChain(), [], catalogue)
 
-      expect(prompt).toContain('no_skill_applies when none does')
+      expect(prompt).toContain('no_skill_applies')
     })
 
     it('says the model decides which skill applies, not the harness', () => {
@@ -448,7 +456,29 @@ describe('the prompt messages', () => {
     // asked the user which week held a date it had already resolved.
     it('tells the model to glob for the file once it knows the name', () => {
       expect(systemPromptText(new AgentsMdChain(), [], [], true)).toContain(
-        'Name the file, not the folder.',
+        'Name the file, not the folder, once you have seen how this vault writes it.',
+      )
+    })
+
+    // The turn that guessed **/*04-09* for a 09-04 vault matched one archived
+    // note from another quarter, which read as success.
+    it('tells the model a hit on a guessed name is a guess that landed', () => {
+      expect(systemPromptText(new AgentsMdChain(), [], [], true)).toContain(
+        'A match is not the note.',
+      )
+    })
+
+    it('tells the model never to send the same pattern twice', () => {
+      expect(systemPromptText(new AgentsMdChain(), [], [], true)).toContain(
+        'Never send the same pattern twice.',
+      )
+    })
+
+    // resolve_date returns the week the note sits in, so the folder is listable
+    // without spelling a date order the vault may not use.
+    it('sends a resolved date to its week folder rather than into a pattern', () => {
+      expect(systemPromptText(new AgentsMdChain(), [], [], true)).toContain(
+        'A resolved date is not a filename.',
       )
     })
 
