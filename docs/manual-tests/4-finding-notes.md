@@ -70,3 +70,34 @@ question and a legitimate one.
 
 Check: an open of a path no search returned is refused naming the search, and
 that refusal is distinct from one naming the choosing tool.
+
+## FN9. A spoken date reaches the tool, not the model's arithmetic
+
+The failure this came from: on Friday 2026-09-11 the model resolved "last
+Friday" to 09-10, then to 09-11, and never to 09-04. Two rounds of prompt had
+already told it today's date, its week and that week's Monday.
+
+Setup: a vault holding a daily note for the Friday of the previous week.
+
+1. Say "find a daily note from last Friday and write, I ate eggs on toast on
+   top of the note".
+
+Check: a Resolved step appears before the first Globbed step, naming the phrase
+and the date. The date is the previous week's Friday. No glob names a date the
+Resolved step did not return, and the note offered is that Friday's.
+
+## FN10. A phrase the parser does not know reaches the user
+
+1. Ask for a note from "a fortnight ago".
+
+Check: the model asks which date you mean. A glob on a date it worked out for
+itself is the failure, and so is a Resolved step naming a date at all.
+
+## FN11. The weekend reading follows ordinary usage
+
+Run this one on a Saturday.
+
+1. Ask for a note from last Friday.
+
+Check: the Resolved step names the Friday just gone, not the Friday of the week
+before. This is the parser's reading and the one a person expects.

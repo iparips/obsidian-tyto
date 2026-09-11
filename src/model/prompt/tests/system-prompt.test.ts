@@ -382,6 +382,14 @@ describe('the prompt messages', () => {
       expect(withSearch()).toContain('Never spell out a date or title you have not seen')
     })
 
+    // Two rounds of prompt failed on this arithmetic, so the rule names the
+    // tool rather than telling the model how to do the sum.
+    it('sends a date the user spoke to resolve_date rather than working it out', () => {
+      expect(withSearch()).toContain(
+        'Never work out a date yourself. When the user names a day in words rather',
+      )
+    })
+
     it('mentions search_vault nowhere, since it no longer exists', () => {
       expect(withSearch()).not.toContain('search_vault')
     })
