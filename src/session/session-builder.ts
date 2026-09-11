@@ -10,6 +10,8 @@ import { SessionProgress } from './session-progress'
 import { TurnAskersService } from './turn-askers-service'
 import { TurnNotices } from './turn-notices'
 import { OwlSettings } from '../settings/settings'
+import { TranscriptRepository } from './transcript/transcript-repository'
+import { SessionRepository } from './session-repository'
 
 // Everything one session publishes on and parks on, built together so the panel
 // and the engine reach the same set.
@@ -41,7 +43,12 @@ export class SessionBuilder {
   build(file: TFile | null, presence: PanelPresence): SessionPanelProps {
     const modelProvider = new MistralProvider(this.settings.mistralApiKey, this.settings.editModel)
     const channels = this.channelsFor(presence)
-    const engine = this.engineFor(modelProvider, file, channels)
+    // Built here rather than in EngineFactory, which returns only an EditEngine:
+    // the panel reads both, and a recorded step is only meaningful beside the
+    // history it indexes into.
+    const transcript = new TranscriptRepository()
+    const sessions = new SessionRepository(file)
+    const engine = this.engineFor(modelProvider, file, channels, transcript, sessions)
     return {
       noteName: file?.basename ?? null,
       notePath: file?.path ?? null,
@@ -92,15 +99,19 @@ export class SessionBuilder {
     modelProvider: MistralProvider,
     file: TFile | null,
     { listeners, session, askers }: SessionChannels,
+    transcript: TranscriptRepository,
+    sessions: SessionRepository,
   ): EditEngine {
     const engine = this.engineFactory.build(
       modelProvider,
       file,
-      new SessionProgress(session).publisher(),
+      new SessionProgress(session, transcript).publisher(),
       {
         noteChoiceService: (cancellation, chosen) => askers.noteChoiceService(cancellation, chosen),
         userQuestionService: (cancellation) => askers.userQuestionService(cancellation),
       },
+      transcript,
+      sessions,
     )
     this.followEngine(engine)
     return engine

@@ -1,5 +1,6 @@
 import { ChatMessage } from './providers/types'
 import { ModelRequest } from './model-request'
+import { ModelRequestParts } from './model-request-parts'
 import { SystemPrompt } from './prompt/system-prompt'
 import { DateMessage } from './prompt/date-message'
 import { NoNoteBoundMessage } from './prompt/no-note-bound-message'
@@ -9,25 +10,25 @@ import { Today } from './today'
 // One turn's request as the messages that carry it. ModelService knows who to
 // send them to; this knows what they are made of.
 export class ModelRequestMapper {
-  // Ordered by how stale a copy the history could hold: the system prompt
-  // first, then the conversation, then what the model must not read off an
-  // earlier turn.
   static toMessages(request: ModelRequest): ChatMessage[] {
-    const systemPrompt = SystemPrompt.build(
-      request.agentsMdChain,
-      request.allowedCommands,
-      request.skills,
-      request.searchEnabled,
-    )
+    return ModelRequestMapper.toParts(request).asMessagesAround(request.chatHistory)
+  }
 
-    return [
-      systemPrompt,
-      ...request.chatHistory,
+  // Named rather than assembled inline, so ModelService can record what each
+  // part said without rebuilding any of them.
+  static toParts(request: ModelRequest): ModelRequestParts {
+    return new ModelRequestParts(
+      SystemPrompt.build(
+        request.agentsMdChain,
+        request.allowedCommands,
+        request.skills,
+        request.searchEnabled,
+      ),
       // Today is read per call rather than per session, so a turn running past
       // midnight resolves against the day it is on.
       DateMessage.build(Today.of()),
-      ModelRequestMapper.sessionTarget(request), // included last
-    ]
+      ModelRequestMapper.sessionTarget(request),
+    )
   }
 
   private static sessionTarget(request: ModelRequest): ChatMessage {

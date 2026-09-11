@@ -8,6 +8,7 @@ import { TurnProgressPublisher } from './turn-progress-publisher'
 import { TurnRunnerFactory } from './turn/turn-runner-factory'
 import { WorkspaceNoteLocator } from './note-binding/workspace-note-locator'
 import { SessionRepository } from '../session/session-repository'
+import { TranscriptRepository } from '../session/transcript/transcript-repository'
 import { AgentsMdRepository } from '../agents/agents-md-repository'
 import { SkillRepository } from '../skills/skill-repository'
 import { ChatProvider } from '../model/providers/types'
@@ -52,8 +53,12 @@ export class EngineFactory {
     file: TFile | null,
     progress: TurnProgressPublisher,
     askers: EngineAskers = {},
+    // Both built by SessionBuilder rather than here, because the panel reads
+    // them and nothing built inside this factory can be read back. A recorded
+    // step indexes into the history, so the two travel together.
+    transcript: TranscriptRepository = new TranscriptRepository(),
+    sessions: SessionRepository = new SessionRepository(file),
   ): EditEngine {
-    const sessions = new SessionRepository(file)
     const targetNote = new TargetNoteResolver(
       sessions,
       new WorkspaceNoteLocator(this.app),
@@ -70,6 +75,7 @@ export class EngineFactory {
         progress,
         askers,
         modelProvider,
+        transcript,
       ),
       progress,
       targetNote,
@@ -83,6 +89,7 @@ export class EngineFactory {
     progress: TurnProgressPublisher,
     askers: EngineAskers,
     modelProvider: ChatProvider,
+    transcript: TranscriptRepository,
   ): TurnRunnerFactory {
     return new TurnRunnerFactory(
       sessions,
@@ -98,6 +105,7 @@ export class EngineFactory {
         ((_cancellationController, notesChosenByUser) =>
           NoteChoiceService.automatic(notesChosenByUser)),
       askers.userQuestionService ?? (() => UserQuestionService.unanswered()),
+      transcript,
     )
   }
 

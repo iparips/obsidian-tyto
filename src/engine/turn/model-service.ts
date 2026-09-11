@@ -3,8 +3,10 @@ import { Outcome } from '../../shared/models/outcome'
 import { ChatProvider } from '../../model/providers/types'
 import { ModelRequest } from '../../model/model-request'
 import { ModelRequestMapper } from '../../model/model-request-mapper'
+import { ModelRequestParts } from '../../model/model-request-parts'
 import { HarnessToolsService } from '../tools/harness-tools-service'
 import { SessionRepository } from '../../session/session-repository'
+import { TranscriptRepository } from '../../session/transcript/transcript-repository'
 import { TurnCancellationController } from './turn-cancellation-controller'
 import { TurnRepository } from './turn-repository'
 
@@ -17,15 +19,21 @@ export class ModelService {
     private turnCancellationController: TurnCancellationController,
     private modelProvider: ChatProvider,
     private harnessToolsService: HarnessToolsService,
+    private transcriptRepository: TranscriptRepository,
   ) {}
 
   // Logged around the call rather than after it, since a turn that feels slow is
   // one model call taking its time rather than the loop doing work between them.
   async askModel(step: number): Promise<Outcome<ChatTurn>> {
     const askedAt = Date.now()
+    const request = this.requestForModel()
+    const parts = ModelRequestMapper.toParts(request)
+    // Recorded before the call rather than after it, so a step the provider
+    // failed on still says what it was sent.
+    this.recordCall(parts, request.chatHistory.length)
 
     const answer = await this.modelProvider.complete(
-      ModelRequestMapper.toMessages(this.requestForModel()),
+      parts.asMessagesAround(request.chatHistory),
       this.harnessToolsService.getToolCallSchemas(this.turnRepository.definesSkills()),
       this.turnCancellationController.signal(),
     )
@@ -44,6 +52,17 @@ export class ModelService {
       this.sessionRepository.chatHistory(),
       this.harnessToolsService.allowedCommands(),
       this.harnessToolsService.hasSearchEnabled(),
+    )
+  }
+
+  private recordCall(parts: ModelRequestParts, historyLength: number): void {
+    this.transcriptRepository.recordCall(
+      new Map([
+        ['systemPrompt', parts.systemPrompt.content],
+        ['dateMessage', parts.dateMessage.content],
+        ['sessionTarget', parts.sessionTarget.content],
+      ]),
+      historyLength,
     )
   }
 

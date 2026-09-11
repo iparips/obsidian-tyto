@@ -15,6 +15,7 @@ import { PathsReturnedByVaultRepository } from '../../search/models/paths-return
 import { NotesOpenedCounter } from './notes-opened-counter'
 import { UserQuestionService } from '../waiting/user-question-service'
 import { SessionRepository } from '../../session/session-repository'
+import { TranscriptRepository } from '../../session/transcript/transcript-repository'
 import { Attempt, Outcomes } from '../../shared/models/outcome'
 import { ChatProvider } from '../../model/providers/types'
 import { TurnEndingService } from '../turn-ending-service'
@@ -48,6 +49,9 @@ export class TurnRunnerFactory {
     private buildUserQuestion: (
       cancellationController: TurnCancellationController,
     ) => UserQuestionService = () => UserQuestionService.unanswered(),
+    // Session-scoped like the history it indexes into, so a turn records into
+    // the store the panel reads.
+    private transcriptRepository: TranscriptRepository = new TranscriptRepository(),
   ) {}
 
   // Session-scoped, so a note found in one turn can still be opened in the
@@ -90,10 +94,12 @@ export class TurnRunnerFactory {
         cancellationController,
         this.modelProvider,
         this.harnessToolsService,
+        this.transcriptRepository,
       ),
       new ToolCallExecutor(this.sessionRepository, repository, toolDispatcher),
       this.turnEnding,
       this.turnProgressPublisher,
+      this.transcriptRepository,
     )
   }
 

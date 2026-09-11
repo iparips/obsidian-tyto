@@ -21,6 +21,7 @@ import { TurnRunnerFactory } from '../engine/turn/turn-runner-factory'
 import { WorkspaceNoteLocator } from '../engine/note-binding/workspace-note-locator'
 import { TFile } from 'obsidian'
 import { SessionRepository } from '../session/session-repository'
+import { TranscriptRepository } from '../session/transcript/transcript-repository'
 import { AgentsMdRepository } from '../agents/agents-md-repository'
 import { SkillRepository } from '../skills/skill-repository'
 import { ChatProvider } from '../model/providers/types'
@@ -52,6 +53,7 @@ export interface EnginePartsOptions {
     notesChosenByUser: NotesChosenByUserRepository,
   ) => NoteChoiceService
   userQuestionService?: (cancellationController: TurnCancellationController) => UserQuestionService
+  transcript?: TranscriptRepository
 }
 
 // The resolver and dispatcher a test needs beside an engine, wired the way
@@ -80,6 +82,7 @@ export const anEngine = (modelProvider: ChatProvider, options: EnginePartsOption
       ((_cancellationController, notesChosenByUser) =>
         NoteChoiceService.automatic(notesChosenByUser)),
     options.userQuestionService ?? (() => UserQuestionService.unanswered()),
+    options.transcript ?? new TranscriptRepository(),
   )
   return new EditEngine(options.sessions, turnFactory, progress, targetNote)
 }
