@@ -11,7 +11,7 @@ rather than repeating it: anything restated here is a third place to drift.
 
 ```text
 Implement the copy session transcript feature, specified in
-docs/spec/21-copy-transcript/.
+docs/spec/20-copy-transcript/.
 
 Read 1-index.md, then 2-requirements.md, then 6-tasks.md. The tasks file is the
 build order: four commits, each standing alone with its tests green. Read
