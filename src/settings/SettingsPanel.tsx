@@ -95,9 +95,9 @@ export const SettingsPanel = ({
       Ask before opening a note Tyto found
     </label>
     <p className="tyto-settings-note">
-      Tyto can search for the note an instruction names and open it. With this on, it shows you
-      what it found and waits for you to pick one. With it off, it opens a note when only one
-      matched, and still asks when several did. A note one of your commands opens never asks.
+      Tyto can search for the note an instruction names and open it. With this on, it shows you what
+      it found and waits for you to pick one. With it off, it opens a note when only one matched,
+      and still asks when several did. A note one of your commands opens never asks.
     </p>
     <p className="tyto-settings-note">
       Your key is stored in this vault and only ever sent to the provider. Note content and

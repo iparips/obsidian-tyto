@@ -486,7 +486,9 @@ describe('EditEngine', () => {
 
       await engineOf().processUtterance('add toilet paper twice')
 
-      expect(todoEditor.content).toBe('# Todo\n\n- [ ] milk\n- [ ] toilet paper\n- [ ] toilet paper\n')
+      expect(todoEditor.content).toBe(
+        '# Todo\n\n- [ ] milk\n- [ ] toilet paper\n- [ ] toilet paper\n',
+      )
     })
 
     it('asks nothing when a single candidate opens in auto mode', async () => {
