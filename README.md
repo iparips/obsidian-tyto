@@ -1,6 +1,4 @@
-<p align="center">
-  <img src="docs/assets/tyto-logo.png" alt="Tyto" width="200">
-</p>
+<img src="docs/assets/tyto-logo.png" alt="Tyto" width="200">
 
 # Tyto
 
