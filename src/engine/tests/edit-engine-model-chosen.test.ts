@@ -81,7 +81,7 @@ describe('EditEngine', () => {
     buildChoice: (
       cancellation: TurnCancellationController,
       chosen: NotesChosenByUserRepository,
-    ) => NoteChoiceService = (_cancellation, chosen) => NoteChoiceService.automatic(chosen),
+    ) => NoteChoiceService = (_cancellation, chosen) => NoteChoiceService.unasked(chosen),
     answer = '',
     noteOpener: NoteOpener | null = null,
   ) =>
@@ -469,6 +469,32 @@ describe('EditEngine', () => {
       await engineOf().processUtterance('add toilet paper to my todo')
 
       expect(sessions.targetNote()).toBe('note.md')
+    })
+
+    it('names the opened path in the steps, so a single match is visible after the fact', async () => {
+      respondsWith(findsTodo(), offersTodo(), opensTodo(), addsItem())
+
+      await engineOf().processUtterance('add toilet paper to my todo')
+
+      expect(steps).toContain(`Opened: ${TODO}`)
+    })
+
+    // The resolve is recorded like a pick, so open_note's holds check passes and
+    // a later edit in the same turn asks nothing.
+    it('edits the opened note twice without asking again, since the resolve is consent', async () => {
+      respondsWith(findsTodo(), offersTodo(), opensTodo(), addsItem(), addsItem())
+
+      await engineOf().processUtterance('add toilet paper twice')
+
+      expect(todoEditor.content).toBe('# Todo\n\n- [ ] milk\n- [ ] toilet paper\n- [ ] toilet paper\n')
+    })
+
+    it('asks nothing when a single candidate opens in auto mode', async () => {
+      respondsWith(findsTodo(), offersTodo(), opensTodo(), addsItem())
+
+      await engineOf().processUtterance('add toilet paper to my todo')
+
+      expect(asked).toEqual([])
     })
   })
 

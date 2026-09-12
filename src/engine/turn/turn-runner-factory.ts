@@ -46,7 +46,7 @@ export class TurnRunnerFactory {
       cancellationController: TurnCancellationController,
       notesChosenByUser: NotesChosenByUserRepository,
     ) => NoteChoiceService = (_cancellationController, notesChosenByUser) =>
-      NoteChoiceService.automatic(notesChosenByUser),
+      NoteChoiceService.unasked(notesChosenByUser),
     private buildUserQuestion: (
       cancellationController: TurnCancellationController,
     ) => UserQuestionService = () => UserQuestionService.unanswered(),

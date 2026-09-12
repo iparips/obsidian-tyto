@@ -81,7 +81,7 @@ export const anEngine = (modelProvider: ChatProvider, options: EnginePartsOption
     options.noteOpener ?? null,
     options.noteChoiceService ??
       ((_cancellationController, notesChosenByUser) =>
-        NoteChoiceService.automatic(notesChosenByUser)),
+        NoteChoiceService.unasked(notesChosenByUser)),
     options.userQuestionService ?? (() => UserQuestionService.unanswered()),
     options.transcript ?? new TranscriptRepository(),
   )

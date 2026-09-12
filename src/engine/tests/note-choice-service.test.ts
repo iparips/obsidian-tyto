@@ -103,27 +103,61 @@ describe('NoteChoiceService', () => {
     })
   })
 
-  describe('when the mode is automatic', () => {
-    let choice: NoteChoiceService
+  // Auto mode. One candidate is a translation of what the search found; several
+  // are a choice, and taking the first of them was the guess this removes.
+  describe('when the mode opens a single match', () => {
+    const autoPicking = (pick: string | null) => NoteChoiceService.singleMatch(picking(pick))
 
-    beforeEach(() => {
-      choice = NoteChoiceService.automatic()
+    it('returns the only candidate when the search found exactly one', async () => {
+      expect(await autoPicking(null).choose(offering([TODO]))).toBe(TODO)
     })
 
-    it('returns the first candidate without asking when constructed automatic', async () => {
-      expect(await choice.choose(offering())).toBe(TODO)
+    it('asks nobody when the search found exactly one', async () => {
+      await autoPicking(null).choose(offering([TODO]))
+
+      expect(offered).toEqual([])
     })
 
-    it('holds the first candidate when constructed automatic, so auto mode opens it', async () => {
-      await choice.choose(offering())
+    it('holds the candidate it resolved, so open_note accepts it', async () => {
+      const choice = autoPicking(null)
+
+      await choice.choose(offering([TODO]))
 
       expect(choice.holds(TODO)).toBe(true)
     })
 
-    it('holds no other candidate when constructed automatic, so auto mode opens one note', async () => {
+    it('asks the user when the search found several', async () => {
+      await autoPicking(TODO).choose(offering())
+
+      expect(offered).toEqual([BOTH])
+    })
+
+    it('returns the path the user picked when the search found several', async () => {
+      expect(await autoPicking(TODO).choose(offering())).toBe(TODO)
+    })
+
+    it('holds no candidate the user declined, so nothing opens', async () => {
+      const choice = autoPicking(null)
+
       await choice.choose(offering())
 
-      expect(choice.holds(SHOPPING)).toBe(false)
+      expect(choice.holds(TODO)).toBe(false)
+    })
+
+    it('returns null when the user declines every candidate', async () => {
+      expect(await autoPicking(null).choose(offering())).toBeNull()
+    })
+  })
+
+  // The default where no panel exists to ask: every factory built without
+  // askers, and every test not exercising the choice.
+  describe('when nothing can be asked', () => {
+    it('returns the only candidate when the search found exactly one', async () => {
+      expect(await NoteChoiceService.unasked().choose(offering([TODO]))).toBe(TODO)
+    })
+
+    it('declines rather than parking when the search found several', async () => {
+      expect(await NoteChoiceService.unasked().choose(offering())).toBeNull()
     })
   })
 

@@ -25,14 +25,36 @@ export class NoteChoiceService {
     return new NoteChoiceService(new PendingAnswer(ask, cancellationController), notesChosenByUser)
   }
 
-  // Auto mode, and what a test constructs when the choice is not what it is
-  // exercising. The mode is a choice of collaborator, not a branch (FR13).
-  static automatic(notesChosenByUser = new NotesChosenByUserRepository()): NoteChoiceService {
+  // Auto mode: a single candidate is a translation of what the search found, so
+  // it resolves without asking, and anything else is a choice the user makes.
+  // The mode is a choice of collaborator, not a branch (FR13), and a
+  // collaborator that sometimes answers instantly is still one.
+  static singleMatch(
+    ask: (request: ChoiceRequest) => Promise<string | null>,
+    cancellationController = new TurnCancellationController(),
+    notesChosenByUser = new NotesChosenByUserRepository(),
+  ): NoteChoiceService {
     return NoteChoiceService.of(
-      (request) => Promise.resolve(request.candidates[0] ?? null),
-      undefined,
+      (request) => NoteChoiceService.resolveOrAsk(request, ask),
+      cancellationController,
       notesChosenByUser,
     )
+  }
+
+  private static resolveOrAsk(
+    request: ChoiceRequest,
+    ask: (request: ChoiceRequest) => Promise<string | null>,
+  ): Promise<string | null> {
+    if (request.candidates.length === 1) return Promise.resolve(request.candidates[0])
+    return ask(request)
+  }
+
+  // The default where a caller offers no panel, which is every test not
+  // exercising the choice and every factory built without askers. A single
+  // candidate still resolves; several decline, rather than parking on a panel
+  // that is not there.
+  static unasked(notesChosenByUser = new NotesChosenByUserRepository()): NoteChoiceService {
+    return NoteChoiceService.singleMatch(() => Promise.resolve(null), undefined, notesChosenByUser)
   }
 
   // Null is the decline, which is an answer rather than a failure: the user

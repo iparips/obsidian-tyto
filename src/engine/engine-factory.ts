@@ -104,7 +104,7 @@ export class EngineFactory {
       new NoteOpener(this.app, new OpenedNoteWait(this.app)),
       askers.noteChoiceService ??
         ((_cancellationController, notesChosenByUser) =>
-          NoteChoiceService.automatic(notesChosenByUser)),
+          NoteChoiceService.unasked(notesChosenByUser)),
       askers.userQuestionService ?? (() => UserQuestionService.unanswered()),
       transcript,
     )
@@ -123,7 +123,10 @@ export class EngineFactory {
       this.settings.searchEnabled,
       new SearchToolsService(new NoteGlob(this.app.vault), new NoteGrep(this.app.vault)),
       new DateToolService(),
-      this.settings.openMode === 'confirm',
+      // Both modes ask about several candidates now, so both need the tool that
+      // asks. The parameter stays because ToolCatalogue carries the search gate
+      // through it (NFR4).
+      true,
     )
   }
 }

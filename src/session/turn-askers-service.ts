@@ -28,12 +28,11 @@ export class TurnAskersService {
     cancellationController: TurnCancellationController,
     notesChosenByUser: NotesChosenByUserRepository,
   ): NoteChoiceService {
-    if (this.mode === 'auto') return NoteChoiceService.automatic(notesChosenByUser)
-    return NoteChoiceService.of(
-      (request) => this.noticed(TurnAskersService.noticeFor(request), this.choices.ask(request)),
-      cancellationController,
-      notesChosenByUser,
-    )
+    const ask = (request: ChoiceRequest) =>
+      this.noticed(TurnAskersService.noticeFor(request), this.choices.ask(request))
+    if (this.mode === 'auto')
+      return NoteChoiceService.singleMatch(ask, cancellationController, notesChosenByUser)
+    return NoteChoiceService.of(ask, cancellationController, notesChosenByUser)
   }
 
   // The notice says the turn wants the user rather than listing the notes: the

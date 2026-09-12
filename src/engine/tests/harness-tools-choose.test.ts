@@ -183,8 +183,10 @@ describe('HarnessToolsService', () => {
     })
   })
 
-  describe('when the vault is in auto mode', () => {
-    it('omits choose_note from the schemas in auto mode', () => {
+  // Both open modes ask about several candidates, so both are offered the tool
+  // that asks. What the parameter carries now is the search gate alone (NFR4).
+  describe('when the choosing tool is withheld', () => {
+    it('omits choose_note from the schemas when it is withheld', () => {
       expect(namesOf(toolsOf(true, false).getToolCallSchemas())).not.toContain('choose_note')
     })
 
@@ -192,7 +194,7 @@ describe('HarnessToolsService', () => {
       expect(namesOf(toolsOf().getToolCallSchemas())).toContain('open_note')
     })
 
-    it('offers choose_note when the vault asks which note, so the mode is what drops it', () => {
+    it('offers choose_note when the vault asks which note', () => {
       expect(namesOf(toolsOf().getToolCallSchemas())).toContain('choose_note')
     })
   })
