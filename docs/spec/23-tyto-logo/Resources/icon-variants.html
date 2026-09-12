@@ -1,69 +1,966 @@
 <!doctype html>
-<meta charset="utf-8">
+<meta charset="utf-8" />
 <title>Tyto marks</title>
 <style>
-body{background:#1e1e1e;color:#dadada;font:13px -apple-system,system-ui,sans-serif;padding:24px;max-width:1040px}
-h2{font-size:14px;font-weight:600;margin:32px 0 6px;color:#fff}
-p.note{color:#999;margin:0 0 14px;max-width:720px;line-height:1.55}
-.strip{display:flex;gap:10px;flex-wrap:wrap}
-.card{background:#262626;border:1px solid #363636;border-radius:8px;padding:14px 10px;text-align:center;flex:1;min-width:150px}
-.card svg{display:block;margin:0 auto;color:#dadada}
-.lbl{margin-top:10px;font-size:11px;color:#cfcfcf;font-weight:600}
-.sub{font-size:10px;color:#888;margin-top:3px;line-height:1.4}
-.sizes{display:flex;gap:12px;align-items:center;justify-content:center;margin-top:12px;padding-top:10px;border-top:1px solid #333}
-.sizes svg{color:#9a9a9a}
-.light{background:#fafafa;border-color:#ddd}
-.light svg{color:#2a2a2a!important} .light .lbl{color:#333}
-.ribbon{display:flex;flex-direction:column;gap:6px;width:38px;padding:8px 0;background:#202020;border:1px solid #363636;border-radius:6px;align-items:center}
-.ribbon svg{color:#9a9a9a}
-.rrow{display:flex;gap:14px;align-items:center;padding:14px;background:#262626;border:1px solid #363636;border-radius:8px;flex-wrap:wrap}
-.rcap{text-align:center;font-size:10px;color:#888}
-code{background:#333;padding:1px 5px;border-radius:3px;font-size:11px}
+  body {
+    background: #1e1e1e;
+    color: #dadada;
+    font:
+      13px -apple-system,
+      system-ui,
+      sans-serif;
+    padding: 24px;
+    max-width: 1040px;
+  }
+  h2 {
+    font-size: 14px;
+    font-weight: 600;
+    margin: 32px 0 6px;
+    color: #fff;
+  }
+  p.note {
+    color: #999;
+    margin: 0 0 14px;
+    max-width: 720px;
+    line-height: 1.55;
+  }
+  .strip {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .card {
+    background: #262626;
+    border: 1px solid #363636;
+    border-radius: 8px;
+    padding: 14px 10px;
+    text-align: center;
+    flex: 1;
+    min-width: 150px;
+  }
+  .card svg {
+    display: block;
+    margin: 0 auto;
+    color: #dadada;
+  }
+  .lbl {
+    margin-top: 10px;
+    font-size: 11px;
+    color: #cfcfcf;
+    font-weight: 600;
+  }
+  .sub {
+    font-size: 10px;
+    color: #888;
+    margin-top: 3px;
+    line-height: 1.4;
+  }
+  .sizes {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    justify-content: center;
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px solid #333;
+  }
+  .sizes svg {
+    color: #9a9a9a;
+  }
+  .light {
+    background: #fafafa;
+    border-color: #ddd;
+  }
+  .light svg {
+    color: #2a2a2a !important;
+  }
+  .light .lbl {
+    color: #333;
+  }
+  .ribbon {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    width: 38px;
+    padding: 8px 0;
+    background: #202020;
+    border: 1px solid #363636;
+    border-radius: 6px;
+    align-items: center;
+  }
+  .ribbon svg {
+    color: #9a9a9a;
+  }
+  .rrow {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    padding: 14px;
+    background: #262626;
+    border: 1px solid #363636;
+    border-radius: 8px;
+    flex-wrap: wrap;
+  }
+  .rcap {
+    text-align: center;
+    font-size: 10px;
+    color: #888;
+  }
+  code {
+    background: #333;
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-size: 11px;
+  }
 </style>
 
 <h2>Two families</h2>
 <p class="note">
-Visor: the eyes and beak merge into one connected T inside an oval visor. The
-crossbar carries the owl brow, so the T is the facial disc rather than a
-borrowed one. Face: the heart-shaped disc stays open with separate eyes.
+  Visor: the eyes and beak merge into one connected T inside an oval visor. The crossbar carries the
+  owl brow, so the T is the facial disc rather than a borrowed one. Face: the heart-shaped disc
+  stays open with separate eyes.
 </p>
 <div class="strip">
-<div class="card"><svg width="100" height="100" viewBox="0 0 100 100"><path fill="currentColor" d="M10 47a5 5 0 0 1 5-5h6v26h-6a5 5 0 0 1-5-5Z"/><path fill="currentColor" d="M90 47a5 5 0 0 0-5-5h-6v26h6a5 5 0 0 0 5-5Z"/><path fill="currentColor" fill-rule="evenodd" d="M50 6C33 6 20 18 19 36C19 44 18 52 19 60C20 70 25 78 33 84C39 89 44 93 50 94C56 93 61 89 67 84C75 78 80 70 81 60C82 52 81 44 81 36C80 18 67 6 50 6ZM50 37a24 20 0 1 0 0 40 24 20 0 0 0 0-40Z"/><path fill="currentColor" d="M50 45C46 40 38 40 34 45C31 49 31 54 34 58H45V72A5 5 0 0 0 55 72V58H66C69 54 69 49 66 45C62 40 54 40 50 45Z"/></svg><div class="lbl">Visor brow</div><div class="sub">Oval visor, T with a heart-curved crossbar, side panels</div><div class="sizes"><svg width="18" height="18" viewBox="0 0 100 100"><path fill="currentColor" d="M10 47a5 5 0 0 1 5-5h6v26h-6a5 5 0 0 1-5-5Z"/><path fill="currentColor" d="M90 47a5 5 0 0 0-5-5h-6v26h6a5 5 0 0 0 5-5Z"/><path fill="currentColor" fill-rule="evenodd" d="M50 6C33 6 20 18 19 36C19 44 18 52 19 60C20 70 25 78 33 84C39 89 44 93 50 94C56 93 61 89 67 84C75 78 80 70 81 60C82 52 81 44 81 36C80 18 67 6 50 6ZM50 37a24 20 0 1 0 0 40 24 20 0 0 0 0-40Z"/><path fill="currentColor" d="M50 45C46 40 38 40 34 45C31 49 31 54 34 58H45V72A5 5 0 0 0 55 72V58H66C69 54 69 49 66 45C62 40 54 40 50 45Z"/></svg><svg width="24" height="24" viewBox="0 0 100 100"><path fill="currentColor" d="M10 47a5 5 0 0 1 5-5h6v26h-6a5 5 0 0 1-5-5Z"/><path fill="currentColor" d="M90 47a5 5 0 0 0-5-5h-6v26h6a5 5 0 0 0 5-5Z"/><path fill="currentColor" fill-rule="evenodd" d="M50 6C33 6 20 18 19 36C19 44 18 52 19 60C20 70 25 78 33 84C39 89 44 93 50 94C56 93 61 89 67 84C75 78 80 70 81 60C82 52 81 44 81 36C80 18 67 6 50 6ZM50 37a24 20 0 1 0 0 40 24 20 0 0 0 0-40Z"/><path fill="currentColor" d="M50 45C46 40 38 40 34 45C31 49 31 54 34 58H45V72A5 5 0 0 0 55 72V58H66C69 54 69 49 66 45C62 40 54 40 50 45Z"/></svg><svg width="32" height="32" viewBox="0 0 100 100"><path fill="currentColor" d="M10 47a5 5 0 0 1 5-5h6v26h-6a5 5 0 0 1-5-5Z"/><path fill="currentColor" d="M90 47a5 5 0 0 0-5-5h-6v26h6a5 5 0 0 0 5-5Z"/><path fill="currentColor" fill-rule="evenodd" d="M50 6C33 6 20 18 19 36C19 44 18 52 19 60C20 70 25 78 33 84C39 89 44 93 50 94C56 93 61 89 67 84C75 78 80 70 81 60C82 52 81 44 81 36C80 18 67 6 50 6ZM50 37a24 20 0 1 0 0 40 24 20 0 0 0 0-40Z"/><path fill="currentColor" d="M50 45C46 40 38 40 34 45C31 49 31 54 34 58H45V72A5 5 0 0 0 55 72V58H66C69 54 69 49 66 45C62 40 54 40 50 45Z"/></svg></div></div>
-<div class="card"><svg width="100" height="100" viewBox="0 0 100 100"><path fill="currentColor" d="M10 47a5 5 0 0 1 5-5h6v26h-6a5 5 0 0 1-5-5Z"/><path fill="currentColor" d="M90 47a5 5 0 0 0-5-5h-6v26h6a5 5 0 0 0 5-5Z"/><path fill="currentColor" fill-rule="evenodd" d="M50 6C33 6 20 18 19 36C19 44 18 52 19 60C20 70 25 78 33 84C39 89 44 93 50 94C56 93 61 89 67 84C75 78 80 70 81 60C82 52 81 44 81 36C80 18 67 6 50 6ZM50 37a24 20 0 1 0 0 40 24 20 0 0 0 0-40Z"/><path fill="currentColor" d="M32 49h36a3 3 0 0 1 3 3v6a3 3 0 0 1-3 3H55v13a5 5 0 0 1-10 0V61H32a3 3 0 0 1-3-3v-6a3 3 0 0 1 3-3Z"/></svg><div class="lbl">Visor soft</div><div class="sub">Oval visor, rounded T, side panels</div><div class="sizes"><svg width="18" height="18" viewBox="0 0 100 100"><path fill="currentColor" d="M10 47a5 5 0 0 1 5-5h6v26h-6a5 5 0 0 1-5-5Z"/><path fill="currentColor" d="M90 47a5 5 0 0 0-5-5h-6v26h6a5 5 0 0 0 5-5Z"/><path fill="currentColor" fill-rule="evenodd" d="M50 6C33 6 20 18 19 36C19 44 18 52 19 60C20 70 25 78 33 84C39 89 44 93 50 94C56 93 61 89 67 84C75 78 80 70 81 60C82 52 81 44 81 36C80 18 67 6 50 6ZM50 37a24 20 0 1 0 0 40 24 20 0 0 0 0-40Z"/><path fill="currentColor" d="M32 49h36a3 3 0 0 1 3 3v6a3 3 0 0 1-3 3H55v13a5 5 0 0 1-10 0V61H32a3 3 0 0 1-3-3v-6a3 3 0 0 1 3-3Z"/></svg><svg width="24" height="24" viewBox="0 0 100 100"><path fill="currentColor" d="M10 47a5 5 0 0 1 5-5h6v26h-6a5 5 0 0 1-5-5Z"/><path fill="currentColor" d="M90 47a5 5 0 0 0-5-5h-6v26h6a5 5 0 0 0 5-5Z"/><path fill="currentColor" fill-rule="evenodd" d="M50 6C33 6 20 18 19 36C19 44 18 52 19 60C20 70 25 78 33 84C39 89 44 93 50 94C56 93 61 89 67 84C75 78 80 70 81 60C82 52 81 44 81 36C80 18 67 6 50 6ZM50 37a24 20 0 1 0 0 40 24 20 0 0 0 0-40Z"/><path fill="currentColor" d="M32 49h36a3 3 0 0 1 3 3v6a3 3 0 0 1-3 3H55v13a5 5 0 0 1-10 0V61H32a3 3 0 0 1-3-3v-6a3 3 0 0 1 3-3Z"/></svg><svg width="32" height="32" viewBox="0 0 100 100"><path fill="currentColor" d="M10 47a5 5 0 0 1 5-5h6v26h-6a5 5 0 0 1-5-5Z"/><path fill="currentColor" d="M90 47a5 5 0 0 0-5-5h-6v26h6a5 5 0 0 0 5-5Z"/><path fill="currentColor" fill-rule="evenodd" d="M50 6C33 6 20 18 19 36C19 44 18 52 19 60C20 70 25 78 33 84C39 89 44 93 50 94C56 93 61 89 67 84C75 78 80 70 81 60C82 52 81 44 81 36C80 18 67 6 50 6ZM50 37a24 20 0 1 0 0 40 24 20 0 0 0 0-40Z"/><path fill="currentColor" d="M32 49h36a3 3 0 0 1 3 3v6a3 3 0 0 1-3 3H55v13a5 5 0 0 1-10 0V61H32a3 3 0 0 1-3-3v-6a3 3 0 0 1 3-3Z"/></svg></div></div>
-<div class="card"><svg width="100" height="100" viewBox="0 0 100 100"><path fill="currentColor" d="M10 47a5 5 0 0 1 5-5h6v26h-6a5 5 0 0 1-5-5Z"/><path fill="currentColor" d="M90 47a5 5 0 0 0-5-5h-6v26h6a5 5 0 0 0 5-5Z"/><path fill="currentColor" fill-rule="evenodd" d="M50 6C33 6 20 18 19 36C19 44 18 52 19 60C20 70 25 78 33 84C39 89 44 93 50 94C56 93 61 89 67 84C75 78 80 70 81 60C82 52 81 44 81 36C80 18 67 6 50 6ZM50 37a24 20 0 1 0 0 40 24 20 0 0 0 0-40Z"/><path fill="currentColor" d="M28 48h44v10H56v15a6 6 0 0 1-12 0V58H28Z"/></svg><div class="lbl">Visor wide</div><div class="sub">Oval visor, squared T, side panels</div><div class="sizes"><svg width="18" height="18" viewBox="0 0 100 100"><path fill="currentColor" d="M10 47a5 5 0 0 1 5-5h6v26h-6a5 5 0 0 1-5-5Z"/><path fill="currentColor" d="M90 47a5 5 0 0 0-5-5h-6v26h6a5 5 0 0 0 5-5Z"/><path fill="currentColor" fill-rule="evenodd" d="M50 6C33 6 20 18 19 36C19 44 18 52 19 60C20 70 25 78 33 84C39 89 44 93 50 94C56 93 61 89 67 84C75 78 80 70 81 60C82 52 81 44 81 36C80 18 67 6 50 6ZM50 37a24 20 0 1 0 0 40 24 20 0 0 0 0-40Z"/><path fill="currentColor" d="M28 48h44v10H56v15a6 6 0 0 1-12 0V58H28Z"/></svg><svg width="24" height="24" viewBox="0 0 100 100"><path fill="currentColor" d="M10 47a5 5 0 0 1 5-5h6v26h-6a5 5 0 0 1-5-5Z"/><path fill="currentColor" d="M90 47a5 5 0 0 0-5-5h-6v26h6a5 5 0 0 0 5-5Z"/><path fill="currentColor" fill-rule="evenodd" d="M50 6C33 6 20 18 19 36C19 44 18 52 19 60C20 70 25 78 33 84C39 89 44 93 50 94C56 93 61 89 67 84C75 78 80 70 81 60C82 52 81 44 81 36C80 18 67 6 50 6ZM50 37a24 20 0 1 0 0 40 24 20 0 0 0 0-40Z"/><path fill="currentColor" d="M28 48h44v10H56v15a6 6 0 0 1-12 0V58H28Z"/></svg><svg width="32" height="32" viewBox="0 0 100 100"><path fill="currentColor" d="M10 47a5 5 0 0 1 5-5h6v26h-6a5 5 0 0 1-5-5Z"/><path fill="currentColor" d="M90 47a5 5 0 0 0-5-5h-6v26h6a5 5 0 0 0 5-5Z"/><path fill="currentColor" fill-rule="evenodd" d="M50 6C33 6 20 18 19 36C19 44 18 52 19 60C20 70 25 78 33 84C39 89 44 93 50 94C56 93 61 89 67 84C75 78 80 70 81 60C82 52 81 44 81 36C80 18 67 6 50 6ZM50 37a24 20 0 1 0 0 40 24 20 0 0 0 0-40Z"/><path fill="currentColor" d="M28 48h44v10H56v15a6 6 0 0 1-12 0V58H28Z"/></svg></div></div>
-<div class="card"><svg width="100" height="100" viewBox="0 0 100 100"><path fill="currentColor" fill-rule="evenodd" d="M50 6C33 6 20 18 19 36C19 44 18 52 19 60C20 70 25 78 33 84C39 89 44 93 50 94C56 93 61 89 67 84C75 78 80 70 81 60C82 52 81 44 81 36C80 18 67 6 50 6ZM50 37a24 20 0 1 0 0 40 24 20 0 0 0 0-40Z"/><path fill="currentColor" d="M50 45C46 40 38 40 34 45C31 49 31 54 34 58H45V72A5 5 0 0 0 55 72V58H66C69 54 69 49 66 45C62 40 54 40 50 45Z"/></svg><div class="lbl">Visor brow smooth</div><div class="sub">Oval visor, heart-curved T, no panels</div><div class="sizes"><svg width="18" height="18" viewBox="0 0 100 100"><path fill="currentColor" fill-rule="evenodd" d="M50 6C33 6 20 18 19 36C19 44 18 52 19 60C20 70 25 78 33 84C39 89 44 93 50 94C56 93 61 89 67 84C75 78 80 70 81 60C82 52 81 44 81 36C80 18 67 6 50 6ZM50 37a24 20 0 1 0 0 40 24 20 0 0 0 0-40Z"/><path fill="currentColor" d="M50 45C46 40 38 40 34 45C31 49 31 54 34 58H45V72A5 5 0 0 0 55 72V58H66C69 54 69 49 66 45C62 40 54 40 50 45Z"/></svg><svg width="24" height="24" viewBox="0 0 100 100"><path fill="currentColor" fill-rule="evenodd" d="M50 6C33 6 20 18 19 36C19 44 18 52 19 60C20 70 25 78 33 84C39 89 44 93 50 94C56 93 61 89 67 84C75 78 80 70 81 60C82 52 81 44 81 36C80 18 67 6 50 6ZM50 37a24 20 0 1 0 0 40 24 20 0 0 0 0-40Z"/><path fill="currentColor" d="M50 45C46 40 38 40 34 45C31 49 31 54 34 58H45V72A5 5 0 0 0 55 72V58H66C69 54 69 49 66 45C62 40 54 40 50 45Z"/></svg><svg width="32" height="32" viewBox="0 0 100 100"><path fill="currentColor" fill-rule="evenodd" d="M50 6C33 6 20 18 19 36C19 44 18 52 19 60C20 70 25 78 33 84C39 89 44 93 50 94C56 93 61 89 67 84C75 78 80 70 81 60C82 52 81 44 81 36C80 18 67 6 50 6ZM50 37a24 20 0 1 0 0 40 24 20 0 0 0 0-40Z"/><path fill="currentColor" d="M50 45C46 40 38 40 34 45C31 49 31 54 34 58H45V72A5 5 0 0 0 55 72V58H66C69 54 69 49 66 45C62 40 54 40 50 45Z"/></svg></div></div>
-<div class="card"><svg width="100" height="100" viewBox="0 0 100 100"><path fill="currentColor" d="M10 47a5 5 0 0 1 5-5h6v26h-6a5 5 0 0 1-5-5Z"/><path fill="currentColor" d="M90 47a5 5 0 0 0-5-5h-6v26h6a5 5 0 0 0 5-5Z"/><path fill="currentColor" fill-rule="evenodd" d="M50 6C33 6 20 18 19 36C19 44 18 52 19 60C20 70 25 78 33 84C39 89 44 93 50 94C56 93 61 89 67 84C75 78 80 70 81 60C82 52 81 44 81 36C80 18 67 6 50 6ZM50 40C44 32 34 32 29 39C24 46 25 56 30 64C35 72 43 79 50 84C57 79 65 72 70 64C75 56 76 46 71 39C66 32 56 32 50 40Z"/><circle fill="currentColor" cx="39" cy="58" r="6.6"/><circle fill="currentColor" cx="61" cy="58" r="6.6"/><path fill="currentColor" d="M50 68c2.1 0 3.6 2.8 3.6 5.4s-1.5 4.2-3.6 4.2-3.6-1.6-3.6-4.2 1.5-5.4 3.6-5.4Z"/></svg><div class="lbl">Face round</div><div class="sub">Heart disc, round eyes, side panels</div><div class="sizes"><svg width="18" height="18" viewBox="0 0 100 100"><path fill="currentColor" d="M10 47a5 5 0 0 1 5-5h6v26h-6a5 5 0 0 1-5-5Z"/><path fill="currentColor" d="M90 47a5 5 0 0 0-5-5h-6v26h6a5 5 0 0 0 5-5Z"/><path fill="currentColor" fill-rule="evenodd" d="M50 6C33 6 20 18 19 36C19 44 18 52 19 60C20 70 25 78 33 84C39 89 44 93 50 94C56 93 61 89 67 84C75 78 80 70 81 60C82 52 81 44 81 36C80 18 67 6 50 6ZM50 40C44 32 34 32 29 39C24 46 25 56 30 64C35 72 43 79 50 84C57 79 65 72 70 64C75 56 76 46 71 39C66 32 56 32 50 40Z"/><circle fill="currentColor" cx="39" cy="58" r="6.6"/><circle fill="currentColor" cx="61" cy="58" r="6.6"/><path fill="currentColor" d="M50 68c2.1 0 3.6 2.8 3.6 5.4s-1.5 4.2-3.6 4.2-3.6-1.6-3.6-4.2 1.5-5.4 3.6-5.4Z"/></svg><svg width="24" height="24" viewBox="0 0 100 100"><path fill="currentColor" d="M10 47a5 5 0 0 1 5-5h6v26h-6a5 5 0 0 1-5-5Z"/><path fill="currentColor" d="M90 47a5 5 0 0 0-5-5h-6v26h6a5 5 0 0 0 5-5Z"/><path fill="currentColor" fill-rule="evenodd" d="M50 6C33 6 20 18 19 36C19 44 18 52 19 60C20 70 25 78 33 84C39 89 44 93 50 94C56 93 61 89 67 84C75 78 80 70 81 60C82 52 81 44 81 36C80 18 67 6 50 6ZM50 40C44 32 34 32 29 39C24 46 25 56 30 64C35 72 43 79 50 84C57 79 65 72 70 64C75 56 76 46 71 39C66 32 56 32 50 40Z"/><circle fill="currentColor" cx="39" cy="58" r="6.6"/><circle fill="currentColor" cx="61" cy="58" r="6.6"/><path fill="currentColor" d="M50 68c2.1 0 3.6 2.8 3.6 5.4s-1.5 4.2-3.6 4.2-3.6-1.6-3.6-4.2 1.5-5.4 3.6-5.4Z"/></svg><svg width="32" height="32" viewBox="0 0 100 100"><path fill="currentColor" d="M10 47a5 5 0 0 1 5-5h6v26h-6a5 5 0 0 1-5-5Z"/><path fill="currentColor" d="M90 47a5 5 0 0 0-5-5h-6v26h6a5 5 0 0 0 5-5Z"/><path fill="currentColor" fill-rule="evenodd" d="M50 6C33 6 20 18 19 36C19 44 18 52 19 60C20 70 25 78 33 84C39 89 44 93 50 94C56 93 61 89 67 84C75 78 80 70 81 60C82 52 81 44 81 36C80 18 67 6 50 6ZM50 40C44 32 34 32 29 39C24 46 25 56 30 64C35 72 43 79 50 84C57 79 65 72 70 64C75 56 76 46 71 39C66 32 56 32 50 40Z"/><circle fill="currentColor" cx="39" cy="58" r="6.6"/><circle fill="currentColor" cx="61" cy="58" r="6.6"/><path fill="currentColor" d="M50 68c2.1 0 3.6 2.8 3.6 5.4s-1.5 4.2-3.6 4.2-3.6-1.6-3.6-4.2 1.5-5.4 3.6-5.4Z"/></svg></div></div>
-<div class="card"><svg width="100" height="100" viewBox="0 0 100 100"><path fill="currentColor" d="M10 47a5 5 0 0 1 5-5h6v26h-6a5 5 0 0 1-5-5Z"/><path fill="currentColor" d="M90 47a5 5 0 0 0-5-5h-6v26h6a5 5 0 0 0 5-5Z"/><path fill="currentColor" fill-rule="evenodd" d="M50 6C33 6 20 18 19 36C19 44 18 52 19 60C20 70 25 78 33 84C39 89 44 93 50 94C56 93 61 89 67 84C75 78 80 70 81 60C82 52 81 44 81 36C80 18 67 6 50 6ZM50 40C44 32 34 32 29 39C24 46 25 56 30 64C35 72 43 79 50 84C57 79 65 72 70 64C75 56 76 46 71 39C66 32 56 32 50 40Z"/><path fill="currentColor" fill-rule="evenodd" d="M39 50.5a8 8 0 1 0 0 16 8 8 0 0 0 0-16Zm3.2 4.8a2.3 2.3 0 1 1 0 4.6 2.3 2.3 0 0 1 0-4.6Z"/><path fill="currentColor" fill-rule="evenodd" d="M61 50.5a8 8 0 1 0 0 16 8 8 0 0 0 0-16Zm3.2 4.8a2.3 2.3 0 1 1 0 4.6 2.3 2.3 0 0 1 0-4.6Z"/><path fill="currentColor" d="M50 69c1.9 0 3.3 2.3 3.3 4.5s-1.4 3.7-3.3 3.7-3.3-1.5-3.3-3.7 1.4-4.5 3.3-4.5Z"/></svg><div class="lbl">Face cute</div><div class="sub">Heart disc, catchlight eyes, side panels</div><div class="sizes"><svg width="18" height="18" viewBox="0 0 100 100"><path fill="currentColor" d="M10 47a5 5 0 0 1 5-5h6v26h-6a5 5 0 0 1-5-5Z"/><path fill="currentColor" d="M90 47a5 5 0 0 0-5-5h-6v26h6a5 5 0 0 0 5-5Z"/><path fill="currentColor" fill-rule="evenodd" d="M50 6C33 6 20 18 19 36C19 44 18 52 19 60C20 70 25 78 33 84C39 89 44 93 50 94C56 93 61 89 67 84C75 78 80 70 81 60C82 52 81 44 81 36C80 18 67 6 50 6ZM50 40C44 32 34 32 29 39C24 46 25 56 30 64C35 72 43 79 50 84C57 79 65 72 70 64C75 56 76 46 71 39C66 32 56 32 50 40Z"/><path fill="currentColor" fill-rule="evenodd" d="M39 50.5a8 8 0 1 0 0 16 8 8 0 0 0 0-16Zm3.2 4.8a2.3 2.3 0 1 1 0 4.6 2.3 2.3 0 0 1 0-4.6Z"/><path fill="currentColor" fill-rule="evenodd" d="M61 50.5a8 8 0 1 0 0 16 8 8 0 0 0 0-16Zm3.2 4.8a2.3 2.3 0 1 1 0 4.6 2.3 2.3 0 0 1 0-4.6Z"/><path fill="currentColor" d="M50 69c1.9 0 3.3 2.3 3.3 4.5s-1.4 3.7-3.3 3.7-3.3-1.5-3.3-3.7 1.4-4.5 3.3-4.5Z"/></svg><svg width="24" height="24" viewBox="0 0 100 100"><path fill="currentColor" d="M10 47a5 5 0 0 1 5-5h6v26h-6a5 5 0 0 1-5-5Z"/><path fill="currentColor" d="M90 47a5 5 0 0 0-5-5h-6v26h6a5 5 0 0 0 5-5Z"/><path fill="currentColor" fill-rule="evenodd" d="M50 6C33 6 20 18 19 36C19 44 18 52 19 60C20 70 25 78 33 84C39 89 44 93 50 94C56 93 61 89 67 84C75 78 80 70 81 60C82 52 81 44 81 36C80 18 67 6 50 6ZM50 40C44 32 34 32 29 39C24 46 25 56 30 64C35 72 43 79 50 84C57 79 65 72 70 64C75 56 76 46 71 39C66 32 56 32 50 40Z"/><path fill="currentColor" fill-rule="evenodd" d="M39 50.5a8 8 0 1 0 0 16 8 8 0 0 0 0-16Zm3.2 4.8a2.3 2.3 0 1 1 0 4.6 2.3 2.3 0 0 1 0-4.6Z"/><path fill="currentColor" fill-rule="evenodd" d="M61 50.5a8 8 0 1 0 0 16 8 8 0 0 0 0-16Zm3.2 4.8a2.3 2.3 0 1 1 0 4.6 2.3 2.3 0 0 1 0-4.6Z"/><path fill="currentColor" d="M50 69c1.9 0 3.3 2.3 3.3 4.5s-1.4 3.7-3.3 3.7-3.3-1.5-3.3-3.7 1.4-4.5 3.3-4.5Z"/></svg><svg width="32" height="32" viewBox="0 0 100 100"><path fill="currentColor" d="M10 47a5 5 0 0 1 5-5h6v26h-6a5 5 0 0 1-5-5Z"/><path fill="currentColor" d="M90 47a5 5 0 0 0-5-5h-6v26h6a5 5 0 0 0 5-5Z"/><path fill="currentColor" fill-rule="evenodd" d="M50 6C33 6 20 18 19 36C19 44 18 52 19 60C20 70 25 78 33 84C39 89 44 93 50 94C56 93 61 89 67 84C75 78 80 70 81 60C82 52 81 44 81 36C80 18 67 6 50 6ZM50 40C44 32 34 32 29 39C24 46 25 56 30 64C35 72 43 79 50 84C57 79 65 72 70 64C75 56 76 46 71 39C66 32 56 32 50 40Z"/><path fill="currentColor" fill-rule="evenodd" d="M39 50.5a8 8 0 1 0 0 16 8 8 0 0 0 0-16Zm3.2 4.8a2.3 2.3 0 1 1 0 4.6 2.3 2.3 0 0 1 0-4.6Z"/><path fill="currentColor" fill-rule="evenodd" d="M61 50.5a8 8 0 1 0 0 16 8 8 0 0 0 0-16Zm3.2 4.8a2.3 2.3 0 1 1 0 4.6 2.3 2.3 0 0 1 0-4.6Z"/><path fill="currentColor" d="M50 69c1.9 0 3.3 2.3 3.3 4.5s-1.4 3.7-3.3 3.7-3.3-1.5-3.3-3.7 1.4-4.5 3.3-4.5Z"/></svg></div></div>
-<div class="card"><svg width="100" height="100" viewBox="0 0 100 100"><path fill="currentColor" fill-rule="evenodd" d="M50 6C33 6 20 18 19 36C19 44 18 52 19 60C20 70 25 78 33 84C39 89 44 93 50 94C56 93 61 89 67 84C75 78 80 70 81 60C82 52 81 44 81 36C80 18 67 6 50 6ZM50 40C44 32 34 32 29 39C24 46 25 56 30 64C35 72 43 79 50 84C57 79 65 72 70 64C75 56 76 46 71 39C66 32 56 32 50 40Z"/><circle fill="currentColor" cx="39" cy="58" r="6.6"/><circle fill="currentColor" cx="61" cy="58" r="6.6"/><path fill="currentColor" d="M50 68c2.1 0 3.6 2.8 3.6 5.4s-1.5 4.2-3.6 4.2-3.6-1.6-3.6-4.2 1.5-5.4 3.6-5.4Z"/></svg><div class="lbl">Face smooth</div><div class="sub">Heart disc, round eyes, no panels</div><div class="sizes"><svg width="18" height="18" viewBox="0 0 100 100"><path fill="currentColor" fill-rule="evenodd" d="M50 6C33 6 20 18 19 36C19 44 18 52 19 60C20 70 25 78 33 84C39 89 44 93 50 94C56 93 61 89 67 84C75 78 80 70 81 60C82 52 81 44 81 36C80 18 67 6 50 6ZM50 40C44 32 34 32 29 39C24 46 25 56 30 64C35 72 43 79 50 84C57 79 65 72 70 64C75 56 76 46 71 39C66 32 56 32 50 40Z"/><circle fill="currentColor" cx="39" cy="58" r="6.6"/><circle fill="currentColor" cx="61" cy="58" r="6.6"/><path fill="currentColor" d="M50 68c2.1 0 3.6 2.8 3.6 5.4s-1.5 4.2-3.6 4.2-3.6-1.6-3.6-4.2 1.5-5.4 3.6-5.4Z"/></svg><svg width="24" height="24" viewBox="0 0 100 100"><path fill="currentColor" fill-rule="evenodd" d="M50 6C33 6 20 18 19 36C19 44 18 52 19 60C20 70 25 78 33 84C39 89 44 93 50 94C56 93 61 89 67 84C75 78 80 70 81 60C82 52 81 44 81 36C80 18 67 6 50 6ZM50 40C44 32 34 32 29 39C24 46 25 56 30 64C35 72 43 79 50 84C57 79 65 72 70 64C75 56 76 46 71 39C66 32 56 32 50 40Z"/><circle fill="currentColor" cx="39" cy="58" r="6.6"/><circle fill="currentColor" cx="61" cy="58" r="6.6"/><path fill="currentColor" d="M50 68c2.1 0 3.6 2.8 3.6 5.4s-1.5 4.2-3.6 4.2-3.6-1.6-3.6-4.2 1.5-5.4 3.6-5.4Z"/></svg><svg width="32" height="32" viewBox="0 0 100 100"><path fill="currentColor" fill-rule="evenodd" d="M50 6C33 6 20 18 19 36C19 44 18 52 19 60C20 70 25 78 33 84C39 89 44 93 50 94C56 93 61 89 67 84C75 78 80 70 81 60C82 52 81 44 81 36C80 18 67 6 50 6ZM50 40C44 32 34 32 29 39C24 46 25 56 30 64C35 72 43 79 50 84C57 79 65 72 70 64C75 56 76 46 71 39C66 32 56 32 50 40Z"/><circle fill="currentColor" cx="39" cy="58" r="6.6"/><circle fill="currentColor" cx="61" cy="58" r="6.6"/><path fill="currentColor" d="M50 68c2.1 0 3.6 2.8 3.6 5.4s-1.5 4.2-3.6 4.2-3.6-1.6-3.6-4.2 1.5-5.4 3.6-5.4Z"/></svg></div></div>
+  <div class="card">
+    <svg width="100" height="100" viewBox="0 0 100 100">
+      <path fill="currentColor" d="M10 47a5 5 0 0 1 5-5h6v26h-6a5 5 0 0 1-5-5Z" />
+      <path fill="currentColor" d="M90 47a5 5 0 0 0-5-5h-6v26h6a5 5 0 0 0 5-5Z" />
+      <path
+        fill="currentColor"
+        fill-rule="evenodd"
+        d="M50 6C33 6 20 18 19 36C19 44 18 52 19 60C20 70 25 78 33 84C39 89 44 93 50 94C56 93 61 89 67 84C75 78 80 70 81 60C82 52 81 44 81 36C80 18 67 6 50 6ZM50 37a24 20 0 1 0 0 40 24 20 0 0 0 0-40Z"
+      />
+      <path
+        fill="currentColor"
+        d="M50 45C46 40 38 40 34 45C31 49 31 54 34 58H45V72A5 5 0 0 0 55 72V58H66C69 54 69 49 66 45C62 40 54 40 50 45Z"
+      />
+    </svg>
+    <div class="lbl">Visor brow</div>
+    <div class="sub">Oval visor, T with a heart-curved crossbar, side panels</div>
+    <div class="sizes">
+      <svg width="18" height="18" viewBox="0 0 100 100">
+        <path fill="currentColor" d="M10 47a5 5 0 0 1 5-5h6v26h-6a5 5 0 0 1-5-5Z" />
+        <path fill="currentColor" d="M90 47a5 5 0 0 0-5-5h-6v26h6a5 5 0 0 0 5-5Z" />
+        <path
+          fill="currentColor"
+          fill-rule="evenodd"
+          d="M50 6C33 6 20 18 19 36C19 44 18 52 19 60C20 70 25 78 33 84C39 89 44 93 50 94C56 93 61 89 67 84C75 78 80 70 81 60C82 52 81 44 81 36C80 18 67 6 50 6ZM50 37a24 20 0 1 0 0 40 24 20 0 0 0 0-40Z"
+        />
+        <path
+          fill="currentColor"
+          d="M50 45C46 40 38 40 34 45C31 49 31 54 34 58H45V72A5 5 0 0 0 55 72V58H66C69 54 69 49 66 45C62 40 54 40 50 45Z"
+        /></svg
+      ><svg width="24" height="24" viewBox="0 0 100 100">
+        <path fill="currentColor" d="M10 47a5 5 0 0 1 5-5h6v26h-6a5 5 0 0 1-5-5Z" />
+        <path fill="currentColor" d="M90 47a5 5 0 0 0-5-5h-6v26h6a5 5 0 0 0 5-5Z" />
+        <path
+          fill="currentColor"
+          fill-rule="evenodd"
+          d="M50 6C33 6 20 18 19 36C19 44 18 52 19 60C20 70 25 78 33 84C39 89 44 93 50 94C56 93 61 89 67 84C75 78 80 70 81 60C82 52 81 44 81 36C80 18 67 6 50 6ZM50 37a24 20 0 1 0 0 40 24 20 0 0 0 0-40Z"
+        />
+        <path
+          fill="currentColor"
+          d="M50 45C46 40 38 40 34 45C31 49 31 54 34 58H45V72A5 5 0 0 0 55 72V58H66C69 54 69 49 66 45C62 40 54 40 50 45Z"
+        /></svg
+      ><svg width="32" height="32" viewBox="0 0 100 100">
+        <path fill="currentColor" d="M10 47a5 5 0 0 1 5-5h6v26h-6a5 5 0 0 1-5-5Z" />
+        <path fill="currentColor" d="M90 47a5 5 0 0 0-5-5h-6v26h6a5 5 0 0 0 5-5Z" />
+        <path
+          fill="currentColor"
+          fill-rule="evenodd"
+          d="M50 6C33 6 20 18 19 36C19 44 18 52 19 60C20 70 25 78 33 84C39 89 44 93 50 94C56 93 61 89 67 84C75 78 80 70 81 60C82 52 81 44 81 36C80 18 67 6 50 6ZM50 37a24 20 0 1 0 0 40 24 20 0 0 0 0-40Z"
+        />
+        <path
+          fill="currentColor"
+          d="M50 45C46 40 38 40 34 45C31 49 31 54 34 58H45V72A5 5 0 0 0 55 72V58H66C69 54 69 49 66 45C62 40 54 40 50 45Z"
+        />
+      </svg>
+    </div>
+  </div>
+  <div class="card">
+    <svg width="100" height="100" viewBox="0 0 100 100">
+      <path fill="currentColor" d="M10 47a5 5 0 0 1 5-5h6v26h-6a5 5 0 0 1-5-5Z" />
+      <path fill="currentColor" d="M90 47a5 5 0 0 0-5-5h-6v26h6a5 5 0 0 0 5-5Z" />
+      <path
+        fill="currentColor"
+        fill-rule="evenodd"
+        d="M50 6C33 6 20 18 19 36C19 44 18 52 19 60C20 70 25 78 33 84C39 89 44 93 50 94C56 93 61 89 67 84C75 78 80 70 81 60C82 52 81 44 81 36C80 18 67 6 50 6ZM50 37a24 20 0 1 0 0 40 24 20 0 0 0 0-40Z"
+      />
+      <path
+        fill="currentColor"
+        d="M32 49h36a3 3 0 0 1 3 3v6a3 3 0 0 1-3 3H55v13a5 5 0 0 1-10 0V61H32a3 3 0 0 1-3-3v-6a3 3 0 0 1 3-3Z"
+      />
+    </svg>
+    <div class="lbl">Visor soft</div>
+    <div class="sub">Oval visor, rounded T, side panels</div>
+    <div class="sizes">
+      <svg width="18" height="18" viewBox="0 0 100 100">
+        <path fill="currentColor" d="M10 47a5 5 0 0 1 5-5h6v26h-6a5 5 0 0 1-5-5Z" />
+        <path fill="currentColor" d="M90 47a5 5 0 0 0-5-5h-6v26h6a5 5 0 0 0 5-5Z" />
+        <path
+          fill="currentColor"
+          fill-rule="evenodd"
+          d="M50 6C33 6 20 18 19 36C19 44 18 52 19 60C20 70 25 78 33 84C39 89 44 93 50 94C56 93 61 89 67 84C75 78 80 70 81 60C82 52 81 44 81 36C80 18 67 6 50 6ZM50 37a24 20 0 1 0 0 40 24 20 0 0 0 0-40Z"
+        />
+        <path
+          fill="currentColor"
+          d="M32 49h36a3 3 0 0 1 3 3v6a3 3 0 0 1-3 3H55v13a5 5 0 0 1-10 0V61H32a3 3 0 0 1-3-3v-6a3 3 0 0 1 3-3Z"
+        /></svg
+      ><svg width="24" height="24" viewBox="0 0 100 100">
+        <path fill="currentColor" d="M10 47a5 5 0 0 1 5-5h6v26h-6a5 5 0 0 1-5-5Z" />
+        <path fill="currentColor" d="M90 47a5 5 0 0 0-5-5h-6v26h6a5 5 0 0 0 5-5Z" />
+        <path
+          fill="currentColor"
+          fill-rule="evenodd"
+          d="M50 6C33 6 20 18 19 36C19 44 18 52 19 60C20 70 25 78 33 84C39 89 44 93 50 94C56 93 61 89 67 84C75 78 80 70 81 60C82 52 81 44 81 36C80 18 67 6 50 6ZM50 37a24 20 0 1 0 0 40 24 20 0 0 0 0-40Z"
+        />
+        <path
+          fill="currentColor"
+          d="M32 49h36a3 3 0 0 1 3 3v6a3 3 0 0 1-3 3H55v13a5 5 0 0 1-10 0V61H32a3 3 0 0 1-3-3v-6a3 3 0 0 1 3-3Z"
+        /></svg
+      ><svg width="32" height="32" viewBox="0 0 100 100">
+        <path fill="currentColor" d="M10 47a5 5 0 0 1 5-5h6v26h-6a5 5 0 0 1-5-5Z" />
+        <path fill="currentColor" d="M90 47a5 5 0 0 0-5-5h-6v26h6a5 5 0 0 0 5-5Z" />
+        <path
+          fill="currentColor"
+          fill-rule="evenodd"
+          d="M50 6C33 6 20 18 19 36C19 44 18 52 19 60C20 70 25 78 33 84C39 89 44 93 50 94C56 93 61 89 67 84C75 78 80 70 81 60C82 52 81 44 81 36C80 18 67 6 50 6ZM50 37a24 20 0 1 0 0 40 24 20 0 0 0 0-40Z"
+        />
+        <path
+          fill="currentColor"
+          d="M32 49h36a3 3 0 0 1 3 3v6a3 3 0 0 1-3 3H55v13a5 5 0 0 1-10 0V61H32a3 3 0 0 1-3-3v-6a3 3 0 0 1 3-3Z"
+        />
+      </svg>
+    </div>
+  </div>
+  <div class="card">
+    <svg width="100" height="100" viewBox="0 0 100 100">
+      <path fill="currentColor" d="M10 47a5 5 0 0 1 5-5h6v26h-6a5 5 0 0 1-5-5Z" />
+      <path fill="currentColor" d="M90 47a5 5 0 0 0-5-5h-6v26h6a5 5 0 0 0 5-5Z" />
+      <path
+        fill="currentColor"
+        fill-rule="evenodd"
+        d="M50 6C33 6 20 18 19 36C19 44 18 52 19 60C20 70 25 78 33 84C39 89 44 93 50 94C56 93 61 89 67 84C75 78 80 70 81 60C82 52 81 44 81 36C80 18 67 6 50 6ZM50 37a24 20 0 1 0 0 40 24 20 0 0 0 0-40Z"
+      />
+      <path fill="currentColor" d="M28 48h44v10H56v15a6 6 0 0 1-12 0V58H28Z" />
+    </svg>
+    <div class="lbl">Visor wide</div>
+    <div class="sub">Oval visor, squared T, side panels</div>
+    <div class="sizes">
+      <svg width="18" height="18" viewBox="0 0 100 100">
+        <path fill="currentColor" d="M10 47a5 5 0 0 1 5-5h6v26h-6a5 5 0 0 1-5-5Z" />
+        <path fill="currentColor" d="M90 47a5 5 0 0 0-5-5h-6v26h6a5 5 0 0 0 5-5Z" />
+        <path
+          fill="currentColor"
+          fill-rule="evenodd"
+          d="M50 6C33 6 20 18 19 36C19 44 18 52 19 60C20 70 25 78 33 84C39 89 44 93 50 94C56 93 61 89 67 84C75 78 80 70 81 60C82 52 81 44 81 36C80 18 67 6 50 6ZM50 37a24 20 0 1 0 0 40 24 20 0 0 0 0-40Z"
+        />
+        <path fill="currentColor" d="M28 48h44v10H56v15a6 6 0 0 1-12 0V58H28Z" /></svg
+      ><svg width="24" height="24" viewBox="0 0 100 100">
+        <path fill="currentColor" d="M10 47a5 5 0 0 1 5-5h6v26h-6a5 5 0 0 1-5-5Z" />
+        <path fill="currentColor" d="M90 47a5 5 0 0 0-5-5h-6v26h6a5 5 0 0 0 5-5Z" />
+        <path
+          fill="currentColor"
+          fill-rule="evenodd"
+          d="M50 6C33 6 20 18 19 36C19 44 18 52 19 60C20 70 25 78 33 84C39 89 44 93 50 94C56 93 61 89 67 84C75 78 80 70 81 60C82 52 81 44 81 36C80 18 67 6 50 6ZM50 37a24 20 0 1 0 0 40 24 20 0 0 0 0-40Z"
+        />
+        <path fill="currentColor" d="M28 48h44v10H56v15a6 6 0 0 1-12 0V58H28Z" /></svg
+      ><svg width="32" height="32" viewBox="0 0 100 100">
+        <path fill="currentColor" d="M10 47a5 5 0 0 1 5-5h6v26h-6a5 5 0 0 1-5-5Z" />
+        <path fill="currentColor" d="M90 47a5 5 0 0 0-5-5h-6v26h6a5 5 0 0 0 5-5Z" />
+        <path
+          fill="currentColor"
+          fill-rule="evenodd"
+          d="M50 6C33 6 20 18 19 36C19 44 18 52 19 60C20 70 25 78 33 84C39 89 44 93 50 94C56 93 61 89 67 84C75 78 80 70 81 60C82 52 81 44 81 36C80 18 67 6 50 6ZM50 37a24 20 0 1 0 0 40 24 20 0 0 0 0-40Z"
+        />
+        <path fill="currentColor" d="M28 48h44v10H56v15a6 6 0 0 1-12 0V58H28Z" />
+      </svg>
+    </div>
+  </div>
+  <div class="card">
+    <svg width="100" height="100" viewBox="0 0 100 100">
+      <path
+        fill="currentColor"
+        fill-rule="evenodd"
+        d="M50 6C33 6 20 18 19 36C19 44 18 52 19 60C20 70 25 78 33 84C39 89 44 93 50 94C56 93 61 89 67 84C75 78 80 70 81 60C82 52 81 44 81 36C80 18 67 6 50 6ZM50 37a24 20 0 1 0 0 40 24 20 0 0 0 0-40Z"
+      />
+      <path
+        fill="currentColor"
+        d="M50 45C46 40 38 40 34 45C31 49 31 54 34 58H45V72A5 5 0 0 0 55 72V58H66C69 54 69 49 66 45C62 40 54 40 50 45Z"
+      />
+    </svg>
+    <div class="lbl">Visor brow smooth</div>
+    <div class="sub">Oval visor, heart-curved T, no panels</div>
+    <div class="sizes">
+      <svg width="18" height="18" viewBox="0 0 100 100">
+        <path
+          fill="currentColor"
+          fill-rule="evenodd"
+          d="M50 6C33 6 20 18 19 36C19 44 18 52 19 60C20 70 25 78 33 84C39 89 44 93 50 94C56 93 61 89 67 84C75 78 80 70 81 60C82 52 81 44 81 36C80 18 67 6 50 6ZM50 37a24 20 0 1 0 0 40 24 20 0 0 0 0-40Z"
+        />
+        <path
+          fill="currentColor"
+          d="M50 45C46 40 38 40 34 45C31 49 31 54 34 58H45V72A5 5 0 0 0 55 72V58H66C69 54 69 49 66 45C62 40 54 40 50 45Z"
+        /></svg
+      ><svg width="24" height="24" viewBox="0 0 100 100">
+        <path
+          fill="currentColor"
+          fill-rule="evenodd"
+          d="M50 6C33 6 20 18 19 36C19 44 18 52 19 60C20 70 25 78 33 84C39 89 44 93 50 94C56 93 61 89 67 84C75 78 80 70 81 60C82 52 81 44 81 36C80 18 67 6 50 6ZM50 37a24 20 0 1 0 0 40 24 20 0 0 0 0-40Z"
+        />
+        <path
+          fill="currentColor"
+          d="M50 45C46 40 38 40 34 45C31 49 31 54 34 58H45V72A5 5 0 0 0 55 72V58H66C69 54 69 49 66 45C62 40 54 40 50 45Z"
+        /></svg
+      ><svg width="32" height="32" viewBox="0 0 100 100">
+        <path
+          fill="currentColor"
+          fill-rule="evenodd"
+          d="M50 6C33 6 20 18 19 36C19 44 18 52 19 60C20 70 25 78 33 84C39 89 44 93 50 94C56 93 61 89 67 84C75 78 80 70 81 60C82 52 81 44 81 36C80 18 67 6 50 6ZM50 37a24 20 0 1 0 0 40 24 20 0 0 0 0-40Z"
+        />
+        <path
+          fill="currentColor"
+          d="M50 45C46 40 38 40 34 45C31 49 31 54 34 58H45V72A5 5 0 0 0 55 72V58H66C69 54 69 49 66 45C62 40 54 40 50 45Z"
+        />
+      </svg>
+    </div>
+  </div>
+  <div class="card">
+    <svg width="100" height="100" viewBox="0 0 100 100">
+      <path fill="currentColor" d="M10 47a5 5 0 0 1 5-5h6v26h-6a5 5 0 0 1-5-5Z" />
+      <path fill="currentColor" d="M90 47a5 5 0 0 0-5-5h-6v26h6a5 5 0 0 0 5-5Z" />
+      <path
+        fill="currentColor"
+        fill-rule="evenodd"
+        d="M50 6C33 6 20 18 19 36C19 44 18 52 19 60C20 70 25 78 33 84C39 89 44 93 50 94C56 93 61 89 67 84C75 78 80 70 81 60C82 52 81 44 81 36C80 18 67 6 50 6ZM50 40C44 32 34 32 29 39C24 46 25 56 30 64C35 72 43 79 50 84C57 79 65 72 70 64C75 56 76 46 71 39C66 32 56 32 50 40Z"
+      />
+      <circle fill="currentColor" cx="39" cy="58" r="6.6" />
+      <circle fill="currentColor" cx="61" cy="58" r="6.6" />
+      <path
+        fill="currentColor"
+        d="M50 68c2.1 0 3.6 2.8 3.6 5.4s-1.5 4.2-3.6 4.2-3.6-1.6-3.6-4.2 1.5-5.4 3.6-5.4Z"
+      />
+    </svg>
+    <div class="lbl">Face round</div>
+    <div class="sub">Heart disc, round eyes, side panels</div>
+    <div class="sizes">
+      <svg width="18" height="18" viewBox="0 0 100 100">
+        <path fill="currentColor" d="M10 47a5 5 0 0 1 5-5h6v26h-6a5 5 0 0 1-5-5Z" />
+        <path fill="currentColor" d="M90 47a5 5 0 0 0-5-5h-6v26h6a5 5 0 0 0 5-5Z" />
+        <path
+          fill="currentColor"
+          fill-rule="evenodd"
+          d="M50 6C33 6 20 18 19 36C19 44 18 52 19 60C20 70 25 78 33 84C39 89 44 93 50 94C56 93 61 89 67 84C75 78 80 70 81 60C82 52 81 44 81 36C80 18 67 6 50 6ZM50 40C44 32 34 32 29 39C24 46 25 56 30 64C35 72 43 79 50 84C57 79 65 72 70 64C75 56 76 46 71 39C66 32 56 32 50 40Z"
+        />
+        <circle fill="currentColor" cx="39" cy="58" r="6.6" />
+        <circle fill="currentColor" cx="61" cy="58" r="6.6" />
+        <path
+          fill="currentColor"
+          d="M50 68c2.1 0 3.6 2.8 3.6 5.4s-1.5 4.2-3.6 4.2-3.6-1.6-3.6-4.2 1.5-5.4 3.6-5.4Z"
+        /></svg
+      ><svg width="24" height="24" viewBox="0 0 100 100">
+        <path fill="currentColor" d="M10 47a5 5 0 0 1 5-5h6v26h-6a5 5 0 0 1-5-5Z" />
+        <path fill="currentColor" d="M90 47a5 5 0 0 0-5-5h-6v26h6a5 5 0 0 0 5-5Z" />
+        <path
+          fill="currentColor"
+          fill-rule="evenodd"
+          d="M50 6C33 6 20 18 19 36C19 44 18 52 19 60C20 70 25 78 33 84C39 89 44 93 50 94C56 93 61 89 67 84C75 78 80 70 81 60C82 52 81 44 81 36C80 18 67 6 50 6ZM50 40C44 32 34 32 29 39C24 46 25 56 30 64C35 72 43 79 50 84C57 79 65 72 70 64C75 56 76 46 71 39C66 32 56 32 50 40Z"
+        />
+        <circle fill="currentColor" cx="39" cy="58" r="6.6" />
+        <circle fill="currentColor" cx="61" cy="58" r="6.6" />
+        <path
+          fill="currentColor"
+          d="M50 68c2.1 0 3.6 2.8 3.6 5.4s-1.5 4.2-3.6 4.2-3.6-1.6-3.6-4.2 1.5-5.4 3.6-5.4Z"
+        /></svg
+      ><svg width="32" height="32" viewBox="0 0 100 100">
+        <path fill="currentColor" d="M10 47a5 5 0 0 1 5-5h6v26h-6a5 5 0 0 1-5-5Z" />
+        <path fill="currentColor" d="M90 47a5 5 0 0 0-5-5h-6v26h6a5 5 0 0 0 5-5Z" />
+        <path
+          fill="currentColor"
+          fill-rule="evenodd"
+          d="M50 6C33 6 20 18 19 36C19 44 18 52 19 60C20 70 25 78 33 84C39 89 44 93 50 94C56 93 61 89 67 84C75 78 80 70 81 60C82 52 81 44 81 36C80 18 67 6 50 6ZM50 40C44 32 34 32 29 39C24 46 25 56 30 64C35 72 43 79 50 84C57 79 65 72 70 64C75 56 76 46 71 39C66 32 56 32 50 40Z"
+        />
+        <circle fill="currentColor" cx="39" cy="58" r="6.6" />
+        <circle fill="currentColor" cx="61" cy="58" r="6.6" />
+        <path
+          fill="currentColor"
+          d="M50 68c2.1 0 3.6 2.8 3.6 5.4s-1.5 4.2-3.6 4.2-3.6-1.6-3.6-4.2 1.5-5.4 3.6-5.4Z"
+        />
+      </svg>
+    </div>
+  </div>
+  <div class="card">
+    <svg width="100" height="100" viewBox="0 0 100 100">
+      <path fill="currentColor" d="M10 47a5 5 0 0 1 5-5h6v26h-6a5 5 0 0 1-5-5Z" />
+      <path fill="currentColor" d="M90 47a5 5 0 0 0-5-5h-6v26h6a5 5 0 0 0 5-5Z" />
+      <path
+        fill="currentColor"
+        fill-rule="evenodd"
+        d="M50 6C33 6 20 18 19 36C19 44 18 52 19 60C20 70 25 78 33 84C39 89 44 93 50 94C56 93 61 89 67 84C75 78 80 70 81 60C82 52 81 44 81 36C80 18 67 6 50 6ZM50 40C44 32 34 32 29 39C24 46 25 56 30 64C35 72 43 79 50 84C57 79 65 72 70 64C75 56 76 46 71 39C66 32 56 32 50 40Z"
+      />
+      <path
+        fill="currentColor"
+        fill-rule="evenodd"
+        d="M39 50.5a8 8 0 1 0 0 16 8 8 0 0 0 0-16Zm3.2 4.8a2.3 2.3 0 1 1 0 4.6 2.3 2.3 0 0 1 0-4.6Z"
+      />
+      <path
+        fill="currentColor"
+        fill-rule="evenodd"
+        d="M61 50.5a8 8 0 1 0 0 16 8 8 0 0 0 0-16Zm3.2 4.8a2.3 2.3 0 1 1 0 4.6 2.3 2.3 0 0 1 0-4.6Z"
+      />
+      <path
+        fill="currentColor"
+        d="M50 69c1.9 0 3.3 2.3 3.3 4.5s-1.4 3.7-3.3 3.7-3.3-1.5-3.3-3.7 1.4-4.5 3.3-4.5Z"
+      />
+    </svg>
+    <div class="lbl">Face cute</div>
+    <div class="sub">Heart disc, catchlight eyes, side panels</div>
+    <div class="sizes">
+      <svg width="18" height="18" viewBox="0 0 100 100">
+        <path fill="currentColor" d="M10 47a5 5 0 0 1 5-5h6v26h-6a5 5 0 0 1-5-5Z" />
+        <path fill="currentColor" d="M90 47a5 5 0 0 0-5-5h-6v26h6a5 5 0 0 0 5-5Z" />
+        <path
+          fill="currentColor"
+          fill-rule="evenodd"
+          d="M50 6C33 6 20 18 19 36C19 44 18 52 19 60C20 70 25 78 33 84C39 89 44 93 50 94C56 93 61 89 67 84C75 78 80 70 81 60C82 52 81 44 81 36C80 18 67 6 50 6ZM50 40C44 32 34 32 29 39C24 46 25 56 30 64C35 72 43 79 50 84C57 79 65 72 70 64C75 56 76 46 71 39C66 32 56 32 50 40Z"
+        />
+        <path
+          fill="currentColor"
+          fill-rule="evenodd"
+          d="M39 50.5a8 8 0 1 0 0 16 8 8 0 0 0 0-16Zm3.2 4.8a2.3 2.3 0 1 1 0 4.6 2.3 2.3 0 0 1 0-4.6Z"
+        />
+        <path
+          fill="currentColor"
+          fill-rule="evenodd"
+          d="M61 50.5a8 8 0 1 0 0 16 8 8 0 0 0 0-16Zm3.2 4.8a2.3 2.3 0 1 1 0 4.6 2.3 2.3 0 0 1 0-4.6Z"
+        />
+        <path
+          fill="currentColor"
+          d="M50 69c1.9 0 3.3 2.3 3.3 4.5s-1.4 3.7-3.3 3.7-3.3-1.5-3.3-3.7 1.4-4.5 3.3-4.5Z"
+        /></svg
+      ><svg width="24" height="24" viewBox="0 0 100 100">
+        <path fill="currentColor" d="M10 47a5 5 0 0 1 5-5h6v26h-6a5 5 0 0 1-5-5Z" />
+        <path fill="currentColor" d="M90 47a5 5 0 0 0-5-5h-6v26h6a5 5 0 0 0 5-5Z" />
+        <path
+          fill="currentColor"
+          fill-rule="evenodd"
+          d="M50 6C33 6 20 18 19 36C19 44 18 52 19 60C20 70 25 78 33 84C39 89 44 93 50 94C56 93 61 89 67 84C75 78 80 70 81 60C82 52 81 44 81 36C80 18 67 6 50 6ZM50 40C44 32 34 32 29 39C24 46 25 56 30 64C35 72 43 79 50 84C57 79 65 72 70 64C75 56 76 46 71 39C66 32 56 32 50 40Z"
+        />
+        <path
+          fill="currentColor"
+          fill-rule="evenodd"
+          d="M39 50.5a8 8 0 1 0 0 16 8 8 0 0 0 0-16Zm3.2 4.8a2.3 2.3 0 1 1 0 4.6 2.3 2.3 0 0 1 0-4.6Z"
+        />
+        <path
+          fill="currentColor"
+          fill-rule="evenodd"
+          d="M61 50.5a8 8 0 1 0 0 16 8 8 0 0 0 0-16Zm3.2 4.8a2.3 2.3 0 1 1 0 4.6 2.3 2.3 0 0 1 0-4.6Z"
+        />
+        <path
+          fill="currentColor"
+          d="M50 69c1.9 0 3.3 2.3 3.3 4.5s-1.4 3.7-3.3 3.7-3.3-1.5-3.3-3.7 1.4-4.5 3.3-4.5Z"
+        /></svg
+      ><svg width="32" height="32" viewBox="0 0 100 100">
+        <path fill="currentColor" d="M10 47a5 5 0 0 1 5-5h6v26h-6a5 5 0 0 1-5-5Z" />
+        <path fill="currentColor" d="M90 47a5 5 0 0 0-5-5h-6v26h6a5 5 0 0 0 5-5Z" />
+        <path
+          fill="currentColor"
+          fill-rule="evenodd"
+          d="M50 6C33 6 20 18 19 36C19 44 18 52 19 60C20 70 25 78 33 84C39 89 44 93 50 94C56 93 61 89 67 84C75 78 80 70 81 60C82 52 81 44 81 36C80 18 67 6 50 6ZM50 40C44 32 34 32 29 39C24 46 25 56 30 64C35 72 43 79 50 84C57 79 65 72 70 64C75 56 76 46 71 39C66 32 56 32 50 40Z"
+        />
+        <path
+          fill="currentColor"
+          fill-rule="evenodd"
+          d="M39 50.5a8 8 0 1 0 0 16 8 8 0 0 0 0-16Zm3.2 4.8a2.3 2.3 0 1 1 0 4.6 2.3 2.3 0 0 1 0-4.6Z"
+        />
+        <path
+          fill="currentColor"
+          fill-rule="evenodd"
+          d="M61 50.5a8 8 0 1 0 0 16 8 8 0 0 0 0-16Zm3.2 4.8a2.3 2.3 0 1 1 0 4.6 2.3 2.3 0 0 1 0-4.6Z"
+        />
+        <path
+          fill="currentColor"
+          d="M50 69c1.9 0 3.3 2.3 3.3 4.5s-1.4 3.7-3.3 3.7-3.3-1.5-3.3-3.7 1.4-4.5 3.3-4.5Z"
+        />
+      </svg>
+    </div>
+  </div>
+  <div class="card">
+    <svg width="100" height="100" viewBox="0 0 100 100">
+      <path
+        fill="currentColor"
+        fill-rule="evenodd"
+        d="M50 6C33 6 20 18 19 36C19 44 18 52 19 60C20 70 25 78 33 84C39 89 44 93 50 94C56 93 61 89 67 84C75 78 80 70 81 60C82 52 81 44 81 36C80 18 67 6 50 6ZM50 40C44 32 34 32 29 39C24 46 25 56 30 64C35 72 43 79 50 84C57 79 65 72 70 64C75 56 76 46 71 39C66 32 56 32 50 40Z"
+      />
+      <circle fill="currentColor" cx="39" cy="58" r="6.6" />
+      <circle fill="currentColor" cx="61" cy="58" r="6.6" />
+      <path
+        fill="currentColor"
+        d="M50 68c2.1 0 3.6 2.8 3.6 5.4s-1.5 4.2-3.6 4.2-3.6-1.6-3.6-4.2 1.5-5.4 3.6-5.4Z"
+      />
+    </svg>
+    <div class="lbl">Face smooth</div>
+    <div class="sub">Heart disc, round eyes, no panels</div>
+    <div class="sizes">
+      <svg width="18" height="18" viewBox="0 0 100 100">
+        <path
+          fill="currentColor"
+          fill-rule="evenodd"
+          d="M50 6C33 6 20 18 19 36C19 44 18 52 19 60C20 70 25 78 33 84C39 89 44 93 50 94C56 93 61 89 67 84C75 78 80 70 81 60C82 52 81 44 81 36C80 18 67 6 50 6ZM50 40C44 32 34 32 29 39C24 46 25 56 30 64C35 72 43 79 50 84C57 79 65 72 70 64C75 56 76 46 71 39C66 32 56 32 50 40Z"
+        />
+        <circle fill="currentColor" cx="39" cy="58" r="6.6" />
+        <circle fill="currentColor" cx="61" cy="58" r="6.6" />
+        <path
+          fill="currentColor"
+          d="M50 68c2.1 0 3.6 2.8 3.6 5.4s-1.5 4.2-3.6 4.2-3.6-1.6-3.6-4.2 1.5-5.4 3.6-5.4Z"
+        /></svg
+      ><svg width="24" height="24" viewBox="0 0 100 100">
+        <path
+          fill="currentColor"
+          fill-rule="evenodd"
+          d="M50 6C33 6 20 18 19 36C19 44 18 52 19 60C20 70 25 78 33 84C39 89 44 93 50 94C56 93 61 89 67 84C75 78 80 70 81 60C82 52 81 44 81 36C80 18 67 6 50 6ZM50 40C44 32 34 32 29 39C24 46 25 56 30 64C35 72 43 79 50 84C57 79 65 72 70 64C75 56 76 46 71 39C66 32 56 32 50 40Z"
+        />
+        <circle fill="currentColor" cx="39" cy="58" r="6.6" />
+        <circle fill="currentColor" cx="61" cy="58" r="6.6" />
+        <path
+          fill="currentColor"
+          d="M50 68c2.1 0 3.6 2.8 3.6 5.4s-1.5 4.2-3.6 4.2-3.6-1.6-3.6-4.2 1.5-5.4 3.6-5.4Z"
+        /></svg
+      ><svg width="32" height="32" viewBox="0 0 100 100">
+        <path
+          fill="currentColor"
+          fill-rule="evenodd"
+          d="M50 6C33 6 20 18 19 36C19 44 18 52 19 60C20 70 25 78 33 84C39 89 44 93 50 94C56 93 61 89 67 84C75 78 80 70 81 60C82 52 81 44 81 36C80 18 67 6 50 6ZM50 40C44 32 34 32 29 39C24 46 25 56 30 64C35 72 43 79 50 84C57 79 65 72 70 64C75 56 76 46 71 39C66 32 56 32 50 40Z"
+        />
+        <circle fill="currentColor" cx="39" cy="58" r="6.6" />
+        <circle fill="currentColor" cx="61" cy="58" r="6.6" />
+        <path
+          fill="currentColor"
+          d="M50 68c2.1 0 3.6 2.8 3.6 5.4s-1.5 4.2-3.6 4.2-3.6-1.6-3.6-4.2 1.5-5.4 3.6-5.4Z"
+        />
+      </svg>
+    </div>
+  </div>
 </div>
 
 <h2>Light theme</h2>
 <div class="strip">
-<div class="card light"><svg width="64" height="64" viewBox="0 0 100 100"><path fill="currentColor" d="M10 47a5 5 0 0 1 5-5h6v26h-6a5 5 0 0 1-5-5Z"/><path fill="currentColor" d="M90 47a5 5 0 0 0-5-5h-6v26h6a5 5 0 0 0 5-5Z"/><path fill="currentColor" fill-rule="evenodd" d="M50 6C33 6 20 18 19 36C19 44 18 52 19 60C20 70 25 78 33 84C39 89 44 93 50 94C56 93 61 89 67 84C75 78 80 70 81 60C82 52 81 44 81 36C80 18 67 6 50 6ZM50 37a24 20 0 1 0 0 40 24 20 0 0 0 0-40Z"/><path fill="currentColor" d="M50 45C46 40 38 40 34 45C31 49 31 54 34 58H45V72A5 5 0 0 0 55 72V58H66C69 54 69 49 66 45C62 40 54 40 50 45Z"/></svg><div class="lbl">Visor brow</div></div>
-<div class="card light"><svg width="64" height="64" viewBox="0 0 100 100"><path fill="currentColor" d="M10 47a5 5 0 0 1 5-5h6v26h-6a5 5 0 0 1-5-5Z"/><path fill="currentColor" d="M90 47a5 5 0 0 0-5-5h-6v26h6a5 5 0 0 0 5-5Z"/><path fill="currentColor" fill-rule="evenodd" d="M50 6C33 6 20 18 19 36C19 44 18 52 19 60C20 70 25 78 33 84C39 89 44 93 50 94C56 93 61 89 67 84C75 78 80 70 81 60C82 52 81 44 81 36C80 18 67 6 50 6ZM50 37a24 20 0 1 0 0 40 24 20 0 0 0 0-40Z"/><path fill="currentColor" d="M32 49h36a3 3 0 0 1 3 3v6a3 3 0 0 1-3 3H55v13a5 5 0 0 1-10 0V61H32a3 3 0 0 1-3-3v-6a3 3 0 0 1 3-3Z"/></svg><div class="lbl">Visor soft</div></div>
-<div class="card light"><svg width="64" height="64" viewBox="0 0 100 100"><path fill="currentColor" d="M10 47a5 5 0 0 1 5-5h6v26h-6a5 5 0 0 1-5-5Z"/><path fill="currentColor" d="M90 47a5 5 0 0 0-5-5h-6v26h6a5 5 0 0 0 5-5Z"/><path fill="currentColor" fill-rule="evenodd" d="M50 6C33 6 20 18 19 36C19 44 18 52 19 60C20 70 25 78 33 84C39 89 44 93 50 94C56 93 61 89 67 84C75 78 80 70 81 60C82 52 81 44 81 36C80 18 67 6 50 6ZM50 37a24 20 0 1 0 0 40 24 20 0 0 0 0-40Z"/><path fill="currentColor" d="M28 48h44v10H56v15a6 6 0 0 1-12 0V58H28Z"/></svg><div class="lbl">Visor wide</div></div>
-<div class="card light"><svg width="64" height="64" viewBox="0 0 100 100"><path fill="currentColor" fill-rule="evenodd" d="M50 6C33 6 20 18 19 36C19 44 18 52 19 60C20 70 25 78 33 84C39 89 44 93 50 94C56 93 61 89 67 84C75 78 80 70 81 60C82 52 81 44 81 36C80 18 67 6 50 6ZM50 37a24 20 0 1 0 0 40 24 20 0 0 0 0-40Z"/><path fill="currentColor" d="M50 45C46 40 38 40 34 45C31 49 31 54 34 58H45V72A5 5 0 0 0 55 72V58H66C69 54 69 49 66 45C62 40 54 40 50 45Z"/></svg><div class="lbl">Visor brow smooth</div></div>
-<div class="card light"><svg width="64" height="64" viewBox="0 0 100 100"><path fill="currentColor" d="M10 47a5 5 0 0 1 5-5h6v26h-6a5 5 0 0 1-5-5Z"/><path fill="currentColor" d="M90 47a5 5 0 0 0-5-5h-6v26h6a5 5 0 0 0 5-5Z"/><path fill="currentColor" fill-rule="evenodd" d="M50 6C33 6 20 18 19 36C19 44 18 52 19 60C20 70 25 78 33 84C39 89 44 93 50 94C56 93 61 89 67 84C75 78 80 70 81 60C82 52 81 44 81 36C80 18 67 6 50 6ZM50 40C44 32 34 32 29 39C24 46 25 56 30 64C35 72 43 79 50 84C57 79 65 72 70 64C75 56 76 46 71 39C66 32 56 32 50 40Z"/><circle fill="currentColor" cx="39" cy="58" r="6.6"/><circle fill="currentColor" cx="61" cy="58" r="6.6"/><path fill="currentColor" d="M50 68c2.1 0 3.6 2.8 3.6 5.4s-1.5 4.2-3.6 4.2-3.6-1.6-3.6-4.2 1.5-5.4 3.6-5.4Z"/></svg><div class="lbl">Face round</div></div>
-<div class="card light"><svg width="64" height="64" viewBox="0 0 100 100"><path fill="currentColor" d="M10 47a5 5 0 0 1 5-5h6v26h-6a5 5 0 0 1-5-5Z"/><path fill="currentColor" d="M90 47a5 5 0 0 0-5-5h-6v26h6a5 5 0 0 0 5-5Z"/><path fill="currentColor" fill-rule="evenodd" d="M50 6C33 6 20 18 19 36C19 44 18 52 19 60C20 70 25 78 33 84C39 89 44 93 50 94C56 93 61 89 67 84C75 78 80 70 81 60C82 52 81 44 81 36C80 18 67 6 50 6ZM50 40C44 32 34 32 29 39C24 46 25 56 30 64C35 72 43 79 50 84C57 79 65 72 70 64C75 56 76 46 71 39C66 32 56 32 50 40Z"/><path fill="currentColor" fill-rule="evenodd" d="M39 50.5a8 8 0 1 0 0 16 8 8 0 0 0 0-16Zm3.2 4.8a2.3 2.3 0 1 1 0 4.6 2.3 2.3 0 0 1 0-4.6Z"/><path fill="currentColor" fill-rule="evenodd" d="M61 50.5a8 8 0 1 0 0 16 8 8 0 0 0 0-16Zm3.2 4.8a2.3 2.3 0 1 1 0 4.6 2.3 2.3 0 0 1 0-4.6Z"/><path fill="currentColor" d="M50 69c1.9 0 3.3 2.3 3.3 4.5s-1.4 3.7-3.3 3.7-3.3-1.5-3.3-3.7 1.4-4.5 3.3-4.5Z"/></svg><div class="lbl">Face cute</div></div>
-<div class="card light"><svg width="64" height="64" viewBox="0 0 100 100"><path fill="currentColor" fill-rule="evenodd" d="M50 6C33 6 20 18 19 36C19 44 18 52 19 60C20 70 25 78 33 84C39 89 44 93 50 94C56 93 61 89 67 84C75 78 80 70 81 60C82 52 81 44 81 36C80 18 67 6 50 6ZM50 40C44 32 34 32 29 39C24 46 25 56 30 64C35 72 43 79 50 84C57 79 65 72 70 64C75 56 76 46 71 39C66 32 56 32 50 40Z"/><circle fill="currentColor" cx="39" cy="58" r="6.6"/><circle fill="currentColor" cx="61" cy="58" r="6.6"/><path fill="currentColor" d="M50 68c2.1 0 3.6 2.8 3.6 5.4s-1.5 4.2-3.6 4.2-3.6-1.6-3.6-4.2 1.5-5.4 3.6-5.4Z"/></svg><div class="lbl">Face smooth</div></div>
+  <div class="card light">
+    <svg width="64" height="64" viewBox="0 0 100 100">
+      <path fill="currentColor" d="M10 47a5 5 0 0 1 5-5h6v26h-6a5 5 0 0 1-5-5Z" />
+      <path fill="currentColor" d="M90 47a5 5 0 0 0-5-5h-6v26h6a5 5 0 0 0 5-5Z" />
+      <path
+        fill="currentColor"
+        fill-rule="evenodd"
+        d="M50 6C33 6 20 18 19 36C19 44 18 52 19 60C20 70 25 78 33 84C39 89 44 93 50 94C56 93 61 89 67 84C75 78 80 70 81 60C82 52 81 44 81 36C80 18 67 6 50 6ZM50 37a24 20 0 1 0 0 40 24 20 0 0 0 0-40Z"
+      />
+      <path
+        fill="currentColor"
+        d="M50 45C46 40 38 40 34 45C31 49 31 54 34 58H45V72A5 5 0 0 0 55 72V58H66C69 54 69 49 66 45C62 40 54 40 50 45Z"
+      />
+    </svg>
+    <div class="lbl">Visor brow</div>
+  </div>
+  <div class="card light">
+    <svg width="64" height="64" viewBox="0 0 100 100">
+      <path fill="currentColor" d="M10 47a5 5 0 0 1 5-5h6v26h-6a5 5 0 0 1-5-5Z" />
+      <path fill="currentColor" d="M90 47a5 5 0 0 0-5-5h-6v26h6a5 5 0 0 0 5-5Z" />
+      <path
+        fill="currentColor"
+        fill-rule="evenodd"
+        d="M50 6C33 6 20 18 19 36C19 44 18 52 19 60C20 70 25 78 33 84C39 89 44 93 50 94C56 93 61 89 67 84C75 78 80 70 81 60C82 52 81 44 81 36C80 18 67 6 50 6ZM50 37a24 20 0 1 0 0 40 24 20 0 0 0 0-40Z"
+      />
+      <path
+        fill="currentColor"
+        d="M32 49h36a3 3 0 0 1 3 3v6a3 3 0 0 1-3 3H55v13a5 5 0 0 1-10 0V61H32a3 3 0 0 1-3-3v-6a3 3 0 0 1 3-3Z"
+      />
+    </svg>
+    <div class="lbl">Visor soft</div>
+  </div>
+  <div class="card light">
+    <svg width="64" height="64" viewBox="0 0 100 100">
+      <path fill="currentColor" d="M10 47a5 5 0 0 1 5-5h6v26h-6a5 5 0 0 1-5-5Z" />
+      <path fill="currentColor" d="M90 47a5 5 0 0 0-5-5h-6v26h6a5 5 0 0 0 5-5Z" />
+      <path
+        fill="currentColor"
+        fill-rule="evenodd"
+        d="M50 6C33 6 20 18 19 36C19 44 18 52 19 60C20 70 25 78 33 84C39 89 44 93 50 94C56 93 61 89 67 84C75 78 80 70 81 60C82 52 81 44 81 36C80 18 67 6 50 6ZM50 37a24 20 0 1 0 0 40 24 20 0 0 0 0-40Z"
+      />
+      <path fill="currentColor" d="M28 48h44v10H56v15a6 6 0 0 1-12 0V58H28Z" />
+    </svg>
+    <div class="lbl">Visor wide</div>
+  </div>
+  <div class="card light">
+    <svg width="64" height="64" viewBox="0 0 100 100">
+      <path
+        fill="currentColor"
+        fill-rule="evenodd"
+        d="M50 6C33 6 20 18 19 36C19 44 18 52 19 60C20 70 25 78 33 84C39 89 44 93 50 94C56 93 61 89 67 84C75 78 80 70 81 60C82 52 81 44 81 36C80 18 67 6 50 6ZM50 37a24 20 0 1 0 0 40 24 20 0 0 0 0-40Z"
+      />
+      <path
+        fill="currentColor"
+        d="M50 45C46 40 38 40 34 45C31 49 31 54 34 58H45V72A5 5 0 0 0 55 72V58H66C69 54 69 49 66 45C62 40 54 40 50 45Z"
+      />
+    </svg>
+    <div class="lbl">Visor brow smooth</div>
+  </div>
+  <div class="card light">
+    <svg width="64" height="64" viewBox="0 0 100 100">
+      <path fill="currentColor" d="M10 47a5 5 0 0 1 5-5h6v26h-6a5 5 0 0 1-5-5Z" />
+      <path fill="currentColor" d="M90 47a5 5 0 0 0-5-5h-6v26h6a5 5 0 0 0 5-5Z" />
+      <path
+        fill="currentColor"
+        fill-rule="evenodd"
+        d="M50 6C33 6 20 18 19 36C19 44 18 52 19 60C20 70 25 78 33 84C39 89 44 93 50 94C56 93 61 89 67 84C75 78 80 70 81 60C82 52 81 44 81 36C80 18 67 6 50 6ZM50 40C44 32 34 32 29 39C24 46 25 56 30 64C35 72 43 79 50 84C57 79 65 72 70 64C75 56 76 46 71 39C66 32 56 32 50 40Z"
+      />
+      <circle fill="currentColor" cx="39" cy="58" r="6.6" />
+      <circle fill="currentColor" cx="61" cy="58" r="6.6" />
+      <path
+        fill="currentColor"
+        d="M50 68c2.1 0 3.6 2.8 3.6 5.4s-1.5 4.2-3.6 4.2-3.6-1.6-3.6-4.2 1.5-5.4 3.6-5.4Z"
+      />
+    </svg>
+    <div class="lbl">Face round</div>
+  </div>
+  <div class="card light">
+    <svg width="64" height="64" viewBox="0 0 100 100">
+      <path fill="currentColor" d="M10 47a5 5 0 0 1 5-5h6v26h-6a5 5 0 0 1-5-5Z" />
+      <path fill="currentColor" d="M90 47a5 5 0 0 0-5-5h-6v26h6a5 5 0 0 0 5-5Z" />
+      <path
+        fill="currentColor"
+        fill-rule="evenodd"
+        d="M50 6C33 6 20 18 19 36C19 44 18 52 19 60C20 70 25 78 33 84C39 89 44 93 50 94C56 93 61 89 67 84C75 78 80 70 81 60C82 52 81 44 81 36C80 18 67 6 50 6ZM50 40C44 32 34 32 29 39C24 46 25 56 30 64C35 72 43 79 50 84C57 79 65 72 70 64C75 56 76 46 71 39C66 32 56 32 50 40Z"
+      />
+      <path
+        fill="currentColor"
+        fill-rule="evenodd"
+        d="M39 50.5a8 8 0 1 0 0 16 8 8 0 0 0 0-16Zm3.2 4.8a2.3 2.3 0 1 1 0 4.6 2.3 2.3 0 0 1 0-4.6Z"
+      />
+      <path
+        fill="currentColor"
+        fill-rule="evenodd"
+        d="M61 50.5a8 8 0 1 0 0 16 8 8 0 0 0 0-16Zm3.2 4.8a2.3 2.3 0 1 1 0 4.6 2.3 2.3 0 0 1 0-4.6Z"
+      />
+      <path
+        fill="currentColor"
+        d="M50 69c1.9 0 3.3 2.3 3.3 4.5s-1.4 3.7-3.3 3.7-3.3-1.5-3.3-3.7 1.4-4.5 3.3-4.5Z"
+      />
+    </svg>
+    <div class="lbl">Face cute</div>
+  </div>
+  <div class="card light">
+    <svg width="64" height="64" viewBox="0 0 100 100">
+      <path
+        fill="currentColor"
+        fill-rule="evenodd"
+        d="M50 6C33 6 20 18 19 36C19 44 18 52 19 60C20 70 25 78 33 84C39 89 44 93 50 94C56 93 61 89 67 84C75 78 80 70 81 60C82 52 81 44 81 36C80 18 67 6 50 6ZM50 40C44 32 34 32 29 39C24 46 25 56 30 64C35 72 43 79 50 84C57 79 65 72 70 64C75 56 76 46 71 39C66 32 56 32 50 40Z"
+      />
+      <circle fill="currentColor" cx="39" cy="58" r="6.6" />
+      <circle fill="currentColor" cx="61" cy="58" r="6.6" />
+      <path
+        fill="currentColor"
+        d="M50 68c2.1 0 3.6 2.8 3.6 5.4s-1.5 4.2-3.6 4.2-3.6-1.6-3.6-4.2 1.5-5.4 3.6-5.4Z"
+      />
+    </svg>
+    <div class="lbl">Face smooth</div>
+  </div>
 </div>
 
 <h2>In the ribbon, between search and layout</h2>
 <div class="rrow">
-<div class="ribbon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><svg width="18" height="18" viewBox="0 0 100 100"><path fill="currentColor" d="M10 47a5 5 0 0 1 5-5h6v26h-6a5 5 0 0 1-5-5Z"/><path fill="currentColor" d="M90 47a5 5 0 0 0-5-5h-6v26h6a5 5 0 0 0 5-5Z"/><path fill="currentColor" fill-rule="evenodd" d="M50 6C33 6 20 18 19 36C19 44 18 52 19 60C20 70 25 78 33 84C39 89 44 93 50 94C56 93 61 89 67 84C75 78 80 70 81 60C82 52 81 44 81 36C80 18 67 6 50 6ZM50 37a24 20 0 1 0 0 40 24 20 0 0 0 0-40Z"/><path fill="currentColor" d="M50 45C46 40 38 40 34 45C31 49 31 54 34 58H45V72A5 5 0 0 0 55 72V58H66C69 54 69 49 66 45C62 40 54 40 50 45Z"/></svg><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><path d="M4 9h16"/></svg></div><div class="rcap">Visor brow</div>
-<div class="ribbon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><svg width="18" height="18" viewBox="0 0 100 100"><path fill="currentColor" d="M10 47a5 5 0 0 1 5-5h6v26h-6a5 5 0 0 1-5-5Z"/><path fill="currentColor" d="M90 47a5 5 0 0 0-5-5h-6v26h6a5 5 0 0 0 5-5Z"/><path fill="currentColor" fill-rule="evenodd" d="M50 6C33 6 20 18 19 36C19 44 18 52 19 60C20 70 25 78 33 84C39 89 44 93 50 94C56 93 61 89 67 84C75 78 80 70 81 60C82 52 81 44 81 36C80 18 67 6 50 6ZM50 37a24 20 0 1 0 0 40 24 20 0 0 0 0-40Z"/><path fill="currentColor" d="M32 49h36a3 3 0 0 1 3 3v6a3 3 0 0 1-3 3H55v13a5 5 0 0 1-10 0V61H32a3 3 0 0 1-3-3v-6a3 3 0 0 1 3-3Z"/></svg><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><path d="M4 9h16"/></svg></div><div class="rcap">Visor soft</div>
-<div class="ribbon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><svg width="18" height="18" viewBox="0 0 100 100"><path fill="currentColor" d="M10 47a5 5 0 0 1 5-5h6v26h-6a5 5 0 0 1-5-5Z"/><path fill="currentColor" d="M90 47a5 5 0 0 0-5-5h-6v26h6a5 5 0 0 0 5-5Z"/><path fill="currentColor" fill-rule="evenodd" d="M50 6C33 6 20 18 19 36C19 44 18 52 19 60C20 70 25 78 33 84C39 89 44 93 50 94C56 93 61 89 67 84C75 78 80 70 81 60C82 52 81 44 81 36C80 18 67 6 50 6ZM50 37a24 20 0 1 0 0 40 24 20 0 0 0 0-40Z"/><path fill="currentColor" d="M28 48h44v10H56v15a6 6 0 0 1-12 0V58H28Z"/></svg><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><path d="M4 9h16"/></svg></div><div class="rcap">Visor wide</div>
-<div class="ribbon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><svg width="18" height="18" viewBox="0 0 100 100"><path fill="currentColor" fill-rule="evenodd" d="M50 6C33 6 20 18 19 36C19 44 18 52 19 60C20 70 25 78 33 84C39 89 44 93 50 94C56 93 61 89 67 84C75 78 80 70 81 60C82 52 81 44 81 36C80 18 67 6 50 6ZM50 37a24 20 0 1 0 0 40 24 20 0 0 0 0-40Z"/><path fill="currentColor" d="M50 45C46 40 38 40 34 45C31 49 31 54 34 58H45V72A5 5 0 0 0 55 72V58H66C69 54 69 49 66 45C62 40 54 40 50 45Z"/></svg><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><path d="M4 9h16"/></svg></div><div class="rcap">Visor brow smooth</div>
-<div class="ribbon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><svg width="18" height="18" viewBox="0 0 100 100"><path fill="currentColor" d="M10 47a5 5 0 0 1 5-5h6v26h-6a5 5 0 0 1-5-5Z"/><path fill="currentColor" d="M90 47a5 5 0 0 0-5-5h-6v26h6a5 5 0 0 0 5-5Z"/><path fill="currentColor" fill-rule="evenodd" d="M50 6C33 6 20 18 19 36C19 44 18 52 19 60C20 70 25 78 33 84C39 89 44 93 50 94C56 93 61 89 67 84C75 78 80 70 81 60C82 52 81 44 81 36C80 18 67 6 50 6ZM50 40C44 32 34 32 29 39C24 46 25 56 30 64C35 72 43 79 50 84C57 79 65 72 70 64C75 56 76 46 71 39C66 32 56 32 50 40Z"/><circle fill="currentColor" cx="39" cy="58" r="6.6"/><circle fill="currentColor" cx="61" cy="58" r="6.6"/><path fill="currentColor" d="M50 68c2.1 0 3.6 2.8 3.6 5.4s-1.5 4.2-3.6 4.2-3.6-1.6-3.6-4.2 1.5-5.4 3.6-5.4Z"/></svg><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><path d="M4 9h16"/></svg></div><div class="rcap">Face round</div>
-<div class="ribbon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><svg width="18" height="18" viewBox="0 0 100 100"><path fill="currentColor" d="M10 47a5 5 0 0 1 5-5h6v26h-6a5 5 0 0 1-5-5Z"/><path fill="currentColor" d="M90 47a5 5 0 0 0-5-5h-6v26h6a5 5 0 0 0 5-5Z"/><path fill="currentColor" fill-rule="evenodd" d="M50 6C33 6 20 18 19 36C19 44 18 52 19 60C20 70 25 78 33 84C39 89 44 93 50 94C56 93 61 89 67 84C75 78 80 70 81 60C82 52 81 44 81 36C80 18 67 6 50 6ZM50 40C44 32 34 32 29 39C24 46 25 56 30 64C35 72 43 79 50 84C57 79 65 72 70 64C75 56 76 46 71 39C66 32 56 32 50 40Z"/><path fill="currentColor" fill-rule="evenodd" d="M39 50.5a8 8 0 1 0 0 16 8 8 0 0 0 0-16Zm3.2 4.8a2.3 2.3 0 1 1 0 4.6 2.3 2.3 0 0 1 0-4.6Z"/><path fill="currentColor" fill-rule="evenodd" d="M61 50.5a8 8 0 1 0 0 16 8 8 0 0 0 0-16Zm3.2 4.8a2.3 2.3 0 1 1 0 4.6 2.3 2.3 0 0 1 0-4.6Z"/><path fill="currentColor" d="M50 69c1.9 0 3.3 2.3 3.3 4.5s-1.4 3.7-3.3 3.7-3.3-1.5-3.3-3.7 1.4-4.5 3.3-4.5Z"/></svg><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><path d="M4 9h16"/></svg></div><div class="rcap">Face cute</div>
-<div class="ribbon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><svg width="18" height="18" viewBox="0 0 100 100"><path fill="currentColor" fill-rule="evenodd" d="M50 6C33 6 20 18 19 36C19 44 18 52 19 60C20 70 25 78 33 84C39 89 44 93 50 94C56 93 61 89 67 84C75 78 80 70 81 60C82 52 81 44 81 36C80 18 67 6 50 6ZM50 40C44 32 34 32 29 39C24 46 25 56 30 64C35 72 43 79 50 84C57 79 65 72 70 64C75 56 76 46 71 39C66 32 56 32 50 40Z"/><circle fill="currentColor" cx="39" cy="58" r="6.6"/><circle fill="currentColor" cx="61" cy="58" r="6.6"/><path fill="currentColor" d="M50 68c2.1 0 3.6 2.8 3.6 5.4s-1.5 4.2-3.6 4.2-3.6-1.6-3.6-4.2 1.5-5.4 3.6-5.4Z"/></svg><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><path d="M4 9h16"/></svg></div><div class="rcap">Face smooth</div>
+  <div class="ribbon">
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <circle cx="11" cy="11" r="8" />
+      <path d="m21 21-4.3-4.3" /></svg
+    ><svg width="18" height="18" viewBox="0 0 100 100">
+      <path fill="currentColor" d="M10 47a5 5 0 0 1 5-5h6v26h-6a5 5 0 0 1-5-5Z" />
+      <path fill="currentColor" d="M90 47a5 5 0 0 0-5-5h-6v26h6a5 5 0 0 0 5-5Z" />
+      <path
+        fill="currentColor"
+        fill-rule="evenodd"
+        d="M50 6C33 6 20 18 19 36C19 44 18 52 19 60C20 70 25 78 33 84C39 89 44 93 50 94C56 93 61 89 67 84C75 78 80 70 81 60C82 52 81 44 81 36C80 18 67 6 50 6ZM50 37a24 20 0 1 0 0 40 24 20 0 0 0 0-40Z"
+      />
+      <path
+        fill="currentColor"
+        d="M50 45C46 40 38 40 34 45C31 49 31 54 34 58H45V72A5 5 0 0 0 55 72V58H66C69 54 69 49 66 45C62 40 54 40 50 45Z"
+      /></svg
+    ><svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <path d="M4 4h16v16H4z" />
+      <path d="M4 9h16" />
+    </svg>
+  </div>
+  <div class="rcap">Visor brow</div>
+  <div class="ribbon">
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <circle cx="11" cy="11" r="8" />
+      <path d="m21 21-4.3-4.3" /></svg
+    ><svg width="18" height="18" viewBox="0 0 100 100">
+      <path fill="currentColor" d="M10 47a5 5 0 0 1 5-5h6v26h-6a5 5 0 0 1-5-5Z" />
+      <path fill="currentColor" d="M90 47a5 5 0 0 0-5-5h-6v26h6a5 5 0 0 0 5-5Z" />
+      <path
+        fill="currentColor"
+        fill-rule="evenodd"
+        d="M50 6C33 6 20 18 19 36C19 44 18 52 19 60C20 70 25 78 33 84C39 89 44 93 50 94C56 93 61 89 67 84C75 78 80 70 81 60C82 52 81 44 81 36C80 18 67 6 50 6ZM50 37a24 20 0 1 0 0 40 24 20 0 0 0 0-40Z"
+      />
+      <path
+        fill="currentColor"
+        d="M32 49h36a3 3 0 0 1 3 3v6a3 3 0 0 1-3 3H55v13a5 5 0 0 1-10 0V61H32a3 3 0 0 1-3-3v-6a3 3 0 0 1 3-3Z"
+      /></svg
+    ><svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <path d="M4 4h16v16H4z" />
+      <path d="M4 9h16" />
+    </svg>
+  </div>
+  <div class="rcap">Visor soft</div>
+  <div class="ribbon">
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <circle cx="11" cy="11" r="8" />
+      <path d="m21 21-4.3-4.3" /></svg
+    ><svg width="18" height="18" viewBox="0 0 100 100">
+      <path fill="currentColor" d="M10 47a5 5 0 0 1 5-5h6v26h-6a5 5 0 0 1-5-5Z" />
+      <path fill="currentColor" d="M90 47a5 5 0 0 0-5-5h-6v26h6a5 5 0 0 0 5-5Z" />
+      <path
+        fill="currentColor"
+        fill-rule="evenodd"
+        d="M50 6C33 6 20 18 19 36C19 44 18 52 19 60C20 70 25 78 33 84C39 89 44 93 50 94C56 93 61 89 67 84C75 78 80 70 81 60C82 52 81 44 81 36C80 18 67 6 50 6ZM50 37a24 20 0 1 0 0 40 24 20 0 0 0 0-40Z"
+      />
+      <path fill="currentColor" d="M28 48h44v10H56v15a6 6 0 0 1-12 0V58H28Z" /></svg
+    ><svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <path d="M4 4h16v16H4z" />
+      <path d="M4 9h16" />
+    </svg>
+  </div>
+  <div class="rcap">Visor wide</div>
+  <div class="ribbon">
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <circle cx="11" cy="11" r="8" />
+      <path d="m21 21-4.3-4.3" /></svg
+    ><svg width="18" height="18" viewBox="0 0 100 100">
+      <path
+        fill="currentColor"
+        fill-rule="evenodd"
+        d="M50 6C33 6 20 18 19 36C19 44 18 52 19 60C20 70 25 78 33 84C39 89 44 93 50 94C56 93 61 89 67 84C75 78 80 70 81 60C82 52 81 44 81 36C80 18 67 6 50 6ZM50 37a24 20 0 1 0 0 40 24 20 0 0 0 0-40Z"
+      />
+      <path
+        fill="currentColor"
+        d="M50 45C46 40 38 40 34 45C31 49 31 54 34 58H45V72A5 5 0 0 0 55 72V58H66C69 54 69 49 66 45C62 40 54 40 50 45Z"
+      /></svg
+    ><svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <path d="M4 4h16v16H4z" />
+      <path d="M4 9h16" />
+    </svg>
+  </div>
+  <div class="rcap">Visor brow smooth</div>
+  <div class="ribbon">
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <circle cx="11" cy="11" r="8" />
+      <path d="m21 21-4.3-4.3" /></svg
+    ><svg width="18" height="18" viewBox="0 0 100 100">
+      <path fill="currentColor" d="M10 47a5 5 0 0 1 5-5h6v26h-6a5 5 0 0 1-5-5Z" />
+      <path fill="currentColor" d="M90 47a5 5 0 0 0-5-5h-6v26h6a5 5 0 0 0 5-5Z" />
+      <path
+        fill="currentColor"
+        fill-rule="evenodd"
+        d="M50 6C33 6 20 18 19 36C19 44 18 52 19 60C20 70 25 78 33 84C39 89 44 93 50 94C56 93 61 89 67 84C75 78 80 70 81 60C82 52 81 44 81 36C80 18 67 6 50 6ZM50 40C44 32 34 32 29 39C24 46 25 56 30 64C35 72 43 79 50 84C57 79 65 72 70 64C75 56 76 46 71 39C66 32 56 32 50 40Z"
+      />
+      <circle fill="currentColor" cx="39" cy="58" r="6.6" />
+      <circle fill="currentColor" cx="61" cy="58" r="6.6" />
+      <path
+        fill="currentColor"
+        d="M50 68c2.1 0 3.6 2.8 3.6 5.4s-1.5 4.2-3.6 4.2-3.6-1.6-3.6-4.2 1.5-5.4 3.6-5.4Z"
+      /></svg
+    ><svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <path d="M4 4h16v16H4z" />
+      <path d="M4 9h16" />
+    </svg>
+  </div>
+  <div class="rcap">Face round</div>
+  <div class="ribbon">
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <circle cx="11" cy="11" r="8" />
+      <path d="m21 21-4.3-4.3" /></svg
+    ><svg width="18" height="18" viewBox="0 0 100 100">
+      <path fill="currentColor" d="M10 47a5 5 0 0 1 5-5h6v26h-6a5 5 0 0 1-5-5Z" />
+      <path fill="currentColor" d="M90 47a5 5 0 0 0-5-5h-6v26h6a5 5 0 0 0 5-5Z" />
+      <path
+        fill="currentColor"
+        fill-rule="evenodd"
+        d="M50 6C33 6 20 18 19 36C19 44 18 52 19 60C20 70 25 78 33 84C39 89 44 93 50 94C56 93 61 89 67 84C75 78 80 70 81 60C82 52 81 44 81 36C80 18 67 6 50 6ZM50 40C44 32 34 32 29 39C24 46 25 56 30 64C35 72 43 79 50 84C57 79 65 72 70 64C75 56 76 46 71 39C66 32 56 32 50 40Z"
+      />
+      <path
+        fill="currentColor"
+        fill-rule="evenodd"
+        d="M39 50.5a8 8 0 1 0 0 16 8 8 0 0 0 0-16Zm3.2 4.8a2.3 2.3 0 1 1 0 4.6 2.3 2.3 0 0 1 0-4.6Z"
+      />
+      <path
+        fill="currentColor"
+        fill-rule="evenodd"
+        d="M61 50.5a8 8 0 1 0 0 16 8 8 0 0 0 0-16Zm3.2 4.8a2.3 2.3 0 1 1 0 4.6 2.3 2.3 0 0 1 0-4.6Z"
+      />
+      <path
+        fill="currentColor"
+        d="M50 69c1.9 0 3.3 2.3 3.3 4.5s-1.4 3.7-3.3 3.7-3.3-1.5-3.3-3.7 1.4-4.5 3.3-4.5Z"
+      /></svg
+    ><svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <path d="M4 4h16v16H4z" />
+      <path d="M4 9h16" />
+    </svg>
+  </div>
+  <div class="rcap">Face cute</div>
+  <div class="ribbon">
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <circle cx="11" cy="11" r="8" />
+      <path d="m21 21-4.3-4.3" /></svg
+    ><svg width="18" height="18" viewBox="0 0 100 100">
+      <path
+        fill="currentColor"
+        fill-rule="evenodd"
+        d="M50 6C33 6 20 18 19 36C19 44 18 52 19 60C20 70 25 78 33 84C39 89 44 93 50 94C56 93 61 89 67 84C75 78 80 70 81 60C82 52 81 44 81 36C80 18 67 6 50 6ZM50 40C44 32 34 32 29 39C24 46 25 56 30 64C35 72 43 79 50 84C57 79 65 72 70 64C75 56 76 46 71 39C66 32 56 32 50 40Z"
+      />
+      <circle fill="currentColor" cx="39" cy="58" r="6.6" />
+      <circle fill="currentColor" cx="61" cy="58" r="6.6" />
+      <path
+        fill="currentColor"
+        d="M50 68c2.1 0 3.6 2.8 3.6 5.4s-1.5 4.2-3.6 4.2-3.6-1.6-3.6-4.2 1.5-5.4 3.6-5.4Z"
+      /></svg
+    ><svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <path d="M4 4h16v16H4z" />
+      <path d="M4 9h16" />
+    </svg>
+  </div>
+  <div class="rcap">Face smooth</div>
 </div>
 
 <h2>Symmetry</h2>
 <p class="note">
-Every path here is generated by authoring the left half and mirroring it about
-x=50, then verified by rendering and comparing each row of pixels against its
-mirror. All ten variants measure under 0.5 mean difference on a 0-255 scale,
-which is antialiasing noise rather than drift. The earlier hand-typed paths
-measured 6-17 and were visibly lopsided.
+  Every path here is generated by authoring the left half and mirroring it about x=50, then verified
+  by rendering and comparing each row of pixels against its mirror. All ten variants measure under
+  0.5 mean difference on a 0-255 scale, which is antialiasing noise rather than drift. The earlier
+  hand-typed paths measured 6-17 and were visibly lopsided.
 </p>

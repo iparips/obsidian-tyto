@@ -182,20 +182,20 @@ too much at once.
 
 One key per assertion, each a pure function of the record and the final note.
 
-| Key                  | Family      | Passes when                                        |
-| -------------------- | ----------- | -------------------------------------------------- |
-| calls                | Trajectory  | Every named tool was called at least once          |
-| callsInOrder         | Trajectory  | The first of each named pair precedes the second   |
-| exactlyOneOf         | Trajectory  | Exactly one of the named tools was called          |
-| maxRoundTrips        | Trajectory  | The recorded turn count is at or under the cap     |
-| noteEquals           | Vault state | The target note's text equals the value exactly    |
-| noteContains         | Vault state | The text appears in the target note                |
+| Key                  | Family      | Passes when                                         |
+| -------------------- | ----------- | --------------------------------------------------- |
+| calls                | Trajectory  | Every named tool was called at least once           |
+| callsInOrder         | Trajectory  | The first of each named pair precedes the second    |
+| exactlyOneOf         | Trajectory  | Exactly one of the named tools was called           |
+| maxRoundTrips        | Trajectory  | The recorded turn count is at or under the cap      |
+| noteEquals           | Vault state | The target note's text equals the value exactly     |
+| noteContains         | Vault state | The text appears in the target note                 |
 | containsUnderHeading | Vault state | The text appears after the heading, before the next |
-| unchangedRegion      | Restraint   | The named section is byte-identical to the input   |
-| noEdits              | Restraint   | No edit tool appears in the record                 |
-| onlyTargetWritten    | Restraint   | No note beyond the target changed                  |
-| answerContains       | Answer text | An answer_from_search argument holds the value     |
-| sourcesInclude       | Answer text | The answer's sources list the named path           |
+| unchangedRegion      | Restraint   | The named section is byte-identical to the input    |
+| noEdits              | Restraint   | No edit tool appears in the record                  |
+| onlyTargetWritten    | Restraint   | No note beyond the target changed                   |
+| answerContains       | Answer text | An answer_from_search argument holds the value      |
+| sourcesInclude       | Answer text | The answer's sources list the named path            |
 
 The three edit tools are the closed set replace_text, insert_text and insert_at,
 so noEdits is a membership test rather than a heuristic.
@@ -237,10 +237,10 @@ content beyond what the case file already declares reaches that file (NFR2).
 
 Two workflows, because the triggers differ.
 
-| Workflow | Trigger                                  | Runs                |
-| -------- | ---------------------------------------- | ------------------- |
-| unit     | Every push and pull request              | bun run build       |
-| eval     | Nightly schedule, and prompt-path pull requests | bun run eval |
+| Workflow | Trigger                                         | Runs          |
+| -------- | ----------------------------------------------- | ------------- |
+| unit     | Every push and pull request                     | bun run build |
+| eval     | Nightly schedule, and prompt-path pull requests | bun run eval  |
 
 The repo has no workflows at all today, so the unit one is a prerequisite worth
 landing in the same pass.

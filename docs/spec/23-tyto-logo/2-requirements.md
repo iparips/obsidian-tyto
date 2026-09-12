@@ -57,10 +57,10 @@ theme and the eye slits merge into the facial disc.
 
 They come from different sources and cannot be swapped.
 
-| Asset  | Source                    | Colour     | Size used |
-| ------ | ------------------------- | ---------- | --------- |
-| Ribbon | tyto-mask-heart.svg       | Monochrome | 18 px     |
-| README | tyto-logo.png             | Two-tone   | ~200 px   |
+| Asset  | Source              | Colour     | Size used |
+| ------ | ------------------- | ---------- | --------- |
+| Ribbon | tyto-mask-heart.svg | Monochrome | 18 px     |
+| README | tyto-logo.png       | Two-tone   | ~200 px   |
 
 The ribbon icon is redrawn from the chosen SVG as a single-colour glyph. The
 README keeps the existing 2048px PNG, which already carries the cream-on-dark
