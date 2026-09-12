@@ -94,9 +94,14 @@ says it.
 ## What retires
 
 no_skill_applies goes: the constant, the `isRecordNoSkillApplies` predicate, the
-schema, the `skillsExist` branch in `isOffered`, and `recordNoSkillApplies` with
-its ALREADY_LOADED_RESULT. An empty declaration is the same claim, made on the
-call it licenses.
+schema, the `skillsExist` branch in `isOffered`, the `TurnStep.noSkillApplies`
+that branch published, and `recordNoSkillApplies` with its
+ALREADY_LOADED_RESULT. An empty declaration is the same claim, made on the call
+it licenses.
+
+`skillsExist` then decides nothing about which tools are offered, so `isOffered`
+stops taking it. It stays on `forCapabilities`, where it now chooses whether the
+guarded schemas carry the argument.
 
 `skillsSettled`, `settleSkills` and `loadedASkill` (TurnRepository) go with it.
 Nothing is settled per turn any more: each call is judged on what it declared
@@ -136,11 +141,18 @@ around.
 No permission moves. `refusedOpenPath` (TurnRepository) stays turn-scoped, and
 the open note is already editable on the next utterance.
 
+## Where the gate sits
+
+One call site, in ToolDispatcher. The gate runs before the dispatcher routes a
+call, so it covers the edit tools as well as the four that open vault access,
+and NoteEditTool's own check would sit behind a branch nothing can reach. It
+goes with the rest.
+
 ## What does not change
 
-- The two gate call sites, in ToolDispatcher and NoteEditTool (Engine Tools).
-- load_skill, and its already-loaded message, which now reads the session record
-  and is true for the rest of the session.
+- load_skill, which now reads the session record. Its already-loaded message
+  says "in this session" rather than "this turn", since that is what it now
+  means.
 - A vault defining no skills, in prompt, schemas and behaviour.
 
 ## Test plan

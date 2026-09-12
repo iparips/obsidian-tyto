@@ -75,7 +75,7 @@ What the first set covers, so the cases test rules rather than the surface.
 | date-before-glob      | Trajectory  | resolve_date precedes the glob, never inferred |
 | folder-listed-first   | Trajectory  | The first glob ends in a star                  |
 | choose-before-open    | Trajectory  | choose_note precedes open_note                 |
-| one-skill-answer      | Trajectory  | Exactly one of load_skill, no_skill_applies    |
+| skill-declared        | Trajectory  | Every guarded call declares applicable_skills  |
 | read-only-question    | Restraint   | A question calls no edit tool                  |
 | answer-cites-source   | Answer text | The answer's sources name the note read        |
 
