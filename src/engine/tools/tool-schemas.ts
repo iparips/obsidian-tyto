@@ -1,14 +1,18 @@
-import { ToolSchema } from '../../model/providers/types'
+import { ToolParameters, ToolSchema } from '../../model/providers/types'
 import {
   ANSWER_FROM_SEARCH,
+  APPLICABLE_SKILLS,
   ASK_USER,
   CHOOSE_NOTE,
   GLOB_NOTES,
   GREP_NOTES,
+  INSERT_AT,
+  INSERT_TEXT,
   LOAD_SKILL,
   NO_SKILL_APPLIES,
   OPEN_NOTE,
   READ_NOTE,
+  REPLACE_TEXT,
   RESOLVE_DATE,
   RUN_COMMAND,
 } from '../../model/providers/models/tool-call'
@@ -18,7 +22,7 @@ const ANCHOR_DESCRIPTION =
 
 export const TOOL_SCHEMAS: ToolSchema[] = [
   {
-    name: 'replace_text',
+    name: REPLACE_TEXT,
     description: 'Replace one exact, unique occurrence of anchor_text with replacement.',
     parameters: {
       type: 'object',
@@ -30,7 +34,7 @@ export const TOOL_SCHEMAS: ToolSchema[] = [
     },
   },
   {
-    name: 'insert_text',
+    name: INSERT_TEXT,
     description:
       'Insert content immediately before or after one exact, unique occurrence of anchor_text.',
     parameters: {
@@ -44,7 +48,7 @@ export const TOOL_SCHEMAS: ToolSchema[] = [
     },
   },
   {
-    name: 'insert_at',
+    name: INSERT_AT,
     description: 'Insert content at a fixed location in the note.',
     parameters: {
       type: 'object',
@@ -270,7 +274,24 @@ export class ToolCatalogue {
         choiceOffered,
         skillsExist,
       ),
-    )
+    ).map((schema) => (skillsExist ? ToolCatalogue.declaringSkills(schema) : schema))
+  }
+
+  // Added only where the vault defines skills, so a vault defining none is
+  // offered the release 3 schemas unchanged. Required rather than optional: an
+  // omitted argument is what the gate refuses, and an optional one would read
+  // to the model as a question it may skip.
+  private static declaringSkills(schema: ToolSchema): ToolSchema {
+    if (!GUARDED_TOOLS.includes(schema.name)) return schema
+    return { ...schema, parameters: ToolCatalogue.withSkillsArgument(schema.parameters) }
+  }
+
+  private static withSkillsArgument(parameters: ToolParameters): ToolParameters {
+    return {
+      ...parameters,
+      properties: { ...parameters.properties, [APPLICABLE_SKILLS]: APPLICABLE_SKILLS_PROPERTY },
+      required: [...parameters.required, APPLICABLE_SKILLS],
+    }
   }
 
   private static isOffered(
@@ -298,6 +319,26 @@ export class ToolCatalogue {
 // resolve_date joins them because the date it returns has nowhere to go but a
 // glob, so a vault with search off has no use for it and release 3's tool list
 // is unchanged.
+// The calls the skill gate holds: the four that open vault access, and the
+// three that write. It mirrors ToolCall.declaresApplicableSkills, which is what
+// reads the argument back off a call.
+const GUARDED_TOOLS: string[] = [
+  RUN_COMMAND,
+  GLOB_NOTES,
+  GREP_NOTES,
+  READ_NOTE,
+  REPLACE_TEXT,
+  INSERT_TEXT,
+  INSERT_AT,
+]
+
+const APPLICABLE_SKILLS_PROPERTY = {
+  type: 'array',
+  items: { type: 'string' },
+  description:
+    'The skills listed above that cover this utterance, named exactly as listed. Send [] when none covers it. Read a skill with load_skill before naming it here.',
+}
+
 const SEARCH_TOOLS: string[] = [
   GLOB_NOTES,
   GREP_NOTES,

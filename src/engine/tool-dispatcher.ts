@@ -1,5 +1,6 @@
 import { ToolCall } from '../model/providers/types'
 import { OPEN_NOTE } from '../model/providers/models/tool-call'
+import { SkillDeclaration } from './tools/skill-declaration'
 import { NoteEditTool } from './tools/note-edit-tool'
 import { ToolCallOutcome } from './tools/tool-call-outcome'
 import { SkillRepository } from '../skills/skill-repository'
@@ -29,10 +30,6 @@ const NO_ANSWER_RESULT = 'the user did not answer; stop and say what you were wa
 // which is the loop this replaces (FR7).
 const DECLINED_RESULT =
   'the user declined every note offered; ask them what they meant rather than searching again'
-// Names the search rather than the edit: the skill holds where its notes live
-// and how they are named, so this call is the one built on a guess.
-const UNSETTLED_SKILLS =
-  'this vault defines skills and you have not checked them; call load_skill for the one that covers this, or no_skill_applies if none does, then search'
 
 // One tool call, run and published. The loop owns the conversation; this owns
 // what a call does to the note, the session and the panel.
@@ -62,24 +59,28 @@ export class ToolDispatcher {
     // handled here rather than round-tripping through the harness tools.
     if (call.isAskUser()) return this.askUser(AnswerRequest.from(call))
     if (call.isAnswerFromSearch()) return this.answerFromSearch(call)
-    if (this.mustSettleSkillsBefore(call)) return this.refuseUnsettledSkills(call)
+    const skillRefusal = this.skillRefusalFor(call)
+    if (skillRefusal) return this.refuseDeclaration(call, skillRefusal)
     if (call.isHarnessTool()) return this.callHarnessTool(call)
     return this.recordEdit(call, this.noteEditTool.execute(call))
   }
 
-  // Held at the first call that reads the vault, not only at the edit: a skill
+  // Held at every call that reaches the vault, not only at the edit: a skill
   // knows where its notes live and how they are named, so a search run before
-  // it is a search built on a guess. The prompt states this, and a rule the
-  // harness leaves unenforced reads to the model as advisory.
-  private mustSettleSkillsBefore(call: ToolCall): boolean {
-    return call.opensVaultAccess() && this.turnRepository.mustSettleSkills()
+  // it is a search built on a guess. Each call is judged on what it declared,
+  // so a turn whose skills are already read spends no extra round trip.
+  private skillRefusalFor(call: ToolCall): string | null {
+    if (!this.turnRepository.definesSkills() || !call.declaresApplicableSkills()) return null
+    return SkillDeclaration.from(call).refusalAgainst(this.turnRepository.skills(), (name) =>
+      this.turnRepository.hasLoaded(name),
+    )
   }
 
   // Published as a step, since a refusal the panel does not show reads as a
   // turn that stalled for no reason.
-  private refuseUnsettledSkills(call: ToolCall): ToolCallOutcome {
-    this.turnProgressPublisher.publishStepTaken(TurnStep.refused(call.name, UNSETTLED_SKILLS))
-    return ToolCallOutcome.refused(UNSETTLED_SKILLS)
+  private refuseDeclaration(call: ToolCall, reason: string): ToolCallOutcome {
+    this.turnProgressPublisher.publishStepTaken(TurnStep.refused(call.name, reason))
+    return ToolCallOutcome.refused(reason)
   }
 
   // The edit tools are the ones a stuck turn retries, so the steps list has to

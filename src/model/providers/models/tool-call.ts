@@ -9,6 +9,10 @@ export const OPEN_NOTE = 'open_note'
 export const CHOOSE_NOTE = 'choose_note'
 export const ASK_USER = 'ask_user'
 export const RESOLVE_DATE = 'resolve_date'
+export const REPLACE_TEXT = 'replace_text'
+export const INSERT_TEXT = 'insert_text'
+export const INSERT_AT = 'insert_at'
+export const APPLICABLE_SKILLS = 'applicable_skills'
 
 // One tool call the model asked for. It classifies itself, so callers dispatch
 // on a method rather than comparing the raw name at each site.
@@ -89,6 +93,25 @@ export class ToolCall {
     return (
       this.isRunObsidianCommand() || this.isGlobNotes() || this.isGrepNotes() || this.isReadNote()
     )
+  }
+
+  isEditTool(): boolean {
+    return this.name === REPLACE_TEXT || this.name === INSERT_TEXT || this.name === INSERT_AT
+  }
+
+  // The calls that carry applicable_skills: the four that open vault access,
+  // plus the three that write. open_note is absent because the search that
+  // found its path was guarded already, and resolve_date because it reaches no
+  // vault and the phrase it reads is what tells the model which skill it needs.
+  declaresApplicableSkills(): boolean {
+    return this.opensVaultAccess() || this.isEditTool()
+  }
+
+  // Whether the argument was sent at all, which a declared [] and an omitted
+  // argument both read as empty through stringsArgument. They are different
+  // claims: one says no skill covers this, the other says nothing.
+  declaresArgument(key: string): boolean {
+    return Array.isArray(this.args[key])
   }
 
   argument(key: string): string {

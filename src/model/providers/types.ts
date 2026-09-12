@@ -22,5 +22,14 @@ export { ChatMessage, ChatTurn, ToolCall }
 export interface ToolSchema {
   name: string
   description: string
-  parameters: Record<string, unknown>
+  parameters: ToolParameters
+}
+
+// The JSON schema one tool takes. Named rather than Record<string, unknown>
+// because the catalogue adds a property and a required name to it, which a bag
+// of unknowns cannot express.
+export interface ToolParameters {
+  type: string
+  properties: Record<string, unknown>
+  required: string[]
 }

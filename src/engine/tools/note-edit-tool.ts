@@ -5,9 +5,6 @@ import { OpenNote } from '../note-editing/open-note'
 import { TurnRepository } from '../turn/turn-repository'
 import { ToolCallOutcome } from './tool-call-outcome'
 
-const UNSETTLED_SKILLS =
-  'this vault defines skills and you have not checked them; call load_skill for the one that covers this, or no_skill_applies if none does, then edit'
-
 // What an edit tool does to the target note, which is the half of a tool call
 // that touches the vault. Separate from the dispatcher so routing a call and
 // writing to a note are one responsibility each.
@@ -20,10 +17,6 @@ export class NoteEditTool {
   // The target is the only editable note, so there is no permission left to
   // check: it moves only through a consented open or a command.
   execute(call: ToolCall): ToolCallOutcome {
-    // Ordering, not relevance: the model decides which skill applies, or that
-    // none does, and the harness only holds it to deciding before it writes.
-    // Refused once per turn, since either answer settles it.
-    if (this.turnRepository.mustSettleSkills()) return ToolCallOutcome.of(UNSETTLED_SKILLS)
     // Checked before the target, because a refused open leaves the previous
     // turn's note bound and every check below it would pass on that note.
     const refused = this.turnRepository.refusedOpen()

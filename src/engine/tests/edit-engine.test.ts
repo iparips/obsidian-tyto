@@ -260,16 +260,25 @@ describe('EditEngine', () => {
     const engineWithTodoSkill = () =>
       engineReading(new FakeAdapter().withSkill(`${SKILLS_PATH}/todo`, todoSource))
 
-    // Ordering, not relevance: the harness never decides which skill applies. It
-    // refuses the first edit until the model has said which one does, or that
-    // none does. Both answers are the model's own.
-    describe('when the model edits before checking the skills', () => {
-      const edits = () =>
-        aToolTurn(aToolCall('insert_at', { location: 'note_start', content: 'hi\n' }))
+    // The model's own judgement, held to itself: the harness never decides
+    // which skill fits, only that the names the model declared are names it
+    // has read.
+    describe('when the model declares the skills covering an edit', () => {
+      const edits = (applicable_skills?: string[]) =>
+        aToolTurn(
+          aToolCall('insert_at', {
+            location: 'note_start',
+            content: 'hi\n',
+            ...(applicable_skills ? { applicable_skills } : {}),
+          }),
+        )
 
-      it('refuses the edit until the model has checked the skills', async () => {
+      const resultOf = (callIndex: number) =>
+        complete.mock.calls[callIndex][0].filter((m: ChatMessage) => m.isToolResult()).at(-1)
+
+      it('refuses the edit when it declares a skill nothing has read', async () => {
         complete
-          .mockResolvedValueOnce(Outcomes.success(edits()))
+          .mockResolvedValueOnce(Outcomes.success(edits(['todo'])))
           .mockResolvedValue(Outcomes.success(aTextTurn('done')))
 
         await engineWithTodoSkill().processUtterance('add a line')
@@ -277,26 +286,26 @@ describe('EditEngine', () => {
         expect(editor.content).toBe('# Budget\n\nbody')
       })
 
-      it('names both ways to answer, so the model is never stuck', async () => {
+      // The refusal names what to load: one that only reports the block is one
+      // the model answers by retrying the same call.
+      it('names the skill to load when it declares one nothing has read', async () => {
         complete
-          .mockResolvedValueOnce(Outcomes.success(edits()))
+          .mockResolvedValueOnce(Outcomes.success(edits(['todo'])))
           .mockResolvedValue(Outcomes.success(aTextTurn('done')))
 
         await engineWithTodoSkill().processUtterance('add a line')
 
-        const results = complete.mock.calls[1][0].filter((m: ChatMessage) => m.isToolResult())
-        expect(results.at(-1)).toMatchObject({
-          content:
-            'this vault defines skills and you have not checked them; call load_skill for the one that covers this, or no_skill_applies if none does, then edit',
+        expect(resultOf(1)).toMatchObject({
+          content: 'load todo, then call this again declaring it',
         })
       })
 
-      it('applies the edit once a skill has been loaded', async () => {
+      it('applies the edit when it declares a skill loaded this turn', async () => {
         complete
           .mockResolvedValueOnce(
             Outcomes.success(aToolTurn(aToolCall('load_skill', { name: 'todo' }))),
           )
-          .mockResolvedValueOnce(Outcomes.success(edits()))
+          .mockResolvedValueOnce(Outcomes.success(edits(['todo'])))
           .mockResolvedValue(Outcomes.success(aTextTurn('done')))
 
         await engineWithTodoSkill().processUtterance('add a line')
@@ -304,65 +313,10 @@ describe('EditEngine', () => {
         expect(editor.content).toBe('hi\n# Budget\n\nbody')
       })
 
-      it('shows the reason in the steps list when the model says no skill applies', async () => {
-        const steps: string[] = []
-        const withSteps = anEngine(chat, {
-          sessions,
-          noteLocator,
-          agentsMdRepository: noInstructions(),
-          skillRepository: new SkillRepository(
-            new FakeAdapter().withSkill(`${SKILLS_PATH}/todo`, todoSource).asAdapter(),
-            SKILLS_PATH,
-          ),
-          progress: new TurnProgressPublisher(
-            () => undefined,
-            () => undefined,
-            () => undefined,
-            () => undefined,
-            () => undefined,
-            (step) => steps.push(`${step.label}: ${step.detail}`),
-          ),
-        })
-        complete
-          .mockResolvedValueOnce(
-            Outcomes.success(
-              aToolTurn(aToolCall('no_skill_applies', { reason: 'plain dictation' })),
-            ),
-          )
-          .mockResolvedValue(Outcomes.success(aTextTurn('done')))
-
-        await withSteps.processUtterance('add a line')
-
-        expect(steps).toContain('No skill applies: plain dictation')
-      })
-
-      // A turn once loaded a skill and then said no skill applied, so the panel
-      // showed both. The two answers contradict each other and the second is
-      // already answered by the first.
-      // A turn loaded the journal skill twice, spending a step and sending the
-      // whole body again to say what the model had already been told.
-      it('refuses a second load of a skill already loaded in this session', async () => {
-        complete
-          .mockResolvedValueOnce(
-            Outcomes.success(aToolTurn(aToolCall('load_skill', { name: 'todo' }))),
-          )
-          .mockResolvedValueOnce(
-            Outcomes.success(aToolTurn(aToolCall('load_skill', { name: 'todo' }))),
-          )
-          .mockResolvedValue(Outcomes.success(aTextTurn('done')))
-
-        await engineWithTodoSkill().processUtterance('archive my todo')
-
-        const results = complete.mock.calls[2][0].filter((m: ChatMessage) => m.isToolResult())
-        expect(results.at(-1)).toMatchObject({
-          content: 'you already loaded todo in this session; follow the steps you were given',
-        })
-      })
-
-      // The body stays in the chat history, so a second read spends a step to
-      // send again what the model was already told, whichever turn first
-      // fetched it.
-      it('refuses a second load of a skill read in an earlier turn', async () => {
+      // The reported session: a second utterance was refused for not checking a
+      // skill whose body was still in the chat history, and the turn died
+      // retrying the edit.
+      it('applies the edit on its first call when the skill was read in an earlier turn', async () => {
         const withSkills = engineWithTodoSkill()
         complete
           .mockResolvedValueOnce(
@@ -372,77 +326,45 @@ describe('EditEngine', () => {
         await withSkills.processUtterance('archive my todo')
         complete.mockReset()
         complete
-          .mockResolvedValueOnce(
-            Outcomes.success(aToolTurn(aToolCall('load_skill', { name: 'todo' }))),
-          )
+          .mockResolvedValueOnce(Outcomes.success(edits(['todo'])))
           .mockResolvedValue(Outcomes.success(aTextTurn('done')))
 
-        await withSkills.processUtterance('archive it again')
+        await withSkills.processUtterance('add a line under it')
 
-        const results = complete.mock.calls[1][0].filter((m: ChatMessage) => m.isToolResult())
-        expect(results.at(-1)).toMatchObject({
-          content: 'you already loaded todo in this session; follow the steps you were given',
-        })
+        expect(editor.content).toBe('hi\n# Budget\n\nbody')
       })
 
-      it('reports the skill once when the model loads it twice', async () => {
-        const loaded: string[] = []
-        const withSkills = anEngine(chat, {
-          sessions,
-          noteLocator,
-          agentsMdRepository: noInstructions(),
-          skillRepository: new SkillRepository(
-            new FakeAdapter().withSkill(`${SKILLS_PATH}/todo`, todoSource).asAdapter(),
-            SKILLS_PATH,
-          ),
-          progress: new TurnProgressPublisher(
-            () => undefined,
-            () => undefined,
-            () => undefined,
-            (name) => loaded.push(name),
-          ),
-        })
+      // Reading one skill does not license writing under another: the gate asks
+      // which skill, not merely whether any was read.
+      it('refuses a skill unread even when a different one was read earlier', async () => {
+        const adapter = new FakeAdapter()
+          .withSkill(`${SKILLS_PATH}/todo`, todoSource)
+          .withSkill(
+            `${SKILLS_PATH}/shopping`,
+            '---\nname: shopping\ndescription: Keeps the list.\n---\n\n1. Add it.',
+          )
+        const withSkills = engineReading(adapter)
         complete
           .mockResolvedValueOnce(
             Outcomes.success(aToolTurn(aToolCall('load_skill', { name: 'todo' }))),
           )
-          .mockResolvedValueOnce(
-            Outcomes.success(aToolTurn(aToolCall('load_skill', { name: 'todo' }))),
-          )
           .mockResolvedValue(Outcomes.success(aTextTurn('done')))
-
         await withSkills.processUtterance('archive my todo')
-
-        expect(loaded).toEqual(['todo'])
-      })
-
-      it('refuses no_skill_applies when a skill was already loaded this turn', async () => {
+        complete.mockReset()
         complete
-          .mockResolvedValueOnce(
-            Outcomes.success(aToolTurn(aToolCall('load_skill', { name: 'todo' }))),
-          )
-          .mockResolvedValueOnce(
-            Outcomes.success(aToolTurn(aToolCall('no_skill_applies', { reason: 'anything' }))),
-          )
+          .mockResolvedValueOnce(Outcomes.success(edits(['shopping'])))
           .mockResolvedValue(Outcomes.success(aTextTurn('done')))
 
-        await engineWithTodoSkill().processUtterance('archive my todo')
+        await withSkills.processUtterance('add milk')
 
-        const results = complete.mock.calls[2][0].filter((m: ChatMessage) => m.isToolResult())
-        expect(results.at(-1)).toMatchObject({
-          content:
-            'you already loaded a skill this turn, which answered this; follow its steps rather than saying none applies',
+        expect(resultOf(1)).toMatchObject({
+          content: 'load shopping, then call this again declaring it',
         })
       })
 
-      it('applies the edit once the model says no skill applies', async () => {
+      it('applies the edit when it declares that no skill covers the utterance', async () => {
         complete
-          .mockResolvedValueOnce(
-            Outcomes.success(
-              aToolTurn(aToolCall('no_skill_applies', { reason: 'plain dictation' })),
-            ),
-          )
-          .mockResolvedValueOnce(Outcomes.success(edits()))
+          .mockResolvedValueOnce(Outcomes.success(edits([])))
           .mockResolvedValue(Outcomes.success(aTextTurn('done')))
 
         await engineWithTodoSkill().processUtterance('add a line')
@@ -450,51 +372,73 @@ describe('EditEngine', () => {
         expect(editor.content).toBe('hi\n# Budget\n\nbody')
       })
 
-      it('refuses only once, so a turn is not blocked twice on one question', async () => {
+      // A name the model invented is answered with the real ones, so it does not
+      // search for the list it was already sent.
+      it('lists the vault skills when it declares a name none carries', async () => {
         complete
-          .mockResolvedValueOnce(Outcomes.success(edits()))
-          .mockResolvedValueOnce(
-            Outcomes.success(aToolTurn(aToolCall('no_skill_applies', { reason: 'none' }))),
-          )
+          .mockResolvedValueOnce(Outcomes.success(edits(['gardening'])))
+          .mockResolvedValue(Outcomes.success(aTextTurn('done')))
+
+        await engineWithTodoSkill().processUtterance('add a line')
+
+        expect(resultOf(1)).toMatchObject({
+          content: 'no skill in this vault is named gardening; this vault defines todo',
+        })
+      })
+
+      // An omitted argument and a declared [] both read as an empty array, and
+      // they are different claims: one says no skill covers this, the other says
+      // nothing at all.
+      it('refuses the edit when it sends no applicable_skills at all', async () => {
+        complete
           .mockResolvedValueOnce(Outcomes.success(edits()))
           .mockResolvedValue(Outcomes.success(aTextTurn('done')))
 
         await engineWithTodoSkill().processUtterance('add a line')
 
-        expect(editor.content).toBe('hi\n# Budget\n\nbody')
+        expect(resultOf(1)).toMatchObject({
+          content:
+            'this vault defines skills, so every call that reaches it must send applicable_skills: the names covering this utterance, or [] when none does',
+        })
       })
     })
 
     // A turn globbed a week folder before loading the skill that held the
     // vault's filename format, and was only refused four steps later at the
-    // edit. The prompt states the gate, so the harness holds it here too.
-    describe('when the model searches before checking the skills', () => {
-      const globs = () => aToolTurn(aToolCall('glob_notes', { pattern: '**/*.md' }))
+    // edit. The gate holds at the search too, since a skill knows where its
+    // notes live.
+    describe('when the model declares the skills covering a search', () => {
+      const globs = (applicable_skills?: string[]) =>
+        aToolTurn(
+          aToolCall('glob_notes', {
+            pattern: '**/*.md',
+            ...(applicable_skills ? { applicable_skills } : {}),
+          }),
+        )
 
       const resultOf = (callIndex: number) =>
         complete.mock.calls[callIndex][0].filter((m: ChatMessage) => m.isToolResult()).at(-1)
 
-      it('refuses the search until the model has checked the skills', async () => {
+      it('refuses the search when it declares a skill nothing has read', async () => {
         complete
-          .mockResolvedValueOnce(Outcomes.success(globs()))
+          .mockResolvedValueOnce(Outcomes.success(globs(['todo'])))
           .mockResolvedValue(Outcomes.success(aTextTurn('done')))
 
         await engineWithTodoSkill().processUtterance('find my note')
 
         expect(resultOf(1)).toMatchObject({
-          content:
-            'this vault defines skills and you have not checked them; call load_skill for the one that covers this, or no_skill_applies if none does, then search',
+          content: 'load todo, then call this again declaring it',
         })
       })
 
       // This vault has search off, so the call reaching that refusal is what
       // shows it passed the skill gate rather than stopping at it.
-      it('lets the search past the gate once a skill has been loaded', async () => {
+      it('lets the search past the gate once the declared skill is read', async () => {
         complete
           .mockResolvedValueOnce(
             Outcomes.success(aToolTurn(aToolCall('load_skill', { name: 'todo' }))),
           )
-          .mockResolvedValueOnce(Outcomes.success(globs()))
+          .mockResolvedValueOnce(Outcomes.success(globs(['todo'])))
           .mockResolvedValue(Outcomes.success(aTextTurn('done')))
 
         await engineWithTodoSkill().processUtterance('find my note')
@@ -506,7 +450,7 @@ describe('EditEngine', () => {
 
       // Resolving reaches no vault, and the phrase it reads is what tells the
       // model which skill the turn needs: gating it would ask the question blind.
-      it('resolves a date before the skills are checked', async () => {
+      it('resolves a date without declaring any skill', async () => {
         complete
           .mockResolvedValueOnce(
             Outcomes.success(aToolTurn(aToolCall('resolve_date', { phrase: 'last Friday' }))),
@@ -515,7 +459,9 @@ describe('EditEngine', () => {
 
         await engineWithTodoSkill().processUtterance('find last Fridays note')
 
-        expect(resultOf(1)).not.toMatchObject({ content: expect.stringContaining('not checked') })
+        expect(resultOf(1)).not.toMatchObject({
+          content: expect.stringContaining('applicable_skills'),
+        })
       })
     })
 
