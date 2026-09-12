@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="docs/assets/tyto-logo.png" alt="Tyto" width="200">
+</p>
+
 # Tyto
 
 Talk to your notes and they change. Say "rename heading Budget to Costs" or "add apples, bananas and pears under Shopping", and the edit lands in the note you are looking at.
