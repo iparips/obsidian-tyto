@@ -84,3 +84,24 @@ model added a second "Fathers Day" heading beneath it.
 
 Check: the content lands under the heading already there. A second heading
 meaning the same thing is the regression.
+
+## PS11. The ribbon shows the owl, not a mic
+
+1. Look at the ribbon, the command palette entry for Start session, and the
+   session tab.
+
+Check: all three show the owl. A mic anywhere means a site kept the built-in
+name rather than the registered one.
+
+## PS12. The owl reads at ribbon size in both themes
+
+The glyph is the one thing the suite cannot check: it ships as markup and is
+only wrong once rendered at 18 pixels.
+
+1. Open the ribbon on a light theme, then switch to dark.
+2. Compare the owl against the icons above and below it.
+
+Check: the head, the heart-shaped face and both eyes stay separable, and the
+owl fills its slot the way its neighbours fill theirs. A shape that reads as a
+dark blob, that fades beside them, or that sits a size smaller, is the
+regression.

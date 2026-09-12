@@ -13,11 +13,12 @@ and what the README links to.
 1. [Goal](#goal)
 2. [Where the assets live](#where-the-assets-live)
 3. [Registering the icon](#registering-the-icon)
-4. [Drawing the ribbon glyph](#drawing-the-ribbon-glyph)
-5. [The README image](#the-readme-image)
-6. [Test plan](#test-plan)
-7. [Out of scope](#out-of-scope)
-8. [References](#references)
+4. [A fix to the source mark](#a-fix-to-the-source-mark)
+5. [Drawing the ribbon glyph](#drawing-the-ribbon-glyph)
+6. [The README image](#the-readme-image)
+7. [Test plan](#test-plan)
+8. [Out of scope](#out-of-scope)
+9. [References](#references)
 
 ## Goal
 
@@ -28,11 +29,11 @@ it, and the README opens with the full-colour version.
 
 Two homes, because the files have different jobs.
 
-| File                                | Home            | Role                          |
-| ----------------------------------- | --------------- | ----------------------------- |
-| tyto-mask-heart.svg                 | docs/spec/23... | The chosen design, unchanged  |
-| src/session/views/tyto-icon.ts      | src             | The glyph markup the plugin registers |
-| docs/assets/tyto-logo.png           | docs/assets     | The README image              |
+| File                           | Home            | Role                                  |
+| ------------------------------ | --------------- | ------------------------------------- |
+| tyto-mask-heart.svg            | docs/spec/23... | The chosen design, unchanged          |
+| src/session/views/tyto-icon.ts | src             | The glyph markup the plugin registers |
+| docs/assets/tyto-logo.png      | docs/assets     | The README image                      |
 
 The spec folder keeps the design and its rejected siblings; it is a record of
 what was decided. Shipped assets do not live there, which is what NFR3 and the
@@ -83,39 +84,73 @@ getIcon(): string {
 
 Three sites, one constant. That is the whole change in src.
 
+## A fix to the source mark
+
+The chosen mark had the facial disc ending at y=95 while the head ends at 89.1,
+so the dark chin hung through the bottom of the cream silhouette. It is
+invisible on the dark PNG the README uses and shows on any light ground.
+
+The disc's last curve is pulled in so the chin sits inside the head, and the
+beak moves up with it. The mark is otherwise untouched, and the ribbon glyph is
+derived from the corrected paths.
+
 ## Drawing the ribbon glyph
 
 The two-tone mark does not survive the reduction. Rendered at ribbon size the
-cream helmet disappears against a light theme, and the eye slits merge into the
+cream helmet washes out against a light theme, and the eye slits merge into the
 disc. The glyph is therefore redrawn rather than reused (FR3, FR4).
 
-Three rules carry the redraw:
+Four rules carry the redraw:
 
-- Strokes, not fills, for the helmet and the disc. A filled cream shape has
-  nothing to fill with once the palette drops to one colour.
+- One filled shape, not two stroked outlines. At 18 pixels a stroked helmet and
+  a stroked disc are concentric rings a pixel apart, and they fuse into a blob.
+  The fill-rule knocks the disc out of the helmet, so the face is the gap.
 - currentColor everywhere, so the icon inherits the theme the way its neighbours
   do. No hex value appears in the shipped markup.
-- Eyes stay filled. They are the smallest shapes and the first to vanish if
-  drawn as outlines.
+- Eyes stay filled. They are the smallest shapes and the first to vanish.
+- The glyph fills the grid the way its neighbours do, rather than keeping the
+  source mark's own margins.
 
-A tested starting point, which reads at 18 pixels:
+The shipped markup:
 
 ```xml
-<g fill="none" stroke="currentColor" stroke-width="7"
-   stroke-linejoin="round" stroke-linecap="round">
-  <path d="M50 12C30 12 16 27 16 48v17c0 3 2 5 4 6l27 15a7 7 0 0 0 6 0l27-15c2-1 4-3 4-6V48C84 27 70 12 50 12Z"/>
-  <path d="M50 40c-5-8-15-9-21-3-7 7-8 18-3 28 4 10 13 19 24 25 11-6 20-15 24-25 5-10 4-21-3-28-6-6-16-5-21 3Z"/>
+<path fill="currentColor" fill-rule="evenodd" d="M50 13.3C26 13.3 8.5 30.8 8.5 54.8v19.7c0 3.3 2.2 5.5 4.4 6.6l32.8 17.5a8.7 8.7 0 0 0 8.7 0l32.8-17.5c2.2-1.1 4.4-3.3 4.4-6.6V54.8C91.5 30.8 74 13.3 50 13.3ZM50 41.7c-6.6-9.8-19.7-10.9-27.3-3.3-8.7 8.7-9.8 22.9-4.4 34.9 5.5 10.9 17.5 20.7 31.7 25.1 14.2-4.4 26.2-14.2 31.7-25.1 5.5-12 4.4-26.2-4.4-34.9-7.6-7.6-20.7-6.6-27.3 3.3Z"/>
+<g fill="currentColor">
+  <path d="M26 61.4c7.6-2.2 14.2 0 17.5 4.4 2.2 3.3 2.2 6.6-1.1 7.6-4.4 1.1-9.8-1.1-14.2-4.4-3.3-2.2-5.5-5.5-5.5-6.6 0-1.1 1.1-1.1 3.3-1.1Z"/>
+  <path d="M74 61.4c-7.6-2.2-14.2 0-17.5 4.4-2.2 3.3-2.2 6.6 1.1 7.6 4.4 1.1 9.8-1.1 14.2-4.4 3.3-2.2 5.5-5.5 5.5-6.6 0-1.1-1.1-1.1-3.3-1.1Z"/>
 </g>
-<path fill="currentColor" d="M31 57c6-2 11 0 13 4 1 3 0 5-3 5-4 0-9-3-11-6-1-2 0-3 1-3Z"/>
-<path fill="currentColor" d="M69 57c-6-2-11 0-13 4-1 3 0 5 3 5 4 0 9-3 11-6 1-2 0-3-1-3Z"/>
 ```
 
 The beak is dropped. At 18 pixels it fills the gap between the eyes and turns
 the disc into a blob, and the mark is recognisable without it.
 
-Stroke width 7 is heavier than the source's 5, because a stroke thins as the
-icon shrinks. It is the number to adjust first if the icon reads light beside
-Obsidian's built-ins.
+Filling also sidesteps Obsidian's stroke width. The ribbon sets stroke-width
+1.75px on the svg, sized for lucide's 24-unit grid; on this 100-unit grid that
+is a hairline. A stroked glyph has to override it per element, which fights the
+theme, and an override heavy enough to read at 18 pixels measures heavier than
+every icon beside it.
+
+Three numbers place the glyph in the ribbon. Two match the lucide icons
+Obsidian ships; the first deliberately does not.
+
+| Measure                   | Lucide neighbours | Shipped glyph |
+| ------------------------- | ----------------- | ------------- |
+| Width of the grid         | 75 per cent       | 83 per cent   |
+| Centre of ink in the slot | 14.1 of 30        | 14.2 of 30    |
+| Share of pixels inked     | 19 to 25 per cent | 25.4 per cent |
+
+The glyph is drawn larger than its neighbours rather than level with them. It is
+a mark rather than a pictogram, and it carries a head, a face and two eyes into
+the same 18 pixels that a lucide icon spends on three or four strokes. At 75 per
+cent it matched them and read small; 83 is where the face holds.
+
+Ink follows the width past the band's top for the same reason: a filled shape
+gains area faster than an outline as it grows.
+
+Centring is done on the ink rather than the bounding box. The owl is widest at
+the crown and narrows to a chin, so centring the box leaves its weight high and
+opens a gap beneath it. In a ribbon, where buttons are evenly spaced, that gap
+reads as uneven spacing rather than as a tall icon.
 
 ## The README image
 
@@ -128,7 +163,7 @@ not push the prose down the page (FR6, FR7, FR8):
 
 ```html
 <p align="center">
-  <img src="docs/assets/tyto-logo.png" alt="Tyto" width="200">
+  <img src="docs/assets/tyto-logo.png" alt="Tyto" width="200" />
 </p>
 ```
 
@@ -141,19 +176,26 @@ and the body, so this change adds the image and nothing else.
 
 ## Test plan
 
-The icon is markup and registration, so most of it is verified by eye. Two
-things are worth an assertion.
+The icon is markup and registration, so most of it is verified by eye. What a
+suite can hold are the invariants that make the glyph render at all.
 
-| Check                         | How                                    |
-| ----------------------------- | -------------------------------------- |
-| One name, three sites         | Unit: no site passes a literal string  |
-| Registered before use         | Unit: onload registers before ribbon   |
-| Legible at 18 px              | By eye, in the ribbon, both themes     |
-| Reads beside Obsidian's icons | By eye, in the ribbon, both themes     |
-| README renders on GitHub      | By eye, after push                     |
+| Check                         | How                              |
+| ----------------------------- | -------------------------------- |
+| Registered under the name     | Unit: tyto-icon.test.ts          |
+| Drawn in currentColor         | Unit: no hex value in the markup |
+| No wrapper svg or viewBox     | Unit: Obsidian supplies both     |
+| One name, three sites         | By eye: no site spells mic       |
+| Legible at 18 px              | Manual: PS12, in the ribbon      |
+| Reads beside Obsidian's icons | Manual: PS12, in the ribbon      |
+| README renders on GitHub      | By eye, after push               |
+
+Registration order is left to the reader of onload rather than asserted. A test
+that registers a plugin to watch the call order needs an Obsidian Plugin fake
+the repo does not have, and it would assert the line order of a five-line
+method.
 
 The by-eye checks are the real test, and both themes matter: a glyph tuned on
-dark can vanish on light. The manual-tests folder is where the steps go.
+dark can vanish on light. PS11 and PS12 in the manual tests hold the steps.
 
 ## Out of scope
 
@@ -167,6 +209,7 @@ dark can vanish on light. The manual-tests folder is where the steps go.
 
 - [2-requirements.md](2-requirements.md) - open first, for what each FR asks
 - Resources/tyto-mask-heart.svg - the chosen mark, and the source of the glyph
+- Resources/tyto-ribbon-glyph.svg - the glyph as shipped, on the same grid
 - Resources/icon-variants.html - the earlier variants, and how they were compared
 - src/main.ts:26 - the ribbon and command registration, two of the three sites
 - src/session/views/session-view.tsx:37 - getIcon, the third site

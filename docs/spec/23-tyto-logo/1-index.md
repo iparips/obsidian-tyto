@@ -24,10 +24,17 @@ disc. So the ribbon gets a redrawn one-colour glyph in currentColor, and the
 README gets the full-colour PNG, where size is free.
 
 The redraw keeps the helmet, the disc and the eyes, and drops the beak: at 18
-pixels it fills the gap between the eyes and turns the disc into a blob.
+pixels it fills the gap between the eyes and turns the disc into a blob. It is
+one filled shape with the face knocked out of it, not two stroked outlines,
+which at ribbon size fuse into a blob of their own.
 
 The change in src is small. One module owns the icon name and its markup, and
 the three sites that spell mic today use that constant instead.
 
 [Resources](Resources/) holds the chosen mark, tyto-mask-heart.svg, beside the
-variants it was picked from and the gallery used to compare them.
+variants it was picked from and the gallery used to compare them. It also holds
+tyto-ribbon-glyph.svg, the glyph as shipped, which is what the ribbon renders.
+
+The chosen mark carried a drawing fault: its facial disc hung through the bottom
+of the head, which the dark PNG hid. That is corrected, and the design records
+it.
