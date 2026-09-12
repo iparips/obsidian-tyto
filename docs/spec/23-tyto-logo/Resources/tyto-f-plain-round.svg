@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <path fill="currentColor" fill-rule="evenodd" d="M50 6C33 6 20 18 19 36C19 44 18 52 19 60C20 70 25 78 33 84C39 89 44 93 50 94C56 93 61 89 67 84C75 78 80 70 81 60C82 52 81 44 81 36C80 18 67 6 50 6ZM50 40C44 32 34 32 29 39C24 46 25 56 30 64C35 72 43 79 50 84C57 79 65 72 70 64C75 56 76 46 71 39C66 32 56 32 50 40Z"/>
+  <circle fill="currentColor" cx="39" cy="58" r="6.6"/>
+  <circle fill="currentColor" cx="61" cy="58" r="6.6"/>
+  <path fill="currentColor" d="M50 68c2.1 0 3.6 2.8 3.6 5.4s-1.5 4.2-3.6 4.2-3.6-1.6-3.6-4.2 1.5-5.4 3.6-5.4Z"/>
+</svg>

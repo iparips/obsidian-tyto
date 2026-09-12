@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Head: wide domed crown, near-square, chin tapering to a soft point. -->
+  <path fill="#F5F0E6" d="M50 10C28 10 12 26 12 48v18c0 3 2 5 4 6l30 16a8 8 0 0 0 8 0l30-16c2-1 4-3 4-6V48C88 26 72 10 50 10Z"/>
+  <!-- Facial disc: two lobes meeting at a centre notch, sweeping to a chin point. -->
+  <path fill="none" stroke="#17181C" stroke-width="5" stroke-linejoin="round"
+        d="M50 36c-6-9-18-10-25-3-8 8-9 21-4 32 5 12 16 23 29 30 13-7 24-18 29-30 5-11 4-24-4-32-7-7-19-6-25 3Z"/>
+  <!-- Eyes: almond slits, lifted and set apart, curving gently down toward the beak. -->
+  <path fill="#17181C" d="M28 54c7-2 13 0 16 4 2 3 2 6-1 7-4 1-9-1-13-4-3-2-5-5-5-6 0-1 1-1 3-1Z"/>
+  <path fill="#17181C" d="M72 54c-7-2-13 0-16 4-2 3-2 6 1 7 4 1 9-1 13-4 3-2 5-5 5-6 0-1-1-1-3-1Z"/>
+  <!-- Beak: narrow leaf tucked into the notch where the lobes meet. -->
+  <path fill="#17181C" d="M50 68c2 1 3 5 3 9s-1 8-3 10c-2-2-3-6-3-10s1-8 3-9Z"/>
+</svg>
