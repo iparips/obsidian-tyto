@@ -103,7 +103,9 @@ FR1. Give the model a tool that offers the user a shortlist of note paths and
 returns the one they chose.
 
 FR2. Require the tool for every model-chosen open, including a shortlist of one,
-so no note is written to before the user has seen it named.
+so no note is written to before the user has seen it named. Holds in confirm
+mode. Auto mode opens a single candidate instead, per
+[25-opening-a-single-match](../25-opening-a-single-match/1-index.md).
 
 FR3. Show the vault-root path for each candidate and nothing else, so a note is
 identified by where it lives.
@@ -142,7 +144,9 @@ FR12. Remove the yes/no confirmation and its panel entry.
 FR13. Offer the choosing tool nowhere when the vault is in auto mode, which
 opens the first note the model offers without asking. Auto mode today opens the
 one note the model named; a shortlist gives it several, and taking the first is
-a decision rather than a translation.
+a decision rather than a translation. On that reasoning
+[25-opening-a-single-match](../25-opening-a-single-match/1-index.md) stops auto
+mode taking the first of several, and gives it the choosing tool for them.
 
 FR14. Keep ask_user for what it is for: a question whose answer is not a note.
 
