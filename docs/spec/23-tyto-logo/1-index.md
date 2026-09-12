@@ -31,9 +31,10 @@ which at ribbon size fuse into a blob of their own.
 The change in src is small. One module owns the icon name and its markup, and
 the three sites that spell mic today use that constant instead.
 
-[Resources](Resources/) holds the chosen mark, tyto-mask-heart.svg, beside the
-variants it was picked from and the gallery used to compare them. It also holds
-tyto-ribbon-glyph.svg, the glyph as shipped, which is what the ribbon renders.
+[Resources](Resources/) holds the chosen mark, tyto-mask-heart.svg, and
+tyto-ribbon-glyph.svg, the glyph as shipped. The variants it was picked from are
+in icon-variants.html, which inlines every one of them, so the comparison
+survives without a file per candidate.
 
 The chosen mark carried a drawing fault: its facial disc hung through the bottom
 of the head, which the dark PNG hid. That is corrected, and the design records
