@@ -94,6 +94,11 @@ The disc's last curve is pulled in so the chin sits inside the head, and the
 beak moves up with it. The mark is otherwise untouched, and the ribbon glyph is
 derived from the corrected paths.
 
+The chin is lifted further than clearing the head requires. A chin that stops
+just short leaves the helmet closing below it as a sliver a fifth of a pixel
+wide at ribbon size, which antialiases into a detached grey dot rather than an
+edge. Stopping at 81 leaves a band that renders as a solid pixel.
+
 ## Drawing the ribbon glyph
 
 The two-tone mark does not survive the reduction. Rendered at ribbon size the
@@ -114,10 +119,10 @@ Four rules carry the redraw:
 The shipped markup:
 
 ```xml
-<path fill="currentColor" fill-rule="evenodd" d="M50 13.3C26 13.3 8.5 30.8 8.5 54.8v19.7c0 3.3 2.2 5.5 4.4 6.6l32.8 17.5a8.7 8.7 0 0 0 8.7 0l32.8-17.5c2.2-1.1 4.4-3.3 4.4-6.6V54.8C91.5 30.8 74 13.3 50 13.3ZM50 41.7c-6.6-9.8-19.7-10.9-27.3-3.3-8.7 8.7-9.8 22.9-4.4 34.9 5.5 10.9 17.5 20.7 31.7 25.1 14.2-4.4 26.2-14.2 31.7-25.1 5.5-12 4.4-26.2-4.4-34.9-7.6-7.6-20.7-6.6-27.3 3.3Z"/>
+<path fill="currentColor" fill-rule="evenodd" d="M50 11.3C26 11.3 8.5 28.8 8.5 52.8v19.7c0 3.3 2.2 5.5 4.4 6.6l32.8 17.5a8.7 8.7 0 0 0 8.7 0l32.8-17.5c2.2-1.1 4.4-3.3 4.4-6.6V52.8C91.5 28.8 74 11.3 50 11.3ZM50 39.7c-6.6-9.8-19.7-10.9-27.3-3.3-8.7 8.7-9.8 22.9-4.4 34.9 5.5 9.8 17.5 18.6 31.7 20.7 14.2-2.2 26.2-10.9 31.7-20.7 5.5-12 4.4-26.2-4.4-34.9-7.6-7.6-20.7-6.6-27.3 3.3Z"/>
 <g fill="currentColor">
-  <path d="M26 61.4c7.6-2.2 14.2 0 17.5 4.4 2.2 3.3 2.2 6.6-1.1 7.6-4.4 1.1-9.8-1.1-14.2-4.4-3.3-2.2-5.5-5.5-5.5-6.6 0-1.1 1.1-1.1 3.3-1.1Z"/>
-  <path d="M74 61.4c-7.6-2.2-14.2 0-17.5 4.4-2.2 3.3-2.2 6.6 1.1 7.6 4.4 1.1 9.8-1.1 14.2-4.4 3.3-2.2 5.5-5.5 5.5-6.6 0-1.1-1.1-1.1-3.3-1.1Z"/>
+  <path d="M26 59.4c7.6-2.2 14.2 0 17.5 4.4 2.2 3.3 2.2 6.6-1.1 7.6-4.4 1.1-9.8-1.1-14.2-4.4-3.3-2.2-5.5-5.5-5.5-6.6 0-1.1 1.1-1.1 3.3-1.1Z"/>
+  <path d="M74 59.4c-7.6-2.2-14.2 0-17.5 4.4-2.2 3.3-2.2 6.6 1.1 7.6 4.4 1.1 9.8-1.1 14.2-4.4 3.3-2.2 5.5-5.5 5.5-6.6 0-1.1-1.1-1.1-3.3-1.1Z"/>
 </g>
 ```
 
@@ -136,8 +141,8 @@ Obsidian ships; the first deliberately does not.
 | Measure                   | Lucide neighbours | Shipped glyph |
 | ------------------------- | ----------------- | ------------- |
 | Width of the grid         | 75 per cent       | 83 per cent   |
-| Centre of ink in the slot | 14.1 of 30        | 14.2 of 30    |
-| Share of pixels inked     | 19 to 25 per cent | 25.4 per cent |
+| Centre of ink in the slot | 14.1 of 30        | 14.1 of 30    |
+| Share of pixels inked     | 19 to 25 per cent | 26.4 per cent |
 
 The glyph is drawn larger than its neighbours rather than level with them. It is
 a mark rather than a pictogram, and it carries a head, a face and two eyes into
@@ -210,7 +215,7 @@ dark can vanish on light. PS11 and PS12 in the manual tests hold the steps.
 - [2-requirements.md](2-requirements.md) - open first, for what each FR asks
 - Resources/tyto-mask-heart.svg - the chosen mark, and the source of the glyph
 - Resources/tyto-ribbon-glyph.svg - the glyph as shipped, on the same grid
-- Resources/icon-variants.html - the earlier variants, and how they were compared
+- Resources/icon-variants.html - the earlier variants inlined, and how they were compared
 - src/main.ts:26 - the ribbon and command registration, two of the three sites
 - src/session/views/session-view.tsx:37 - getIcon, the third site
 - README.md:1 - the top of the file, where the image goes
