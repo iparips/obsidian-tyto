@@ -1,0 +1,37 @@
+import { addIcon } from 'obsidian'
+
+export const TYTO_ICON = 'tyto-owl'
+
+// Obsidian wraps custom markup in its own svg on a 0 0 100 100 viewBox, so this
+// is the inner content and carries no wrapper, no viewBox and no dimensions.
+//
+// One filled path rather than two stroked outlines. At 18 pixels a stroked
+// helmet and a stroked facial disc are concentric rings a pixel or two apart,
+// and they fuse into a blob; the fill-rule knocks the disc out of the helmet
+// instead, so the face is the gap and the two never touch. It also matches the
+// source mark, where the helmet is filled cream rather than drawn.
+//
+// Filling also sidesteps Obsidian's stroke width. Its ribbon sets stroke-width
+// 1.75px on the svg for a 24-unit lucide grid, which on this 100-unit grid
+// would be a hairline, and overriding it per-element fights the theme.
+//
+// The glyph spans 83 of the 100 units, where the lucide icons beside it span
+// 75. It is deliberately the larger of the two: the owl is a mark rather than a
+// pictogram, and it carries more detail into the same 18 pixels.
+//
+// It is centred on its ink rather than its bounding box. The shape is widest at
+// the crown and narrows to a chin, so centring the box leaves the weight high
+// and opens a gap beneath it, which reads as uneven spacing in the ribbon.
+//
+// The beak is dropped: at ribbon size it closes the gap between the eyes and
+// turns the face back into a blob.
+const TYTO_ICON_SVG = `
+<path fill="currentColor" fill-rule="evenodd" d="M50 13.3C26 13.3 8.5 30.8 8.5 54.8v19.7c0 3.3 2.2 5.5 4.4 6.6l32.8 17.5a8.7 8.7 0 0 0 8.7 0l32.8-17.5c2.2-1.1 4.4-3.3 4.4-6.6V54.8C91.5 30.8 74 13.3 50 13.3ZM50 41.7c-6.6-9.8-19.7-10.9-27.3-3.3-8.7 8.7-9.8 22.9-4.4 34.9 5.5 10.9 17.5 20.7 31.7 25.1 14.2-4.4 26.2-14.2 31.7-25.1 5.5-12 4.4-26.2-4.4-34.9-7.6-7.6-20.7-6.6-27.3 3.3Z"/>
+<g fill="currentColor">
+  <path d="M26 61.4c7.6-2.2 14.2 0 17.5 4.4 2.2 3.3 2.2 6.6-1.1 7.6-4.4 1.1-9.8-1.1-14.2-4.4-3.3-2.2-5.5-5.5-5.5-6.6 0-1.1 1.1-1.1 3.3-1.1Z"/>
+  <path d="M74 61.4c-7.6-2.2-14.2 0-17.5 4.4-2.2 3.3-2.2 6.6 1.1 7.6 4.4 1.1 9.8-1.1 14.2-4.4 3.3-2.2 5.5-5.5 5.5-6.6 0-1.1-1.1-1.1-3.3-1.1Z"/>
+</g>
+`
+
+// Called first in onload: a site naming an unregistered icon renders nothing.
+export const registerTytoIcon = (): void => addIcon(TYTO_ICON, TYTO_ICON_SVG)

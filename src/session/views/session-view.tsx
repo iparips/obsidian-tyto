@@ -1,6 +1,7 @@
 import { ItemView, WorkspaceLeaf } from 'obsidian'
 import { createRoot, Root } from 'react-dom/client'
 import { SessionPanel, SessionPanelProps } from './SessionPanel'
+import { TYTO_ICON } from './tyto-icon'
 
 export const VIEW_TYPE_SESSION = 'tyto-session'
 
@@ -35,7 +36,7 @@ export class SessionView extends ItemView {
   }
 
   getIcon(): string {
-    return 'mic'
+    return TYTO_ICON
   }
 
   bindSession(props: SessionPanelProps): void {

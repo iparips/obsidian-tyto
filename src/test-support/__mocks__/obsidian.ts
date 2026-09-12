@@ -106,3 +106,10 @@ export interface Vault {
   cachedRead(file: TFile): Promise<string>
   getAbstractFileByPath(path: string): TAbstractFile | null
 }
+
+// What a test reads back, since a registered icon has no other handle.
+export const REGISTERED_ICONS = new Map<string, string>()
+
+export function addIcon(iconId: string, svgContent: string): void {
+  REGISTERED_ICONS.set(iconId, svgContent)
+}

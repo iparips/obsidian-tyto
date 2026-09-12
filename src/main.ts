@@ -2,6 +2,7 @@ import { Plugin, TFile, WorkspaceLeaf } from 'obsidian'
 import { RebindModal } from './session/views/rebind-modal'
 import { SessionView, VIEW_TYPE_SESSION } from './session/views/session-view'
 import { SessionPanelProps } from './session/views/SessionPanel'
+import { registerTytoIcon, TYTO_ICON } from './session/views/tyto-icon'
 import { DEFAULT_SETTINGS, TytoSettings } from './settings/settings'
 import { TytoSettingsTab } from './settings/settings-tab'
 import { SkillRepository } from './skills/skill-repository'
@@ -18,16 +19,17 @@ export default class TytoPlugin extends Plugin {
   private followsActiveNote = false
 
   async onload(): Promise<void> {
+    registerTytoIcon()
     this.settings = { ...DEFAULT_SETTINGS, ...(await this.loadData()) }
     this.registerView(
       VIEW_TYPE_SESSION,
       (leaf) => new SessionView(leaf, (view) => this.storedPanelProps(view)),
     )
-    this.addRibbonIcon('mic', 'Start Tyto session', () => this.openSession())
+    this.addRibbonIcon(TYTO_ICON, 'Start Tyto session', () => this.openSession())
     this.addCommand({
       id: 'start-session',
       name: 'Start session',
-      icon: 'mic',
+      icon: TYTO_ICON,
       callback: () => this.openSession(),
     })
     this.addSettingTab(new TytoSettingsTab(this.app, this))
