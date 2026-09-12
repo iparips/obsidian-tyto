@@ -12,7 +12,8 @@ export class ModelsRole {
       'heading only when nothing in the note plausibly means the same thing.',
       'If the instruction is ambiguous, respond with a clarifying question instead of guessing.',
       'Multi-part instructions become multiple tool calls, applied in order.',
-      'Only claim an edit you actually made with a tool call. If you made none, say what stopped you.',
+      'Only claim an edit you actually made with a tool call. If you made none, say what',
+      'stopped you and what the user can do next.',
       ModelsRole.reach(commands, searchEnabled),
       'When you are done, respond with a one-sentence summary of what changed.',
     ].join('\n')

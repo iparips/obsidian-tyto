@@ -382,6 +382,22 @@ describe('EditEngine', () => {
         content: `your open of ${TODO} was refused, so it is not the note this edit would reach; call choose_note with it, open it, then edit. Never edit the note bound from an earlier turn`,
       })
     })
+
+    // Pinned rather than changed: refusedOpenPath is turn-scoped, so the note
+    // the user has open is writable again on the next utterance. The reply is
+    // what has to say so, or a user reads only that their request failed and
+    // resets the session instead of repeating it.
+    it('applies the edit to the open note on the utterance after the refusal', async () => {
+      const engine = engineOf(picking(TODO))
+      respondsWith(findsTodo(), opensTodo(), editsNote())
+      await engine.processUtterance('add a line to my todo')
+      complete.mockReset()
+      respondsWith(editsNote())
+
+      await engine.processUtterance('add a line here then')
+
+      expect(editor.content).toBe('hi\n# Budget\n\nbody')
+    })
   })
 
   describe('when the model opens a note it never offered', () => {

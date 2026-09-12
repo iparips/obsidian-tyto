@@ -374,6 +374,15 @@ describe('the prompt messages', () => {
       expect(prompt).toContain('You can ask the user one question')
     })
 
+    // A refusal reached the user as a paraphrase of an instruction written for
+    // the model, so they learnt the request failed rather than that the note in
+    // front of them was still writable.
+    it('tells the model a turn that edited nothing says what the user can do next', () => {
+      const prompt = systemPromptText()
+
+      expect(prompt).toContain('stopped you and what the user can do next')
+    })
+
     it('produces the release 3 prompt when commands and search are absent', () => {
       const prompt = systemPromptText()
 
