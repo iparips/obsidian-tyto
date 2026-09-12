@@ -194,10 +194,12 @@ describe('the prompt messages', () => {
 
     // A command opened the right note, so the edit looked like success and the
     // skill's own steps were skipped without anything saying so.
-    it('tells the model to answer the skill question before its first tool call', () => {
+    it('tells the model every call reaching the vault names its applicable skills', () => {
       const prompt = systemPromptText(new AgentsMdChain(), [], catalogue)
 
-      expect(prompt).toContain('Answer the skill question before your first tool call')
+      expect(prompt).toContain(
+        'Every call that reaches the vault names the skills covering the utterance',
+      )
     })
 
     // A turn globbed a guessed date order five times, then loaded the journal
@@ -208,10 +210,18 @@ describe('the prompt messages', () => {
       expect(prompt).toContain('search you run before loading it is a search built on a guess')
     })
 
-    it('names no_skill_applies, so the model is never stuck when none fits', () => {
+    it('says an empty list is the answer when no skill fits, so the model is never stuck', () => {
       const prompt = systemPromptText(new AgentsMdChain(), [], catalogue)
 
-      expect(prompt).toContain('no_skill_applies')
+      expect(prompt).toContain('An empty list says none covers it')
+    })
+
+    // The refusal names what to load, so the model does not answer it by
+    // retrying the same call.
+    it('says a named skill must be read first and the refusal says which', () => {
+      const prompt = systemPromptText(new AgentsMdChain(), [], catalogue)
+
+      expect(prompt).toContain('must be read first, and the refusal says which to load')
     })
 
     it('says the model decides which skill applies, not the harness', () => {

@@ -63,41 +63,17 @@ export class TurnRepository {
     return this.vaultSkills.length > 0
   }
 
-  // Whether the model has settled the skill question this turn, either by
-  // loading one or by saying none applies. The harness never decides which
-  // skill fits: it only holds the model to deciding before it writes.
-  private skillsSettled = false
-
-  private loadedThisTurn = false
-
-  settleSkills(): void {
-    this.skillsSettled = true
-  }
-
-  // Loading a skill settles the question and records that it was answered by
-  // loading, so a later "no skill applies" in the same turn contradicts it.
   // The name goes to the session, since the body it fetched stays in the chat
-  // history for every turn after this one.
+  // history for every turn after this one. Nothing is settled per turn: each
+  // call is judged on the skills it declared and what the session has read.
   recordSkillLoaded(name: string): void {
     this.skillsRead.record(name)
-    this.loadedThisTurn = true
-    this.settleSkills()
-  }
-
-  loadedASkill(): boolean {
-    return this.loadedThisTurn
   }
 
   // Reads the session record, so a second read of a body already in the
   // conversation is refused whichever turn first fetched it.
   hasLoaded(name: string): boolean {
     return this.skillsRead.has(name)
-  }
-
-  // A vault with no skills has nothing to settle, so the check is invisible
-  // there and the release 3 turn is unchanged.
-  mustSettleSkills(): boolean {
-    return this.definesSkills() && !this.skillsSettled
   }
 
   getSkillNamed(name: string): Skill | undefined {

@@ -9,7 +9,6 @@ import {
   INSERT_AT,
   INSERT_TEXT,
   LOAD_SKILL,
-  NO_SKILL_APPLIES,
   OPEN_NOTE,
   READ_NOTE,
   REPLACE_TEXT,
@@ -69,22 +68,6 @@ export const TOOL_SCHEMAS: ToolSchema[] = [
         name: { type: 'string', description: 'The skill name exactly as listed.' },
       },
       required: ['name'],
-    },
-  },
-  {
-    name: NO_SKILL_APPLIES,
-    description:
-      "Say that none of this vault's skills covers what the user asked, then carry on. Call it INSTEAD of load_skill, never as well: a turn that loaded a skill has already answered this and must not call it. Only when you have read the skill list and none matches.",
-    parameters: {
-      type: 'object',
-      properties: {
-        reason: {
-          type: 'string',
-          description:
-            'Why no skill fits, in one short phrase. Say what the skills cover that this is not, such as "no skill for opening a dated note". Never restate the request.',
-        },
-      },
-      required: ['reason'],
     },
   },
   {
@@ -262,18 +245,13 @@ export class ToolCatalogue {
     // Auto mode opens the first note the model offers, so the tool that asks is
     // absent rather than answering itself (FR13).
     choiceOffered = true,
-    // Both skill tools are absent from a vault that defines none, so its prompt
-    // and tool list are unchanged.
+    // What decides whether the guarded schemas carry applicable_skills, so a
+    // vault defining none sees the release 3 schemas unchanged. Which tools are
+    // offered no longer turns on it.
     skillsExist = false,
   ): ToolSchema[] {
     return TOOL_SCHEMAS.filter((schema) =>
-      ToolCatalogue.isOffered(
-        schema.name,
-        commandsAllowed,
-        searchEnabled,
-        choiceOffered,
-        skillsExist,
-      ),
+      ToolCatalogue.isOffered(schema.name, commandsAllowed, searchEnabled, choiceOffered),
     ).map((schema) => (skillsExist ? ToolCatalogue.declaringSkills(schema) : schema))
   }
 
@@ -299,11 +277,7 @@ export class ToolCatalogue {
     commandsAllowed: boolean,
     searchEnabled: boolean,
     choiceOffered: boolean,
-    skillsExist: boolean,
   ): boolean {
-    // load_skill stays offered whatever the vault holds, since release 3's tool
-    // list is a fixed contract. Only the new tool is conditional.
-    if (name === NO_SKILL_APPLIES) return skillsExist
     if (name === RUN_COMMAND) return commandsAllowed
     if (name === CHOOSE_NOTE) return searchEnabled && choiceOffered
     if (SEARCH_TOOLS.includes(name)) return searchEnabled

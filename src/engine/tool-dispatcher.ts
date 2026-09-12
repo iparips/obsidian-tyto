@@ -23,8 +23,6 @@ import { TurnStep } from './turn-step'
 
 const CANCELLED_RESULT = 'the user stopped the turn; this call did not run'
 const SEARCH_OFF_RESULT = 'searching the vault is turned off in settings'
-const ALREADY_LOADED_RESULT =
-  'you already loaded a skill this turn, which answered this; follow its steps rather than saying none applies'
 const NO_ANSWER_RESULT = 'the user did not answer; stop and say what you were waiting on'
 // The decline names the next move: a model told only "declined" searches again,
 // which is the loop this replaces (FR7).
@@ -54,7 +52,6 @@ export class ToolDispatcher {
     // Between calls rather than inside one, so no edit is left half-applied.
     if (this.cancellationController.isCancelled()) return ToolCallOutcome.of(CANCELLED_RESULT)
     if (call.isLoadSkill()) return ToolCallOutcome.of(await this.loadSkill(call))
-    if (call.isRecordNoSkillApplies()) return ToolCallOutcome.of(this.recordNoSkillApplies(call))
     // Neither reaches the vault: both only read the call and act, so they are
     // handled here rather than round-tripping through the harness tools.
     if (call.isAskUser()) return this.askUser(AnswerRequest.from(call))
@@ -113,19 +110,6 @@ export class ToolDispatcher {
     this.turnRepository.recordSkillLoaded(skill.name)
     this.turnProgressPublisher.skillLoaded(skill.name)
     return body
-  }
-
-  // The model's own judgement, recorded rather than checked: the harness never
-  // decides which skill fits, only that the question was answered before a
-  // write.
-  // Refused rather than recorded when a skill is already loaded: the two
-  // answers contradict each other, and a panel that shows both tells the user
-  // the turn did something it did not.
-  private recordNoSkillApplies(call: ToolCall): string {
-    if (this.turnRepository.loadedASkill()) return ALREADY_LOADED_RESULT
-    this.turnRepository.settleSkills()
-    this.turnProgressPublisher.publishStepTaken(TurnStep.noSkillApplies(call.argument('reason')))
-    return 'noted; no skill applies to this turn'
   }
 
   // ToolCall that a model wants the harness to execute

@@ -1,5 +1,4 @@
 export const LOAD_SKILL = 'load_skill'
-export const NO_SKILL_APPLIES = 'no_skill_applies'
 export const RUN_COMMAND = 'run_command'
 export const GLOB_NOTES = 'glob_notes'
 export const GREP_NOTES = 'grep_notes'
@@ -25,10 +24,6 @@ export class ToolCall {
 
   isLoadSkill(): boolean {
     return this.name === LOAD_SKILL
-  }
-
-  isRecordNoSkillApplies(): boolean {
-    return this.name === NO_SKILL_APPLIES
   }
 
   isRunObsidianCommand(): boolean {
