@@ -70,14 +70,24 @@ describe('SettingsPanel', () => {
     it('names the checkbox for choosing a note rather than approving one', () => {
       renderPanel('confirm')
 
-      expect(screen.getByText('Ask which note Tyto should open')).toBeTruthy()
+      expect(screen.getByText('Ask before opening a note Tyto found')).toBeTruthy()
     })
 
-    it('says the panel shows the notes it found, rather than one note to approve', () => {
+    it('says the panel shows what it found, rather than one note to approve', () => {
       renderPanel('confirm')
 
       expect(
-        screen.getByText(/shows you the\s+notes it found and waits for you to pick one/),
+        screen.getByText(/shows you\s+what it found and waits for you to pick one/),
+      ).toBeTruthy()
+    })
+
+    // The off state now has two behaviours rather than one, so the note names
+    // both: a user reading only the on state would expect auto mode to guess.
+    it('says the off state opens one match and still asks about several', () => {
+      renderPanel('auto')
+
+      expect(
+        screen.getByText(/opens a note when only one\s+matched, and still asks when several did/),
       ).toBeTruthy()
     })
   })
