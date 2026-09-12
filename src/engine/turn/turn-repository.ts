@@ -6,6 +6,7 @@ import { NotesOpenedCounter } from './notes-opened-counter'
 import { NotesChosenByUserRepository } from './notes-chosen-by-user-repository'
 import { PathsReturnedByVaultRepository } from '../../search/models/paths-returned-by-vault-repository'
 import { Skill } from '../../skills/skill'
+import { SkillsReadRepository } from '../../skills/skills-read-repository'
 
 // What one turn holds, built at its start and discarded with it. Separate from
 // SessionRepository because an editor handle cannot outlive the turn: kept
@@ -25,6 +26,10 @@ export class TurnRepository {
     // found in one turn is one the user watched it find, and refusing to open
     // it in the next is what drives the model to edit whatever is still bound.
     readonly pathsReturnedByVault: PathsReturnedByVaultRepository = new PathsReturnedByVaultRepository(),
+    // Supplied by the session for the same reason: the skill body it names is
+    // in the chat history, so a later turn can still read the steps and a
+    // refusal saying otherwise is untrue.
+    private readonly skillsRead: SkillsReadRepository = new SkillsReadRepository(),
   ) {}
 
   // Built here rather than passed in, which is the whole of its turn scope: a
@@ -63,9 +68,7 @@ export class TurnRepository {
   // skill fits: it only holds the model to deciding before it writes.
   private skillsSettled = false
 
-  // By name, so a second call for a skill already in the conversation is
-  // refused rather than re-reading the file and sending the body twice.
-  private readonly loadedSkills = new Set<string>()
+  private loadedThisTurn = false
 
   settleSkills(): void {
     this.skillsSettled = true
@@ -73,17 +76,22 @@ export class TurnRepository {
 
   // Loading a skill settles the question and records that it was answered by
   // loading, so a later "no skill applies" in the same turn contradicts it.
+  // The name goes to the session, since the body it fetched stays in the chat
+  // history for every turn after this one.
   recordSkillLoaded(name: string): void {
-    this.loadedSkills.add(name)
+    this.skillsRead.record(name)
+    this.loadedThisTurn = true
     this.settleSkills()
   }
 
   loadedASkill(): boolean {
-    return this.loadedSkills.size > 0
+    return this.loadedThisTurn
   }
 
+  // Reads the session record, so a second read of a body already in the
+  // conversation is refused whichever turn first fetched it.
   hasLoaded(name: string): boolean {
-    return this.loadedSkills.has(name)
+    return this.skillsRead.has(name)
   }
 
   // A vault with no skills has nothing to settle, so the check is invisible

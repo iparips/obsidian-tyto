@@ -103,8 +103,10 @@ export class ToolDispatcher {
     if (!skill) return `no skill named ${name} in this vault`
     // Its steps are already in this conversation, so a second read spends a
     // step and sends the whole body again to say what the model was told once.
+    // True for the rest of the session, not only this turn: the body stays in
+    // the history every later turn is sent.
     if (this.turnRepository.hasLoaded(skill.name))
-      return `you already loaded ${skill.name} this turn; follow the steps you were given`
+      return `you already loaded ${skill.name} in this session; follow the steps you were given`
     const body = await this.skillRepository.readBody(skill)
     if (body === null) return `skill ${skill.name} could not be read`
     this.turnRepository.recordSkillLoaded(skill.name)

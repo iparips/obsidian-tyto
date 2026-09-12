@@ -1,4 +1,5 @@
 import { SkillRepository } from '../../skills/skill-repository'
+import { SkillsReadRepository } from '../../skills/skills-read-repository'
 import { NoteEditor } from '../note-editing/note-editor'
 import { NoteEditTool } from '../tools/note-edit-tool'
 import { HarnessToolsService } from '../tools/harness-tools-service'
@@ -59,6 +60,11 @@ export class TurnRunnerFactory {
   // better answer than refusing one the user watched the model find.
   private readonly pathsReturnedByVault = new PathsReturnedByVaultRepository()
 
+  // Session-scoped for the same reason: the body a turn read is still in the
+  // chat history, so refusing the next turn for not having checked would refuse
+  // what the conversation can see.
+  private readonly skillsRead = new SkillsReadRepository()
+
   // Opened on the utterance EditEngine has already recorded, so a turn that
   // cannot open still leaves the history holding what was said to it.
   async build(): Promise<Attempt<ConversationTurnRunner>> {
@@ -73,6 +79,7 @@ export class TurnRunnerFactory {
       skills,
       new NotesOpenedCounter(),
       this.pathsReturnedByVault,
+      this.skillsRead,
     )
     const cancellationController = new TurnCancellationController()
     const askers = this.askersFor(cancellationController, turnRepository.notesChosenByUser)

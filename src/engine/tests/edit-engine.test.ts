@@ -341,7 +341,7 @@ describe('EditEngine', () => {
       // already answered by the first.
       // A turn loaded the journal skill twice, spending a step and sending the
       // whole body again to say what the model had already been told.
-      it('refuses a second load of a skill already loaded this turn', async () => {
+      it('refuses a second load of a skill already loaded in this session', async () => {
         complete
           .mockResolvedValueOnce(
             Outcomes.success(aToolTurn(aToolCall('load_skill', { name: 'todo' }))),
@@ -355,7 +355,33 @@ describe('EditEngine', () => {
 
         const results = complete.mock.calls[2][0].filter((m: ChatMessage) => m.isToolResult())
         expect(results.at(-1)).toMatchObject({
-          content: 'you already loaded todo this turn; follow the steps you were given',
+          content: 'you already loaded todo in this session; follow the steps you were given',
+        })
+      })
+
+      // The body stays in the chat history, so a second read spends a step to
+      // send again what the model was already told, whichever turn first
+      // fetched it.
+      it('refuses a second load of a skill read in an earlier turn', async () => {
+        const withSkills = engineWithTodoSkill()
+        complete
+          .mockResolvedValueOnce(
+            Outcomes.success(aToolTurn(aToolCall('load_skill', { name: 'todo' }))),
+          )
+          .mockResolvedValue(Outcomes.success(aTextTurn('done')))
+        await withSkills.processUtterance('archive my todo')
+        complete.mockReset()
+        complete
+          .mockResolvedValueOnce(
+            Outcomes.success(aToolTurn(aToolCall('load_skill', { name: 'todo' }))),
+          )
+          .mockResolvedValue(Outcomes.success(aTextTurn('done')))
+
+        await withSkills.processUtterance('archive it again')
+
+        const results = complete.mock.calls[1][0].filter((m: ChatMessage) => m.isToolResult())
+        expect(results.at(-1)).toMatchObject({
+          content: 'you already loaded todo in this session; follow the steps you were given',
         })
       })
 
