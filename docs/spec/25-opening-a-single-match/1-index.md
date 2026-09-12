@@ -23,4 +23,4 @@ still has one.
 Narrows FR13 of [14-choosing-the-note](../14-choosing-the-note/2-requirements.md),
 which defined auto mode as taking the first candidate.
 
-Not built.
+Built.

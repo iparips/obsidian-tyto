@@ -36,8 +36,9 @@ with the behaviour it described.
 Three other call sites construct `automatic` as a default where no asker was
 supplied: EngineFactory (Engine), TurnRunnerFactory (Engine Turn) and the test
 support builders. They are defaults for a caller that asks nothing, so they take
-the collaborator that resolves a single candidate and returns null for several,
-never reaching a panel that is not there.
+`unasked` (NoteChoiceService, new): `singleMatch` with an asker that declines.
+A single candidate still resolves, and several return null rather than reaching
+a panel that is not there.
 
 Recording is unchanged: `choose` records whatever it returns, so a single match
 is consent for the turn exactly as a pick is, and open_note's `holds` check
@@ -71,9 +72,10 @@ FR13 had it, and a collaborator that sometimes answers instantly is still one.
 ## The setting copy
 
 The checkbox reads "Ask which note Tyto should open", which now describes only
-confirm mode. The label and its note change to say what each side does: with it
-on, Tyto shows you what it found and waits; with it off, Tyto opens a note when
-only one matched and still asks when several did.
+confirm mode. It becomes "Ask before opening a note Tyto found", and its note
+says what each side does: with it on, Tyto shows you what it found and waits;
+with it off, Tyto opens a note when only one matched and still asks when several
+did.
 
 The stored value and its two states are unchanged, so nothing migrates.
 
