@@ -24,6 +24,9 @@ export class SkillDeclarationChecker {
   // The vault is checked before the session, so a name it never defined is
   // answered with the real list rather than told to load what does not exist.
   check(applicable: ApplicableSkills): SkillDeclarationOutcome {
+    // A vault defining no skills has nothing to declare, so its calls are the
+    // release 3 calls and the argument is absent from their schemas.
+    if (this.vaultSkills.length === 0) return new SkillsDeclarationSatisfied()
     if (!applicable.declared) return new SkillsNotDeclared()
     const notDefined = this.getNamesNotDefinedByVault(applicable.names)
     if (notDefined.length > 0)

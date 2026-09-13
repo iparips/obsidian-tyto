@@ -71,7 +71,9 @@ place of `mustSettleSkills`, at the same point in `execute`.
   satisfied, not declared, not defined by the vault, or not read this session.
   Each state writes its own message, so the wording comes from the name rather
   than from a flag read back out. It follows TargetResolution (Engine Note
-  Binding), which is the same shape for the same reason.
+  Binding), which is the same shape for the same reason. A vault defining no
+  skills is satisfied before any other check, so its calls are the release 3
+  calls.
 
 The dispatcher reads both lists off TurnRepository and passes values, so no
 repository reaches the checker.
@@ -121,8 +123,7 @@ sequenceDiagram
     participant Panel as TurnProgressPublisher [Engine]
 
     Model->>Dispatcher: execute
-    Note over Dispatcher: Guarded calls are the four that open vault access plus the three that edit
-    Dispatcher->>Turn: definesSkills
+    Note over Dispatcher: Which tools carry the argument is a property of the tool alone, so no vault check gates the check
     Dispatcher->>Applicable: from
     Note over Applicable: Reads the raw args, so an omitted argument is not read as a declared empty list
     Dispatcher->>Turn: skills
