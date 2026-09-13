@@ -44,6 +44,66 @@ Recording is unchanged: `choose` records whatever it returns, so a single match
 is consent for the turn exactly as a pick is, and open_note's `holds` check
 passes either way.
 
+## Behaviour Sequence
+
+One choose_note call, in a vault with search enabled. The outer alt is the open
+mode, which is the setting a user changes rather than anything the turn decides.
+Confirm is the default and is drawn as it already behaves.
+
+```mermaid
+sequenceDiagram
+    participant Model as Mistral [Model Providers]
+    participant Dispatcher as ToolDispatcher [Engine]
+    participant Choice as NoteChoiceService [Engine Waiting]
+    participant Chosen as NotesChosenByUserRepository [Engine Turn]
+    participant Askers as TurnAskersService [Session]
+    participant User as SessionPanel [Session Views]
+
+    Note over Askers: The mode picks the collaborator once per turn, so no branch reaches the dispatcher
+    Model->>Dispatcher: execute choose_note
+    Dispatcher->>Choice: choose
+
+    alt Auto mode
+        Note over Choice: singleMatch short circuits on the request, so the asking half stays shared
+        alt Exactly one candidate
+            Note over Choice: One candidate is a translation of what the search found, not a decision
+            Choice->>Chosen: record
+            Choice-->>Dispatcher: the only path
+            Dispatcher-->>Model: the user chose it, open it with open_note
+        else Several candidates
+            Note over Choice: Taking the first of several was the guess this spec removes
+            Choice->>Askers: ask
+            Askers->>User: choices.ask
+            User-->>Askers: the path picked, or null
+            Askers-->>Choice: the path picked, or null
+            Note over Choice: A decline returns before recording, so the open that follows one is refused
+            Choice->>Chosen: record
+            Choice-->>Dispatcher: the path picked, or null
+            Dispatcher-->>Model: the pick, or the decline
+        end
+    else Confirm mode
+        Note over Choice: Unchanged, whatever the candidate count
+        Choice->>Askers: ask
+        Askers->>User: choices.ask
+        User-->>Askers: the path picked, or null
+        Askers-->>Choice: the path picked, or null
+        Note over Choice: A decline returns before recording, as in auto mode
+        Choice->>Chosen: record
+        Choice-->>Dispatcher: the path picked, or null
+        Dispatcher-->>Model: the pick, or the decline
+    end
+```
+
+Arrows: uses-relationship (client to supplier).
+
+Recording is the same call on every path that returns one, which is what makes a
+single match consent for the turn: open_note reads the same repository whether a
+user picked the path or the search identified it alone.
+
+Three default callers take a fourth path not drawn here, because no panel
+exists to reach: EngineFactory, TurnRunnerFactory and the test support builders
+construct `unasked`, which is the auto branch with an asker that declines.
+
 ## Auto mode gains the choosing tool
 
 `choiceOffered` (EngineFactory) is `this.settings.openMode === 'confirm'` today,

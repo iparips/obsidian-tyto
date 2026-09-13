@@ -91,6 +91,74 @@ That is the change that keeps the gate out of RepeatedRefusalCounter (Engine
 Turn) reach. Today's refusal asks the model to re-derive what it needs; this one
 says it.
 
+## Behaviour Sequence
+
+One guarded call, in a vault defining skills. The outer alt is the session
+record, which is what release 3 had no equivalent of: the same declaration is
+refused before the body is read and passes after it, whichever turn read it.
+
+```mermaid
+sequenceDiagram
+    participant Model as Mistral [Model Providers]
+    participant Dispatcher as ToolDispatcher [Engine]
+    participant Declaration as SkillDeclaration [Engine Tools, new]
+    participant Turn as TurnRepository [Engine Turn]
+    participant SkillsRead as SkillsReadRepository [Skills, new]
+    participant Skills as SkillRepository [Skills]
+    participant Edit as NoteEditTool [Engine Tools]
+    participant Panel as TurnProgressPublisher [Engine]
+
+    Model->>Dispatcher: execute
+    Note over Dispatcher: Guarded calls are the four that open vault access plus the three that edit
+    Dispatcher->>Turn: definesSkills
+    Dispatcher->>Declaration: from
+    Note over Declaration: Reads the raw args, so an omitted argument is not read as a declared empty list
+    Dispatcher->>Declaration: refusalAgainst
+    Note over Dispatcher,Declaration: The vault list and a hasRead closure onto the turn are passed in, so the declaration reaches no repository itself
+    Declaration->>Turn: skills
+
+    alt Declared name not yet in the session record
+        Declaration->>Turn: hasLoaded
+        Turn->>SkillsRead: has
+        SkillsRead-->>Turn: false
+        Turn-->>Declaration: false
+        Declaration-->>Dispatcher: load journal, then call this again declaring it
+        Dispatcher->>Panel: publishStepTaken
+        Dispatcher-->>Model: refusal naming the skill to load
+        Model->>Dispatcher: execute load_skill
+        Dispatcher->>Turn: hasLoaded
+        Dispatcher->>Skills: readBody
+        Skills-->>Dispatcher: body
+        Dispatcher->>Turn: recordSkillLoaded
+        Turn->>SkillsRead: record
+        Dispatcher->>Panel: skillLoaded
+        Dispatcher-->>Model: the skill body
+    else Declared name already read this session
+        Declaration->>Turn: hasLoaded
+        Turn->>SkillsRead: has
+        SkillsRead-->>Turn: true
+        Turn-->>Declaration: true
+        Note over Declaration: An empty declaration reaches here too, having named nothing to check
+        Declaration-->>Dispatcher: null
+        Dispatcher->>Edit: execute
+        Edit-->>Dispatcher: ToolCallOutcome
+        Dispatcher->>Panel: publishStepTaken
+        Dispatcher-->>Model: applied
+    end
+```
+
+Arrows: uses-relationship (client to supplier).
+
+The record outlives the turn, so the second branch is what a later utterance
+takes without the round trip the first spends. That is the reported session:
+turn 1 walks the upper branch, turn 2 walks the lower one on its first call.
+
+Two refusals are not drawn, because both end the call the same way as the first
+branch's refusal and differ only in text. A name no vault skill carries is
+answered with the vault's list, checked before the record so a typo is never
+told to load something that does not exist. A call sending no argument at all is
+refused before either check.
+
 ## What retires
 
 no_skill_applies goes: the constant, the `isRecordNoSkillApplies` predicate, the
