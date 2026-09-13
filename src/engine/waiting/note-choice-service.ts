@@ -25,10 +25,8 @@ export class NoteChoiceService {
     return new NoteChoiceService(new PendingAnswer(ask, cancellationController), notesChosenByUser)
   }
 
-  // Auto mode: a single candidate is a translation of what the search found, so
-  // it resolves without asking, and anything else is a choice the user makes.
-  // The mode is a choice of collaborator, not a branch (FR13), and a
-  // collaborator that sometimes answers instantly is still one.
+  // Auto mode: one candidate is a translation of what the search found, several
+  // are a choice the user makes. A collaborator, not a branch (FR13).
   static singleMatch(
     ask: (request: ChoiceRequest) => Promise<string | null>,
     cancellationController = new TurnCancellationController(),
@@ -49,10 +47,8 @@ export class NoteChoiceService {
     return ask(request)
   }
 
-  // The default where a caller offers no panel, which is every test not
-  // exercising the choice and every factory built without askers. A single
-  // candidate still resolves; several decline, rather than parking on a panel
-  // that is not there.
+  // The default where no panel exists to ask, so several decline rather than
+  // parking forever.
   static unasked(notesChosenByUser = new NotesChosenByUserRepository()): NoteChoiceService {
     return NoteChoiceService.singleMatch(() => Promise.resolve(null), undefined, notesChosenByUser)
   }

@@ -1,7 +1,6 @@
-// Session-scoped, so a skill read in one turn stays read for the rest of the
-// session. It rests on the body staying in the chat history: a name recorded
-// here means the model can still read the steps it was sent. If the history is
-// ever truncated or summarised, this record moves with it.
+// Session-scoped because the body stays in the chat history, so a name here
+// means the model can still read the steps. If the history is ever truncated,
+// this record moves with it.
 export class SkillsReadRepository {
   private readonly names = new Set<string>()
 
@@ -13,8 +12,7 @@ export class SkillsReadRepository {
     return this.names.has(name)
   }
 
-  // A copy, so a caller checking several names at once holds values rather than
-  // this repository.
+  // A copy, so a caller holds values rather than this repository.
   getNamesRead(): readonly string[] {
     return [...this.names]
   }

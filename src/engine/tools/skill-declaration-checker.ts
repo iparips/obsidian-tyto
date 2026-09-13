@@ -12,6 +12,8 @@ export class SkillDeclarationChecker {
     private readonly namesRead: readonly string[],
   ) {}
 
+  // The vault is checked before the session, so a typo is answered with the
+  // list rather than told to load what does not exist.
   check(declaredSkills: ApplicableSkills): SkillDeclarationOutcome {
     if (!declaredSkills.arePresent())
       return SkillDeclarationNotSatisfied.missingApplicableSkillsInInput()

@@ -70,10 +70,6 @@ export class ToolDispatcher {
     return refusal ? this.refuseDeclaration(call, refusal) : null
   }
 
-  // Whether there is a rule to apply, which is a separate question from whether
-  // the declaration holds. A tool either carries the argument or does not, and a
-  // vault defining no skills has nothing to declare: its calls are the release 3
-  // calls, and their schemas carry no applicable_skills at all.
   private isSkillDeclarationRequired(call: ToolCall): boolean {
     return call.requiresApplicableSkillsAttribute() && this.turnRepository.definesSkills()
   }
@@ -112,10 +108,8 @@ export class ToolDispatcher {
     const name = call.argument('name')
     const skill = this.turnRepository.getSkillNamed(name)
     if (!skill) return `no skill named ${name} in this vault`
-    // Its steps are already in this conversation, so a second read spends a
-    // step and sends the whole body again to say what the model was told once.
-    // True for the rest of the session, not only this turn: the body stays in
-    // the history every later turn is sent.
+    // Its steps are already in this conversation, so a second read sends the
+    // whole body again to say what the model was told once.
     if (this.turnRepository.hasLoaded(skill.name))
       return `you already loaded ${skill.name} in this session; follow the steps you were given`
     const body = await this.skillRepository.readBody(skill)
