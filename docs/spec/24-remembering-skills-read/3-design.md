@@ -66,13 +66,12 @@ place of `mustSettleSkills`, at the same point in `execute`.
 
 - ApplicableSkills (Engine Tools, new) is the value read off one call: the names
   it declared, and whether it sent the argument at all.
-- SkillsInSessionChecker (Engine Tools, new) takes the vault list and the names
-  read as values, and answers which declared names each is missing.
-- SkillDeclarationPolicy (Engine Tools, new) judges one against the other and
-  returns a SkillDeclarationVerdict (Engine Tools, new): satisfied, not
-  declared, not defined by the vault, or not read this session. Each state
-  writes its own message, so the wording comes from the name rather than from a
-  flag read back out.
+- SkillDeclarationChecker (Engine Tools, new) takes the vault list and the names
+  read as values, and returns a SkillDeclarationOutcome (Engine Tools, new):
+  satisfied, not declared, not defined by the vault, or not read this session.
+  Each state writes its own message, so the wording comes from the name rather
+  than from a flag read back out. It follows TargetResolution (Engine Note
+  Binding), which is the same shape for the same reason.
 
 The dispatcher reads both lists off TurnRepository and passes values, so no
 repository reaches the checker.
@@ -114,8 +113,7 @@ sequenceDiagram
     participant Model as Mistral [Model Providers]
     participant Dispatcher as ToolDispatcher [Engine]
     participant Applicable as ApplicableSkills [Engine Tools, new]
-    participant Policy as SkillDeclarationPolicy [Engine Tools, new]
-    participant Checker as SkillsInSessionChecker [Engine Tools, new]
+    participant Checker as SkillDeclarationChecker [Engine Tools, new]
     participant Turn as TurnRepository [Engine Turn]
     participant SkillsRead as SkillsReadRepository [Skills, new]
     participant Skills as SkillRepository [Skills]
@@ -131,14 +129,11 @@ sequenceDiagram
     Dispatcher->>Turn: skillNamesRead
     Turn->>SkillsRead: getNamesRead
     Note over Dispatcher,Checker: Both lists are passed as values, so the checker holds no repository
-    Dispatcher->>Policy: judge
+    Dispatcher->>Checker: check
 
     alt Declared name not yet in the session record
-        Policy->>Checker: getNamesNotDefinedByVault
-        Checker-->>Policy: no undefined names
-        Policy->>Checker: getNamesNotReadThisSession
-        Checker-->>Policy: journal
-        Policy-->>Dispatcher: SkillsNotReadThisSession, whose refusal names what to load
+        Note over Checker: The vault is checked before the session, so a typo is never told to load what does not exist
+        Checker-->>Dispatcher: SkillsNotReadThisSession, whose refusal names what to load
         Dispatcher->>Panel: publishStepTaken
         Dispatcher-->>Model: refusal naming the skill to load
         Model->>Dispatcher: execute load_skill
@@ -150,12 +145,8 @@ sequenceDiagram
         Dispatcher->>Panel: skillLoaded
         Dispatcher-->>Model: the skill body
     else Declared name already read this session
-        Policy->>Checker: getNamesNotDefinedByVault
-        Checker-->>Policy: no undefined names
-        Policy->>Checker: getNamesNotReadThisSession
         Note over Checker: An empty declaration reaches here too, having named nothing to check
-        Checker-->>Policy: no unread names
-        Policy-->>Dispatcher: SkillsDeclarationSatisfied, whose refusal is null
+        Checker-->>Dispatcher: SkillsDeclarationSatisfied, whose refusal is null
         Dispatcher->>Edit: execute
         Edit-->>Dispatcher: ToolCallOutcome
         Dispatcher->>Panel: publishStepTaken
