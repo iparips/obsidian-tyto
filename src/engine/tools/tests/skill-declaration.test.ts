@@ -8,8 +8,9 @@ const SHOPPING = new Skill('shopping', 'Keeps the list.', 'Skills/shopping.md')
 const VAULT_SKILLS = [JOURNAL, SHOPPING]
 
 const refusalFor = (args: Record<string, unknown>, read: readonly string[] = []) =>
-  SkillDeclaration.from(aToolCall('insert_at', args)).refusalAgainst(VAULT_SKILLS, (name) =>
-    read.includes(name),
+  SkillDeclaration.from(aToolCall('insert_at', args)).getRefusalAgainstVaultAndSession(
+    VAULT_SKILLS,
+    (name) => read.includes(name),
   )
 
 describe('SkillDeclaration', () => {

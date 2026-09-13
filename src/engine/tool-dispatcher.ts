@@ -56,7 +56,7 @@ export class ToolDispatcher {
     // handled here rather than round-tripping through the harness tools.
     if (call.isAskUser()) return this.askUser(AnswerRequest.from(call))
     if (call.isAnswerFromSearch()) return this.answerFromSearch(call)
-    const skillRefusal = this.skillRefusalFor(call)
+    const skillRefusal = this.getSkillDeclarationRefusal(call)
     if (skillRefusal) return this.refuseDeclaration(call, skillRefusal)
     if (call.isHarnessTool()) return this.callHarnessTool(call)
     return this.recordEdit(call, this.noteEditTool.execute(call))
@@ -66,10 +66,11 @@ export class ToolDispatcher {
   // knows where its notes live and how they are named, so a search run before
   // it is a search built on a guess. Each call is judged on what it declared,
   // so a turn whose skills are already read spends no extra round trip.
-  private skillRefusalFor(call: ToolCall): string | null {
+  private getSkillDeclarationRefusal(call: ToolCall): string | null {
     if (!this.turnRepository.definesSkills() || !call.declaresApplicableSkills()) return null
-    return SkillDeclaration.from(call).refusalAgainst(this.turnRepository.skills(), (name) =>
-      this.turnRepository.hasLoaded(name),
+    return SkillDeclaration.from(call).getRefusalAgainstVaultAndSession(
+      this.turnRepository.skills(),
+      (name) => this.turnRepository.hasLoaded(name),
     )
   }
 

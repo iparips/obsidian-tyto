@@ -67,13 +67,13 @@ export class TurnRepository {
   // history for every turn after this one. Nothing is settled per turn: each
   // call is judged on the skills it declared and what the session has read.
   recordSkillLoaded(name: string): void {
-    this.skillsRead.record(name)
+    this.skillsRead.recordNameRead(name)
   }
 
   // Reads the session record, so a second read of a body already in the
   // conversation is refused whichever turn first fetched it.
   hasLoaded(name: string): boolean {
-    return this.skillsRead.has(name)
+    return this.skillsRead.includesNameRead(name)
   }
 
   getSkillNamed(name: string): Skill | undefined {

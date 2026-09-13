@@ -113,7 +113,7 @@ sequenceDiagram
     Dispatcher->>Turn: definesSkills
     Dispatcher->>Declaration: from
     Note over Declaration: Reads the raw args, so an omitted argument is not read as a declared empty list
-    Dispatcher->>Declaration: refusalAgainst
+    Dispatcher->>Declaration: getRefusalAgainstVaultAndSession
     Note over Dispatcher,Declaration: The vault list and a hasRead closure onto the turn are passed in, so the declaration reaches no repository itself
     Declaration->>Turn: skills
 

@@ -5,11 +5,11 @@
 export class SkillsReadRepository {
   private readonly names = new Set<string>()
 
-  record(name: string): void {
+  recordNameRead(name: string): void {
     this.names.add(name)
   }
 
-  has(name: string): boolean {
+  includesNameRead(name: string): boolean {
     return this.names.has(name)
   }
 }

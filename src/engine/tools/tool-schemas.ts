@@ -252,19 +252,19 @@ export class ToolCatalogue {
   ): ToolSchema[] {
     return TOOL_SCHEMAS.filter((schema) =>
       ToolCatalogue.isOffered(schema.name, commandsAllowed, searchEnabled, choiceOffered),
-    ).map((schema) => (skillsExist ? ToolCatalogue.declaringSkills(schema) : schema))
+    ).map((schema) => (skillsExist ? ToolCatalogue.buildSchemaDeclaringSkills(schema) : schema))
   }
 
   // Added only where the vault defines skills, so a vault defining none is
   // offered the release 3 schemas unchanged. Required rather than optional: an
   // omitted argument is what the gate refuses, and an optional one would read
   // to the model as a question it may skip.
-  private static declaringSkills(schema: ToolSchema): ToolSchema {
+  private static buildSchemaDeclaringSkills(schema: ToolSchema): ToolSchema {
     if (!GUARDED_TOOLS.includes(schema.name)) return schema
-    return { ...schema, parameters: ToolCatalogue.withSkillsArgument(schema.parameters) }
+    return { ...schema, parameters: ToolCatalogue.buildParametersWithSkills(schema.parameters) }
   }
 
-  private static withSkillsArgument(parameters: ToolParameters): ToolParameters {
+  private static buildParametersWithSkills(parameters: ToolParameters): ToolParameters {
     return {
       ...parameters,
       properties: { ...parameters.properties, [APPLICABLE_SKILLS]: APPLICABLE_SKILLS_PROPERTY },

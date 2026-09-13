@@ -22,16 +22,19 @@ export class SkillDeclaration {
   // The reason to refuse this call, or null when it may proceed. Named skills
   // are checked against the vault before the session, so a typo is answered with
   // the list rather than told to load something that does not exist.
-  refusalAgainst(vaultSkills: readonly Skill[], hasRead: (name: string) => boolean): string | null {
+  getRefusalAgainstVaultAndSession(
+    vaultSkills: readonly Skill[],
+    hasRead: (name: string) => boolean,
+  ): string | null {
     if (!this.declared) return SkillDeclaration.MISSING_ARGUMENT
-    const unknown = this.namesMissingFrom(vaultSkills)
-    if (unknown.length > 0) return SkillDeclaration.unknownRefusal(unknown, vaultSkills)
+    const unknown = this.getNamesMissingFromVault(vaultSkills)
+    if (unknown.length > 0) return SkillDeclaration.buildUnknownNamesRefusal(unknown, vaultSkills)
     const unread = this.names.filter((name) => !hasRead(name))
-    if (unread.length > 0) return SkillDeclaration.unreadRefusal(unread)
+    if (unread.length > 0) return SkillDeclaration.buildUnreadNamesRefusal(unread)
     return null
   }
 
-  private namesMissingFrom(vaultSkills: readonly Skill[]): string[] {
+  private getNamesMissingFromVault(vaultSkills: readonly Skill[]): string[] {
     const defined = vaultSkills.map((skill) => skill.name)
     return this.names.filter((name) => !defined.includes(name))
   }
@@ -41,14 +44,17 @@ export class SkillDeclaration {
 
   // Lists what the vault defines, so a model that guessed a name has the real
   // ones in front of it rather than having to search for them again.
-  private static unknownRefusal(unknown: readonly string[], vaultSkills: readonly Skill[]): string {
+  private static buildUnknownNamesRefusal(
+    unknown: readonly string[],
+    vaultSkills: readonly Skill[],
+  ): string {
     const defined = vaultSkills.map((skill) => skill.name).join(', ')
     return `no skill in this vault is named ${unknown.join(', ')}; this vault defines ${defined}`
   }
 
   // Names what to load rather than asking the model to work it out: a refusal
   // that only reports the block is one the model answers by retrying.
-  private static unreadRefusal(unread: readonly string[]): string {
+  private static buildUnreadNamesRefusal(unread: readonly string[]): string {
     return `load ${unread.join(', ')}, then call this again declaring it`
   }
 }

@@ -10,28 +10,28 @@ describe('SkillsReadRepository', () => {
 
   describe('when a skill has been read', () => {
     it('knows the name once it is recorded', () => {
-      skillsRead.record('journal')
+      skillsRead.recordNameRead('journal')
 
-      expect(skillsRead.has('journal')).toBe(true)
+      expect(skillsRead.includesNameRead('journal')).toBe(true)
     })
 
     it('records a name once when it is recorded twice', () => {
-      skillsRead.record('journal')
-      skillsRead.record('journal')
+      skillsRead.recordNameRead('journal')
+      skillsRead.recordNameRead('journal')
 
-      expect(skillsRead.has('journal')).toBe(true)
+      expect(skillsRead.includesNameRead('journal')).toBe(true)
     })
   })
 
   describe('when a skill has not been read', () => {
     it('does not know a name nothing recorded', () => {
-      expect(skillsRead.has('journal')).toBe(false)
+      expect(skillsRead.includesNameRead('journal')).toBe(false)
     })
 
     it('does not know a name another recording missed', () => {
-      skillsRead.record('journal')
+      skillsRead.recordNameRead('journal')
 
-      expect(skillsRead.has('shopping-list')).toBe(false)
+      expect(skillsRead.includesNameRead('shopping-list')).toBe(false)
     })
   })
 })
