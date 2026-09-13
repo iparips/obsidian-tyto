@@ -294,8 +294,8 @@ export class ToolCatalogue {
 // glob, so a vault with search off has no use for it and release 3's tool list
 // is unchanged.
 // The calls the skill gate holds: the four that open vault access, and the
-// three that write. It mirrors ToolCall.declaresApplicableSkills, which is what
-// reads the argument back off a call.
+// three that write. It mirrors ToolCall.requiresApplicableSkillsAttribute,
+// which is what decides the same set at the gate.
 const GUARDED_TOOLS: string[] = [
   RUN_COMMAND,
   GLOB_NOTES,

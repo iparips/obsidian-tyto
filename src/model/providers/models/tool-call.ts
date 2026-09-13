@@ -84,7 +84,7 @@ export class ToolCall {
   // one of these produced the path they take, so the gate has already held
   // there; resolve_date because it reaches no vault, and reading the user's own
   // words is what tells the model which skill the turn needs.
-  opensVaultAccess(): boolean {
+  requiresVaultAccess(): boolean {
     return (
       this.isRunObsidianCommand() || this.isGlobNotes() || this.isGrepNotes() || this.isReadNote()
     )
@@ -98,8 +98,8 @@ export class ToolCall {
   // plus the three that write. open_note is absent because the search that
   // found its path was guarded already, and resolve_date because it reaches no
   // vault and the phrase it reads is what tells the model which skill it needs.
-  declaresApplicableSkills(): boolean {
-    return this.opensVaultAccess() || this.isEditTool()
+  requiresApplicableSkillsAttribute(): boolean {
+    return this.requiresVaultAccess() || this.isEditTool()
   }
 
   // Whether the argument was sent at all, which a declared [] and an omitted

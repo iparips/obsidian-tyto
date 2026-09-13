@@ -22,7 +22,7 @@ rule, test placement, and what a prompt change obliges. Read it first. Its
 "Prompt Changes Are Behaviour Changes" section governs commit 5.
 
 Verify before trusting, since the spec was written over several sessions:
-- ToolCall.opensVaultAccess covers four tools, not the edit tools. The design
+- ToolCall.requiresVaultAccess covers four tools, not the edit tools. The design
   names the guarded set explicitly; check it still matches.
 - ToolCall.stringsArgument returns [] for an absent array, which is why the
   design reads raw args to tell an omitted argument from a declared [].

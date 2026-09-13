@@ -75,7 +75,7 @@ export class ToolDispatcher {
   // vault defining no skills has nothing to declare: its calls are the release 3
   // calls, and their schemas carry no applicable_skills at all.
   private isSkillDeclarationRequired(call: ToolCall): boolean {
-    return call.declaresApplicableSkills() && this.turnRepository.definesSkills()
+    return call.requiresApplicableSkillsAttribute() && this.turnRepository.definesSkills()
   }
 
   private checkDeclaredSkills(call: ToolCall): SkillDeclarationOutcome {

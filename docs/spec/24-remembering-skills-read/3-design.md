@@ -41,14 +41,14 @@ applicable_skills: string[]  // names from the skill list that cover this
                              // utterance, or [] when none does
 ```
 
-The guarded set is the four tools `opensVaultAccess` (ToolCall) already covers,
-run_command, glob_notes, grep_notes and read_note, plus the three edit tools,
-replace_text, insert_text and insert_at.
+The guarded set is the four tools `requiresVaultAccess` (ToolCall) already
+covers, run_command, glob_notes, grep_notes and read_note, plus the three edit
+tools, replace_text, insert_text and insert_at.
 
 open_note is excluded: it opens only a path the user chose, and the search that
 found that path was already guarded. resolve_date is excluded for the reason it
-was left out of `opensVaultAccess`: it reaches no vault, and the phrase it reads
-is what tells the model which skill the turn needs.
+was left out of `requiresVaultAccess`: it reaches no vault, and the phrase it
+reads is what tells the model which skill the turn needs.
 
 The parameter is added only when the vault defines skills.
 `ToolCatalogue.forCapabilities` (Engine Tools) already takes `skillsExist` and
