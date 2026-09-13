@@ -58,8 +58,8 @@ export class ToolDispatcher {
     // handled here rather than round-tripping through the harness tools.
     if (call.isAskUser()) return this.askUser(AnswerRequest.from(call))
     if (call.isAnswerFromSearch()) return this.answerFromSearch(call)
-    const skillRefusal = this.refuseSkillsNotDeclaredAndRead(call)
-    if (skillRefusal) return skillRefusal
+    const refusedSkills = this.refuseWhenRequiredSkillsAreNotInSession(call)
+    if (refusedSkills) return refusedSkills
     if (call.isHarnessTool()) return this.callHarnessTool(call)
     return this.recordEdit(call, this.noteEditTool.execute(call))
   }
@@ -75,7 +75,7 @@ export class ToolDispatcher {
   // Null when the call may proceed, which is every call in a vault defining no
   // skills. Each call is checked on what it declared, so a turn whose skills are
   // already read spends no extra round trip.
-  private refuseSkillsNotDeclaredAndRead(call: ToolCall): ToolCallOutcome | null {
+  private refuseWhenRequiredSkillsAreNotInSession(call: ToolCall): ToolCallOutcome | null {
     if (!this.mustDeclareSkills(call)) return null
     const refusal = this.checkDeclaredSkills(call).refusalOrNull()
     return refusal ? this.refuseDeclaration(call, refusal) : null
