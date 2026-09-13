@@ -2,6 +2,7 @@ import { ToolCall } from '../model/providers/types'
 import { OPEN_NOTE } from '../model/providers/models/tool-call'
 import { ApplicableSkills } from './tools/applicable-skills'
 import { SkillDeclarationChecker } from './tools/skill-declaration-checker'
+import { SkillDeclarationOutcome } from './tools/skill-declaration-outcome'
 import { NoteEditTool } from './tools/note-edit-tool'
 import { ToolCallOutcome } from './tools/tool-call-outcome'
 import { SkillRepository } from '../skills/skill-repository'
@@ -57,23 +58,35 @@ export class ToolDispatcher {
     // handled here rather than round-tripping through the harness tools.
     if (call.isAskUser()) return this.askUser(AnswerRequest.from(call))
     if (call.isAnswerFromSearch()) return this.answerFromSearch(call)
-    const skillRefusal = this.getSkillDeclarationRefusal(call)
-    if (skillRefusal) return this.refuseDeclaration(call, skillRefusal)
+    const skillRefusal = this.refuseSkillsNotDeclaredAndRead(call)
+    if (skillRefusal) return skillRefusal
     if (call.isHarnessTool()) return this.callHarnessTool(call)
     return this.recordEdit(call, this.noteEditTool.execute(call))
   }
 
   // Held at every call that reaches the vault, not only at the edit: a skill
   // knows where its notes live and how they are named, so a search run before
-  // it is a search built on a guess. Each call is judged on what it declared,
-  // so a turn whose skills are already read spends no extra round trip.
-  private getSkillDeclarationRefusal(call: ToolCall): string | null {
-    if (!this.turnRepository.definesSkills() || !call.declaresApplicableSkills()) return null
+  // it is a search built on a guess. A vault defining no skills has nothing to
+  // declare, so the gate is invisible there.
+  private mustDeclareSkills(call: ToolCall): boolean {
+    return this.turnRepository.definesSkills() && call.declaresApplicableSkills()
+  }
+
+  // Null when the call may proceed, which is every call in a vault defining no
+  // skills. Each call is checked on what it declared, so a turn whose skills are
+  // already read spends no extra round trip.
+  private refuseSkillsNotDeclaredAndRead(call: ToolCall): ToolCallOutcome | null {
+    if (!this.mustDeclareSkills(call)) return null
+    const refusal = this.checkDeclaredSkills(call).refusalOrNull()
+    return refusal ? this.refuseDeclaration(call, refusal) : null
+  }
+
+  private checkDeclaredSkills(call: ToolCall): SkillDeclarationOutcome {
     const checker = new SkillDeclarationChecker(
       this.turnRepository.skills(),
       this.turnRepository.skillNamesRead(),
     )
-    return checker.check(ApplicableSkills.from(call)).refusalOrNull()
+    return checker.check(ApplicableSkills.from(call))
   }
 
   // Published as a step, since a refusal the panel does not show reads as a
