@@ -89,11 +89,22 @@ dispatches goes in a hook declaring its own ports interface. The obsidian folder
 holds what extends an Obsidian class rather than rendering React, which is the
 placement test for it.
 
+src/main.ts imports session-view and rebind-modal. It sits outside every
+package, so it is the one import this spec fixes beyond the folders it moves.
+
 ## session: watched, not split
 
 Exactly ten. Splitting a folder that is not yet over invents a boundary rather
 than finding one, so this spec records the count and leaves it. The next file
 added to session/ is the one that forces the split.
+
+## Where the tests live
+
+Not uniformly beside the code. engine/tools and session/views each keep a
+tests/ folder, so a test moves with the file it covers. engine/turn has none:
+its tests sit in engine/tests alongside the engine root's, and they stay there.
+Tests are exempt from the limit, so moving them buys nothing and would split
+that folder on a boundary this spec did not choose.
 
 ## What does not change
 

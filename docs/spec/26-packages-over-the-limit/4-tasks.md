@@ -9,12 +9,22 @@ Four commits, one per folder, plus a fifth for the architecture doc. The suite
 stays green at each, and no commit changes behaviour.
 
 Each move is the same three steps: git mv the file, fix every import that named
-it, run the suite. Tests move with the code they cover.
+it, run the suite.
+
+Tests do not all live beside their code here. engine/tools and session/views
+keep a tests/ folder, so a test moves with the file it covers. engine/turn has
+none: its tests sit in engine/tests, which they share with the engine root's.
+Leave them there. Moving them would split that folder on a boundary this spec
+did not choose, and tests are exempt from the limit anyway.
 
 ## Commit 1: the skill gate leaves tools
 
 engine/skill-gating (new) takes applicable-skills, skill-declaration-checker and
-skill-declaration-outcome, with their tests. ToolDispatcher is the only importer.
+skill-declaration-outcome. The two tests covering them move from
+engine/tools/tests to engine/skill-gating/tests.
+
+ToolDispatcher is the only importer outside the three files themselves, which
+import each other.
 
 tools/ goes 16 to 13.
 
@@ -32,13 +42,23 @@ engine/turn/spending (new) takes turn-spend, iteration-counter and
 repeated-refusal-counter. engine/turn/ending (new) takes turn-outcomes,
 turn-step-outcome and turn-ending-kind.
 
-turn/ goes 14 to 8. TurnEndingKind is imported from session in four places, so
-this commit touches session without changing it.
+turn/ goes 14 to 8. Their tests stay in engine/tests, per the note above.
+
+TurnEndingKind has seven importers: turn-ending-service at the engine root, two
+files inside the ending cluster itself, and four in session. This commit touches
+session without changing it.
 
 ## Commit 4: views splits by kind
 
-views/hooks (new) takes the four useX files. views/obsidian (new) takes
-session-view, rebind-modal and tyto-icon.
+views/hooks (new) takes the four useX files, imported only by SessionPanel.
+views/obsidian (new) takes session-view, rebind-modal and tyto-icon, imported
+only by main.ts at the src root and by each other.
+
+src/main.ts is outside every package and names two of the three, so it is the
+one import fix that lands outside session.
+
+The two tests covering session-view and tyto-icon move to
+views/obsidian/tests. The hooks have none.
 
 views/ goes 17 to 9.
 

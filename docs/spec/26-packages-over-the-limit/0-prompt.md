@@ -24,16 +24,22 @@ concept; only views splits by kind.
 Verify before trusting, since the counts move as the tree changes:
 - Recount every folder before you start. The design's arithmetic assumes tools
   16, turn 14, views 17, waiting 3 and the engine root 7.
-- The three skill-gating files should have ToolDispatcher as their only
-  importer. Confirm nothing in tools/ imports them.
-- TurnEndingKind is imported from session in four places. Confirm the list
+- The three skill-gating files import each other; ToolDispatcher is their only
+  importer beyond that. Confirm nothing else in tools/ names them.
+- TurnEndingKind has seven importers, four of them in session. Confirm the list
   before moving it, since that commit touches session without changing it.
+- engine/turn has no tests folder: its tests are in engine/tests. Confirm that
+  before moving anything, since tools and views do have one.
 - iteration-counter, repeated-refusal-counter and turn-spend should have no
   importer outside their own cluster.
 
-Use git mv so the history follows each file. Tests move with the code they
-cover. No class is renamed and no behaviour changes: if a split seems to need
-one, it is the wrong split, so stop and say so.
+Use git mv so the history follows each file. A test moves only where its folder
+already sits beside the code; 4-tasks.md says which. No class is renamed and no
+behaviour changes: if a split seems to need one, it is the wrong split, so stop
+and say so.
+
+src/main.ts imports two of the files views/obsidian takes, so commit 4 fixes an
+import outside session.
 
 Commit 5 re-counts the size table in docs/architecture/7-package-design.md and
 removes its "over the limit today" line. That line is the reason this spec
