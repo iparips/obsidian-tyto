@@ -20,7 +20,7 @@ describe('ApplicableSkillsFactory', () => {
     })
 
     it('answers nothing, so a caller cannot read it as declaring none', () => {
-      expect(applicableSkillsOf({ location: 'note_end' }).wasAnswered()).toBe(false)
+      expect(applicableSkillsOf({ location: 'note_end' }).arePresent()).toBe(false)
     })
   })
 
@@ -36,13 +36,13 @@ describe('ApplicableSkillsFactory', () => {
     it('holds the names the call declared', () => {
       const declared = applicableSkillsOf({ applicable_skills: ['journal', 'shopping'] })
 
-      expect(declared.wasAnswered() && declared.names).toEqual(['journal', 'shopping'])
+      expect(declared.arePresent() && declared.names).toEqual(['journal', 'shopping'])
     })
 
     it('drops an entry that is not a string, since a name it cannot read is no name', () => {
       const declared = applicableSkillsOf({ applicable_skills: ['journal', 7] })
 
-      expect(declared.wasAnswered() && declared.names).toEqual(['journal'])
+      expect(declared.arePresent() && declared.names).toEqual(['journal'])
     })
   })
 })

@@ -28,7 +28,7 @@ export class SkillDeclarationNotSatisfied {
 
   // Names what the vault does define, so a model that guessed has the real
   // names rather than having to search for them again.
-  static notDefinedByVault(
+  static requestedSkillsNotDefinedByVault(
     names: readonly string[],
     vaultSkillNames: readonly string[],
   ): SkillDeclarationNotSatisfied {

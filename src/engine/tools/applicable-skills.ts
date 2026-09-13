@@ -13,14 +13,14 @@ export class SkillsDeclared {
 
   // Narrows rather than returning a plain boolean, so a caller that checks it
   // reaches names without a cast, the way TargetResolution does.
-  wasAnswered(): this is SkillsDeclared {
+  arePresent(): this is SkillsDeclared {
     return true
   }
 }
 
 // The call left a required argument off, which is no answer at all.
 export class NoSkillsArgumentSent {
-  wasAnswered(): this is SkillsDeclared {
+  arePresent(): this is SkillsDeclared {
     return false
   }
 }
