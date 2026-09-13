@@ -1,6 +1,6 @@
 import { ToolCall } from '../model/providers/types'
 import { OPEN_NOTE } from '../model/providers/models/tool-call'
-import { ApplicableSkills } from './tools/applicable-skills'
+import { ApplicableSkillsList } from './tools/applicable-skills'
 import { SkillDeclarationChecker } from './tools/skill-declaration-checker'
 import { SkillDeclarationOutcome } from './tools/skill-declaration-outcome'
 import { NoteEditTool } from './tools/note-edit-tool'
@@ -83,7 +83,7 @@ export class ToolDispatcher {
       this.turnRepository.skills(),
       this.turnRepository.skillNamesRead(),
     )
-    return checker.check(ApplicableSkills.from(call))
+    return checker.check(ApplicableSkillsList.from(call))
   }
 
   // Published as a step, since a refusal the panel does not show reads as a

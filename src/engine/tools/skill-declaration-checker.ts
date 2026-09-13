@@ -25,7 +25,7 @@ export class SkillDeclarationChecker {
   // The vault is checked before the session, so a name it never defined is
   // answered with the real list rather than told to load what does not exist.
   check(declaredSkills: ApplicableSkills): SkillDeclarationOutcome {
-    if (!declaredSkills.declared) return SkillDeclarationNotSatisfied.notDeclared()
+    if (!declaredSkills.wasAnswered()) return SkillDeclarationNotSatisfied.notDeclared()
     const notDefined = this.getNamesNotDefinedByVault(declaredSkills.names)
     if (notDefined.length > 0)
       return SkillDeclarationNotSatisfied.notDefinedByVault(notDefined, this.getVaultSkillNames())
