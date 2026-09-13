@@ -17,32 +17,6 @@ const outcomeOf = (args: Record<string, unknown>, namesRead: readonly string[] =
   )
 
 describe('SkillDeclarationChecker', () => {
-  // A vault defining none is offered the release 3 schemas, which carry no
-  // applicable_skills, so refusing its calls for omitting one would refuse
-  // every edit in it.
-  describe('when the vault defines no skills', () => {
-    const outcomeWithoutSkills = (args: Record<string, unknown>) =>
-      new SkillDeclarationChecker([], []).check(ApplicableSkills.from(aToolCall('insert_at', args)))
-
-    it('is satisfied by a call sending no argument', () => {
-      expect(outcomeWithoutSkills({ location: 'note_end' })).toBeInstanceOf(
-        SkillDeclarationSatisfied,
-      )
-    })
-
-    it('refuses nothing, so the release 3 turn is unchanged', () => {
-      expect(outcomeWithoutSkills({ location: 'note_end' }).refusalOrNull()).toBeNull()
-    })
-
-    // Nothing stops a model sending it, and there is no list to check it
-    // against.
-    it('is satisfied by a call naming one, since there is no list to check it against', () => {
-      expect(outcomeWithoutSkills({ applicable_skills: ['journal'] })).toBeInstanceOf(
-        SkillDeclarationSatisfied,
-      )
-    })
-  })
-
   describe('when the call declares nothing', () => {
     it('refuses the call when the argument is absent', () => {
       expect(outcomeOf({ location: 'note_end' })).toBeInstanceOf(SkillDeclarationNotSatisfied)

@@ -11,6 +11,9 @@ import {
 // this session has read. The harness never decides which skill fits; it holds
 // the model to the names it chose itself.
 //
+// Built only where the vault defines skills. Whether the rule applies is the
+// caller's question, and one asked of the vault rather than of a declaration.
+//
 // Both lists are values the caller read off its repositories, so this holds no
 // collaborator and can be checked without one.
 export class SkillDeclarationChecker {
@@ -19,18 +22,14 @@ export class SkillDeclarationChecker {
     private readonly namesRead: readonly string[],
   ) {}
 
-  // A vault defining no skills has no rule to check against, so its calls pass:
-  // they are the release 3 calls, and their schemas carry no applicable_skills.
-  // After that the vault is checked before the session, so a name it never
-  // defined is answered with the real list rather than told to load what does
-  // not exist.
-  check(applicable: ApplicableSkills): SkillDeclarationOutcome {
-    if (this.vaultSkills.length === 0) return new SkillDeclarationSatisfied()
-    if (!applicable.declared) return SkillDeclarationNotSatisfied.notDeclared()
-    const notDefined = this.getNamesNotDefinedByVault(applicable.names)
+  // The vault is checked before the session, so a name it never defined is
+  // answered with the real list rather than told to load what does not exist.
+  check(declaredSkills: ApplicableSkills): SkillDeclarationOutcome {
+    if (!declaredSkills.declared) return SkillDeclarationNotSatisfied.notDeclared()
+    const notDefined = this.getNamesNotDefinedByVault(declaredSkills.names)
     if (notDefined.length > 0)
       return SkillDeclarationNotSatisfied.notDefinedByVault(notDefined, this.getVaultSkillNames())
-    const notRead = this.getNamesNotReadThisSession(applicable.names)
+    const notRead = this.getNamesNotReadThisSession(declaredSkills.names)
     if (notRead.length > 0) return SkillDeclarationNotSatisfied.notReadThisSession(notRead)
     return new SkillDeclarationSatisfied()
   }

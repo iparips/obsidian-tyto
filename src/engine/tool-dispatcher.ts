@@ -65,9 +65,17 @@ export class ToolDispatcher {
   }
 
   private refuseWhenDeclaredSkillsAreNotInSession(call: ToolCall): ToolCallOutcome | null {
-    if (!call.declaresApplicableSkills()) return null
+    if (!this.isSkillDeclarationRequired(call)) return null
     const refusal = this.checkDeclaredSkills(call).refusalOrNull()
     return refusal ? this.refuseDeclaration(call, refusal) : null
+  }
+
+  // Whether there is a rule to apply, which is a separate question from whether
+  // the declaration holds. A tool either carries the argument or does not, and a
+  // vault defining no skills has nothing to declare: its calls are the release 3
+  // calls, and their schemas carry no applicable_skills at all.
+  private isSkillDeclarationRequired(call: ToolCall): boolean {
+    return call.declaresApplicableSkills() && this.turnRepository.definesSkills()
   }
 
   private checkDeclaredSkills(call: ToolCall): SkillDeclarationOutcome {

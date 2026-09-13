@@ -245,6 +245,24 @@ describe('EditEngine', () => {
     })
   })
 
+  // The release 3 guarantee: a vault defining none is offered schemas carrying
+  // no applicable_skills, so its calls must never be refused for omitting one.
+  describe('when the vault defines no skills', () => {
+    it('applies an edit declaring no applicable skills', async () => {
+      complete
+        .mockResolvedValueOnce(
+          Outcomes.success(
+            aToolTurn(aToolCall('insert_at', { location: 'note_start', content: 'hi\n' })),
+          ),
+        )
+        .mockResolvedValue(Outcomes.success(aTextTurn('done')))
+
+      await engine.processUtterance('add a line')
+
+      expect(editor.content).toBe('hi\n# Budget\n\nbody')
+    })
+  })
+
   describe('when the vault defines skills', () => {
     const SKILLS_PATH = '0 - Meta/Skills'
     const todoSource = '---\nname: todo\ndescription: Archives ticked items.\n---\n\n1. Split it.'

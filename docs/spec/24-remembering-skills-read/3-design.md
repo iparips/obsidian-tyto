@@ -123,7 +123,8 @@ sequenceDiagram
     participant Panel as TurnProgressPublisher [Engine]
 
     Model->>Dispatcher: execute
-    Note over Dispatcher: Which tools carry the argument is a property of the tool alone, so no vault check gates the check
+    Note over Dispatcher: Whether the rule applies: the tool carries the argument, and the vault defines skills
+    Dispatcher->>Turn: definesSkills
     Dispatcher->>Applicable: from
     Note over Applicable: Reads the raw args, so an omitted argument is not read as a declared empty list
     Dispatcher->>Turn: skills
