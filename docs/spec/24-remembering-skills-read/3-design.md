@@ -69,13 +69,11 @@ orchestrates them in place of `mustSettleSkills`, at the same point in
   it declared, and whether it sent the argument at all.
 - SkillDeclarationChecker (Engine Tools, new) takes the vault list and the names
   read as values, and returns a SkillDeclarationOutcome (Engine Tools, new):
-  satisfied, not declared, not defined by the vault, or not read this session.
-  Each state writes its own message, so the wording comes from the name rather
-  than from a flag read back out. It follows TargetResolution (Engine Note
-  Binding), which is the same shape for the same reason. A vault defining no
-  skills answers NoSkillsToDeclare before any other check, held apart from a
-  satisfied declaration because nothing was checked: its calls are the release 3
-  calls.
+  satisfied, or not satisfied carrying what the model is told. Two states,
+  because one caller asks one question, and the three ways to fail differ only
+  in wording, so each is a factory on the unsatisfied state. A vault defining no
+  skills is satisfied before any other check, since its calls are the release 3
+  calls and their schemas carry no applicable_skills.
 
 The dispatcher reads both lists off TurnRepository and passes values, so no
 repository reaches the checker.
@@ -136,7 +134,7 @@ sequenceDiagram
 
     alt Declared name not yet in the session record
         Note over Checker: The vault is checked before the session, so a typo is never told to load what does not exist
-        Checker-->>Dispatcher: SkillsNotReadThisSession, whose refusal names what to load
+        Checker-->>Dispatcher: SkillDeclarationNotSatisfied, whose refusal names what to load
         Dispatcher->>Panel: publishStepTaken
         Dispatcher-->>Model: refusal naming the skill to load
         Model->>Dispatcher: execute load_skill
@@ -149,7 +147,7 @@ sequenceDiagram
         Dispatcher-->>Model: the skill body
     else Declared name already read this session
         Note over Checker: An empty declaration reaches here too, having named nothing to check
-        Checker-->>Dispatcher: SkillsDeclarationSatisfied, whose refusal is null
+        Checker-->>Dispatcher: SkillDeclarationSatisfied, whose refusal is null
         Dispatcher->>Edit: execute
         Edit-->>Dispatcher: ToolCallOutcome
         Dispatcher->>Panel: publishStepTaken

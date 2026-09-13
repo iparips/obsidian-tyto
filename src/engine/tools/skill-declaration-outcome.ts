@@ -1,60 +1,49 @@
-// What checking one call's declared skills found. Five states rather than a
-// nullable refusal, because "the vault defines none", "declared nothing",
-// "named what the vault lacks" and "named what this session has not read" are
-// different facts and each names a different way past it.
-export type SkillDeclarationOutcome =
-  | NoSkillsToDeclare
-  | SkillsDeclarationSatisfied
-  | SkillsNotDeclared
-  | SkillsNotDefinedByVault
-  | SkillsNotReadThisSession
+// Whether one call's declaration of the skills covering its utterance holds.
+// Two states, because one caller asks one question: may this call proceed, and
+// what is the model told if not. The three ways to fail differ only in wording,
+// so each is a factory rather than a state of its own.
+export type SkillDeclarationOutcome = SkillDeclarationSatisfied | SkillDeclarationNotSatisfied
 
-// The vault defines no skills, so there was no rule to check the declaration
-// against. Held apart from a satisfied declaration because nothing was checked:
-// these calls are the release 3 calls, and their schemas carry no
-// applicable_skills at all.
-export class NoSkillsToDeclare {
+// Every declared name is one the vault defines and this session has read. An
+// empty declaration lands here, having named no skill to check, and so does
+// every call in a vault defining no skills.
+export class SkillDeclarationSatisfied {
   refusalOrNull(): string | null {
     return null
   }
 }
 
-// The vault defines skills, and every declared name is one it defines and this
-// session has read. An empty declaration lands here too, having named no skill
-// to check.
-export class SkillsDeclarationSatisfied {
-  refusalOrNull(): string | null {
-    return null
+// Carries what the model is told, which names the way past it: a refusal that
+// only reports the block is one the model answers by retrying the same call.
+export class SkillDeclarationNotSatisfied {
+  private constructor(private readonly reason: string) {}
+
+  // Sending no applicable_skills is a different claim from declaring none: one
+  // answers nothing, the other says no skill covers this.
+  static notDeclared(): SkillDeclarationNotSatisfied {
+    return new SkillDeclarationNotSatisfied(
+      'this vault defines skills, so every call that reaches it must send applicable_skills: the names covering this utterance, or [] when none does',
+    )
   }
-}
 
-// The call sent no applicable_skills at all, which is a different claim from
-// declaring none: one answers nothing, the other says no skill covers this.
-export class SkillsNotDeclared {
-  refusalOrNull(): string | null {
-    return 'this vault defines skills, so every call that reaches it must send applicable_skills: the names covering this utterance, or [] when none does'
+  // Names what the vault does define, so a model that guessed has the real
+  // names rather than having to search for them again.
+  static notDefinedByVault(
+    names: readonly string[],
+    vaultSkillNames: readonly string[],
+  ): SkillDeclarationNotSatisfied {
+    return new SkillDeclarationNotSatisfied(
+      `no skill in this vault is named ${names.join(', ')}; this vault defines ${vaultSkillNames.join(', ')}`,
+    )
   }
-}
 
-// Carries what the vault does define, since handing back the real names is the
-// whole point of failing here rather than telling the model to load one.
-export class SkillsNotDefinedByVault {
-  constructor(
-    readonly names: readonly string[],
-    readonly vaultSkillNames: readonly string[],
-  ) {}
-
-  refusalOrNull(): string | null {
-    return `no skill in this vault is named ${this.names.join(', ')}; this vault defines ${this.vaultSkillNames.join(', ')}`
+  static notReadThisSession(names: readonly string[]): SkillDeclarationNotSatisfied {
+    return new SkillDeclarationNotSatisfied(
+      `load ${names.join(', ')}, then call this again declaring it`,
+    )
   }
-}
-
-// Carries the names to load, since a refusal that only reports the block is one
-// the model answers by retrying the same call.
-export class SkillsNotReadThisSession {
-  constructor(readonly names: readonly string[]) {}
 
   refusalOrNull(): string | null {
-    return `load ${this.names.join(', ')}, then call this again declaring it`
+    return this.reason
   }
 }

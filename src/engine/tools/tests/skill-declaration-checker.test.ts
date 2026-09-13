@@ -2,11 +2,8 @@ import { describe, expect, it } from 'vitest'
 import { SkillDeclarationChecker } from '../skill-declaration-checker'
 import { ApplicableSkills } from '../applicable-skills'
 import {
-  NoSkillsToDeclare,
-  SkillsDeclarationSatisfied,
-  SkillsNotDeclared,
-  SkillsNotDefinedByVault,
-  SkillsNotReadThisSession,
+  SkillDeclarationNotSatisfied,
+  SkillDeclarationSatisfied,
 } from '../skill-declaration-outcome'
 import { Skill } from '../../../skills/skill'
 import { aToolCall } from '../../../test-support/builders'
@@ -27,10 +24,10 @@ describe('SkillDeclarationChecker', () => {
     const outcomeWithoutSkills = (args: Record<string, unknown>) =>
       new SkillDeclarationChecker([], []).check(ApplicableSkills.from(aToolCall('insert_at', args)))
 
-    // Held apart from a satisfied declaration, which asserts a rule was checked
-    // and held. Nothing was checked here.
-    it('reports there was nothing to declare when the call sends no argument', () => {
-      expect(outcomeWithoutSkills({ location: 'note_end' })).toBeInstanceOf(NoSkillsToDeclare)
+    it('is satisfied by a call sending no argument', () => {
+      expect(outcomeWithoutSkills({ location: 'note_end' })).toBeInstanceOf(
+        SkillDeclarationSatisfied,
+      )
     })
 
     it('refuses nothing, so the release 3 turn is unchanged', () => {
@@ -39,16 +36,16 @@ describe('SkillDeclarationChecker', () => {
 
     // Nothing stops a model sending it, and there is no list to check it
     // against.
-    it('reports nothing to declare for a call naming one, since there is no list to check', () => {
+    it('is satisfied by a call naming one, since there is no list to check it against', () => {
       expect(outcomeWithoutSkills({ applicable_skills: ['journal'] })).toBeInstanceOf(
-        NoSkillsToDeclare,
+        SkillDeclarationSatisfied,
       )
     })
   })
 
   describe('when the call declares nothing', () => {
-    it('reports the call undeclared when the argument is absent', () => {
-      expect(outcomeOf({ location: 'note_end' })).toBeInstanceOf(SkillsNotDeclared)
+    it('refuses the call when the argument is absent', () => {
+      expect(outcomeOf({ location: 'note_end' })).toBeInstanceOf(SkillDeclarationNotSatisfied)
     })
 
     it('tells the model to send the argument, naming what an empty list means', () => {
@@ -56,7 +53,7 @@ describe('SkillDeclarationChecker', () => {
     })
 
     it('reports an empty declaration satisfied, since it names nothing to check', () => {
-      expect(outcomeOf({ applicable_skills: [] })).toBeInstanceOf(SkillsDeclarationSatisfied)
+      expect(outcomeOf({ applicable_skills: [] })).toBeInstanceOf(SkillDeclarationSatisfied)
     })
 
     it('refuses nothing when the declaration is satisfied', () => {
@@ -67,12 +64,14 @@ describe('SkillDeclarationChecker', () => {
   describe('when the call names a skill the vault defines', () => {
     it('reports a name the session has read satisfied', () => {
       expect(outcomeOf({ applicable_skills: ['journal'] }, ['journal'])).toBeInstanceOf(
-        SkillsDeclarationSatisfied,
+        SkillDeclarationSatisfied,
       )
     })
 
-    it('reports a name nothing has read as unread', () => {
-      expect(outcomeOf({ applicable_skills: ['journal'] })).toBeInstanceOf(SkillsNotReadThisSession)
+    it('refuses a name nothing has read', () => {
+      expect(outcomeOf({ applicable_skills: ['journal'] })).toBeInstanceOf(
+        SkillDeclarationNotSatisfied,
+      )
     })
 
     it('names the skill to load when nothing has read it', () => {
@@ -105,9 +104,9 @@ describe('SkillDeclarationChecker', () => {
   // Checked before the session, so a typo is never told to load something that
   // does not exist.
   describe('when the call names a skill the vault does not define', () => {
-    it('reports the name as undefined by the vault', () => {
+    it('refuses the name', () => {
       expect(outcomeOf({ applicable_skills: ['gardening'] })).toBeInstanceOf(
-        SkillsNotDefinedByVault,
+        SkillDeclarationNotSatisfied,
       )
     })
 
@@ -117,10 +116,12 @@ describe('SkillDeclarationChecker', () => {
       )
     })
 
-    it('reports the unknown name rather than asking for it to be loaded', () => {
+    // Checked before the session, so a typo is answered with the list rather
+    // than told to load something that does not exist.
+    it('names the unknown one rather than asking for the unread one to be loaded', () => {
       expect(
-        outcomeOf({ applicable_skills: ['journal', 'gardening'] }, ['journal']),
-      ).toBeInstanceOf(SkillsNotDefinedByVault)
+        outcomeOf({ applicable_skills: ['journal', 'gardening'] }, ['journal']).refusalOrNull(),
+      ).toBe('no skill in this vault is named gardening; this vault defines journal, shopping')
     })
   })
 })
