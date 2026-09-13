@@ -64,9 +64,10 @@ export class ToolDispatcher {
     return this.recordEdit(call, this.noteEditTool.execute(call))
   }
 
-  // Two independent facts, neither implying the other: a tool carries the
-  // argument whatever the vault holds, and a vault defines skills whatever the
-  // call is. The gate needs both.
+  // Two facts about the call and the vault, neither implying the other: a tool
+  // carries the argument whatever the vault holds, and a vault defines skills
+  // whatever the call is. What the session has read decides the outcome of the
+  // check, never whether there is one to run.
   //
   // Held at every call that reaches the vault, not only at the edit: a skill
   // knows where its notes live and how they are named, so a search run before
