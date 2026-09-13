@@ -20,7 +20,7 @@ export class SkillDeclarationNotSatisfied {
 
   // Sending no applicable_skills is a different claim from declaring none: one
   // answers nothing, the other says no skill covers this.
-  static missingApplicableSkillsInToolCall(): SkillDeclarationNotSatisfied {
+  static missingApplicableSkillsInInput(): SkillDeclarationNotSatisfied {
     return new SkillDeclarationNotSatisfied(
       'this vault defines skills, so every call that reaches it must send applicable_skills: the names covering this utterance, or [] when none does',
     )
@@ -37,9 +37,7 @@ export class SkillDeclarationNotSatisfied {
     )
   }
 
-  static someApplicableSkillsNotReadThisSession(
-    names: readonly string[],
-  ): SkillDeclarationNotSatisfied {
+  static someApplicableSkillsNotInSession(names: readonly string[]): SkillDeclarationNotSatisfied {
     return new SkillDeclarationNotSatisfied(
       `load ${names.join(', ')}, then call this again declaring it`,
     )
