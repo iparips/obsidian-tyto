@@ -1,6 +1,7 @@
 import { Skill } from '../../skills/skill'
 import { ApplicableSkills } from './applicable-skills'
 import {
+  NoSkillsToDeclare,
   SkillDeclarationOutcome,
   SkillsDeclarationSatisfied,
   SkillsNotDeclared,
@@ -21,12 +22,12 @@ export class SkillDeclarationChecker {
     private readonly namesRead: readonly string[],
   ) {}
 
-  // The vault is checked before the session, so a name it never defined is
-  // answered with the real list rather than told to load what does not exist.
+  // A vault defining nothing is answered first, since there is no rule to check
+  // against. After that the vault is checked before the session, so a name it
+  // never defined is answered with the real list rather than told to load what
+  // does not exist.
   check(applicable: ApplicableSkills): SkillDeclarationOutcome {
-    // A vault defining no skills has nothing to declare, so its calls are the
-    // release 3 calls and the argument is absent from their schemas.
-    if (this.vaultSkills.length === 0) return new SkillsDeclarationSatisfied()
+    if (this.vaultSkills.length === 0) return new NoSkillsToDeclare()
     if (!applicable.declared) return new SkillsNotDeclared()
     const notDefined = this.getNamesNotDefinedByVault(applicable.names)
     if (notDefined.length > 0)

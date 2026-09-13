@@ -64,17 +64,6 @@ export class ToolDispatcher {
     return this.recordEdit(call, this.noteEditTool.execute(call))
   }
 
-  // Which tools carry the argument is a property of the tool alone. What the
-  // vault defines and what the session has read decide the outcome of the
-  // check, never whether there is one to run.
-  //
-  // Held at every call that reaches the vault, not only at the edit: a skill
-  // knows where its notes live and how they are named, so a search run before
-  // it is a search built on a guess.
-  //
-  // Null when the call may proceed, which is every call a vault defining no
-  // skills sees. Each call is checked on what it declared, so a turn whose
-  // skills are already read spends no extra round trip.
   private refuseWhenDeclaredSkillsAreNotInSession(call: ToolCall): ToolCallOutcome | null {
     if (!call.declaresApplicableSkills()) return null
     const refusal = this.checkDeclaredSkills(call).refusalOrNull()

@@ -61,8 +61,9 @@ array, filtered to strings.
 
 ## What the harness checks
 
-Three classes split the work, and ToolDispatcher (Engine) orchestrates them in
-place of `mustSettleSkills`, at the same point in `execute`.
+Two classes and an outcome type split the work, and ToolDispatcher (Engine)
+orchestrates them in place of `mustSettleSkills`, at the same point in
+`execute`.
 
 - ApplicableSkills (Engine Tools, new) is the value read off one call: the names
   it declared, and whether it sent the argument at all.
@@ -72,7 +73,8 @@ place of `mustSettleSkills`, at the same point in `execute`.
   Each state writes its own message, so the wording comes from the name rather
   than from a flag read back out. It follows TargetResolution (Engine Note
   Binding), which is the same shape for the same reason. A vault defining no
-  skills is satisfied before any other check, so its calls are the release 3
+  skills answers NoSkillsToDeclare before any other check, held apart from a
+  satisfied declaration because nothing was checked: its calls are the release 3
   calls.
 
 The dispatcher reads both lists off TurnRepository and passes values, so no

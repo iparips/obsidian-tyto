@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { SkillDeclarationChecker } from '../skill-declaration-checker'
 import { ApplicableSkills } from '../applicable-skills'
 import {
+  NoSkillsToDeclare,
   SkillsDeclarationSatisfied,
   SkillsNotDeclared,
   SkillsNotDefinedByVault,
@@ -26,10 +27,10 @@ describe('SkillDeclarationChecker', () => {
     const outcomeWithoutSkills = (args: Record<string, unknown>) =>
       new SkillDeclarationChecker([], []).check(ApplicableSkills.from(aToolCall('insert_at', args)))
 
-    it('is satisfied by a call sending no argument', () => {
-      expect(outcomeWithoutSkills({ location: 'note_end' })).toBeInstanceOf(
-        SkillsDeclarationSatisfied,
-      )
+    // Held apart from a satisfied declaration, which asserts a rule was checked
+    // and held. Nothing was checked here.
+    it('reports there was nothing to declare when the call sends no argument', () => {
+      expect(outcomeWithoutSkills({ location: 'note_end' })).toBeInstanceOf(NoSkillsToDeclare)
     })
 
     it('refuses nothing, so the release 3 turn is unchanged', () => {
@@ -38,8 +39,10 @@ describe('SkillDeclarationChecker', () => {
 
     // Nothing stops a model sending it, and there is no list to check it
     // against.
-    it('is satisfied by a call declaring a name, since the vault defines none to check', () => {
-      expect(outcomeWithoutSkills({ applicable_skills: ['journal'] }).refusalOrNull()).toBeNull()
+    it('reports nothing to declare for a call naming one, since there is no list to check', () => {
+      expect(outcomeWithoutSkills({ applicable_skills: ['journal'] })).toBeInstanceOf(
+        NoSkillsToDeclare,
+      )
     })
   })
 

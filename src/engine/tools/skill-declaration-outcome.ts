@@ -1,15 +1,27 @@
-// What checking one call's declared skills found. Four states rather than a
-// nullable refusal, because "declared nothing", "named what the vault lacks"
-// and "named what this session has not read" are different facts about a call
-// and each names a different way past it.
+// What checking one call's declared skills found. Five states rather than a
+// nullable refusal, because "the vault defines none", "declared nothing",
+// "named what the vault lacks" and "named what this session has not read" are
+// different facts and each names a different way past it.
 export type SkillDeclarationOutcome =
+  | NoSkillsToDeclare
   | SkillsDeclarationSatisfied
   | SkillsNotDeclared
   | SkillsNotDefinedByVault
   | SkillsNotReadThisSession
 
-// Every declared name is one the vault defines and this session has read. An
-// empty declaration lands here too, having named no skill to check.
+// The vault defines no skills, so there was no rule to check the declaration
+// against. Held apart from a satisfied declaration because nothing was checked:
+// these calls are the release 3 calls, and their schemas carry no
+// applicable_skills at all.
+export class NoSkillsToDeclare {
+  refusalOrNull(): string | null {
+    return null
+  }
+}
+
+// The vault defines skills, and every declared name is one it defines and this
+// session has read. An empty declaration lands here too, having named no skill
+// to check.
 export class SkillsDeclarationSatisfied {
   refusalOrNull(): string | null {
     return null
