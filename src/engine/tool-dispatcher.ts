@@ -58,25 +58,28 @@ export class ToolDispatcher {
     // handled here rather than round-tripping through the harness tools.
     if (call.isAskUser()) return this.askUser(AnswerRequest.from(call))
     if (call.isAnswerFromSearch()) return this.answerFromSearch(call)
-    const refusedSkills = this.refuseWhenRequiredSkillsAreNotInSession(call)
-    if (refusedSkills) return refusedSkills
+    const skillsRefusal = this.refuseWhenDeclaredSkillsAreNotInSession(call)
+    if (skillsRefusal) return skillsRefusal
     if (call.isHarnessTool()) return this.callHarnessTool(call)
     return this.recordEdit(call, this.noteEditTool.execute(call))
   }
 
+  // Two independent facts, neither implying the other: a tool carries the
+  // argument whatever the vault holds, and a vault defines skills whatever the
+  // call is. The gate needs both.
+  //
   // Held at every call that reaches the vault, not only at the edit: a skill
   // knows where its notes live and how they are named, so a search run before
-  // it is a search built on a guess. A vault defining no skills has nothing to
-  // declare, so the gate is invisible there.
-  private mustDeclareSkills(call: ToolCall): boolean {
-    return this.turnRepository.definesSkills() && call.declaresApplicableSkills()
+  // it is a search built on a guess.
+  private isSkillGated(call: ToolCall): boolean {
+    return call.declaresApplicableSkills() && this.turnRepository.definesSkills()
   }
 
-  // Null when the call may proceed, which is every call in a vault defining no
-  // skills. Each call is checked on what it declared, so a turn whose skills are
-  // already read spends no extra round trip.
-  private refuseWhenRequiredSkillsAreNotInSession(call: ToolCall): ToolCallOutcome | null {
-    if (!this.mustDeclareSkills(call)) return null
+  // Null when the call may proceed, which is every call a vault defining no
+  // skills sees. Each call is checked on what it declared, so a turn whose
+  // skills are already read spends no extra round trip.
+  private refuseWhenDeclaredSkillsAreNotInSession(call: ToolCall): ToolCallOutcome | null {
+    if (!this.isSkillGated(call)) return null
     const refusal = this.checkDeclaredSkills(call).refusalOrNull()
     return refusal ? this.refuseDeclaration(call, refusal) : null
   }
