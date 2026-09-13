@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { ApplicableSkillsList, NoSkillsArgumentSent, SkillsDeclared } from '../applicable-skills'
+import { ApplicableSkillsFactory, NoSkillsArgumentSent, SkillsDeclared } from '../applicable-skills'
 import { aToolCall } from '../../../test-support/builders'
 
 const applicableSkillsOf = (args: Record<string, unknown>) =>
-  ApplicableSkillsList.from(aToolCall('insert_at', args))
+  ApplicableSkillsFactory.from(aToolCall('insert_at', args))
 
-describe('ApplicableSkillsList', () => {
+describe('ApplicableSkillsFactory', () => {
   // An omitted argument and a declared [] both read as an empty array, and they
   // are different claims: one names no skill, the other answers nothing.
   describe('when the call sends no argument', () => {

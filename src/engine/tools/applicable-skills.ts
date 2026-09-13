@@ -25,7 +25,7 @@ export class NoSkillsArgumentSent {
   }
 }
 
-export class ApplicableSkillsList {
+export class ApplicableSkillsFactory {
   // Reads whether the raw argument is there as well as its contents, since only
   // its presence tells the two states apart.
   static from(call: ToolCall): ApplicableSkills {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { SkillDeclarationChecker } from '../skill-declaration-checker'
-import { ApplicableSkillsList } from '../applicable-skills'
+import { ApplicableSkillsFactory } from '../applicable-skills'
 import {
   SkillDeclarationNotSatisfied,
   SkillDeclarationSatisfied,
@@ -13,7 +13,7 @@ const SHOPPING = new Skill('shopping', 'Keeps the list.', 'Skills/shopping.md')
 
 const outcomeOf = (args: Record<string, unknown>, namesRead: readonly string[] = []) =>
   new SkillDeclarationChecker([JOURNAL, SHOPPING], namesRead).check(
-    ApplicableSkillsList.from(aToolCall('insert_at', args)),
+    ApplicableSkillsFactory.from(aToolCall('insert_at', args)),
   )
 
 describe('SkillDeclarationChecker', () => {
