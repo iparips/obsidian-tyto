@@ -19,8 +19,9 @@ specific to this repo.
 
 ## Package Layout
 
-Files group by concept, not by kind. A value object sits beside the service
-that reads it, so the folder explains both.
+The code-generation skill owns how a tree grows: group by subdomain, and give a
+subdomain kind folders only once it outgrows the file limit. This file holds
+what this repo decided.
 
 - Engine splits into five concept folders: turn, tools, waiting, note-editing,
   note-binding. The root holds only what spans them: EditEngine, EngineFactory,
@@ -32,9 +33,8 @@ that reads it, so the folder explains both.
   prompt. Each section owns its own text and decides whether it appears.
 - The placement test for tools/: it takes a ToolCall and returns a result.
   NoteEditor takes an EditOperation, so it lives in note-editing.
-- Smaller packages keep a models/ folder for value objects. A package with a
-  single value object keeps it in the root; a folder holding one file costs
-  more than it saves.
+- Smaller packages keep a models/ folder for value objects, so skills keeps
+  skill.ts beside skill-repository.ts rather than alone in one.
 - views/ holds React components and Obsidian view classes. A component holds
   what it decides; subscriptions that only dispatch go in a hook that declares
   its own ports interface, as useEngineEvents does.
