@@ -26,7 +26,7 @@ export class SkillDeclarationChecker {
   // answered with the real list rather than told to load what does not exist.
   check(declaredSkills: ApplicableSkills): SkillDeclarationOutcome {
     if (!declaredSkills.arePresent())
-      return SkillDeclarationNotSatisfied.missingApplicableSkillsField()
+      return SkillDeclarationNotSatisfied.missingApplicableSkillsInToolCall()
     const unknownSkills = this.getSkillNamesNotDefinedByVault(declaredSkills.names)
     if (unknownSkills.length > 0)
       return SkillDeclarationNotSatisfied.requestedSkillsNotDefinedByVault(
