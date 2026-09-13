@@ -25,24 +25,26 @@ export class SkillDeclarationChecker {
   // The vault is checked before the session, so a name it never defined is
   // answered with the real list rather than told to load what does not exist.
   check(declaredSkills: ApplicableSkills): SkillDeclarationOutcome {
-    if (!declaredSkills.arePresent()) return SkillDeclarationNotSatisfied.notDeclared()
-    const notDefined = this.getNamesNotDefinedByVault(declaredSkills.names)
-    if (notDefined.length > 0)
+    if (!declaredSkills.arePresent())
+      return SkillDeclarationNotSatisfied.missingApplicableSkillsField()
+    const unknownSkills = this.getSkillNamesNotDefinedByVault(declaredSkills.names)
+    if (unknownSkills.length > 0)
       return SkillDeclarationNotSatisfied.requestedSkillsNotDefinedByVault(
-        notDefined,
+        unknownSkills,
         this.getVaultSkillNames(),
       )
-    const notRead = this.getNamesNotReadThisSession(declaredSkills.names)
-    if (notRead.length > 0) return SkillDeclarationNotSatisfied.notReadThisSession(notRead)
+    const skillsNotRead = this.getSkillNamesNotReadThisSession(declaredSkills.names)
+    if (skillsNotRead.length > 0)
+      return SkillDeclarationNotSatisfied.notReadThisSession(skillsNotRead)
     return new SkillDeclarationSatisfied()
   }
 
-  private getNamesNotDefinedByVault(names: readonly string[]): readonly string[] {
+  private getSkillNamesNotDefinedByVault(names: readonly string[]): readonly string[] {
     const defined = this.getVaultSkillNames()
     return names.filter((name) => !defined.includes(name))
   }
 
-  private getNamesNotReadThisSession(names: readonly string[]): readonly string[] {
+  private getSkillNamesNotReadThisSession(names: readonly string[]): readonly string[] {
     return names.filter((name) => !this.namesRead.includes(name))
   }
 
