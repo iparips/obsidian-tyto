@@ -1,6 +1,8 @@
 import { ToolCall } from '../model/providers/types'
 import { OPEN_NOTE } from '../model/providers/models/tool-call'
-import { SkillDeclaration } from './tools/skill-declaration'
+import { ApplicableSkills } from './tools/applicable-skills'
+import { SkillsInSessionChecker } from './tools/skills-in-session-checker'
+import { SkillDeclarationPolicy } from './tools/skill-declaration-policy'
 import { NoteEditTool } from './tools/note-edit-tool'
 import { ToolCallOutcome } from './tools/tool-call-outcome'
 import { SkillRepository } from '../skills/skill-repository'
@@ -56,7 +58,7 @@ export class ToolDispatcher {
     // handled here rather than round-tripping through the harness tools.
     if (call.isAskUser()) return this.askUser(AnswerRequest.from(call))
     if (call.isAnswerFromSearch()) return this.answerFromSearch(call)
-    const skillRefusal = this.getSkillDeclarationRefusal(call)
+    const skillRefusal = this.getApplicableSkillsRefusal(call)
     if (skillRefusal) return this.refuseDeclaration(call, skillRefusal)
     if (call.isHarnessTool()) return this.callHarnessTool(call)
     return this.recordEdit(call, this.noteEditTool.execute(call))
@@ -66,12 +68,13 @@ export class ToolDispatcher {
   // knows where its notes live and how they are named, so a search run before
   // it is a search built on a guess. Each call is judged on what it declared,
   // so a turn whose skills are already read spends no extra round trip.
-  private getSkillDeclarationRefusal(call: ToolCall): string | null {
+  private getApplicableSkillsRefusal(call: ToolCall): string | null {
     if (!this.turnRepository.definesSkills() || !call.declaresApplicableSkills()) return null
-    return SkillDeclaration.from(call).getRefusalAgainstVaultAndSession(
+    const checker = new SkillsInSessionChecker(
       this.turnRepository.skills(),
-      (name) => this.turnRepository.hasLoaded(name),
+      this.turnRepository.skillNamesRead(),
     )
+    return SkillDeclarationPolicy.judge(ApplicableSkills.from(call), checker).refusal
   }
 
   // Published as a step, since a refusal the panel does not show reads as a

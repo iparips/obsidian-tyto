@@ -76,6 +76,10 @@ export class TurnRepository {
     return this.skillsRead.includesNameRead(name)
   }
 
+  skillNamesRead(): readonly string[] {
+    return this.skillsRead.getNamesRead()
+  }
+
   getSkillNamed(name: string): Skill | undefined {
     return this.vaultSkills.find((candidate) => candidate.name === name)
   }

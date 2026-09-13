@@ -12,4 +12,10 @@ export class SkillsReadRepository {
   includesNameRead(name: string): boolean {
     return this.names.has(name)
   }
+
+  // A copy, so a caller checking several names at once holds values rather than
+  // this repository.
+  getNamesRead(): readonly string[] {
+    return [...this.names]
+  }
 }

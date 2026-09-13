@@ -61,9 +61,21 @@ array, filtered to strings.
 
 ## What the harness checks
 
-SkillDeclaration (Engine Tools, new) holds the names off one call and answers
-the three questions the gate asks. ToolDispatcher (Engine) reads it in place of
-`mustSettleSkills`, at the same point in `execute`.
+Three classes split the work, and ToolDispatcher (Engine) orchestrates them in
+place of `mustSettleSkills`, at the same point in `execute`.
+
+- ApplicableSkills (Engine Tools, new) is the value read off one call: the names
+  it declared, and whether it sent the argument at all.
+- SkillsInSessionChecker (Engine Tools, new) takes the vault list and the names
+  read as values, and answers which declared names each is missing.
+- SkillDeclarationPolicy (Engine Tools, new) judges one against the other and
+  returns a SkillDeclarationVerdict (Engine Tools, new): satisfied, not
+  declared, not defined by the vault, or not read this session. Each state
+  writes its own message, so the wording comes from the name rather than from a
+  flag read back out.
+
+The dispatcher reads both lists off TurnRepository and passes values, so no
+repository reaches the checker.
 
 | Check           | Condition                           | Result                             |
 |-----------------|-------------------------------------|------------------------------------|
@@ -73,7 +85,7 @@ the three questions the gate asks. ToolDispatcher (Engine) reads it in place of
 | Otherwise       | Including an empty declaration      | Proceed                            |
 
 `stringsArgument` returns an empty array both for an omitted argument and for a
-declared `[]`, and those are different claims. SkillDeclaration reads the raw
+declared `[]`, and those are different claims. ApplicableSkills reads the raw
 `args` to tell them apart, so a model that omits the argument is refused rather
 than read as declaring none.
 
@@ -101,7 +113,9 @@ refused before the body is read and passes after it, whichever turn read it.
 sequenceDiagram
     participant Model as Mistral [Model Providers]
     participant Dispatcher as ToolDispatcher [Engine]
-    participant Declaration as SkillDeclaration [Engine Tools, new]
+    participant Applicable as ApplicableSkills [Engine Tools, new]
+    participant Policy as SkillDeclarationPolicy [Engine Tools, new]
+    participant Checker as SkillsInSessionChecker [Engine Tools, new]
     participant Turn as TurnRepository [Engine Turn]
     participant SkillsRead as SkillsReadRepository [Skills, new]
     participant Skills as SkillRepository [Skills]
@@ -111,18 +125,20 @@ sequenceDiagram
     Model->>Dispatcher: execute
     Note over Dispatcher: Guarded calls are the four that open vault access plus the three that edit
     Dispatcher->>Turn: definesSkills
-    Dispatcher->>Declaration: from
-    Note over Declaration: Reads the raw args, so an omitted argument is not read as a declared empty list
-    Dispatcher->>Declaration: getRefusalAgainstVaultAndSession
-    Note over Dispatcher,Declaration: The vault list and a hasRead closure onto the turn are passed in, so the declaration reaches no repository itself
-    Declaration->>Turn: skills
+    Dispatcher->>Applicable: from
+    Note over Applicable: Reads the raw args, so an omitted argument is not read as a declared empty list
+    Dispatcher->>Turn: skills
+    Dispatcher->>Turn: skillNamesRead
+    Turn->>SkillsRead: getNamesRead
+    Note over Dispatcher,Checker: Both lists are passed as values, so the checker holds no repository
+    Dispatcher->>Policy: judge
 
     alt Declared name not yet in the session record
-        Declaration->>Turn: hasLoaded
-        Turn->>SkillsRead: has
-        SkillsRead-->>Turn: false
-        Turn-->>Declaration: false
-        Declaration-->>Dispatcher: load journal, then call this again declaring it
+        Policy->>Checker: getNamesNotDefinedByVault
+        Checker-->>Policy: no undefined names
+        Policy->>Checker: getNamesNotReadThisSession
+        Checker-->>Policy: journal
+        Policy-->>Dispatcher: SkillsNotReadThisSession, whose refusal names what to load
         Dispatcher->>Panel: publishStepTaken
         Dispatcher-->>Model: refusal naming the skill to load
         Model->>Dispatcher: execute load_skill
@@ -130,16 +146,16 @@ sequenceDiagram
         Dispatcher->>Skills: readBody
         Skills-->>Dispatcher: body
         Dispatcher->>Turn: recordSkillLoaded
-        Turn->>SkillsRead: record
+        Turn->>SkillsRead: recordNameRead
         Dispatcher->>Panel: skillLoaded
         Dispatcher-->>Model: the skill body
     else Declared name already read this session
-        Declaration->>Turn: hasLoaded
-        Turn->>SkillsRead: has
-        SkillsRead-->>Turn: true
-        Turn-->>Declaration: true
-        Note over Declaration: An empty declaration reaches here too, having named nothing to check
-        Declaration-->>Dispatcher: null
+        Policy->>Checker: getNamesNotDefinedByVault
+        Checker-->>Policy: no undefined names
+        Policy->>Checker: getNamesNotReadThisSession
+        Note over Checker: An empty declaration reaches here too, having named nothing to check
+        Checker-->>Policy: no unread names
+        Policy-->>Dispatcher: SkillsDeclarationSatisfied, whose refusal is null
         Dispatcher->>Edit: execute
         Edit-->>Dispatcher: ToolCallOutcome
         Dispatcher->>Panel: publishStepTaken

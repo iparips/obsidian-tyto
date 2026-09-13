@@ -35,8 +35,11 @@ tests stay green. Tests cover a skill read in one turn being known in the next.
 ## Commit 3: the declared argument
 
 The guarded schemas gain a required `applicable_skills` array, added only when
-the vault defines skills, and SkillDeclaration (Engine Tools, new) checks one
-call's names against the vault list and the session record.
+the vault defines skills. ApplicableSkills (Engine Tools, new) reads the names
+off one call, SkillsInSessionChecker (Engine Tools, new) answers which the vault
+and the session are missing, and SkillDeclarationPolicy (Engine Tools, new)
+judges the two into a SkillDeclarationVerdict (Engine Tools, new) whose state
+writes its own refusal.
 
 - ToolCatalogue (Engine Tools) chooses the schema on the `skillsExist` flag it
   already takes
