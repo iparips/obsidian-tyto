@@ -35,7 +35,7 @@ export class SkillDeclarationChecker {
       )
     const skillsNotRead = this.getSkillNamesNotReadThisSession(declaredSkills.names)
     if (skillsNotRead.length > 0)
-      return SkillDeclarationNotSatisfied.notReadThisSession(skillsNotRead)
+      return SkillDeclarationNotSatisfied.someApplicableSkillsNotReadThisSession(skillsNotRead)
     return new SkillDeclarationSatisfied()
   }
 

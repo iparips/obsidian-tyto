@@ -37,7 +37,9 @@ export class SkillDeclarationNotSatisfied {
     )
   }
 
-  static notReadThisSession(names: readonly string[]): SkillDeclarationNotSatisfied {
+  static someApplicableSkillsNotReadThisSession(
+    names: readonly string[],
+  ): SkillDeclarationNotSatisfied {
     return new SkillDeclarationNotSatisfied(
       `load ${names.join(', ')}, then call this again declaring it`,
     )
