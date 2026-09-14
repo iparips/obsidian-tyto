@@ -61,7 +61,8 @@ bun run build    # test, lint, format, then bundle
 Two things to know about `bun run build`:
 
 - It runs prettier over the whole repo, so it reformats files unrelated to your
-  change. Revert that churn before handing work back.
+  change. Keep that reformatting and commit it on its own, as a whitespace
+  commit separate from the change you were making.
 - It writes main.js at the repo root. That file is generated, not source.
 
 ## Prompt Changes Are Behaviour Changes
