@@ -100,6 +100,18 @@ that the plugin then acts on.
 
 ## Specs
 
-Specs live under docs/spec, one folder per feature, numbered chronologically.
+Specs live under docs/spec, one folder per feature, in three buckets by state.
 A feature folder holds requirements, then design, then tasks. Read the spec
 before changing behaviour it describes, and update it when the behaviour moves.
+
+| Bucket     | Holds                         | Numbered |
+| ---------- | ----------------------------- | -------- |
+| 1-upcoming | Designed, no code in the tree | No       |
+| 2-active   | Being built now               | No       |
+| 3-archived | Built and shipped             | Yes      |
+
+A spec takes its number on the way into 3-archived, not on the way into
+1-upcoming. The number is chronological and permanent: commit messages and the
+architecture docs cite it, so a shipped spec keeps it even once superseded.
+Numbering unbuilt work instead forces a renumber every time something ships out
+of order.

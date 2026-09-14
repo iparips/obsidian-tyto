@@ -22,7 +22,7 @@ stuck pending (NFR5).
 ### C3. Audit against the plugin review guidelines (2 h)
 
 Covered by step 2 of
-[mobile-v1/4-release-checklist.md](../../spec/Upcoming/mobile-v1/4-release-checklist.md).
+[mobile-v1/4-release-checklist.md](../../spec/1-upcoming/mobile-v1/4-release-checklist.md).
 
 - [ ] No innerHTML
 - [ ] Async onload

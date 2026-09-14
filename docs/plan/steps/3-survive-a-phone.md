@@ -4,7 +4,7 @@ Mobile is the case the plugin is designed around. A session that vanishes when
 the app backgrounds is the first bug a reviewer hits.
 
 B1 and B2 follow the two commits in
-[session-persistence/5-implementation-order.md](../../spec/22-session-persistence/5-implementation-order.md).
+[session-persistence/5-implementation-order.md](../../spec/3-archived/22-session-persistence/5-implementation-order.md).
 
 ### B1. Session persistence: serialise and restore (3 h)
 

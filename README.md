@@ -45,7 +45,9 @@ Small and legible
 - Mistral only, using your own API key.
 - Conversation history lives in memory. Edits are saved to the note, but a reload clears the chat.
 
-Specs live in [docs/spec](docs/spec/1-requirements.md).
+Specs live in docs/spec, in three buckets: [1-upcoming](docs/spec/1-upcoming/index.md)
+is designed but unbuilt, [2-active](docs/spec/2-active/index.md) is in flight, and
+[3-archived](docs/spec/3-archived/index.md) is what shipped.
 
 ## Install for Development
 

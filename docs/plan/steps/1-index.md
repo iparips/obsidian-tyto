@@ -15,7 +15,7 @@ built on a written spec is two to three, and a polish pass is one.
 ## Where things stand
 
 Every specced feature is built, and the suite is green at 861 tests across 70
-files. Unbuilt specs live under [spec/Upcoming](../../spec/Upcoming), which is
+files. Unbuilt specs live under [spec/1-upcoming](../../spec/1-upcoming), which is
 why they carry no number: numbering them forces a renumber every time one ships.
 
 The largest risk to a submission is the backlog of unrun manual exit tests.

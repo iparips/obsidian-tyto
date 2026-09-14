@@ -1,6 +1,0 @@
-# Mobile MVP: Detailed Design
-
-Implementable spec for release 2 of [2-plan.md](../../plan/releases.md). High-level design: [architecture/2-mobile-mvp.md](../../architecture/2-mobile-mvp.md). A delta on the Desktop MVP; unlisted components are unchanged.
-
-- [2-component-changes.md](2-component-changes.md) - command icon, mime type probing, backgrounding, touch targets
-- [3-testing-strategy.md](3-testing-strategy.md) - unit deltas, on-device debugging, and the manual device matrix

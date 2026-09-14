@@ -1,7 +1,7 @@
 # D. Desktop V1, built during review
 
 Steps 2 to 5 of
-[desktop-v1/7-implementation-order.md](../../spec/Upcoming/desktop-v1/7-implementation-order.md)
+[desktop-v1/7-implementation-order.md](../../spec/1-upcoming/desktop-v1/7-implementation-order.md)
 are independent once the contracts land, so D2 to D5 can be reordered after D1.
 
 - [ ] D1 Realtime contracts and widened settings (2 h)
