@@ -1,4 +1,4 @@
-import { PathsReturnedByVaultRepository } from '../../search/models/paths-returned-by-vault-repository'
+import { PathsReturnedByVaultRepository } from '../turn/paths-returned-by-vault-repository'
 import { NotesOpenedCounter } from '../turn/notes-opened-counter'
 import {
   ChoiceResult,

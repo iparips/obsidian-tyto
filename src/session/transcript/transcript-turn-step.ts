@@ -1,6 +1,6 @@
 import { ChatMessage, ToolCall } from '../../model/providers/types'
 import { PanelStep } from '../models/panel-state'
-import { LoadedSkills } from './models/loaded-skills'
+import { LoadedSkills } from './loaded-skills'
 import { PartName, RecordedEnding, RecordedTurnStep } from './models/transcript-record'
 import { TranscriptEntryLines } from './transcript-entry-lines'
 

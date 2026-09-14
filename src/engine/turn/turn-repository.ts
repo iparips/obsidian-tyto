@@ -4,7 +4,7 @@ import { AgentsMdChain } from '../../agents/agents-md-chain'
 import { ResolvedNote } from '../note-binding/resolved-note'
 import { NotesOpenedCounter } from './notes-opened-counter'
 import { NotesChosenByUserRepository } from './notes-chosen-by-user-repository'
-import { PathsReturnedByVaultRepository } from '../../search/models/paths-returned-by-vault-repository'
+import { PathsReturnedByVaultRepository } from './paths-returned-by-vault-repository'
 import { Skill } from '../../skills/skill'
 import { SkillsReadRepository } from '../../skills/skills-read-repository'
 

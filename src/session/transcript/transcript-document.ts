@@ -1,5 +1,5 @@
 import { ChatMessage } from '../../model/providers/types'
-import { LoadedSkills } from './models/loaded-skills'
+import { LoadedSkills } from './loaded-skills'
 import { TranscriptSource } from './models/transcript-source'
 import { TranscriptTurn } from './models/transcript-turn'
 import { TranscriptAppendix } from './transcript-appendix'

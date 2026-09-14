@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest'
-import { PathsReturnedByVaultRepository } from '../models/paths-returned-by-vault-repository'
-import { SearchHit } from '../models/search-hit'
+import { PathsReturnedByVaultRepository } from '../turn/paths-returned-by-vault-repository'
+import { SearchHit } from '../../search/models/search-hit'
 
 const aHit = (path: string): SearchHit => new SearchHit(path, 1, 'excerpt')
 

@@ -1,4 +1,4 @@
-import { ChatMessage, ToolCall } from '../../../model/providers/types'
+import { ChatMessage, ToolCall } from '../../model/providers/types'
 
 // The skill bodies one session loaded, gathered as the document walks the turn
 // steps. A body reaches the model as the tool result of a load_skill call, so

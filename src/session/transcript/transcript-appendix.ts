@@ -1,4 +1,4 @@
-import { LoadedSkills } from './models/loaded-skills'
+import { LoadedSkills } from './loaded-skills'
 import { TextDiff } from './models/text-diff'
 import { PartName, TranscriptPart } from './models/transcript-record'
 
