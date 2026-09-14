@@ -125,7 +125,7 @@ export const SessionPanel = (props: SessionPanelProps) => {
     props.cancelTurn?.()
   }
 
-  useEngineEvents(props, dispatch, () => recorded.discardOnBackground())
+  useEngineEvents(props, dispatch, () => recorded.sendOnBackground())
 
   // Built at the click rather than held: the entries are the reducer's, and a
   // document rebuilt per render would be thrown away every step.
@@ -169,6 +169,7 @@ export const SessionPanel = (props: SessionPanelProps) => {
         phase={state.phase}
         onChooseNote={settleChoice}
         onPickSuggestion={pickSuggestion}
+        onRetry={recorded.retry}
       />
       <InputRow
         phase={state.phase}

@@ -438,6 +438,12 @@
   margin-top: var(--size-4-2);
 }
 
+/* Sits under the failure it undoes, so the audio still held is offered where
+   the user is already reading why nothing happened. */
+.tyto-entry-retry {
+  margin-top: var(--size-4-2);
+}
+
 /* Context weight, but coloured: a turn running low is worth noticing without
    competing with the reply it may not reach. */
 .tyto-entry-warning {

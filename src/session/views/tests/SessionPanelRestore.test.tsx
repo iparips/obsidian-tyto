@@ -33,7 +33,6 @@ describe('SessionPanel', () => {
         transcribe={transcribe}
         processUtterance={processUtterance}
         onHidden={() => () => undefined}
-        notify={vi.fn()}
         buildStoredSessionFromEntries={(entries) => ({
           version: 1,
           targetPath: null,

@@ -31,7 +31,6 @@ describe('SessionPanel transcript copy', () => {
         transcribe={transcribe}
         processUtterance={processUtterance}
         onHidden={() => () => undefined}
-        notify={vi.fn()}
         transcriptOf={(entries) =>
           new TranscriptSource(
             { copiedAt: new Date(2026, 8, 10, 15, 25), pluginVersion: '0.1.0', notePath: 'a.md' },

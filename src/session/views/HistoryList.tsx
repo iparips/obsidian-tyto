@@ -7,6 +7,7 @@ export interface HistoryListProps {
   phase: Phase
   onChooseNote?(chosen: string | null): void
   onPickSuggestion?(suggestion: string): void
+  onRetry?(): void
 }
 
 export const HistoryList = ({
@@ -14,6 +15,7 @@ export const HistoryList = ({
   phase,
   onChooseNote,
   onPickSuggestion,
+  onRetry,
 }: HistoryListProps) => (
   <div className="tyto-history">
     {entries.map((entry, index) => (
@@ -22,6 +24,7 @@ export const HistoryList = ({
         entry={entry}
         onChooseNote={onChooseNote}
         onPickSuggestion={onPickSuggestion}
+        onRetry={onRetry}
       />
     ))}
     <PendingEntry phase={phase} />

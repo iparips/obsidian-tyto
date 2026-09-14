@@ -31,9 +31,15 @@ export interface HistoryEntryProps {
   // on screen as a record rather than a live prompt (FR32).
   onChooseNote?(chosen: string | null): void
   onPickSuggestion?(suggestion: string): void
+  onRetry?(): void
 }
 
-export const HistoryEntry = ({ entry, onChooseNote, onPickSuggestion }: HistoryEntryProps) => {
+export const HistoryEntry = ({
+  entry,
+  onChooseNote,
+  onPickSuggestion,
+  onRetry,
+}: HistoryEntryProps) => {
   const [copied, setCopied] = useState(false)
   const text = entryText(entry)
   const weight = EntryWeights.of(entry.kind)
@@ -58,6 +64,11 @@ export const HistoryEntry = ({ entry, onChooseNote, onPickSuggestion }: HistoryE
         )}
         {entry.kind === 'question' && entry.pending && onPickSuggestion && (
           <EntrySuggestions suggestions={entry.suggestions} onPick={onPickSuggestion} />
+        )}
+        {entry.kind === 'error' && entry.retryable && onRetry && (
+          <button className="tyto-entry-retry" aria-label="Retry transcription" onClick={onRetry}>
+            Retry
+          </button>
         )}
       </div>
       {weight === 'reply' && (

@@ -383,4 +383,50 @@ describe('PanelReducer', () => {
       expect(state.entries.at(-1)).toMatchObject({ steps: [{ refused: true }] })
     })
   })
+
+  describe('when a transcription fails with the audio still held', () => {
+    const failed = (retryable?: boolean): PanelState =>
+      PanelReducer.reduce(INITIAL_PANEL_STATE, {
+        type: 'failed',
+        step: 'transcription',
+        message: 'it broke',
+        retryable,
+      })
+
+    it('marks the error retryable when the panel is holding audio', () => {
+      expect(failed(true).entries.at(-1)).toEqual({
+        kind: 'error',
+        step: 'transcription',
+        text: 'it broke',
+        retryable: true,
+      })
+    })
+
+    it('leaves the error alone when nothing is held', () => {
+      expect(failed().entries.at(-1)).toEqual({
+        kind: 'error',
+        step: 'transcription',
+        text: 'it broke',
+        retryable: undefined,
+      })
+    })
+
+    it('clears the flag on an earlier error when a new recording starts', () => {
+      const state = PanelReducer.reduce(failed(true), { type: 'recordingStarted' })
+
+      expect(state.entries.at(-1)).toMatchObject({ retryable: false })
+    })
+
+    it('moves to the recording phase when a new recording starts', () => {
+      const state = PanelReducer.reduce(failed(true), { type: 'recordingStarted' })
+
+      expect(state.phase).toBe('recording')
+    })
+
+    it('clears the flag when a transcript comes back, since the audio is released', () => {
+      const state = PanelReducer.reduce(failed(true), { type: 'transcript', text: 'do it' })
+
+      expect(state.entries.at(-2)).toMatchObject({ retryable: false })
+    })
+  })
 })

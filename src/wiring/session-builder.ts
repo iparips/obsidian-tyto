@@ -1,4 +1,4 @@
-import { Notice, TFile } from 'obsidian'
+import { TFile } from 'obsidian'
 import { Recorder } from '../recorder'
 import { MistralProvider } from '../model/providers/mistral-provider'
 import { SessionPanelProps } from '../session/views/SessionPanel'
@@ -111,7 +111,6 @@ export class SessionBuilder {
       transcribe: (blob, mimeType) => modelProvider.transcribe(blob, mimeType),
       startNewSession: () => presence.startNewSession(),
       onHidden: (listener) => presence.onHidden(listener),
-      notify: (message) => void new Notice(message),
       settings: this.settings,
       transcriptOf: (entries) => this.transcriptBuilder(sessions, transcript).build(entries),
       buildStoredSessionFromEntries: (entries) => StoredSessionSource.of(sessions, entries),

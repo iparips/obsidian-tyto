@@ -186,4 +186,42 @@ describe('HistoryEntry', () => {
       expect(screen.queryByLabelText('Choose the note')).toBeNull()
     })
   })
+
+  describe('when a transcription failed with the audio still held', () => {
+    it('offers a retry when the error is retryable', () => {
+      render(
+        <HistoryEntry
+          entry={{ kind: 'error', step: 'transcription', text: 'it broke', retryable: true }}
+          onRetry={vi.fn()}
+        />,
+      )
+
+      expect(screen.getByLabelText('Retry transcription')).toBeTruthy()
+    })
+
+    it('retries when the control is clicked', async () => {
+      const onRetry = vi.fn()
+      render(
+        <HistoryEntry
+          entry={{ kind: 'error', step: 'transcription', text: 'it broke', retryable: true }}
+          onRetry={onRetry}
+        />,
+      )
+
+      await userEvent.click(screen.getByLabelText('Retry transcription'))
+
+      expect(onRetry).toHaveBeenCalled()
+    })
+
+    it('offers no retry when the error is not retryable', () => {
+      render(
+        <HistoryEntry
+          entry={{ kind: 'error', step: 'chat', text: 'it broke' }}
+          onRetry={vi.fn()}
+        />,
+      )
+
+      expect(screen.queryByLabelText('Retry transcription')).toBeNull()
+    })
+  })
 })

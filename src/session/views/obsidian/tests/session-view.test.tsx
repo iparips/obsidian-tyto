@@ -16,7 +16,6 @@ describe('SessionView', () => {
       transcribe: vi.fn(),
       processUtterance: vi.fn(),
       onHidden: () => () => undefined,
-      notify: vi.fn(),
       ...overrides,
     }) as unknown as SessionPanelProps
 

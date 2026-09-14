@@ -44,9 +44,10 @@ Small and legible
 - One note at a time. No multi-note refactors.
 - Mistral only, using your own API key.
 - Conversation history lives in memory. Edits are saved to the note, but a reload clears the chat.
+- One recording per request, up to the provider's limits: currently 60 minutes or 500 MB, though Tyto tracks Mistral's latest transcription model, so that can move. A longer recording is rejected rather than split, and the panel offers a retry rather than losing the audio. Normal dictation is nowhere near either, since five minutes is about 1 MB.
 
 Specs live in docs/spec, in three buckets: [1-upcoming](docs/spec/1-upcoming/index.md)
-is designed but unbuilt, [2-active](docs/spec/2-active/index.md) is in flight, and
+is designed but unbuilt, [2-active](docs/spec/2-active) is in flight, and
 [3-archived](docs/spec/3-archived/index.md) is what shipped.
 
 ## Install for Development
@@ -88,7 +89,9 @@ exactly as it did before this release.
 
 The session panel opens as a drawer from the right sidebar. To reach it in one tap, add the command to the mobile toolbar: Settings, Mobile, Manage toolbar options, then add "Tyto: Start session".
 
-Recording stops if you leave Obsidian. The partial audio is discarded and the panel returns to idle, because a backgrounded recording captures silence.
+Recording stops if you leave Obsidian, because a backgrounded recording captures silence. What was said up to that point is transcribed and acted on rather than discarded, so a locked screen costs the rest of the sentence instead of the whole dictation. Closing the panel does the same.
+
+Collapsing the sidebar is not closing the panel. The recording keeps running, and nothing is sent until you stop it.
 
 The allowed-command list is a plain text box, and the resolved list stays
 collapsed, so neither fills a phone screen.

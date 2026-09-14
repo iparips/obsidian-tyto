@@ -24,9 +24,9 @@ export interface EngineEventPorts {
 export const useEngineEvents = (
   ports: EngineEventPorts,
   dispatch: (action: PanelAction) => void,
-  onBackgrounded: () => void,
+  endRecording: () => void,
 ): void => {
-  useEffect(() => ports.onHidden?.(onBackgrounded), [])
+  useEffect(() => ports.onHidden?.(endRecording), [])
 
   useEffect(() => ports.onInstructions?.((text) => dispatch({ type: 'instructions', text })), [])
 

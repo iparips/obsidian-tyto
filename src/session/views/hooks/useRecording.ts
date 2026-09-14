@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { Attempt, Outcome } from '../../../shared/models/outcome'
 import { Utterance } from '../../../recorder'
 import { PanelAction } from '../../models/panel-action'
@@ -18,14 +18,14 @@ export interface RecordingPorts {
   transcribe(blob: Blob, mimeType: string): Promise<Attempt<string>>
   // The plugin owns the listener so Obsidian detaches it on unload.
   onHidden?(listener: () => void): () => void
-  notify?(message: string): void
 }
 
 export interface Recording {
   start(): Promise<void>
   stop(): Promise<void>
   cancel(): void
-  discardOnBackground(): void
+  retry(): Promise<void>
+  sendOnBackground(): void
 }
 
 // Capturing an utterance and turning it into text, which is the half of the
@@ -36,35 +36,70 @@ export const useRecording = (
   dispatch: (action: PanelAction) => void,
   runTurn: (text: string) => Promise<void>,
 ): Recording => {
+  // The last utterance, so a failed transcription costs a click rather than the
+  // recording. One at a time: the retry is for the recording just made.
+  const held = useRef<Utterance | null>(null)
+
   const cancel = () => {
     ports.recorder.cancel()
+    held.current = null
     dispatch({ type: 'cancelled' })
   }
 
-  // Read through a ref so the listener subscribes once, not once per render.
-  const discardOnBackground = useRef(() => {})
-  discardOnBackground.current = () => {
-    if (phase !== 'recording') return
-    cancel()
-    ports.notify?.('Recording discarded: Tyto cannot record in the background.')
+  const stop = async () => {
+    dispatch({ type: 'stopRequested' })
+    held.current = await ports.recorder.stop()
+    await transcribe(held.current)
   }
+
+  const retry = async () => {
+    const utterance = held.current
+    if (!utterance) return
+    dispatch({ type: 'stopRequested' })
+    await transcribe(utterance)
+  }
+
+  // Held until a transcript comes back, so every failure keeps something to
+  // retry and a success is what releases it.
+  const transcribe = async (utterance: Utterance) => {
+    const transcript = await ports.transcribe(utterance.blob, utterance.mimeType)
+    if (transcript.hasFailed())
+      return dispatch({
+        type: 'failed',
+        step: transcript.step,
+        message: transcript.message,
+        retryable: true,
+      })
+    held.current = null
+    await runTurn(transcript.value)
+  }
+
+  // Anything that ends a recording other than the user sends what it captured:
+  // the OS interrupting a dictation is not the user choosing to lose it.
+  // Read through a ref so the listener subscribes once, not once per render.
+  const endRecording = useRef(() => {})
+  endRecording.current = () => {
+    if (phase !== 'recording') return
+    void stop()
+  }
+
+  // Closing the panel unmounts without releasing the stream, so without this
+  // the microphone stays open with the audio reachable by nothing.
+  useEffect(() => () => endRecording.current(), [])
 
   return {
     cancel,
-    discardOnBackground: () => discardOnBackground.current(),
+    stop,
+    retry,
+    sendOnBackground: () => endRecording.current(),
     start: async () => {
       const outcome = await ports.recorder.start()
       if (outcome.hasFailed())
-        dispatch({ type: 'failed', step: outcome.step, message: outcome.message })
-      else dispatch({ type: 'recordingStarted' })
-    },
-    stop: async () => {
-      dispatch({ type: 'stopRequested' })
-      const utterance = await ports.recorder.stop()
-      const transcript = await ports.transcribe(utterance.blob, utterance.mimeType)
-      if (transcript.hasFailed())
-        dispatch({ type: 'failed', step: transcript.step, message: transcript.message })
-      else await runTurn(transcript.value)
+        return dispatch({ type: 'failed', step: outcome.step, message: outcome.message })
+      // Recording again is what drops the previous utterance, so the control
+      // above it goes with the audio it would have retried.
+      held.current = null
+      dispatch({ type: 'recordingStarted' })
     },
   }
 }

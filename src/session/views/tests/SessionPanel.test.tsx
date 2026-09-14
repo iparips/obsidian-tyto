@@ -9,7 +9,6 @@ describe('SessionPanel', () => {
   let recorder: RecorderPort
   let transcribe: Mock<[Blob, string], Promise<Attempt<string>>>
   let processUtterance: Mock<[string], Promise<Outcome<string>>>
-  let notify: Mock<[string], void>
 
   beforeEach(() => {
     vi.clearAllMocks()
@@ -20,7 +19,6 @@ describe('SessionPanel', () => {
     }
     transcribe = vi.fn().mockResolvedValue(Outcomes.success('spoken words'))
     processUtterance = vi.fn().mockResolvedValue(Outcomes.success('made the edit'))
-    notify = vi.fn()
   })
 
   const hiddenListeners: (() => void)[] = []
@@ -38,7 +36,6 @@ describe('SessionPanel', () => {
         transcribe={transcribe}
         processUtterance={processUtterance}
         onHidden={onHidden}
-        notify={notify}
         buildStoredSessionFromEntries={(entries) => ({
           version: 1,
           targetPath: null,
@@ -164,27 +161,43 @@ describe('SessionPanel', () => {
   })
 
   describe('when the document becomes hidden', () => {
-    it('discards the recording and returns to idle when hidden while recording', async () => {
+    it('stops rather than cancels when hidden while recording', async () => {
       renderPanel()
       await userEvent.click(screen.getByRole('button', { name: 'Record' }))
 
       goToBackground()
 
-      expect(recorder.cancel).toHaveBeenCalled()
-      await waitFor(() =>
-        expect(screen.getByRole('button', { name: 'Record' }).hasAttribute('disabled')).toBe(false),
-      )
+      expect(recorder.stop).toHaveBeenCalled()
+      expect(recorder.cancel).not.toHaveBeenCalled()
+      await waitFor(() => expect(screen.getByText('made the edit')).toBeTruthy())
     })
 
-    it('notifies that the recording was discarded when hidden while recording', async () => {
+    it('runs the turn on what was captured when hidden while recording', async () => {
       renderPanel()
       await userEvent.click(screen.getByRole('button', { name: 'Record' }))
 
       goToBackground()
 
-      expect(notify).toHaveBeenCalledWith(
-        'Recording discarded: Tyto cannot record in the background.',
-      )
+      await waitFor(() => expect(processUtterance).toHaveBeenCalledWith('spoken words'))
+    })
+
+    it('puts the words in the history when hidden while recording', async () => {
+      renderPanel()
+      await userEvent.click(screen.getByRole('button', { name: 'Record' }))
+
+      goToBackground()
+
+      await waitFor(() => expect(screen.getByText('spoken words')).toBeTruthy())
+    })
+
+    it('announces nothing, since the turn is the record', async () => {
+      renderPanel()
+      await userEvent.click(screen.getByRole('button', { name: 'Record' }))
+
+      goToBackground()
+
+      await waitFor(() => expect(screen.getByText('made the edit')).toBeTruthy())
+      expect(screen.queryByText(/discarded/)).toBeNull()
     })
 
     it('leaves the recorder alone when hidden while idle', () => {
@@ -192,6 +205,37 @@ describe('SessionPanel', () => {
 
       goToBackground()
 
+      expect(recorder.stop).not.toHaveBeenCalled()
+      expect(recorder.cancel).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('when the panel unmounts', () => {
+    it('stops rather than cancels when unmounted while recording', async () => {
+      const panel = renderPanel()
+      await userEvent.click(screen.getByRole('button', { name: 'Record' }))
+
+      await act(async () => panel.unmount())
+
+      expect(recorder.stop).toHaveBeenCalled()
+      expect(recorder.cancel).not.toHaveBeenCalled()
+    })
+
+    it('runs the turn on what was captured when unmounted while recording', async () => {
+      const panel = renderPanel()
+      await userEvent.click(screen.getByRole('button', { name: 'Record' }))
+
+      await act(async () => panel.unmount())
+
+      await waitFor(() => expect(processUtterance).toHaveBeenCalledWith('spoken words'))
+    })
+
+    it('leaves the recorder alone when unmounted while idle', async () => {
+      const panel = renderPanel()
+
+      await act(async () => panel.unmount())
+
+      expect(recorder.stop).not.toHaveBeenCalled()
       expect(recorder.cancel).not.toHaveBeenCalled()
     })
   })
@@ -691,6 +735,132 @@ describe('SessionPanel', () => {
       expect(
         screen.getByText('Tyto is taking longer than usual: 3 steps left this turn.'),
       ).toBeTruthy()
+    })
+  })
+
+  describe('when a transcription fails', () => {
+    const anUtterance = new Utterance(new Blob(['a']), 'audio/webm')
+
+    const failTranscription = async () => {
+      transcribe.mockResolvedValue(Outcomes.failure('transcription', 'rate limited'))
+      renderPanel()
+      await userEvent.click(screen.getByRole('button', { name: 'Record' }))
+      await userEvent.click(screen.getByRole('button', { name: 'Stop recording' }))
+    }
+
+    it('offers a retry when the failure lands', async () => {
+      await failTranscription()
+
+      await waitFor(() => expect(screen.getByLabelText('Retry transcription')).toBeTruthy())
+    })
+
+    it('sends the same audio when the user retries', async () => {
+      await failTranscription()
+      await waitFor(() => expect(screen.getByLabelText('Retry transcription')).toBeTruthy())
+      transcribe.mockClear()
+
+      await userEvent.click(screen.getByLabelText('Retry transcription'))
+
+      expect(transcribe).toHaveBeenCalledWith(anUtterance.blob, 'audio/webm')
+    })
+
+    it('makes no new recording when the user retries', async () => {
+      await failTranscription()
+      await waitFor(() => expect(screen.getByLabelText('Retry transcription')).toBeTruthy())
+      const stops = (recorder.stop as Mock).mock.calls.length
+
+      await userEvent.click(screen.getByLabelText('Retry transcription'))
+
+      expect((recorder.stop as Mock).mock.calls).toHaveLength(stops)
+    })
+
+    it('runs the turn when the retry transcribes', async () => {
+      await failTranscription()
+      await waitFor(() => expect(screen.getByLabelText('Retry transcription')).toBeTruthy())
+      transcribe.mockResolvedValue(Outcomes.success('spoken words'))
+
+      await userEvent.click(screen.getByLabelText('Retry transcription'))
+
+      await waitFor(() => expect(processUtterance).toHaveBeenCalledWith('spoken words'))
+    })
+
+    it('takes the control away when the retry transcribes', async () => {
+      await failTranscription()
+      await waitFor(() => expect(screen.getByLabelText('Retry transcription')).toBeTruthy())
+      transcribe.mockResolvedValue(Outcomes.success('spoken words'))
+
+      await userEvent.click(screen.getByLabelText('Retry transcription'))
+
+      await waitFor(() => expect(screen.queryByLabelText('Retry transcription')).toBeNull())
+    })
+
+    it('keeps offering a retry when the retry fails too', async () => {
+      await failTranscription()
+      await waitFor(() => expect(screen.getByLabelText('Retry transcription')).toBeTruthy())
+
+      await userEvent.click(screen.getByLabelText('Retry transcription'))
+
+      await waitFor(() => expect(screen.getAllByLabelText('Retry transcription')).toHaveLength(2))
+    })
+
+    it('takes the control away when the user records again', async () => {
+      await failTranscription()
+      await waitFor(() => expect(screen.getByLabelText('Retry transcription')).toBeTruthy())
+
+      await userEvent.click(screen.getByRole('button', { name: 'Record' }))
+
+      expect(screen.queryByLabelText('Retry transcription')).toBeNull()
+    })
+
+    it('sends the new audio rather than the held one once a new recording is made', async () => {
+      await failTranscription()
+      await waitFor(() => expect(screen.getByLabelText('Retry transcription')).toBeTruthy())
+      const second = new Utterance(new Blob(['b']), 'audio/mp4')
+      ;(recorder.stop as Mock).mockResolvedValue(second)
+      transcribe.mockResolvedValue(Outcomes.success('said again'))
+
+      await userEvent.click(screen.getByRole('button', { name: 'Record' }))
+      await userEvent.click(screen.getByRole('button', { name: 'Stop recording' }))
+
+      await waitFor(() => expect(transcribe).toHaveBeenLastCalledWith(second.blob, 'audio/mp4'))
+    })
+
+    it('offers a retry when the failure came from a backgrounded send', async () => {
+      transcribe.mockResolvedValue(Outcomes.failure('transcription', 'rate limited'))
+      renderPanel()
+      await userEvent.click(screen.getByRole('button', { name: 'Record' }))
+
+      goToBackground()
+
+      await waitFor(() => expect(screen.getByLabelText('Retry transcription')).toBeTruthy())
+    })
+  })
+
+  describe('when the user cancels a recording', () => {
+    it('offers no retry afterwards, since the user chose to lose it', async () => {
+      transcribe.mockResolvedValue(Outcomes.failure('transcription', 'rate limited'))
+      renderPanel()
+      await userEvent.click(screen.getByRole('button', { name: 'Record' }))
+      await userEvent.click(screen.getByRole('button', { name: 'Stop recording' }))
+      await waitFor(() => expect(screen.getByLabelText('Retry transcription')).toBeTruthy())
+      await userEvent.click(screen.getByRole('button', { name: 'Record' }))
+
+      await userEvent.click(screen.getByRole('button', { name: 'Cancel' }))
+
+      expect(screen.queryByLabelText('Retry transcription')).toBeNull()
+    })
+  })
+
+  describe('when a chat failure lands', () => {
+    it('offers no retry, since nothing but a transcription has audio behind it', async () => {
+      processUtterance.mockResolvedValue(Outcomes.failure('chat', 'model unavailable'))
+      renderPanel()
+      await userEvent.click(screen.getByRole('button', { name: 'Record' }))
+
+      await userEvent.click(screen.getByRole('button', { name: 'Stop recording' }))
+
+      await waitFor(() => expect(screen.getByText('chat failed: model unavailable')).toBeTruthy())
+      expect(screen.queryByLabelText('Retry transcription')).toBeNull()
     })
   })
 })

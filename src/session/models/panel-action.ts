@@ -8,7 +8,9 @@ export type PanelAction =
   | { type: 'cancelled' }
   | { type: 'transcript'; text: string }
   | { type: 'summary'; text: string }
-  | { type: 'failed'; step: FailureStep; message: string }
+  // retryable is the hook saying it is still holding the audio, which only a
+  // transcription failure has behind it.
+  | { type: 'failed'; step: FailureStep; message: string; retryable?: boolean }
   | { type: 'instructions'; text: string }
   | { type: 'warned'; text: string }
   | { type: 'stepTaken'; label: string; detail: string; refused: boolean }

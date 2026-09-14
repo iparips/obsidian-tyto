@@ -12,7 +12,9 @@ export type Phase =
 export type Entry =
   | { kind: 'user'; text: string }
   | { kind: 'assistant'; text: string }
-  | { kind: 'error'; step: FailureStep; text: string }
+  // retryable only where the panel still holds the audio behind the failure,
+  // which is why the reducer is told rather than deriving it from the step.
+  | { kind: 'error'; step: FailureStep; text: string; retryable?: boolean }
   | { kind: 'instructions'; text: string }
   | { kind: 'warning'; text: string }
   // One entry per turn holding every step, so the panel gains a collapsed list
@@ -60,13 +62,16 @@ export class PanelReducer {
   static reduce(state: PanelState, action: PanelAction): PanelState {
     switch (action.type) {
       case 'recordingStarted':
-        return state.withPhase('recording')
+        return PanelReducer.withNothingToRetry(state).withPhase('recording')
       case 'stopRequested':
         return state.withPhase('transcribing')
       case 'cancelled':
         return state.withPhase('idle')
       case 'transcript':
-        return state.withEntry('thinking', { kind: 'user', text: action.text })
+        return PanelReducer.withNothingToRetry(state).withEntry('thinking', {
+          kind: 'user',
+          text: action.text,
+        })
       case 'summary':
         return AskedEntries.turnEnded(state).withEntry('idle', {
           kind: 'assistant',
@@ -77,6 +82,7 @@ export class PanelReducer {
           kind: 'error',
           step: action.step,
           text: action.message,
+          retryable: action.retryable,
         })
       case 'instructions':
         return state.withEntry(state.phase, { kind: 'instructions', text: action.text })
@@ -120,6 +126,18 @@ export class PanelReducer {
       case 'questionAnswered':
         return AskedEntries.questionAnswered(state, 'thinking')
     }
+  }
+
+  // Both callers are moments the panel stops holding the audio: a transcript
+  // came back, or a new recording replaced it. The control would otherwise
+  // retry an utterance that is gone.
+  private static withNothingToRetry(state: PanelState): PanelState {
+    return new PanelState(
+      state.phase,
+      state.entries.map((entry) =>
+        entry.kind === 'error' && entry.retryable ? { ...entry, retryable: false } : entry,
+      ),
+    )
   }
 
   // Appended to the turn's steps entry wherever it sits, rather than only when
