@@ -1,4 +1,4 @@
-import { App, TFile } from 'obsidian'
+import { TFile } from 'obsidian'
 import { EditEngine } from '../engine/edit-engine'
 import { TurnEndingService } from '../engine/turn-ending-service'
 import { NoteEditor } from '../engine/note-editing/note-editor'
@@ -9,8 +9,6 @@ import { TurnRunnerFactory } from '../engine/turn/turn-runner-factory'
 import { WorkspaceNoteLocator } from '../engine/note-binding/workspace-note-locator'
 import { SessionRepository } from '../session/session-repository'
 import { TranscriptRepository } from '../session/transcript/transcript-repository'
-import { AgentsMdRepository } from '../agents/agents-md-repository'
-import { SkillRepository } from '../skills/skill-repository'
 import { ChatProvider } from '../model/providers/types'
 import { AllowList } from '../commands/allow-list'
 import { ObsidianCommandCatalogue } from '../commands/obsidian-command-catalogue'
@@ -22,12 +20,12 @@ import { NoteGrep } from '../search/note-grep'
 import { SearchToolsService } from '../engine/tools/search-tools-service'
 import { DateToolService } from '../engine/tools/date-tool-service'
 import { NoteReader } from '../search/note-reader'
-import { TytoSettings } from '../settings/settings'
 import { NoteChoiceService } from '../engine/waiting/note-choice-service'
 import { NoteOpener } from '../engine/note-binding/note-opener'
 import { NotesChosenByUserRepository } from '../engine/turn/notes-chosen-by-user-repository'
 import { TurnCancellationController } from '../engine/turn/turn-cancellation-controller'
 import { UserQuestionService } from '../engine/waiting/user-question-service'
+import { PluginScope } from './plugin-scope'
 
 // How a session builds what a turn parks on. Both take the turn's cancellation,
 // so a parked question settles on a cancel rather than parking the loop.
@@ -42,12 +40,7 @@ export interface EngineAskers {
 // Assembles one session's engine. Every collaborator is explicit, and this is
 // the only place that knows how they fit together.
 export class EngineFactory {
-  constructor(
-    private app: App,
-    private settings: TytoSettings,
-    private skillRepository: SkillRepository,
-    private agentsMdRepository: AgentsMdRepository,
-  ) {}
+  constructor(private scope: PluginScope) {}
 
   build(
     modelProvider: ChatProvider,
@@ -62,8 +55,8 @@ export class EngineFactory {
   ): EditEngine {
     const targetNote = new TargetNoteResolver(
       sessions,
-      new WorkspaceNoteLocator(this.app),
-      this.agentsMdRepository,
+      new WorkspaceNoteLocator(this.scope.app),
+      this.scope.agentsMdRepository(),
       progress,
     )
     const harnessToolsService = this.buildHarnessTools()
@@ -95,13 +88,13 @@ export class EngineFactory {
     return new TurnRunnerFactory(
       sessions,
       targetNote,
-      this.skillRepository,
+      this.scope.skillRepository(),
       new NoteEditor(),
       harnessToolsService,
       progress,
       modelProvider,
       new TurnEndingService(sessions, new NoteEditor()),
-      new NoteOpener(this.app, new OpenedNoteWait(this.app)),
+      new NoteOpener(this.scope.app, new OpenedNoteWait(this.scope.app)),
       askers.noteChoiceService ??
         ((_cancellationController, notesChosenByUser) =>
           NoteChoiceService.unasked(notesChosenByUser)),
@@ -111,17 +104,25 @@ export class EngineFactory {
   }
 
   private buildHarnessTools(): HarnessToolsService {
-    const registry = new ObsidianCommandRegistry(this.app)
+    const registry = new ObsidianCommandRegistry(this.scope.app)
     const catalogue = new ObsidianCommandCatalogue(
       registry,
-      new AllowList(this.settings.commandAllowList),
+      new AllowList(this.scope.settings.commandAllowList),
     )
     return new HarnessToolsService(
-      new ObsidianCommandRunner(this.app, catalogue, new OpenedNoteWait(this.app), registry),
-      new NoteReader(this.app.vault),
+      new ObsidianCommandRunner(
+        this.scope.app,
+        catalogue,
+        new OpenedNoteWait(this.scope.app),
+        registry,
+      ),
+      new NoteReader(this.scope.app.vault),
       catalogue,
-      this.settings.searchEnabled,
-      new SearchToolsService(new NoteGlob(this.app.vault), new NoteGrep(this.app.vault)),
+      this.scope.settings.searchEnabled,
+      new SearchToolsService(
+        new NoteGlob(this.scope.app.vault),
+        new NoteGrep(this.scope.app.vault),
+      ),
       new DateToolService(),
       // Both modes ask about several candidates now, so both need the tool that
       // asks. The parameter stays because ToolCatalogue carries the search gate

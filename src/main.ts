@@ -5,10 +5,9 @@ import { SessionPanelProps } from './session/views/SessionPanel'
 import { registerTytoIcon, TYTO_ICON } from './session/views/obsidian/tyto-icon'
 import { DEFAULT_SETTINGS, TytoSettings } from './settings/settings'
 import { TytoSettingsTab } from './settings/settings-tab'
-import { SkillRepository } from './skills/skill-repository'
-import { AgentsMdRepository } from './agents/agents-md-repository'
 import { EditEngine } from './engine/edit-engine'
 import { EngineFactory } from './wiring/engine-factory'
+import { PluginScope } from './wiring/plugin-scope'
 import { PanelPresence, SessionBuilder } from './wiring/session-builder'
 import { SessionStore } from './session/session-store'
 import { StoredSession } from './session/models/stored-session'
@@ -16,6 +15,10 @@ import { StoredSession } from './session/models/stored-session'
 export default class TytoPlugin extends Plugin {
   settings: TytoSettings = DEFAULT_SETTINGS
   private activeEngine: EditEngine | null = null
+  // Built once at load: the vault and the settings reader outlive every session,
+  // and the settings are read through a function so the settings tab's edits
+  // reach a session built before them.
+  private pluginScope = new PluginScope(this.app, () => this.settings)
   private followsActiveNote = false
 
   async onload(): Promise<void> {
@@ -174,20 +177,7 @@ export default class TytoPlugin extends Plugin {
   }
 
   private engineFactory(): EngineFactory {
-    return new EngineFactory(
-      this.app,
-      this.settings,
-      this.skillRepository(),
-      this.agentsMdRepository(),
-    )
-  }
-
-  private skillRepository(): SkillRepository {
-    return new SkillRepository(this.app.vault.adapter, this.settings.skillsPath)
-  }
-
-  private agentsMdRepository(): AgentsMdRepository {
-    return new AgentsMdRepository(this.app.vault.adapter)
+    return new EngineFactory(this.pluginScope)
   }
 
   private async revealSessionView(): Promise<SessionView | null> {

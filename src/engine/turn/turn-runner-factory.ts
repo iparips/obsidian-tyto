@@ -52,7 +52,7 @@ export class TurnRunnerFactory {
     ) => UserQuestionService = () => UserQuestionService.unanswered(),
     // Session-scoped like the history it indexes into, so a turn records into
     // the store the panel reads.
-    private transcriptRepository: TranscriptRepository = new TranscriptRepository(),
+    private transcriptRepository: TranscriptRepository,
   ) {}
 
   // Session-scoped, so a note found in one turn can still be opened in the
