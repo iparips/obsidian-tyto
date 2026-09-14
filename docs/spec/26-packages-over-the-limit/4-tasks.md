@@ -32,7 +32,7 @@ tools/ goes 16 to 13.
 
 answer-request moves to waiting/ beside UserQuestionService, and choice-request
 beside NoteChoiceService. ToolCallOutcome moves to the engine root beside
-ToolDispatcher, its only reader.
+ToolDispatcher, which builds it.
 
 tools/ goes 13 to 10, waiting/ 3 to 5, engine root 7 to 8.
 
@@ -54,13 +54,13 @@ views/hooks (new) takes the four useX files, imported only by SessionPanel.
 views/obsidian (new) takes session-view, rebind-modal and tyto-icon, imported
 only by main.ts at the src root and by each other.
 
-src/main.ts is outside every package and names two of the three, so it is the
-one import fix that lands outside session.
+src/main.ts is outside every package and names all three, so it is the one
+import fix that lands outside session.
 
 The two tests covering session-view and tyto-icon move to
 views/obsidian/tests. The hooks have none.
 
-views/ goes 17 to 9.
+views/ goes 17 to 10.
 
 ## Commit 5: the architecture doc matches the tree
 

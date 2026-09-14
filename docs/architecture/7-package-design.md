@@ -11,6 +11,9 @@ way dependencies run.
 | capture      | The microphone: one utterance per start-stop cycle   | shared                |
 | model        | Talking to the model: prompt assembly and API access | engine, shared        |
 | skills       | Skill discovery and reading from the vault           | shared                |
+| agents       | AGENTS.md discovery and the instruction chain        | shared                |
+| search       | Reading, globbing and grepping notes                 | shared                |
+| commands     | The Obsidian commands the plugin registers           | shared                |
 | engine       | The agent loop and note editing                      | model, skills, shared |
 | session      | The Obsidian sidebar: React views and panel state    | capture, shared       |
 | settings     | Settings storage and its settings tab                | shared                |
@@ -69,15 +72,24 @@ Arrows: uses-relationship (client to supplier).
 ## Layout Within a Package
 
 Files group by concept, not by kind, and a value object sits beside the service
-that reads it. Engine is large enough to split into five concept folders:
+that reads it. Engine is large enough to split into six concept folders, two of
+which hold a folder of their own:
 
-| Folder       | Holds                                                         |
-| ------------ | ------------------------------------------------------------- |
-| turn         | The loop, its counters, outcomes and turn-scoped repositories |
-| tools        | Tool services, their results and the tool schemas             |
-| waiting      | Parking a turn on a question or a choice                      |
-| note-editing | The note editor, its parser and positions                     |
-| note-binding | Resolving and opening the target note                         |
+| Folder        | Holds                                                          |
+| ------------- | -------------------------------------------------------------- |
+| turn          | The loop and the turn-scoped repositories                      |
+| turn/spending | TurnSpend and the two counters it holds                        |
+| turn/ending   | How a turn ends: its kind, its step outcomes and its outcomes  |
+| tools         | Tool services, their results and the tool schemas              |
+| skill-gating  | Whether a call declared the skills it needed before it ran     |
+| waiting       | Parking a turn on a question or a choice, and the two requests |
+| note-editing  | The note editor, its parser and positions                      |
+| note-binding  | Resolving and opening the target note                          |
+
+Session's views outgrew the limit as one concept, so it is the one place that
+splits by kind: views/ holds the React components, views/hooks/ the four
+subscription hooks, and views/obsidian/ what extends an Obsidian class rather
+than rendering React.
 
 The root holds only what spans the folders. The placement test for tools/ is
 written down: a tool takes a ToolCall and returns a result, so NoteEditor,
@@ -94,16 +106,18 @@ it in the root, so skills keeps skill.ts beside skill-repository.ts.
 The limit is 10 files per folder, counting the package root as a folder of its
 own. Tests are counted against their own folder and exempt from the limit.
 
-| Package  | Root | Sub-folders                                                  | tests |
-| -------- | ---- | ------------------------------------------------------------ | ----- |
-| shared   | -    | models 1                                                     | 1     |
-| capture  | 1    | -                                                            | 1     |
-| commands | 6    | models 4                                                     | 7     |
-| engine   | 7    | turn 13, tools 12, note-binding 5, note-editing 5, waiting 3 | 27    |
-| model    | 3    | prompt 5, its sections 7, providers 3, providers/models 3    | 4     |
-| session  | 8    | views 16, models 4                                           | 5     |
-| settings | 1    | -                                                            | 4     |
-| skills   | 3    | -                                                            | 2     |
+| Package  | Root | Sub-folders                                                                                                 | tests |
+| -------- | ---- | ----------------------------------------------------------------------------------------------------------- | ----- |
+| shared   | -    | models 1                                                                                                    | 1     |
+| capture  | 1    | -                                                                                                           | 1     |
+| agents   | 6    | -                                                                                                           | 5     |
+| commands | 6    | models 4                                                                                                    | 7     |
+| engine   | 8    | turn 8, turn/spending 3, turn/ending 3, tools 10, skill-gating 3, waiting 5, note-binding 5, note-editing 5 | 32    |
+| model    | 6    | prompt 4, its sections 7, providers 3, providers/models 3                                                   | 6     |
+| search   | 5    | models 7                                                                                                    | 8     |
+| session  | 10   | views 10, views/hooks 4, views/obsidian 3, models 8, transcript 8, transcript/models 5                      | 24    |
+| settings | 8    | -                                                                                                           | 5     |
+| skills   | 4    | -                                                                                                           | 3     |
 
-Over the limit today: engine/turn, engine/tools and session/views. Each is a
-split waiting to be specified, not a reason to raise the limit.
+Every folder is within the limit. session sits exactly on it, so the next file
+added there is the one that forces a split.

@@ -18,6 +18,6 @@ a subdomain kind folders only once it outgrows the limit as one thing.
 - [0-prompt.md](0-prompt.md) - the block to hand a fresh session that will build it
 - [2-requirements.md](2-requirements.md) - what is over, by how much, and what may not change
 - [3-design.md](3-design.md) - the four splits, and why each takes the shape it does
-- [4-tasks.md](4-tasks.md) - build order in four commits, one per folder
+- [4-tasks.md](4-tasks.md) - build order in five commits, four folders and the architecture doc
 
-Not built.
+Built.

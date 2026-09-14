@@ -43,16 +43,15 @@ the service that reads them, which is where a value belongs:
 - choice-request.ts moves to engine/waiting
 
 That leaves tools/ holding eleven, so one more moves. ToolCallOutcome is what
-every dispatched call returns, not a tool, and ToolDispatcher is its only
-reader: it moves to the engine root beside it.
+every dispatched call returns, not a tool, so it moves to the engine root beside
+ToolDispatcher, which builds it. NoteEditTool reads it too, from inside tools/.
 
 waiting/ goes from 3 to 5 and stays well within the limit.
 
 ## engine/turn: 14 to 8
 
 Two concepts come out. The first is what a turn spends, already named by
-TurnSpend, which holds the other two. Nothing outside the cluster imports the
-counters. They move to engine/turn/spending (new):
+TurnSpend, which holds the other two. They move to engine/turn/spending (new):
 
 - turn-spend.ts
 - iteration-counter.ts
@@ -72,7 +71,7 @@ what the architecture doc says the folder owns.
 NotesOpenedCounter stays despite its name: engine/tools reads it, so it is turn
 state the tools spend rather than part of the loop's own accounting.
 
-## session/views: 17 to 9
+## session/views: 17 to 10
 
 The one folder with no second concept in it. Every file renders or feeds
 something that renders, so the split is by kind, which is the skill's stage
@@ -80,7 +79,7 @@ three: a single subdomain that outgrew the limit.
 
 | New folder      | Holds                                                          | Files |
 | --------------- | -------------------------------------------------------------- | ----- |
-| views/          | React components                                               | 9     |
+| views/          | React components                                               | 10    |
 | views/hooks/    | useEngineEvents, useParkedAnswers, useRecording, useTargetNote | 4     |
 | views/obsidian/ | session-view, rebind-modal, tyto-icon                          | 3     |
 
@@ -89,8 +88,9 @@ dispatches goes in a hook declaring its own ports interface. The obsidian folder
 holds what extends an Obsidian class rather than rendering React, which is the
 placement test for it.
 
-src/main.ts imports session-view and rebind-modal. It sits outside every
-package, so it is the one import this spec fixes beyond the folders it moves.
+src/main.ts imports all three: session-view, rebind-modal and tyto-icon. It
+sits outside every package, so it is the one import this spec fixes beyond the
+folders it moves.
 
 ## session: watched, not split
 
