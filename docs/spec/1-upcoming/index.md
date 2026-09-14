@@ -12,4 +12,3 @@ sequence. A spec takes its number when it moves to
 - [desktop-v1](desktop-v1/1-index.md) - streaming capture, a second provider and review mode
 - [eval-suite](eval-suite/1-index.md) - measuring whether a prompt change helped
 - [mobile-v1](mobile-v1/1-index.md) - the mobile polish pass and its release checklist
-- [not-losing-a-recording](not-losing-a-recording/1-index.md) - holding an utterance so a failed transcription costs a click, not the recording
