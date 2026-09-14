@@ -1,7 +1,7 @@
 import { ToolCall } from '../../model/providers/types'
 import { HarnessResult, Refusal, TurnState } from './harness-result'
 import { ChoiceResult } from './harness-results'
-import { ChoiceRequest } from './choice-request'
+import { ChoiceRequest } from '../waiting/choice-request'
 import { TurnStep } from '../turn-step'
 
 // Eight, because that is what a person reads without scrolling a phone drawer.

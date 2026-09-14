@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { NoteChoiceService } from '../waiting/note-choice-service'
-import { ChoiceRequest } from '../tools/choice-request'
+import { ChoiceRequest } from '../waiting/choice-request'
 import { NotesChosenByUserRepository } from '../turn/notes-chosen-by-user-repository'
 import { TurnCancellationController } from '../turn/turn-cancellation-controller'
 

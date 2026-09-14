@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, Mock, vi } from 'vitest'
 import { PendingAnswer } from '../waiting/pending-answer'
-import { AnswerRequest } from '../tools/answer-request'
+import { AnswerRequest } from '../waiting/answer-request'
 import { TurnCancellationController } from '../turn/turn-cancellation-controller'
 
 describe('PendingAnswer', () => {

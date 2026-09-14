@@ -3,7 +3,7 @@ import { EditOperation, NoteEditor } from '../note-editing/note-editor'
 import { NoteOperationParser } from '../note-editing/note-operation-parser'
 import { OpenNote } from '../note-editing/open-note'
 import { TurnRepository } from '../turn/turn-repository'
-import { ToolCallOutcome } from './tool-call-outcome'
+import { ToolCallOutcome } from '../tool-call-outcome'
 
 export class NoteEditTool {
   constructor(

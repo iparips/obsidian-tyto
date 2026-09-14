@@ -1,4 +1,4 @@
-import { AnswerRequest } from '../tools/answer-request'
+import { AnswerRequest } from './answer-request'
 import { PendingAnswer } from './pending-answer'
 import { TurnCancellationController } from '../turn/turn-cancellation-controller'
 

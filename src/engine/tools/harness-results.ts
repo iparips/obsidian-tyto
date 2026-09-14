@@ -1,5 +1,5 @@
 import { NoteOpenedByObsidianCommand } from '../../commands/models/note-opened-by-obsidian-command'
-import { ChoiceRequest } from './choice-request'
+import { ChoiceRequest } from '../waiting/choice-request'
 import { TurnStep } from '../turn-step'
 import { HarnessResultKind } from './harness-result-kind'
 

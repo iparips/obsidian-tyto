@@ -1,4 +1,4 @@
-import { ChoiceRequest } from '../tools/choice-request'
+import { ChoiceRequest } from './choice-request'
 import { NotesChosenByUserRepository } from '../turn/notes-chosen-by-user-repository'
 import { PendingAnswer } from './pending-answer'
 import { TurnCancellationController } from '../turn/turn-cancellation-controller'

@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, Mock, vi } from 'vitest'
 import { UserQuestionService } from '../waiting/user-question-service'
-import { AnswerRequest } from '../tools/answer-request'
+import { AnswerRequest } from '../waiting/answer-request'
 import { TurnCancellationController } from '../turn/turn-cancellation-controller'
 
 const WHICH_LIST = new AnswerRequest('which shopping list?', ['Lists/a.md', 'Lists/b.md'])
