@@ -23,10 +23,14 @@ The code-generation skill owns how a tree grows: group by subdomain, and give a
 subdomain kind folders only once it outgrows the file limit. This file holds
 what this repo decided.
 
-- Engine splits into five concept folders: turn, tools, waiting, note-editing,
-  note-binding. The root holds only what spans them: EditEngine, EngineFactory,
+- Engine splits into six concept folders: turn, tools, skill-gating, waiting,
+  note-editing, note-binding. The root holds only what spans them: EditEngine,
   ToolDispatcher, TurnProgressPublisher, TurnStep, TurnEndingService,
   UtteranceQueue.
+- Construction knowledge lives in wiring, and only there: a file may construct a
+  class from another package only if its path starts with src/wiring. Everything
+  else codes against what the package already exposes. test-support is the one
+  case still open.
 - Model holds everything about talking to the provider: the request, the mapper
   that turns it into messages, prompt/ and providers/. Under prompt/, one class
   per message, and system-prompt-sections/ holds one per section of the system
@@ -40,10 +44,11 @@ what this repo decided.
   its own ports interface, as useEngineEvents does.
 - tests/ holds the package's tests.
 
-Session is the UI package. Dependencies point one way with no cycles, and
+Session is the UI package. Dependencies point one way apart from two open
+cycles, model to engine and engine to session, and
 [architecture/7-package-design.md](architecture/7-package-design.md)
-holds the direction and the per-package counts. Outcome lives in shared, which
-depends on nothing.
+holds the direction, the cycles and the per-package counts. Outcome lives in
+shared, which depends on nothing.
 
 ## Tests
 
