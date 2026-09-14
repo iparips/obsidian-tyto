@@ -43,7 +43,7 @@ covered without a DOM or a model.
 - [2-requirements.md](2-requirements.md) - open first; what a filed session must carry, and the two open questions
 - [4-sample-output.md](4-sample-output.md) - the format this builds, taken from the reported session
 - [5-test-plan.md](5-test-plan.md) - the unit cases, per class
-- [src/model/model-request-mapper.ts](../../../../src/model/model-request-mapper.ts):16 - the four parts, and the order they are sent in
+- [src/model/prompt/index.ts](../../../../src/model/prompt/index.ts):16 - the four parts, and the order they are sent in
 - [src/engine/turn/model-service.ts](../../../../src/engine/turn/model-service.ts):27 - the call site that records, already holding the session repository
 - [src/wiring/engine-factory.ts](../../../../src/wiring/engine-factory.ts):56 - where the session-scoped repositories are built
 - [src/session/views/HistoryEntry.tsx](../../../../src/session/views/HistoryEntry.tsx):41 - the clipboard call and copied-state feedback the button follows

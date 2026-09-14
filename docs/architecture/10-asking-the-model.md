@@ -5,8 +5,9 @@ two outward calls a turn step makes. The other is ToolCallExecutor (Engine
 Turn), covered by [8-parking-a-turn.md](8-parking-a-turn.md).
 
 The loop decides when to ask, ModelService gathers what the ask needs, and
-ModelRequestMapper (Model) turns that into the messages sent. It is static, the
-request being all it needs.
+PromptFactory (Model Prompt) turns that into the messages sent. It is static,
+the request being all it needs, and it is the entry point to the prompt package:
+nothing outside reaches the sections behind it.
 
 ## Who holds whom
 
@@ -33,7 +34,7 @@ sequenceDiagram
     participant TurnRepo as TurnRepository [Engine Turn]
     participant Session as SessionRepository [Session]
     participant Cancel as TurnCancellationController [Engine Turn]
-    participant Mapper as ModelRequestMapper [Model]
+    participant Prompt as PromptFactory [Model Prompt]
     participant System as SystemPrompt [Model Prompt]
     participant Messages as Date and Note messages [Model Prompt]
     participant Harness as HarnessToolsService [Engine Tools]
@@ -51,15 +52,16 @@ sequenceDiagram
     Note over Model: They travel as one ModelRequest, not as six arguments
 
     Note over Model,Provider: BUILD THE MESSAGES
-    Model->>Mapper: toMessages(ModelRequest)
-    Mapper->>System: build(chain, commands, skills, search)
-    System-->>Mapper: ChatMessage
-    Mapper->>Messages: DateMessage.build(Today.of)
-    Note over Mapper,Messages: Today is read per call, so a turn past midnight resolves to the day it is on
-    Messages-->>Mapper: ChatMessage
-    Mapper->>Messages: NoteContextMessage or NoNoteBoundMessage
-    Messages-->>Mapper: ChatMessage
-    Mapper-->>Model: ChatMessage list
+    Model->>Prompt: build(ModelRequest)
+    Prompt->>System: build(chain, commands, skills, search)
+    System-->>Prompt: ChatMessage
+    Prompt->>Messages: DateMessage.build(Today.of)
+    Note over Prompt,Messages: Today is read per call, so a turn past midnight resolves to the day it is on
+    Messages-->>Prompt: ChatMessage
+    Prompt->>Messages: NoteContextMessage or NoNoteBoundMessage
+    Messages-->>Prompt: ChatMessage
+    Prompt-->>Model: ModelRequestParts
+    Note over Model,Prompt: Named parts, so a recorded step says which message was which
 
     Note over Model,Provider: CALL OUT
     Model->>Harness: getToolCallSchemas(definesSkills)
@@ -78,8 +80,8 @@ Arrows: uses-relationship (client to supplier).
 
 ## Message order
 
-The mapper orders messages by how stale a copy the history could hold: the
-system prompt first, then the conversation, then the date and the final
+ModelRequestParts orders messages by how stale a copy the history could hold:
+the system prompt first, then the conversation, then the date and the final
 context. The last two sit after the history so the model cannot read either off
 an earlier turn.
 

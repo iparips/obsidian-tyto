@@ -31,10 +31,11 @@ what this repo decided.
   class from another package only if its path starts with src/wiring. Everything
   else codes against what the package already exposes. test-support is the one
   case still open.
-- Model holds everything about talking to the provider: the request, the mapper
-  that turns it into messages, prompt/ and providers/. Under prompt/, one class
-  per message, and system-prompt-sections/ holds one per section of the system
-  prompt. Each section owns its own text and decides whether it appears.
+- Model holds everything about talking to the provider: the request, prompt/
+  and providers/. PromptFactory is prompt/'s entry point and the one class that
+  turns a request into messages; under it, one class per message, and
+  system-prompt-sections/ holds one per section of the system prompt. Each
+  section owns its own text and decides whether it appears.
 - The placement test for tools/: it takes a ToolCall and returns a result.
   NoteEditor takes an EditOperation, so it lives in note-editing.
 - Smaller packages keep a models/ folder for value objects, so skills keeps

@@ -1,4 +1,4 @@
-import { ChatMessage } from './providers/types'
+import { ChatMessage } from '../providers/types'
 
 // The three messages one call carries besides the conversation, named so a
 // reader of a transcript knows which is which. The history is not here: it

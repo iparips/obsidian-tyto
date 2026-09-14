@@ -2,8 +2,7 @@ import { ChatTurn } from '../../model/providers/models/chat-turn'
 import { Outcome } from '../../shared/models/outcome'
 import { ChatProvider } from '../../model/providers/types'
 import { ModelRequest } from '../../model/model-request'
-import { ModelRequestMapper } from '../../model/model-request-mapper'
-import { ModelRequestParts } from '../../model/model-request-parts'
+import { ModelRequestParts, PromptFactory } from '../../model/prompt'
 import { HarnessToolsService } from '../tools/harness-tools-service'
 import { SessionRepository } from '../../session/session-repository'
 import { TranscriptRepository } from '../../session/transcript/transcript-repository'
@@ -27,7 +26,7 @@ export class ModelService {
   async askModel(step: number): Promise<Outcome<ChatTurn>> {
     const askedAt = Date.now()
     const request = this.requestForModel()
-    const parts = ModelRequestMapper.toParts(request)
+    const parts = PromptFactory.build(request)
     // Recorded before the call rather than after it, so a step the provider
     // failed on still says what it was sent.
     this.recordCall(parts, request.chatHistory.length)

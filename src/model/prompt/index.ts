@@ -1,22 +1,22 @@
-import { ChatMessage } from './providers/types'
-import { ModelRequest } from './model-request'
+import { ModelRequest } from '../model-request'
 import { ModelRequestParts } from './model-request-parts'
-import { SystemPrompt } from './prompt/system-prompt'
-import { DateMessage } from './prompt/date-message'
-import { NoNoteBoundMessage } from './prompt/no-note-bound-message'
-import { NoteContextMessage } from './prompt/note-context-message'
-import { Today } from './today'
+import { SystemPrompt } from './system-prompt'
+import { DateMessage } from './date-message'
+import { NoNoteBoundMessage } from './no-note-bound-message'
+import { NoteContextMessage } from './note-context-message'
+import { Today } from '../today'
+import { ChatMessage } from '../providers/types'
+
+// Re-exported so a caller reaching the factory reaches what it returns through
+// the same entry, rather than into the folder behind it.
+export { ModelRequestParts } from './model-request-parts'
 
 // One turn's request as the messages that carry it. ModelService knows who to
 // send them to; this knows what they are made of.
-export class ModelRequestMapper {
-  static toMessages(request: ModelRequest): ChatMessage[] {
-    return ModelRequestMapper.toParts(request).asMessagesAround(request.chatHistory)
-  }
-
-  // Named rather than assembled inline, so ModelService can record what each
+export class PromptFactory {
+  // Named parts rather than a flat list, so ModelService can record what each
   // part said without rebuilding any of them.
-  static toParts(request: ModelRequest): ModelRequestParts {
+  static build(request: ModelRequest): ModelRequestParts {
     return new ModelRequestParts(
       SystemPrompt.build(
         request.agentsMdChain,
@@ -27,7 +27,7 @@ export class ModelRequestMapper {
       // Today is read per call rather than per session, so a turn running past
       // midnight resolves against the day it is on.
       DateMessage.build(Today.of()),
-      ModelRequestMapper.sessionTarget(request),
+      PromptFactory.sessionTarget(request),
     )
   }
 

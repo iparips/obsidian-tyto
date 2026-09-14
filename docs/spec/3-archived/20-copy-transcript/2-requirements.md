@@ -118,7 +118,7 @@ And   the last harness block of the second names stuck
 ### Task
 
 - [src/session/views/PanelHeader.tsx](../../../../src/session/views/PanelHeader.tsx) - open first; the header the button joins, and the Reset button it sits beside
-- [src/model/model-request-mapper.ts](../../../../src/model/model-request-mapper.ts) - the four parts of a model call, and which of them vary between steps
+- [src/model/prompt/index.ts](../../../../src/model/prompt/index.ts) - the four parts of a model call, and which of them vary between steps
 - [src/engine/turn/model-service.ts](../../../../src/engine/turn/model-service.ts) - the one place every turn step passes through, so where a step is recorded
 - [src/engine/turn/conversation-turn-runner.ts](../../../../src/engine/turn/conversation-turn-runner.ts) - the loop the two groupings are named after: a turn, and the steps it spends
 - [src/session/session-repository.ts](../../../../src/session/session-repository.ts) - the chat history the appendix walks, and the shape the new repository sits beside
