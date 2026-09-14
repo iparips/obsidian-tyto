@@ -1,13 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { App, TFile } from 'obsidian'
-import { EngineFactory } from '../../engine/engine-factory'
+import { EngineFactory } from '../engine-factory'
 import { AgentsMdRepository } from '../../agents/agents-md-repository'
 import { SkillRepository } from '../../skills/skill-repository'
 import { FakeAdapter } from '../../test-support/fake-adapter'
 import { DEFAULT_SETTINGS } from '../../settings/settings'
 import { ChatMessage } from '../../model/providers/models/chat-message'
 import { PanelPresence, SessionBuilder } from '../session-builder'
-import { STORED_SESSION_VERSION, StoredMessages, StoredSession } from '../models/stored-session'
+import { STORED_SESSION_VERSION, StoredMessages, StoredSession } from '../../session/models/stored-session'
 
 const presence: PanelPresence = {
   isVisible: () => false,
