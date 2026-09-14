@@ -31,6 +31,19 @@ reaches, and it was verified not to work on iPhone at all. The README states the
 limits instead.
 
 Narrows the scope decision in
-[22-session-persistence](../../3-archived/22-session-persistence/2-requirements.md),
+[22-session-persistence](../22-session-persistence/2-requirements.md),
 which deferred persisting a recording on the grounds that audio in flight is
 discarded on background already.
+
+Built, and verified on a phone: a screen locked mid-dictation comes back to the
+words in the history.
+
+It left one thing behind. Closing the panel runs the turn and edits the note,
+and writes no session record at all, because the write hangs off a React effect
+that unmounting stops from running. This spec predicted a missing entry and the
+reality is a missing record, which is worse.
+
+That is not a gap in what was designed here; the panel is the wrong place for
+the write to live. Moving it to something no unmount can reach is
+[writing-the-session-outside-the-panel](../../1-upcoming/writing-the-session-outside-the-panel/1-index.md),
+which also closes the eviction window this spec named and deferred.

@@ -244,7 +244,7 @@ minutes.
 
 Closing it properly means writing the transcript entry as it is dispatched
 rather than at the turn's end, which is a change to
-[22-session-persistence](../../3-archived/22-session-persistence/2-requirements.md)
+[22-session-persistence](../22-session-persistence/2-requirements.md)
 rather than to this path. It is not in this spec.
 
 ## What does not change

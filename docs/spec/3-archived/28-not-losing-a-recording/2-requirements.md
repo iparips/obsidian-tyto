@@ -34,7 +34,7 @@ user whose screen was off never sees it, so the panel is simply idle and empty
 when they come back.
 
 This was known and deliberately deferred. FR-scope of
-[22-session-persistence](../../3-archived/22-session-persistence/2-requirements.md)
+[22-session-persistence](../22-session-persistence/2-requirements.md)
 lists persisting a recording as out of scope, on the grounds that audio in
 flight is discarded on background already. Nothing had hit it until now.
 
@@ -116,7 +116,7 @@ turn survives an eviction even though the audio behind it does not.
 
 What is left is the turn still in flight when the WebView is evicted. Mobile
 evicts a backgrounded app, which
-[22-session-persistence](../../3-archived/22-session-persistence/1-index.md) is
+[22-session-persistence](../22-session-persistence/1-index.md) is
 the record of, and a turn interrupted that way leaves nothing written.
 
 That window is a few seconds against an eviction measured in minutes, so it is a
@@ -257,6 +257,6 @@ And   a retry control is offered
 
 ### Project
 
-- [22-session-persistence](../../3-archived/22-session-persistence/2-requirements.md) - where discarding audio on background was deferred, and where WebView eviction is recorded
+- [22-session-persistence](../22-session-persistence/2-requirements.md) - where discarding audio on background was deferred, and where WebView eviction is recorded
 - [mobile-v1](../../1-upcoming/mobile-v1/2-component-design.md) - the onBackground setting this spec defers to
 - [desktop-v1](../../1-upcoming/desktop-v1/3-streaming-capture.md) - streaming, which removes the duration limit properly
