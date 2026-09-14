@@ -5,7 +5,7 @@ import {
   StepRange,
   TranscriptPart,
 } from './models/transcript-record'
-import { TurnEndingKind } from '../../engine/turn/turn-ending-kind'
+import { TurnEndingKind } from '../../engine/turn/ending/turn-ending-kind'
 
 // What a part was last recorded as, so an unchanged text is cited rather than
 // stored again.

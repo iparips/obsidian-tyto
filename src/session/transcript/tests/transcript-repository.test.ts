@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest'
-import { TurnEndingKind } from '../../../engine/turn/turn-ending-kind'
+import { TurnEndingKind } from '../../../engine/turn/ending/turn-ending-kind'
 import { TranscriptRepository } from '../transcript-repository'
 import { PartName } from '../models/transcript-record'
 

@@ -1,5 +1,5 @@
 import { ChatMessage, ToolCall } from '../../model/providers/types'
-import { RepeatedRefusalCounter } from './repeated-refusal-counter'
+import { RepeatedRefusalCounter } from './spending/repeated-refusal-counter'
 import { SessionRepository } from '../../session/session-repository'
 import { ToolDispatcher } from '../tool-dispatcher'
 import { TurnRepository } from './turn-repository'

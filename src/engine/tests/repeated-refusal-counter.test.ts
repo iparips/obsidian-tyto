@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest'
-import { RepeatedRefusalCounter } from '../turn/repeated-refusal-counter'
+import { RepeatedRefusalCounter } from '../turn/spending/repeated-refusal-counter'
 
 const UNOPENED = 'todo.md was not opened this turn'
 const UNCHOSEN = 'todo.md was not chosen by the user this turn'

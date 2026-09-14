@@ -1,6 +1,6 @@
 import { ChatMessage } from '../../model/providers/types'
 import { PanelStep } from '../models/panel-state'
-import { TurnEndingKind } from '../../engine/turn/turn-ending-kind'
+import { TurnEndingKind } from '../../engine/turn/ending/turn-ending-kind'
 import { LoadedSkills } from './models/loaded-skills'
 import { RecordedEnding, RecordedTurnStep } from './models/transcript-record'
 import { TranscriptSource } from './models/transcript-source'

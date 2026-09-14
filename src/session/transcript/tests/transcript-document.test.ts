@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { TurnEndingKind } from '../../../engine/turn/turn-ending-kind'
+import { TurnEndingKind } from '../../../engine/turn/ending/turn-ending-kind'
 import { ChatMessage, ToolCall } from '../../../model/providers/types'
 import { DEFAULT_SETTINGS, TytoSettings } from '../../../settings/settings'
 import { Entry } from '../../models/panel-state'

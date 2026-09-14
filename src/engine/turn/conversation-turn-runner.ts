@@ -7,9 +7,9 @@ import { ModelService } from './model-service'
 import { ToolCallExecutor } from './tool-call-executor'
 import { TurnProgressPublisher } from '../turn-progress-publisher'
 import { TurnRepository } from './turn-repository'
-import { TurnSpend } from './turn-spend'
-import { TurnOutcomes } from './turn-outcomes'
-import { EndedTurn, TurnStepOutcome, TurnStepOutcomes } from './turn-step-outcome'
+import { TurnSpend } from './spending/turn-spend'
+import { TurnOutcomes } from './ending/turn-outcomes'
+import { EndedTurn, TurnStepOutcome, TurnStepOutcomes } from './ending/turn-step-outcome'
 import { TranscriptRepository } from '../../session/transcript/transcript-repository'
 
 // One turn, from the utterance that opened it to the outcome it returns. Holds

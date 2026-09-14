@@ -10,7 +10,7 @@ import { aSession, aTextTurn, aToolCall, aToolTurn, anEngine } from '../../test-
 import { FakeEditor } from '../../test-support/fake-editor'
 import { FakeNoteLocator } from '../../test-support/fake-note-locator'
 import { TranscriptRepository } from '../../session/transcript/transcript-repository'
-import { TurnEndingKind } from '../turn/turn-ending-kind'
+import { TurnEndingKind } from '../turn/ending/turn-ending-kind'
 
 // TurnOutcomes builds exhausted and stuck as the same chat failure, so the panel
 // shows one message for both. Only the runner knows which it was, and a

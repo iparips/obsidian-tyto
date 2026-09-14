@@ -1,4 +1,4 @@
-import { TurnEndingKind } from '../../../engine/turn/turn-ending-kind'
+import { TurnEndingKind } from '../../../engine/turn/ending/turn-ending-kind'
 
 // One of the four things a model call is made of. The history is not one: it is
 // already in SessionRepository, and a step cites the slice it was sent.

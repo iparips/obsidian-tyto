@@ -1,4 +1,4 @@
-import { Outcome } from '../../shared/models/outcome'
+import { Outcome } from '../../../shared/models/outcome'
 import { TurnEndingKind } from './turn-ending-kind'
 
 // What one step of the loop decided: the turn ended here, or it has more to do.

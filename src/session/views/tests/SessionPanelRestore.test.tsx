@@ -5,7 +5,7 @@ import { SessionPanel, RecorderPort, SessionPanelProps } from '../SessionPanel'
 import { Utterance } from '../../../capture/recorder'
 import { Attempt, Outcome, Outcomes } from '../../../shared/models/outcome'
 import { Entry } from '../../models/panel-state'
-import { TurnEndingKind } from '../../../engine/turn/turn-ending-kind'
+import { TurnEndingKind } from '../../../engine/turn/ending/turn-ending-kind'
 
 describe('SessionPanel', () => {
   let recorder: RecorderPort

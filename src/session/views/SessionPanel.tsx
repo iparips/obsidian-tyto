@@ -3,7 +3,7 @@ import { Outcome } from '../../shared/models/outcome'
 import { HistoryList } from './HistoryList'
 import { AskedEntries } from '../models/asked-entries'
 import { Entry, PanelReducer, PanelState } from '../models/panel-state'
-import { TurnEndingKind } from '../../engine/turn/turn-ending-kind'
+import { TurnEndingKind } from '../../engine/turn/ending/turn-ending-kind'
 import { PanelHeader } from './PanelHeader'
 import {
   ChoiceRequest,

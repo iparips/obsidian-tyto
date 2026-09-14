@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest'
-import { IterationCounter } from '../turn/iteration-counter'
+import { IterationCounter } from '../turn/spending/iteration-counter'
 
 describe('IterationCounter', () => {
   let counter: IterationCounter

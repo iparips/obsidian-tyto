@@ -1,6 +1,6 @@
-import { Outcomes } from '../../shared/models/outcome'
-import { IterationCounter } from './iteration-counter'
-import { RepeatedRefusalCounter } from './repeated-refusal-counter'
+import { Outcomes } from '../../../shared/models/outcome'
+import { IterationCounter } from '../spending/iteration-counter'
+import { RepeatedRefusalCounter } from '../spending/repeated-refusal-counter'
 import { TurnEndingKind } from './turn-ending-kind'
 import { EndedTurn, TurnStepOutcomes } from './turn-step-outcome'
 
