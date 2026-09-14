@@ -10,9 +10,9 @@ identify one.
 
 ## What the two modes promise
 
-| Mode    | One candidate | Several candidates | The promise                          |
-|---------|---------------|--------------------|--------------------------------------|
-| Confirm | Asks          | Asks               | You see every open before it happens |
+| Mode    | One candidate | Several candidates | The promise                                |
+| ------- | ------------- | ------------------ | ------------------------------------------ |
+| Confirm | Asks          | Asks               | You see every open before it happens       |
 | Auto    | Opens         | Asks               | You are asked only where there is a choice |
 
 Confirm is unchanged. Auto changes on both columns: it stops taking the first of

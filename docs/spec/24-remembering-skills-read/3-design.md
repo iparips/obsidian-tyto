@@ -78,12 +78,12 @@ orchestrates them in place of `mustSettleSkills`, at the same point in
 The dispatcher reads both lists off TurnRepository and passes values, so no
 repository reaches the checker.
 
-| Check           | Condition                           | Result                             |
-|-----------------|-------------------------------------|------------------------------------|
-| Argument present| The call carries applicable_skills  | Refuse, naming the argument        |
-| Names are real  | Every name is a skill in the vault  | Refuse, listing the vault's skills |
-| Names are read  | Every name is in the session record | Refuse, naming which to load       |
-| Otherwise       | Including an empty declaration      | Proceed                            |
+| Check            | Condition                           | Result                             |
+| ---------------- | ----------------------------------- | ---------------------------------- |
+| Argument present | The call carries applicable_skills  | Refuse, naming the argument        |
+| Names are real   | Every name is a skill in the vault  | Refuse, listing the vault's skills |
+| Names are read   | Every name is in the session record | Refuse, naming which to load       |
+| Otherwise        | Including an empty declaration      | Proceed                            |
 
 `stringsArgument` returns an empty array both for an omitted argument and for a
 declared `[]`, and those are different claims. ApplicableSkills reads the raw
