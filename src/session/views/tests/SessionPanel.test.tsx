@@ -36,12 +36,6 @@ describe('SessionPanel', () => {
         transcribe={transcribe}
         processUtterance={processUtterance}
         onHidden={onHidden}
-        buildSnapshotFromEntries={(entries) => ({
-          version: 1,
-          targetPath: null,
-          messages: [],
-          entries: [...entries],
-        })}
         {...overrides}
       />,
     )

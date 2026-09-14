@@ -42,12 +42,6 @@ describe('SessionPanel transcript copy', () => {
             [],
           )
         }
-        buildSnapshotFromEntries={(entries) => ({
-          version: 1,
-          targetPath: null,
-          messages: [],
-          entries: [...entries],
-        })}
         {...overrides}
       />,
     )

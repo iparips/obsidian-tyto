@@ -37,10 +37,12 @@ on dispatch(action):
   recorder.record(state.entries)     // what is written
 ```
 
-A SessionRecorder (Session) holds the last entries the reducer produced and
+A SessionRecorder (Session, new) takes the entries the reducer produced and
 writes the record. It is session-scoped, built in wiring, and knows nothing
-about React. An unmount leaves it holding exactly what the panel last showed,
-already written.
+about React. An unmount leaves the last entries it was handed already written.
+
+It holds the SessionRepository and the SessionStore, which is what lets it
+assemble the record itself. The panel hands it entries and nothing else.
 
 The rule states in one sentence: what the panel has shown is on disk. There is
 no turn-ending to detect, no effect to schedule, and no path where the write is
@@ -63,8 +65,9 @@ nothing replaces it.
 ## What the record holds, unchanged
 
 SessionSnapshotFactory (Session) already assembles the record from the
-SessionRepository and a list of entries. It is called with different entries
-more often, and nothing about what it builds moves.
+SessionRepository and a list of entries. The recorder calls it in the plugin's
+place, more often and with different entries, and nothing about what it builds
+moves.
 
 The write is already whole-file, already fire and forget, and already silent on
 failure (SessionStore, Session). A record written five times a turn is the same
@@ -159,6 +162,10 @@ history changes whether anyone is watching.
 onTurnEnded goes from SessionPanelProps, and the effect that called it goes with
 it, along with the ending state the effect was held for.
 
+buildSnapshotFromEntries goes too. It existed so the plugin could assemble a
+record from entries it could not see, and the recorder now holds both halves,
+so nothing reads it. The panel hands over entries and asks for no record.
+
 The two notices stay. notifySucceeded and notifyFailed are the plugin deciding
 what a turn is worth telling the user, which is a judgement about what is on
 screen. The panel is the right place to ask that from. A record is not.
@@ -195,11 +202,11 @@ screen. The panel is the right place to ask that from. A record is not.
 ## References
 
 - [2-requirements.md](2-requirements.md) - what is lost, and the eviction window this closes
-- src/session/views/SessionPanel.tsx:110 - the effect that reports the ending, which an unmount stops
-- src/session/views/SessionPanel.tsx:75 - the reducer whose dispatch the recorder hangs off
-- src/session/views/SessionPanel.tsx:71 - restoredState, which ignores the stored phase
-- src/main.ts:98 - onTurnEnded, the store's one writer today
-- src/session/session-snapshot-factory.ts:17 - the record, assembled unchanged
+- src/session/session-recorder.ts:20 - record, the write no unmount can stop
+- src/session/views/hooks/useRecordedHistory.ts:33 - the dispatch that records, which replaces the effect
+- src/session/views/hooks/useRecordedHistory.ts:18 - restoredState, which ignores the stored phase
+- src/wiring/session-builder.ts - where the recorder is built, beside the repository it reads
+- src/session/session-snapshot-factory.ts:20 - the record, assembled unchanged
 - src/session/session-store.ts:28 - write, already whole-file and fire and forget
 - src/session/models/asked-entries.ts:6 - what settles a pending entry, on the way in and at a turn's end
-- src/session/session-repository.ts:6 - the session-scoped holder the recorder sits beside
+- src/session/session-repository.ts:6 - the session-scoped holder the recorder reads

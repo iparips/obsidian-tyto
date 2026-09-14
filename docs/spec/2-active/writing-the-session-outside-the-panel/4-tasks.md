@@ -33,6 +33,10 @@ written in its new form, and an unmount leaving the last state written.
 onTurnEnded goes from SessionPanelProps, the effect that called it goes, and the
 ending state the effect was held for goes with them. main.ts stops wiring it.
 
+buildSnapshotFromEntries goes with them. The recorder holds the repository and
+assembles the record itself, so the prop that let the plugin do it has no reader
+left.
+
 - notifySucceeded and notifyFailed stay: a notice is a judgement about what is on
   screen, and the panel is the right place to ask
 - Nothing replaces onTurnEnded. No ending is detected anywhere
@@ -46,16 +50,23 @@ The reported loss stops here, and so does the eviction window: closing the panel
 mid-dictation records the turn, and a turn interrupted mid-flight keeps what was
 already shown.
 
-## Before starting
+## What was measured before building
 
-Two things the design asserts that are worth measuring rather than trusting:
+Two things the design asserts, checked rather than trusted.
 
-- What a write costs on a phone, through Obsidian's adapter. Roughly five to ten
-  per turn, each a small whole-file rewrite. If it shows, debounce inside
-  SessionRecorder rather than changing when the panel records.
-- That a record written mid-turn restores sensibly. restoredState ignores the
-  stored phase and AskedEntries settles pending entries, both written for an
-  evicted WebView, so this should hold. Confirm it does before relying on it.
+The write cost. A fifty-turn session serialises to 146 KiB, and stringify takes
+0.05 ms. A five-turn session is 15 KiB and 0.007 ms. The main-thread cost is
+below noticing, and the adapter write is never awaited by the turn, so what
+could still show is I/O contention rather than a pause in the panel. No debounce
+was built. Add one inside SessionRecorder if the phone says otherwise.
+
+That the panel's effect is really the only path to the write. A probe test that
+unmounts mid-turn confirmed it: processUtterance was called, onTurnEnded was
+not, and nothing was written. Grep found no second writer.
+
+That a record written mid-turn restores sensibly. restoredState ignores the
+stored phase and AskedEntries settles pending entries, both already covered by
+tests that this change makes load-bearing rather than incidental.
 
 ## After the commits
 

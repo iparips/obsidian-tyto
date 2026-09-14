@@ -8,7 +8,7 @@ updated: 2026-09-14
 The block to paste into a fresh session that will build this spec.
 
 ```text
-Build the spec in docs/spec/1-upcoming/writing-the-session-outside-the-panel:
+Build the spec in docs/spec/2-active/writing-the-session-outside-the-panel:
 whenever the panel's history changes, the session record is rewritten by
 something no unmount can stop.
 

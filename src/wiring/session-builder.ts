@@ -17,7 +17,8 @@ import { NoteName } from '../session/models/note-name'
 import { PanelEntry } from '../session/models/panel-state'
 import { RestoredText } from '../session/models/restored-text'
 import { StoredMessages, SessionSnapshot } from '../session/models/session-snapshot'
-import { SessionSnapshotFactory } from '../session/session-snapshot-factory'
+import { SessionRecorder } from '../session/session-recorder'
+import { SessionStore } from '../session/session-store'
 
 // Everything one session publishes on and parks on, built together so the panel
 // and the engine reach the same set.
@@ -53,6 +54,9 @@ export class SessionBuilder {
     private settings: TytoSettings,
     private engineFactory: EngineFactory,
     private followEngine: (engine: EditEngine) => void,
+    // Where the record goes. Built by the plugin, which is the only place that
+    // knows the vault adapter and the folder the plugin was installed into.
+    private store: SessionStore,
     // From the manifest, so a transcript read months later says which build of
     // the plugin produced it.
     private pluginVersion = 'unknown',
@@ -103,6 +107,7 @@ export class SessionBuilder {
     const modelProvider = new MistralProvider(this.settings.mistralApiKey, this.settings.editModel)
     const channels = this.channelsFor(presence)
     const engine = this.engineFor(modelProvider, channels, transcript, sessions)
+    const recorder = new SessionRecorder(sessions, this.store)
     return {
       noteName: target.name,
       notePath: target.path,
@@ -113,7 +118,7 @@ export class SessionBuilder {
       onHidden: (listener) => presence.onHidden(listener),
       settings: this.settings,
       transcriptOf: (entries) => this.transcriptBuilder(sessions, transcript).build(entries),
-      buildSnapshotFromEntries: (entries) => SessionSnapshotFactory.of(sessions, entries),
+      recordHistory: (entries) => recorder.record(entries),
       ...SessionBuilder.enginePanelProps(engine, channels),
     }
   }

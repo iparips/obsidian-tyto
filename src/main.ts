@@ -71,13 +71,11 @@ export default class TytoPlugin extends Plugin {
   }
 
   private buildPanelProps(file: TFile | null, view: SessionView): SessionPanelProps {
-    const props = this.sessionBuilder().build(file, this.panelPresence(view))
-    return this.withSessionWriting(props)
+    return this.sessionBuilder().build(file, this.panelPresence(view))
   }
 
   private restoredPanelProps(stored: SessionSnapshot, view: SessionView): SessionPanelProps {
-    const props = this.sessionBuilder().restore(stored, this.panelPresence(view))
-    return this.withSessionWriting(props)
+    return this.sessionBuilder().restore(stored, this.panelPresence(view))
   }
 
   // Asked by the view as it opens, which is where a leaf Obsidian reopened on
@@ -85,18 +83,6 @@ export default class TytoPlugin extends Plugin {
   private async storedPanelProps(view: SessionView): Promise<SessionPanelProps | null> {
     const stored = await this.sessionStore().read()
     return stored ? this.restoredPanelProps(stored, view) : null
-  }
-
-  // The write is the plugin's rather than the builder's: only the plugin knows
-  // the session can outlive the app, and the panel would write on every render.
-  // Never awaited by the turn that ended: the turn has already happened, and a
-  // failed write costs the session rather than the turn (FR10).
-  private withSessionWriting(props: SessionPanelProps): SessionPanelProps {
-    const buildSnapshot = props.buildSnapshotFromEntries
-    return {
-      ...props,
-      onTurnEnded: (_, entries) => void this.sessionStore().write(buildSnapshot(entries)),
-    }
   }
 
   private sessionStore(): SessionStore {
@@ -108,6 +94,7 @@ export default class TytoPlugin extends Plugin {
       this.settings,
       this.engineFactory(),
       (engine) => this.followActiveNoteWith(engine),
+      this.sessionStore(),
       this.manifest.version,
     )
   }

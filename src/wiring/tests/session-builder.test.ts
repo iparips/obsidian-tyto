@@ -6,11 +6,17 @@ import { FakeAdapter } from '../../test-support/fake-adapter'
 import { DEFAULT_SETTINGS } from '../../settings/settings'
 import { ChatMessage } from '../../model/providers/models/chat-message'
 import { PanelPresence, SessionBuilder } from '../session-builder'
+import { SessionStore } from '../../session/session-store'
+import { SessionPanelProps } from '../../session/views/SessionPanel'
+import { PanelEntry } from '../../session/models/panel-state'
 import {
   SESSION_SNAPSHOT_VERSION,
   StoredMessages,
   SessionSnapshot,
 } from '../../session/models/session-snapshot'
+
+const PLUGIN_FOLDER = 'plugins/tyto'
+const SESSION_PATH = `${PLUGIN_FOLDER}/session.json`
 
 const presence: PanelPresence = {
   isVisible: () => false,
@@ -29,16 +35,33 @@ const aSnapshot = (overrides: Partial<SessionSnapshot> = {}): SessionSnapshot =>
 
 describe('SessionBuilder', () => {
   let builder: SessionBuilder
+  let adapter: FakeAdapter
 
   beforeEach(() => {
-    const adapter = new FakeAdapter()
+    adapter = new FakeAdapter()
     const scope = new PluginScope(
       { vault: { adapter: adapter.asAdapter() } } as App,
       () => DEFAULT_SETTINGS,
     )
     const engineFactory = new EngineFactory(scope)
-    builder = new SessionBuilder(DEFAULT_SETTINGS, engineFactory, vi.fn())
+    builder = new SessionBuilder(
+      DEFAULT_SETTINGS,
+      engineFactory,
+      vi.fn(),
+      new SessionStore(adapter.asAdapter(), PLUGIN_FOLDER),
+    )
   })
+
+  // The record as the store holds it, which is the only way to read one now
+  // that the recorder assembles it.
+  const recordAndRead = async (
+    props: SessionPanelProps,
+    entries: readonly PanelEntry[],
+  ): Promise<SessionSnapshot> => {
+    props.recordHistory?.(entries)
+    await vi.waitFor(() => expect(adapter.contentsOf(SESSION_PATH)).toBeDefined())
+    return JSON.parse(adapter.contentsOf(SESSION_PATH) ?? 'null') as SessionSnapshot
+  }
 
   describe('when a session is built from a file', () => {
     it('names the note from the file when a note is open', () => {
@@ -51,6 +74,17 @@ describe('SessionBuilder', () => {
       const props = builder.build(null, presence)
 
       expect(props.entries).toEqual([])
+    })
+  })
+
+  describe('when the panel records its history', () => {
+    it('writes the record to the store, so a closed panel leaves what it showed', async () => {
+      const props = builder.build({ path: 'day.md', basename: 'day' } as TFile, presence)
+
+      const stored = await recordAndRead(props, [{ kind: 'user', text: 'add a heading' }])
+
+      expect(stored.entries).toEqual([{ kind: 'user', text: 'add a heading' }])
+      expect(stored.targetPath).toBe('day.md')
     })
   })
 
@@ -109,12 +143,12 @@ describe('SessionBuilder', () => {
       expect(props.entries?.at(-1)).toEqual({ kind: 'restored', text: 'Session restored.' })
     })
 
-    it('drops the restored line from the next record, so a second restore adds one not two', () => {
+    it('drops the restored line from the next record, so a second restore adds one not two', async () => {
       const props = builder.restore(aSnapshot(), presence)
 
-      const stored = props.buildSnapshotFromEntries(props.entries ?? [])
+      const stored = await recordAndRead(props, props.entries ?? [])
 
-      expect(stored?.entries).toEqual([{ kind: 'user', text: 'add a heading' }])
+      expect(stored.entries).toEqual([{ kind: 'user', text: 'add a heading' }])
     })
 
     it('hands the transcript the restored history, which is what its first step must start past', () => {
@@ -131,12 +165,12 @@ describe('SessionBuilder', () => {
       expect(props.transcriptOf?.([])?.steps).toEqual([])
     })
 
-    it('restores the chat history so the next record carries it back', () => {
+    it('restores the chat history so the next record carries it back', async () => {
       vi.useFakeTimers()
       vi.setSystemTime(new Date(2026, 8, 11, 14, 32))
       const props = builder.restore(aSnapshot(), presence)
 
-      const stored = props.buildSnapshotFromEntries([])
+      const stored = await recordAndRead(props, [])
 
       expect(stored).toEqual({
         version: 1,
