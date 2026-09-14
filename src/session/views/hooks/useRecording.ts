@@ -1,6 +1,6 @@
 import { useRef } from 'react'
 import { Attempt, Outcome } from '../../../shared/models/outcome'
-import { Utterance } from '../../../capture/recorder'
+import { Utterance } from '../../../recorder'
 import { PanelAction } from '../../models/panel-action'
 import { Phase } from '../../models/panel-state'
 

@@ -1,5 +1,5 @@
 import { Notice, TFile } from 'obsidian'
-import { Recorder } from '../capture/recorder'
+import { Recorder } from '../recorder'
 import { MistralProvider } from '../model/providers/mistral-provider'
 import { SessionPanelProps } from '../session/views/SessionPanel'
 import { EditEngine } from '../engine/edit-engine'

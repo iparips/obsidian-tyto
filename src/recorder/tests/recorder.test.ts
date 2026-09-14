@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { Recorder } from '../recorder'
+import { Recorder } from '..'
 import { Outcomes } from '../../shared/models/outcome'
 
 class FakeMediaRecorder {

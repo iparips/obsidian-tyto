@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, Mock, vi } from 'vitest'
 import { act, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { SessionPanel, RecorderPort, SessionPanelProps } from '../SessionPanel'
-import { Utterance } from '../../../capture/recorder'
+import { Utterance } from '../../../recorder'
 import { Attempt, Outcome, Outcomes } from '../../../shared/models/outcome'
 
 describe('SessionPanel', () => {
