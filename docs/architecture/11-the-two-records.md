@@ -154,7 +154,7 @@ note excerpts verbatim, which NFR2 keeps off disk.
 - src/session/session-repository.ts:6 - the live conversation, held across turns
 - src/session/models/panel-state.ts:12 - the eleven entry kinds
 - src/model/providers/models/chat-message.ts:8 - the five message kinds
-- src/session/session-snapshot-factory.ts:13 - the one place the two lists meet
+- src/session/session-snapshot-factory.ts:17 - the one place the two lists meet
 - src/model/prompt/model-request-parts.ts:16 - the framing rebuilt per request
 - src/engine/turn/tool-call-executor.ts:16 - two messages per tool call
 - src/engine/turn-ending-service.ts:17 - the message that ends a turn

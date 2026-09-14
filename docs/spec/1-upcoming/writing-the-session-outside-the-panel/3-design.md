@@ -199,7 +199,7 @@ screen. The panel is the right place to ask that from. A record is not.
 - src/session/views/SessionPanel.tsx:75 - the reducer whose dispatch the recorder hangs off
 - src/session/views/SessionPanel.tsx:71 - restoredState, which ignores the stored phase
 - src/main.ts:98 - onTurnEnded, the store's one writer today
-- src/session/session-snapshot-factory.ts:13 - the record, assembled unchanged
+- src/session/session-snapshot-factory.ts:17 - the record, assembled unchanged
 - src/session/session-store.ts:28 - write, already whole-file and fire and forget
 - src/session/models/asked-entries.ts:6 - what settles a pending entry, on the way in and at a turn's end
 - src/session/session-repository.ts:6 - the session-scoped holder the recorder sits beside
