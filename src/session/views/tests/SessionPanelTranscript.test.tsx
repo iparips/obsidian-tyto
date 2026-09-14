@@ -42,7 +42,7 @@ describe('SessionPanel transcript copy', () => {
             [],
           )
         }
-        buildStoredSessionFromEntries={(entries) => ({
+        buildSnapshotFromEntries={(entries) => ({
           version: 1,
           targetPath: null,
           messages: [],

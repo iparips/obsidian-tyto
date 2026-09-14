@@ -4,14 +4,14 @@ import userEvent from '@testing-library/user-event'
 import { SessionPanel, RecorderPort, SessionPanelProps } from '../SessionPanel'
 import { Utterance } from '../../../recorder'
 import { Attempt, Outcome, Outcomes } from '../../../shared/models/outcome'
-import { Entry } from '../../models/panel-state'
+import { PanelEntry } from '../../models/panel-state'
 import { TurnEndingKind } from '../../../engine/turn/ending/turn-ending-kind'
 
 describe('SessionPanel', () => {
   let recorder: RecorderPort
   let transcribe: Mock<[Blob, string], Promise<Attempt<string>>>
   let processUtterance: Mock<[string], Promise<Outcome<string>>>
-  let onTurnEnded: Mock<[TurnEndingKind, readonly Entry[]], void>
+  let onTurnEnded: Mock<[TurnEndingKind, readonly PanelEntry[]], void>
 
   beforeEach(() => {
     vi.clearAllMocks()
@@ -33,7 +33,7 @@ describe('SessionPanel', () => {
         transcribe={transcribe}
         processUtterance={processUtterance}
         onHidden={() => () => undefined}
-        buildStoredSessionFromEntries={(entries) => ({
+        buildSnapshotFromEntries={(entries) => ({
           version: 1,
           targetPath: null,
           messages: [],

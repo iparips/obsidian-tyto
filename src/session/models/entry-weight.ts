@@ -1,8 +1,8 @@
-import { Entry } from './panel-state'
+import { PanelEntry } from './panel-state'
 
 export type EntryWeight = 'utterance' | 'reply' | 'context'
 
-const WEIGHTS: Record<Entry['kind'], EntryWeight> = {
+const WEIGHTS: Record<PanelEntry['kind'], EntryWeight> = {
   user: 'utterance',
   assistant: 'reply',
   answer: 'reply',
@@ -20,7 +20,7 @@ const WEIGHTS: Record<Entry['kind'], EntryWeight> = {
 // replies and three are context, so the panel reads as a conversation rather
 // than as ten kinds of box.
 export class EntryWeights {
-  static of(kind: Entry['kind']): EntryWeight {
+  static of(kind: PanelEntry['kind']): EntryWeight {
     return WEIGHTS[kind]
   }
 }

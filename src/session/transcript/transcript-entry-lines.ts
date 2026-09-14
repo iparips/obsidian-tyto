@@ -1,10 +1,10 @@
-import { Entry, PanelStep } from '../models/panel-state'
+import { PanelEntry, PanelStep } from '../models/panel-state'
 
-// The Entry union rendered case by case, as HistoryEntry renders it for
+// The PanelEntry union rendered case by case, as HistoryEntry renders it for
 // display. What the user saw goes in the transcript verbatim, so a reader
 // matches the document against the screenshot they also have.
 export class TranscriptEntryLines {
-  static of(entry: Entry): string[] {
+  static of(entry: PanelEntry): string[] {
     switch (entry.kind) {
       case 'user':
         return [`Utterance: ${entry.text}`]

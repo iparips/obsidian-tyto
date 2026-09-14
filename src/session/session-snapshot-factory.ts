@@ -1,25 +1,29 @@
-import { Entry } from './models/panel-state'
+import { PanelEntry } from './models/panel-state'
 import { SessionRepository } from './session-repository'
-import { STORED_SESSION_VERSION, StoredMessages, StoredSession } from './models/stored-session'
+import {
+  SESSION_SNAPSHOT_VERSION,
+  SessionSnapshot,
+  StoredMessages,
+} from './models/session-snapshot'
 
-// Gathers the record from the two halves that hold a session: the repository
+// Gathers the snapshot from the two halves that hold a session: the repository
 // the model reads, and the entries the panel shows. A service rather than a
-// method on the record, because the record crosses a file boundary and a value
-// there must not reach a store.
+// method on the snapshot, because the snapshot crosses a file boundary and a
+// value there must not reach a store.
 //
 // The transcript is deliberately absent. It carries every prompt and note
 // excerpt verbatim, which NFR2 keeps off disk, so a restored session copies a
 // thinner transcript than one that never went away.
-export class StoredSessionSource {
+export class SessionSnapshotFactory {
   // The clock is the caller's, so a test reads a stamp it chose rather than the
   // one the machine happened to have.
   static of(
     sessions: SessionRepository,
-    entries: readonly Entry[],
+    entries: readonly PanelEntry[],
     writtenAt: Date = new Date(),
-  ): StoredSession {
+  ): SessionSnapshot {
     return {
-      version: STORED_SESSION_VERSION,
+      version: SESSION_SNAPSHOT_VERSION,
       targetPath: sessions.targetNote(),
       messages: sessions.chatHistory().map((message) => StoredMessages.of(message)),
       // The restored line is dropped rather than stored: restore adds one, so

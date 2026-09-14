@@ -1,5 +1,5 @@
 import { DataAdapter } from 'obsidian'
-import { STORED_SESSION_VERSION, StoredSession } from './models/stored-session'
+import { SESSION_SNAPSHOT_VERSION, SessionSnapshot } from './models/session-snapshot'
 
 const SESSION_FILE = 'session.json'
 
@@ -14,18 +14,18 @@ export class SessionStore {
     private pluginFolder: string | undefined,
   ) {}
 
-  async read(): Promise<StoredSession | null> {
+  async read(): Promise<SessionSnapshot | null> {
     const path = this.sessionPath()
     if (!path) return null
     const stored = await this.parse(path)
     if (!stored) return null
-    if (stored.version !== STORED_SESSION_VERSION) return this.discardOutdated(path)
+    if (stored.version !== SESSION_SNAPSHOT_VERSION) return this.discardOutdated(path)
     return stored
   }
 
   // Never awaited by a turn, and silent on failure: the turn it was recording
   // has already happened (NFR3).
-  async write(session: StoredSession): Promise<void> {
+  async write(session: SessionSnapshot): Promise<void> {
     const path = this.sessionPath()
     if (!path) return
     try {
@@ -41,9 +41,9 @@ export class SessionStore {
     await this.remove(path)
   }
 
-  private async parse(path: string): Promise<StoredSession | null> {
+  private async parse(path: string): Promise<SessionSnapshot | null> {
     try {
-      return JSON.parse(await this.adapter.read(path)) as StoredSession
+      return JSON.parse(await this.adapter.read(path)) as SessionSnapshot
     } catch {
       return null
     }

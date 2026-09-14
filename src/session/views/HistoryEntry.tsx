@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Entry } from '../models/panel-state'
+import { PanelEntry } from '../models/panel-state'
 import { EntryWeights } from '../models/entry-weight'
 import { EntrySources } from './EntrySources'
 import { EntryChoice } from './EntryChoice'
@@ -20,13 +20,13 @@ const ENTRY_CLASSES = {
   restored: 'tyto-entry-restored',
 }
 
-const entryText = (entry: Entry) => {
+const entryText = (entry: PanelEntry) => {
   if (entry.kind === 'error') return `${entry.step} failed: ${entry.text}`
   return entry.kind === 'steps' ? '' : entry.text
 }
 
 export interface HistoryEntryProps {
-  entry: Entry
+  entry: PanelEntry
   // Absent once the turn has ended, which is what leaves an unanswered question
   // on screen as a record rather than a live prompt (FR32).
   onChooseNote?(chosen: string | null): void

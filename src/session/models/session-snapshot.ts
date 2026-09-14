@@ -1,19 +1,19 @@
 import { ChatMessage, ChatRole } from '../../model/providers/models/chat-message'
 import { ToolCall } from '../../model/providers/models/tool-call'
-import { Entry } from './panel-state'
+import { PanelEntry } from './panel-state'
 
 // Bumped when a field changes meaning. A record from another version is
 // discarded rather than migrated (FR9).
-export const STORED_SESSION_VERSION = 1
+export const SESSION_SNAPSHOT_VERSION = 1
 
 // Plain data, because it crosses a file boundary: a class with methods would
 // need reviving, and every field here is already a string or a list of them.
-export interface StoredSession {
+export interface SessionSnapshot {
   version: number
   // Null for an unbound session, which is a session that can still search.
   targetPath: string | null
   messages: StoredMessage[]
-  entries: Entry[]
+  entries: PanelEntry[]
   // Epoch milliseconds, written when the turn that produced this record ended,
   // so a restore can say how old the conversation it brought back is. Optional
   // because a record written before this field existed has none, which costs a

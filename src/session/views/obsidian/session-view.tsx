@@ -9,7 +9,7 @@ export const VIEW_TYPE_SESSION = 'tyto-session'
 // and what its props are. Only the plugin reaches the store. It takes the view
 // back because a session's props hold a PanelPresence, which is built around
 // the leaf this view owns.
-export type StoredSessionProps = (view: SessionView) => Promise<SessionPanelProps | null>
+export type RestoreSession = (view: SessionView) => Promise<SessionPanelProps | null>
 
 export class SessionView extends ItemView {
   private root: Root | null = null
@@ -22,7 +22,7 @@ export class SessionView extends ItemView {
     leaf: WorkspaceLeaf,
     // Absent for a view built before the plugin can restore, which renders
     // empty as it did before.
-    private restoreSession?: StoredSessionProps,
+    private restoreSession?: RestoreSession,
   ) {
     super(leaf)
   }

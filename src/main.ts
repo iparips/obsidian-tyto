@@ -10,7 +10,7 @@ import { EngineFactory } from './wiring/engine-factory'
 import { PluginScope } from './wiring/plugin-scope'
 import { PanelPresence, SessionBuilder } from './wiring/session-builder'
 import { SessionStore } from './session/session-store'
-import { StoredSession } from './session/models/stored-session'
+import { SessionSnapshot } from './session/models/session-snapshot'
 
 export default class TytoPlugin extends Plugin {
   settings: TytoSettings = DEFAULT_SETTINGS
@@ -75,7 +75,7 @@ export default class TytoPlugin extends Plugin {
     return this.withSessionWriting(props)
   }
 
-  private restoredPanelProps(stored: StoredSession, view: SessionView): SessionPanelProps {
+  private restoredPanelProps(stored: SessionSnapshot, view: SessionView): SessionPanelProps {
     const props = this.sessionBuilder().restore(stored, this.panelPresence(view))
     return this.withSessionWriting(props)
   }
@@ -92,10 +92,10 @@ export default class TytoPlugin extends Plugin {
   // Never awaited by the turn that ended: the turn has already happened, and a
   // failed write costs the session rather than the turn (FR10).
   private withSessionWriting(props: SessionPanelProps): SessionPanelProps {
-    const buildStoredSession = props.buildStoredSessionFromEntries
+    const buildSnapshot = props.buildSnapshotFromEntries
     return {
       ...props,
-      onTurnEnded: (_, entries) => void this.sessionStore().write(buildStoredSession(entries)),
+      onTurnEnded: (_, entries) => void this.sessionStore().write(buildSnapshot(entries)),
     }
   }
 

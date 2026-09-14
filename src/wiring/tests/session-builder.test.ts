@@ -7,10 +7,10 @@ import { DEFAULT_SETTINGS } from '../../settings/settings'
 import { ChatMessage } from '../../model/providers/models/chat-message'
 import { PanelPresence, SessionBuilder } from '../session-builder'
 import {
-  STORED_SESSION_VERSION,
+  SESSION_SNAPSHOT_VERSION,
   StoredMessages,
-  StoredSession,
-} from '../../session/models/stored-session'
+  SessionSnapshot,
+} from '../../session/models/session-snapshot'
 
 const presence: PanelPresence = {
   isVisible: () => false,
@@ -19,8 +19,8 @@ const presence: PanelPresence = {
   startNewSession: () => undefined,
 }
 
-const aStoredSession = (overrides: Partial<StoredSession> = {}): StoredSession => ({
-  version: STORED_SESSION_VERSION,
+const aSnapshot = (overrides: Partial<SessionSnapshot> = {}): SessionSnapshot => ({
+  version: SESSION_SNAPSHOT_VERSION,
   targetPath: 'Journal/day.md',
   messages: [StoredMessages.of(ChatMessage.user('add a heading'))],
   entries: [{ kind: 'user', text: 'add a heading' }],
@@ -56,26 +56,26 @@ describe('SessionBuilder', () => {
 
   describe('when a session is restored from a record', () => {
     it('binds to the stored target when the record names one', () => {
-      const props = builder.restore(aStoredSession(), presence)
+      const props = builder.restore(aSnapshot(), presence)
 
       expect(props.notePath).toBe('Journal/day.md')
     })
 
     it('names the note from the stored path, since a record holds no basename', () => {
-      const props = builder.restore(aStoredSession(), presence)
+      const props = builder.restore(aSnapshot(), presence)
 
       expect(props.noteName).toBe('day')
     })
 
     it('stays unbound when the record holds no target', () => {
-      const props = builder.restore(aStoredSession({ targetPath: null }), presence)
+      const props = builder.restore(aSnapshot({ targetPath: null }), presence)
 
       expect(props.noteName).toBeNull()
       expect(props.notePath).toBeNull()
     })
 
     it('restores the stored entries into the panel, saying where the session came back', () => {
-      const props = builder.restore(aStoredSession(), presence)
+      const props = builder.restore(aSnapshot(), presence)
 
       expect(props.entries).toEqual([
         { kind: 'user', text: 'add a heading' },
@@ -84,7 +84,7 @@ describe('SessionBuilder', () => {
     })
 
     it('stamps the restored line when the record says it was written', () => {
-      const stored = { ...aStoredSession(), writtenAt: new Date(2026, 8, 11, 14, 32).getTime() }
+      const stored = { ...aSnapshot(), writtenAt: new Date(2026, 8, 11, 14, 32).getTime() }
 
       const props = builder.restore(stored, presence)
 
@@ -96,13 +96,13 @@ describe('SessionBuilder', () => {
     })
 
     it('leaves the restored line unstamped when the record was written before the field existed', () => {
-      const props = builder.restore(aStoredSession(), presence)
+      const props = builder.restore(aSnapshot(), presence)
 
       expect(props.entries?.at(-1)).toEqual({ kind: 'restored', text: 'Session restored.' })
     })
 
     it('leaves the restored line unstamped when the stored time is not a number', () => {
-      const stored = { ...aStoredSession(), writtenAt: 'quarter past' as unknown as number }
+      const stored = { ...aSnapshot(), writtenAt: 'quarter past' as unknown as number }
 
       const props = builder.restore(stored, presence)
 
@@ -110,15 +110,15 @@ describe('SessionBuilder', () => {
     })
 
     it('drops the restored line from the next record, so a second restore adds one not two', () => {
-      const props = builder.restore(aStoredSession(), presence)
+      const props = builder.restore(aSnapshot(), presence)
 
-      const stored = props.buildStoredSessionFromEntries(props.entries ?? [])
+      const stored = props.buildSnapshotFromEntries(props.entries ?? [])
 
       expect(stored?.entries).toEqual([{ kind: 'user', text: 'add a heading' }])
     })
 
     it('hands the transcript the restored history, which is what its first step must start past', () => {
-      const props = builder.restore(aStoredSession(), presence)
+      const props = builder.restore(aSnapshot(), presence)
 
       const source = props.transcriptOf?.([])
 
@@ -126,7 +126,7 @@ describe('SessionBuilder', () => {
     })
 
     it('records no step from before the restore, so a copied transcript holds only the turns since', () => {
-      const props = builder.restore(aStoredSession(), presence)
+      const props = builder.restore(aSnapshot(), presence)
 
       expect(props.transcriptOf?.([])?.steps).toEqual([])
     })
@@ -134,9 +134,9 @@ describe('SessionBuilder', () => {
     it('restores the chat history so the next record carries it back', () => {
       vi.useFakeTimers()
       vi.setSystemTime(new Date(2026, 8, 11, 14, 32))
-      const props = builder.restore(aStoredSession(), presence)
+      const props = builder.restore(aSnapshot(), presence)
 
-      const stored = props.buildStoredSessionFromEntries([])
+      const stored = props.buildSnapshotFromEntries([])
 
       expect(stored).toEqual({
         version: 1,

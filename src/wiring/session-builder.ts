@@ -14,10 +14,10 @@ import { TranscriptRepository } from '../session/transcript/transcript-repositor
 import { TranscriptBuilder } from '../session/transcript/transcript-builder'
 import { SessionRepository } from '../session/session-repository'
 import { NoteName } from '../session/models/note-name'
-import { Entry } from '../session/models/panel-state'
+import { PanelEntry } from '../session/models/panel-state'
 import { RestoredText } from '../session/models/restored-text'
-import { StoredMessages, StoredSession } from '../session/models/stored-session'
-import { StoredSessionSource } from '../session/stored-session-source'
+import { StoredMessages, SessionSnapshot } from '../session/models/session-snapshot'
+import { SessionSnapshotFactory } from '../session/session-snapshot-factory'
 
 // Everything one session publishes on and parks on, built together so the panel
 // and the engine reach the same set.
@@ -34,7 +34,7 @@ interface SessionChannels {
 interface RestoredTarget {
   name: string | null
   path: string | null
-  entries: Entry[]
+  entries: PanelEntry[]
 }
 
 // What the plugin cannot answer for itself: whether the panel is on screen, and
@@ -71,7 +71,7 @@ export class SessionBuilder {
 
   // From a record rather than a file: the note a session was on is in the
   // record, and so is the history the model reads back.
-  restore(stored: StoredSession, presence: PanelPresence): SessionPanelProps {
+  restore(stored: SessionSnapshot, presence: PanelPresence): SessionPanelProps {
     const messages = stored.messages.map((message) => StoredMessages.toMessage(message))
     return this.assemble(
       presence,
@@ -113,7 +113,7 @@ export class SessionBuilder {
       onHidden: (listener) => presence.onHidden(listener),
       settings: this.settings,
       transcriptOf: (entries) => this.transcriptBuilder(sessions, transcript).build(entries),
-      buildStoredSessionFromEntries: (entries) => StoredSessionSource.of(sessions, entries),
+      buildSnapshotFromEntries: (entries) => SessionSnapshotFactory.of(sessions, entries),
       ...SessionBuilder.enginePanelProps(engine, channels),
     }
   }
@@ -121,7 +121,7 @@ export class SessionBuilder {
   // Absent on a record written before the field existed, and unusable on one
   // whose JSON held something other than a number. Both read as no stamp, since
   // an Invalid Date on screen is worse than a line without a time.
-  private static writtenAt(stored: StoredSession): Date | null {
+  private static writtenAt(stored: SessionSnapshot): Date | null {
     if (typeof stored.writtenAt !== 'number') return null
     const at = new Date(stored.writtenAt)
     return Number.isNaN(at.getTime()) ? null : at

@@ -1,19 +1,23 @@
 import { describe, expect, it } from 'vitest'
 import { ChatMessage } from '../../model/providers/models/chat-message'
 import { ToolCall } from '../../model/providers/models/tool-call'
-import { Entry } from '../models/panel-state'
-import { STORED_SESSION_VERSION, StoredMessages, StoredSession } from '../models/stored-session'
+import { PanelEntry } from '../models/panel-state'
+import {
+  SESSION_SNAPSHOT_VERSION,
+  StoredMessages,
+  SessionSnapshot,
+} from '../models/session-snapshot'
 
 // Through JSON, because the record's only job is surviving a file boundary: a
 // field the writer sets and the reader ignores is invisible until then.
-const roundTripped = (session: StoredSession): StoredSession =>
-  JSON.parse(JSON.stringify(session)) as StoredSession
+const roundTripped = (session: SessionSnapshot): SessionSnapshot =>
+  JSON.parse(JSON.stringify(session)) as SessionSnapshot
 
-describe('StoredSession', () => {
+describe('SessionSnapshot', () => {
   describe('when a session is written and read back', () => {
     it('keeps every field when the session is bound', () => {
-      const session: StoredSession = {
-        version: STORED_SESSION_VERSION,
+      const session: SessionSnapshot = {
+        version: SESSION_SNAPSHOT_VERSION,
         targetPath: 'Journal/day.md',
         messages: [StoredMessages.of(ChatMessage.user('add a heading'))],
         entries: [{ kind: 'user', text: 'add a heading' }],
@@ -28,8 +32,8 @@ describe('StoredSession', () => {
     })
 
     it('keeps the null target when the session is unbound', () => {
-      const session: StoredSession = {
-        version: STORED_SESSION_VERSION,
+      const session: SessionSnapshot = {
+        version: SESSION_SNAPSHOT_VERSION,
         targetPath: null,
         messages: [],
         entries: [],
@@ -103,7 +107,7 @@ describe('StoredSession', () => {
 
   describe('when the panel entries are written and read back', () => {
     it('keeps all eleven kinds when the panel held one of each', () => {
-      const entries: Entry[] = [
+      const entries: PanelEntry[] = [
         { kind: 'user', text: 'add a heading' },
         { kind: 'assistant', text: 'added it' },
         { kind: 'error', step: 'chat', text: 'the provider failed' },
@@ -122,15 +126,15 @@ describe('StoredSession', () => {
   })
 })
 
-const sessionHolding = (message: ReturnType<typeof StoredMessages.of>): StoredSession => ({
-  version: STORED_SESSION_VERSION,
+const sessionHolding = (message: ReturnType<typeof StoredMessages.of>): SessionSnapshot => ({
+  version: SESSION_SNAPSHOT_VERSION,
   targetPath: null,
   messages: [message],
   entries: [],
 })
 
-const sessionHoldingEntries = (entries: Entry[]): StoredSession => ({
-  version: STORED_SESSION_VERSION,
+const sessionHoldingEntries = (entries: PanelEntry[]): SessionSnapshot => ({
+  version: SESSION_SNAPSHOT_VERSION,
   targetPath: null,
   messages: [],
   entries,

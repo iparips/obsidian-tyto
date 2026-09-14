@@ -1,9 +1,9 @@
 import { HistoryEntry } from './HistoryEntry'
 import { PendingEntry } from './PendingEntry'
-import { Entry, Phase } from '../models/panel-state'
+import { PanelEntry, Phase } from '../models/panel-state'
 
 export interface HistoryListProps {
-  entries: Entry[]
+  entries: PanelEntry[]
   phase: Phase
   onChooseNote?(chosen: string | null): void
   onPickSuggestion?(suggestion: string): void

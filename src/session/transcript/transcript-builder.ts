@@ -1,5 +1,5 @@
 import { TytoSettings } from '../../settings/settings'
-import { Entry } from '../models/panel-state'
+import { PanelEntry } from '../models/panel-state'
 import { SessionRepository } from '../session-repository'
 import { TranscriptRepository } from './transcript-repository'
 import { TranscriptSource } from './models/transcript-source'
@@ -16,7 +16,7 @@ export class TranscriptBuilder {
     private transcript: TranscriptRepository,
   ) {}
 
-  build(entries: readonly Entry[]): TranscriptSource {
+  build(entries: readonly PanelEntry[]): TranscriptSource {
     return new TranscriptSource(
       {
         copiedAt: new Date(),

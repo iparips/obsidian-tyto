@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { TurnEndingKind } from '../../../engine/turn/ending/turn-ending-kind'
 import { ChatMessage, ToolCall } from '../../../model/providers/types'
 import { DEFAULT_SETTINGS, TytoSettings } from '../../../settings/settings'
-import { Entry } from '../../models/panel-state'
+import { PanelEntry } from '../../models/panel-state'
 import { TranscriptSource } from '../models/transcript-source'
 import {
   RecordedEnding,
@@ -29,7 +29,7 @@ describe('TranscriptDocument', () => {
   const aGlob = (pattern: string) => new ToolCall('c1', 'glob_notes', { pattern })
 
   const documentOf = (options: {
-    entries?: Entry[]
+    entries?: PanelEntry[]
     history?: ChatMessage[]
     steps?: RecordedTurnStep[]
     endings?: RecordedEnding[]
@@ -185,7 +185,7 @@ describe('TranscriptDocument', () => {
             { label: 'Globbed', detail: '**/b.md - nothing matched', refused: false },
           ],
         },
-      ] as Entry[],
+      ] as PanelEntry[],
       history: [
         ChatMessage.user('find it'),
         ChatMessage.modelToolCalls([aGlob('**/a.md')]),
@@ -342,7 +342,7 @@ describe('TranscriptDocument', () => {
     const aLoad = (id: string, name: string) => new ToolCall(id, 'load_skill', { name })
 
     const loadedSkill = (result: string) => ({
-      entries: [{ kind: 'user', text: 'write it up' }] as Entry[],
+      entries: [{ kind: 'user', text: 'write it up' }] as PanelEntry[],
       history: [
         ChatMessage.user('write it up'),
         ChatMessage.modelToolCalls([aLoad('c1', 'journal')]),

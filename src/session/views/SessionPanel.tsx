@@ -2,7 +2,7 @@ import { useEffect, useReducer, useState } from 'react'
 import { Outcome } from '../../shared/models/outcome'
 import { HistoryList } from './HistoryList'
 import { AskedEntries } from '../models/asked-entries'
-import { Entry, PanelReducer, PanelState } from '../models/panel-state'
+import { PanelEntry, PanelReducer, PanelState } from '../models/panel-state'
 import { TurnEndingKind } from '../../engine/turn/ending/turn-ending-kind'
 import { PanelHeader } from './PanelHeader'
 import {
@@ -16,7 +16,7 @@ import { EngineEventPorts, useEngineEvents } from './hooks/useEngineEvents'
 import { TargetNotePorts, useTargetNote } from './hooks/useTargetNote'
 import { InputRow } from './InputRow'
 import { TytoSettings } from '../../settings/settings'
-import { StoredSession } from '../models/stored-session'
+import { SessionSnapshot } from '../models/session-snapshot'
 import { TranscriptSource } from '../transcript/models/transcript-source'
 import { TranscriptDocument } from '../transcript/transcript-document'
 
@@ -47,20 +47,20 @@ export interface SessionPanelProps
   // The entries travel with it because the reducer owns them, as they do for
   // transcriptOf: the plugin writes the record and cannot see what the panel
   // holds.
-  onTurnEnded?(ending: TurnEndingKind, entries: readonly Entry[]): void
+  onTurnEnded?(ending: TurnEndingKind, entries: readonly PanelEntry[]): void
   // The record the plugin writes, assembled from the entries the panel holds
   // and the history only the builder can reach. Required, because SessionBuilder
   // always supplies it and an optional one puts a branch in the plugin that
   // cannot happen.
-  buildStoredSessionFromEntries(entries: readonly Entry[]): StoredSession
+  buildSnapshotFromEntries(entries: readonly PanelEntry[]): SessionSnapshot
   // What a restored session already holds, empty for a session that starts
   // fresh. Settled and set idle on the way in, since no turn is running after
   // a load (FR5, FR6).
-  entries?: Entry[]
+  entries?: PanelEntry[]
   settings?: TytoSettings
   // What the panel cannot see: the chat history the recorded steps index into,
   // and what each of those steps was sent. Absent until the setting is on.
-  transcriptOf?(entries: readonly Entry[]): TranscriptSource
+  transcriptOf?(entries: readonly PanelEntry[]): TranscriptSource
 }
 
 // The stored phase is never read: the turn that set a running phase went with
@@ -68,7 +68,7 @@ export interface SessionPanelProps
 // turnEnded settles the entries and carries the phase through unchanged,
 // because every caller in the reducer sets the phase itself, so idle is set
 // here rather than by it.
-const restoredState = (entries: Entry[]): PanelState =>
+const restoredState = (entries: PanelEntry[]): PanelState =>
   AskedEntries.turnEnded(new PanelState('idle', entries))
 
 export const SessionPanel = (props: SessionPanelProps) => {

@@ -9,7 +9,7 @@ import { PanelAction } from './panel-action'
 export type Phase =
   'idle' | 'recording' | 'transcribing' | 'thinking' | 'cancelling' | 'choosing' | 'asking'
 
-export type Entry =
+export type PanelEntry =
   | { kind: 'user'; text: string }
   | { kind: 'assistant'; text: string }
   // retryable only where the panel still holds the audio behind the failure,
@@ -44,14 +44,14 @@ export interface PanelStep {
 export class PanelState {
   constructor(
     readonly phase: Phase,
-    readonly entries: Entry[],
+    readonly entries: PanelEntry[],
   ) {}
 
   withPhase(phase: Phase): PanelState {
     return new PanelState(phase, this.entries)
   }
 
-  withEntry(phase: Phase, entry: Entry): PanelState {
+  withEntry(phase: Phase, entry: PanelEntry): PanelState {
     return new PanelState(phase, [...this.entries, entry])
   }
 }

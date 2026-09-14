@@ -1,12 +1,12 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { FakeAdapter } from '../../test-support/fake-adapter'
-import { STORED_SESSION_VERSION, StoredSession } from '../models/stored-session'
+import { SESSION_SNAPSHOT_VERSION, SessionSnapshot } from '../models/session-snapshot'
 import { SessionStore } from '../session-store'
 
 const PLUGIN_FOLDER = '.obsidian/plugins/tyto'
 const SESSION_PATH = `${PLUGIN_FOLDER}/session.json`
 
-const aStoredSession = (version = STORED_SESSION_VERSION): StoredSession => ({
+const aSnapshot = (version = SESSION_SNAPSHOT_VERSION): SessionSnapshot => ({
   version,
   targetPath: 'Journal/day.md',
   messages: [],
@@ -24,15 +24,15 @@ describe('SessionStore', () => {
 
   describe('when a turn ends', () => {
     it('writes the record to the plugin folder when a turn ends', async () => {
-      await store.write(aStoredSession())
+      await store.write(aSnapshot())
 
-      expect(adapter.contentsOf(SESSION_PATH)).toBe(JSON.stringify(aStoredSession()))
+      expect(adapter.contentsOf(SESSION_PATH)).toBe(JSON.stringify(aSnapshot()))
     })
 
     it('reads back what it wrote when the record is read again', async () => {
-      await store.write(aStoredSession())
+      await store.write(aSnapshot())
 
-      expect(await store.read()).toEqual(aStoredSession())
+      expect(await store.read()).toEqual(aSnapshot())
     })
   })
 
@@ -46,7 +46,7 @@ describe('SessionStore', () => {
     })
 
     it('writes nothing when the manifest names no folder', async () => {
-      await store.write(aStoredSession())
+      await store.write(aSnapshot())
 
       expect(adapter.contentsOf(SESSION_PATH)).toBeUndefined()
     })
@@ -66,7 +66,7 @@ describe('SessionStore', () => {
 
   describe('when the stored version is not the current one', () => {
     beforeEach(() => {
-      adapter.withFile(SESSION_PATH, JSON.stringify(aStoredSession(2)))
+      adapter.withFile(SESSION_PATH, JSON.stringify(aSnapshot(2)))
     })
 
     it('reads nothing when the version is not the current one', async () => {
@@ -82,7 +82,7 @@ describe('SessionStore', () => {
 
   describe('when the user resets', () => {
     it('deletes the stored session when the user resets', async () => {
-      await store.write(aStoredSession())
+      await store.write(aSnapshot())
 
       await store.discard()
 
@@ -100,15 +100,15 @@ describe('SessionStore', () => {
     })
 
     it('reports nothing to the caller when a write fails', async () => {
-      await expect(store.write(aStoredSession())).resolves.toBeUndefined()
+      await expect(store.write(aSnapshot())).resolves.toBeUndefined()
     })
 
     it('leaves the stored session untouched when a write fails', async () => {
-      adapter.withFile(SESSION_PATH, JSON.stringify(aStoredSession()))
+      adapter.withFile(SESSION_PATH, JSON.stringify(aSnapshot()))
 
-      await store.write({ ...aStoredSession(), targetPath: 'other.md' })
+      await store.write({ ...aSnapshot(), targetPath: 'other.md' })
 
-      expect(await store.read()).toEqual(aStoredSession())
+      expect(await store.read()).toEqual(aSnapshot())
     })
   })
 })

@@ -1,4 +1,4 @@
-import { Entry, PanelState, Phase } from './panel-state'
+import { PanelEntry, PanelState, Phase } from './panel-state'
 
 // What becomes of an entry the user was asked to act on, once they have acted
 // or the turn has ended. A pending control that no longer does anything is
@@ -39,11 +39,11 @@ export class AskedEntries {
     )
   }
 
-  private static settledChoice(entry: Entry, chosen: string | null): Entry {
+  private static settledChoice(entry: PanelEntry, chosen: string | null): PanelEntry {
     return AskedEntries.settled(entry, AskedEntries.outcomeText(chosen))
   }
 
-  private static settled(entry: Entry, text: string): Entry {
+  private static settled(entry: PanelEntry, text: string): PanelEntry {
     if (entry.kind !== 'choice' || !entry.pending) return entry
     return { ...entry, pending: false, text }
   }

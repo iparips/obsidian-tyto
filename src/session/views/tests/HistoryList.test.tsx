@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { HistoryList } from '../HistoryList'
-import { Entry } from '../../models/panel-state'
+import { PanelEntry } from '../../models/panel-state'
 
 describe('HistoryList', () => {
-  const entries: Entry[] = [{ kind: 'user', text: 'do the thing' }]
+  const entries: PanelEntry[] = [{ kind: 'user', text: 'do the thing' }]
 
   describe('when a turn is running', () => {
     it('renders the pending line after the entries', () => {
