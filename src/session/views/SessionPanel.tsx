@@ -10,10 +10,10 @@ import {
   ParkedAnswerPorts,
   QuestionRequest,
   useParkedAnswers,
-} from './useParkedAnswers'
-import { RecorderPort, RecordingPorts, useRecording } from './useRecording'
-import { EngineEventPorts, useEngineEvents } from './useEngineEvents'
-import { TargetNotePorts, useTargetNote } from './useTargetNote'
+} from './hooks/useParkedAnswers'
+import { RecorderPort, RecordingPorts, useRecording } from './hooks/useRecording'
+import { EngineEventPorts, useEngineEvents } from './hooks/useEngineEvents'
+import { TargetNotePorts, useTargetNote } from './hooks/useTargetNote'
 import { InputRow } from './InputRow'
 import { TytoSettings } from '../../settings/settings'
 import { StoredSession } from '../models/stored-session'

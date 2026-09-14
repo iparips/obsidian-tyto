@@ -1,8 +1,8 @@
 import { useRef } from 'react'
-import { Attempt, Outcome } from '../../shared/models/outcome'
-import { Utterance } from '../../capture/recorder'
-import { PanelAction } from '../models/panel-action'
-import { Phase } from '../models/panel-state'
+import { Attempt, Outcome } from '../../../shared/models/outcome'
+import { Utterance } from '../../../capture/recorder'
+import { PanelAction } from '../../models/panel-action'
+import { Phase } from '../../models/panel-state'
 
 export interface RecorderPort {
   start(): Promise<Outcome<void>>

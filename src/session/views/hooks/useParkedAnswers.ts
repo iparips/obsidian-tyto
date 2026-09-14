@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { PanelAction } from '../models/panel-action'
+import { PanelAction } from '../../models/panel-action'
 
 // What the engine parks on: which notes it found, and what the pick is for.
 export interface ChoiceRequest {

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { NoteName } from '../models/note-name'
+import { NoteName } from '../../models/note-name'
 
 export interface TargetNotePorts {
   // Null while the session is unbound, which the header says rather than naming

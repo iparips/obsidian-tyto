@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
-import { PanelAction } from '../models/panel-action'
-import { AnswerReport, StepReport } from '../session-listeners'
+import { PanelAction } from '../../models/panel-action'
+import { AnswerReport, StepReport } from '../../session-listeners'
 
 // What the engine reports as a turn runs. Each is a subscription returning its
 // own unsubscribe, so the panel holds none of them.
