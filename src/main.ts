@@ -1,5 +1,4 @@
 import { Plugin, TFile, WorkspaceLeaf } from 'obsidian'
-import { RebindModal } from './session/views/obsidian/rebind-modal'
 import { SessionView, VIEW_TYPE_SESSION } from './session/views/obsidian/session-view'
 import { SessionPanelProps } from './session/views/SessionPanel'
 import { registerTytoIcon, TYTO_ICON } from './session/views/obsidian/tyto-icon'
@@ -44,29 +43,12 @@ export default class TytoPlugin extends Plugin {
   }
 
   // A session starts whether or not a note is open: unbound, it searches and
-  // answers, and binds to the first note the user opens.
+  // answers, and binds to the first note the user opens. A session already
+  // running is left alone, since it binds to the open note as it is assembled
+  // and follows the user from there.
   private async openSession(): Promise<void> {
-    const file = this.activeNote()
     const view = await this.revealSessionView()
     if (!view) return
-    // The view restores itself as it opens, so a session left behind is
-    // usually already here. This read covers the case where the leaf existed
-    // before the plugin could restore into it.
-    if (!view.hasSession()) {
-      const stored = await this.storedPanelProps(view)
-      if (stored) return view.bindSession(stored)
-    }
-    this.bindOrAskRebind(view, file)
-  }
-
-  // The rebind prompt asks only when a bound session would move to another
-  // note; an unbound session has nothing to move away from.
-  private bindOrAskRebind(view: SessionView, file: TFile | null): void {
-    const boundName = view.boundNoteName()
-    if (boundName && file && boundName !== file.basename)
-      return new RebindModal(this.app, boundName, file.basename, () =>
-        view.bindSession(this.buildPanelProps(view)),
-      ).open()
     if (!view.hasSession()) view.bindSession(this.buildPanelProps(view))
   }
 
@@ -147,15 +129,6 @@ export default class TytoPlugin extends Plugin {
   private startNewSession(view: SessionView): void {
     void this.sessionStore().discard()
     view.bindSession(this.buildPanelProps(view))
-  }
-
-  // Null for anything but a note, so a reset while a canvas or a Bases file is
-  // in front leaves the session unbound rather than bound to something no
-  // editor can show. An unbound session searches and answers, and binds to the
-  // first note the user opens.
-  private activeNote(): TFile | null {
-    const file = this.app.workspace.getActiveFile()
-    return file?.extension === 'md' ? file : null
   }
 
   private onDocumentHidden(listener: () => void): () => void {

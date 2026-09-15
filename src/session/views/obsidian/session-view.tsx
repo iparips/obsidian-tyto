@@ -45,6 +45,9 @@ export class SessionView extends ItemView {
     this.renderPanel()
   }
 
+  // Read by the suite rather than by the plugin, which stopped comparing note
+  // names once the binding started coming from the workspace. It is how a test
+  // tells one bound session from another.
   boundNoteName(): string | null {
     return this.panelProps?.noteName ?? null
   }
