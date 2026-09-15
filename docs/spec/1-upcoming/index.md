@@ -13,3 +13,4 @@ sequence. A spec takes its number when it moves to
 - [eval-suite](eval-suite/1-index.md) - measuring whether a prompt change helped
 - [following-the-note-across-a-restore](following-the-note-across-a-restore/1-index.md) - a resumed session editing the note the user left, and the command that dragged it back
 - [mobile-v1](mobile-v1/1-index.md) - the mobile polish pass and its release checklist
+- [showing-the-panel-is-listening](showing-the-panel-is-listening/1-index.md) - a live level meter and a clock, so a recording looks like one
