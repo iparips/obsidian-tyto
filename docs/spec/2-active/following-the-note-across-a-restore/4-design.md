@@ -140,6 +140,7 @@ session if one is not already bound:
 private async openSession(): Promise<void> {
   const view = await this.revealSessionView()
   if (!view) return
+  await view.whenOpened()
   if (!view.hasSession()) view.bindSession(this.buildPanelProps(view))
 }
 ```
@@ -147,6 +148,26 @@ private async openSession(): Promise<void> {
 The early return that skipped the comparison goes with it, because there is no
 comparison left to skip. The stored-session read stays where it already is, in
 SessionView.onOpen, which is the path that restores a leaf Obsidian reopened.
+
+### Waiting for that read
+
+openSession must wait for it, which this design first missed. Dropping the
+plugin's own read on the grounds that onOpen does it leaves a race the old code
+did not have, because the old read was awaited and onOpen's is not:
+
+- Obsidian does not await setViewState, so revealing a leaf returns while the
+  view it builds is still opening.
+- Closing the panel runs onClose, which nulls the props. Reopening runs onOpen
+  again, so the read is in flight exactly when the user invokes Tyto.
+
+hasSession is then false, openSession binds a fresh session, and onOpen's own
+guard sees props already set and discards the session it restored. The panel
+reads empty until Obsidian restarts, which is the one path where onOpen finishes
+unraced.
+
+So the view holds the promise onOpen started and whenOpened waits on it, and
+sessionLeaf awaits setViewState rather than returning a leaf whose view does not
+exist yet. The plugin still reaches the store once, through the view.
 
 buildPanelProps loses its file parameter. So does startNewSession's call to it
 (main.ts:148), which passed activeNote() to get the behaviour the rule now gives
@@ -241,6 +262,9 @@ say a canvas is in front by naming one.
 - ActiveNote returns null for a non-markdown file
 - ActiveNote returns null when nothing is open
 - A second session on another note keeps the conversation, since nothing prompts
+- A reopened panel waits for the restore before it reports no session bound
+- whenOpened settles when nothing was left behind, so the caller binds a fresh one
+- whenOpened settles on a view that never opened, so no caller waits forever
 
 By hand, against a real vault:
 

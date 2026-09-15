@@ -49,6 +49,10 @@ export default class TytoPlugin extends Plugin {
   private async openSession(): Promise<void> {
     const view = await this.revealSessionView()
     if (!view) return
+    // The view restores itself as it opens, and revealing one is what starts
+    // that. Deciding the panel is empty before the read settles is what bound a
+    // fresh session over the one left behind.
+    await view.whenOpened()
     if (!view.hasSession()) view.bindSession(this.buildPanelProps(view))
   }
 
@@ -142,17 +146,19 @@ export default class TytoPlugin extends Plugin {
   }
 
   private async revealSessionView(): Promise<SessionView | null> {
-    const leaf = this.sessionLeaf()
+    const leaf = await this.sessionLeaf()
     if (!leaf) return null
     await this.app.workspace.revealLeaf(leaf)
     return leaf.view instanceof SessionView ? leaf.view : null
   }
 
-  private sessionLeaf(): WorkspaceLeaf | null {
+  // Awaited, since setViewState is what builds the view: returning before it
+  // settles hands back a leaf whose view is not a SessionView yet.
+  private async sessionLeaf(): Promise<WorkspaceLeaf | null> {
     const existing = this.app.workspace.getLeavesOfType(VIEW_TYPE_SESSION)[0]
     if (existing) return existing
     const leaf = this.app.workspace.getRightLeaf(false)
-    leaf?.setViewState({ type: VIEW_TYPE_SESSION, active: true })
+    await leaf?.setViewState({ type: VIEW_TYPE_SESSION, active: true })
     return leaf
   }
 }
