@@ -65,13 +65,13 @@ export default class TytoPlugin extends Plugin {
     const boundName = view.boundNoteName()
     if (boundName && file && boundName !== file.basename)
       return new RebindModal(this.app, boundName, file.basename, () =>
-        view.bindSession(this.buildPanelProps(file, view)),
+        view.bindSession(this.buildPanelProps(view)),
       ).open()
-    if (!view.hasSession()) view.bindSession(this.buildPanelProps(file, view))
+    if (!view.hasSession()) view.bindSession(this.buildPanelProps(view))
   }
 
-  private buildPanelProps(file: TFile | null, view: SessionView): SessionPanelProps {
-    return this.sessionBuilder().build(file, this.panelPresence(view))
+  private buildPanelProps(view: SessionView): SessionPanelProps {
+    return this.sessionBuilder().build(this.panelPresence(view))
   }
 
   private restoredPanelProps(stored: SessionSnapshot, view: SessionView): SessionPanelProps {
@@ -94,6 +94,7 @@ export default class TytoPlugin extends Plugin {
       this.settings,
       this.engineFactory(),
       (engine) => this.followActiveNoteWith(engine),
+      this.pluginScope.activeNote(),
       this.sessionStore(),
       this.manifest.version,
     )
@@ -145,7 +146,7 @@ export default class TytoPlugin extends Plugin {
   // does not come back on the next load (FR8).
   private startNewSession(view: SessionView): void {
     void this.sessionStore().discard()
-    view.bindSession(this.buildPanelProps(this.activeNote(), view))
+    view.bindSession(this.buildPanelProps(view))
   }
 
   // Null for anything but a note, so a reset while a canvas or a Bases file is

@@ -1,8 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { App, TFile } from 'obsidian'
+import { App } from 'obsidian'
 import { EngineFactory } from '../engine-factory'
 import { PluginScope } from '../plugin-scope'
 import { FakeAdapter } from '../../test-support/fake-adapter'
+import { FakeWorkspace } from '../../test-support/fake-workspace'
 import { DEFAULT_SETTINGS } from '../../settings/settings'
 import { ChatMessage } from '../../model/providers/models/chat-message'
 import { PanelPresence, SessionBuilder } from '../session-builder'
@@ -37,19 +38,26 @@ describe('SessionBuilder', () => {
   let builder: SessionBuilder
   let adapter: FakeAdapter
 
-  beforeEach(() => {
-    adapter = new FakeAdapter()
-    const scope = new PluginScope(
-      { vault: { adapter: adapter.asAdapter() } } as App,
-      () => DEFAULT_SETTINGS,
-    )
-    const engineFactory = new EngineFactory(scope)
-    builder = new SessionBuilder(
+  // The workspace decides every binding now, so each test says what the user has
+  // open rather than what it hands the builder.
+  const builderWith = (openPath: string | null): SessionBuilder => {
+    const app = {
+      vault: { adapter: adapter.asAdapter() },
+      workspace: new FakeWorkspace(openPath).asWorkspace(),
+    } as App
+    const scope = new PluginScope(app, () => DEFAULT_SETTINGS)
+    return new SessionBuilder(
       DEFAULT_SETTINGS,
-      engineFactory,
+      new EngineFactory(scope),
       vi.fn(),
+      scope.activeNote(),
       new SessionStore(adapter.asAdapter(), PLUGIN_FOLDER),
     )
+  }
+
+  beforeEach(() => {
+    adapter = new FakeAdapter()
+    builder = builderWith('Journal/day.md')
   })
 
   // The record as the store holds it, which is the only way to read one now
@@ -63,15 +71,34 @@ describe('SessionBuilder', () => {
     return JSON.parse(adapter.contentsOf(SESSION_PATH) ?? 'null') as SessionSnapshot
   }
 
-  describe('when a session is built from a file', () => {
-    it('names the note from the file when a note is open', () => {
-      const props = builder.build({ path: 'day.md', basename: 'day' } as TFile, presence)
+  describe('when a session is built fresh', () => {
+    it('binds to the note the user has open', () => {
+      const props = builder.build(presence)
+
+      expect(props.notePath).toBe('Journal/day.md')
+    })
+
+    it('names the note from the open path, so the panel header says where the turn lands', () => {
+      const props = builder.build(presence)
 
       expect(props.noteName).toBe('day')
     })
 
+    it('stays unbound when nothing markdown is open', () => {
+      const props = builderWith(null).build(presence)
+
+      expect(props.noteName).toBeNull()
+      expect(props.notePath).toBeNull()
+    })
+
+    it('stays unbound when a canvas is in front, since no editor can show one', () => {
+      const props = builderWith('Boards/plan.canvas').build(presence)
+
+      expect(props.notePath).toBeNull()
+    })
+
     it('holds no entries when the session is built rather than restored', () => {
-      const props = builder.build(null, presence)
+      const props = builder.build(presence)
 
       expect(props.entries).toEqual([])
     })
@@ -79,33 +106,56 @@ describe('SessionBuilder', () => {
 
   describe('when the panel records its history', () => {
     it('writes the record to the store, so a closed panel leaves what it showed', async () => {
-      const props = builder.build({ path: 'day.md', basename: 'day' } as TFile, presence)
+      const props = builder.build(presence)
 
       const stored = await recordAndRead(props, [{ kind: 'user', text: 'add a heading' }])
 
       expect(stored.entries).toEqual([{ kind: 'user', text: 'add a heading' }])
-      expect(stored.targetPath).toBe('day.md')
+      expect(stored.targetPath).toBe('Journal/day.md')
     })
   })
 
   describe('when a session is restored from a record', () => {
-    it('binds to the stored target when the record names one', () => {
+    it('binds to the open note when it is the one the record names', () => {
       const props = builder.restore(aSnapshot(), presence)
 
       expect(props.notePath).toBe('Journal/day.md')
     })
 
-    it('names the note from the stored path, since a record holds no basename', () => {
+    it('names the note from the open path, since a workspace answer holds no basename', () => {
       const props = builder.restore(aSnapshot(), presence)
 
       expect(props.noteName).toBe('day')
     })
 
-    it('stays unbound when the record holds no target', () => {
-      const props = builder.restore(aSnapshot({ targetPath: null }), presence)
+    it('binds to the note now open rather than the one the record remembers', () => {
+      const props = builderWith('Lists/shopping.md').restore(aSnapshot(), presence)
+
+      expect(props.notePath).toBe('Lists/shopping.md')
+    })
+
+    it('stays unbound when nothing markdown is open, whatever the record names', () => {
+      const props = builderWith(null).restore(aSnapshot(), presence)
 
       expect(props.noteName).toBeNull()
       expect(props.notePath).toBeNull()
+    })
+
+    it('keeps the restored entries when it binds somewhere other than the stored note', () => {
+      const props = builderWith('Lists/shopping.md').restore(aSnapshot(), presence)
+
+      expect(props.entries).toEqual([
+        { kind: 'user', text: 'add a heading' },
+        { kind: 'restored', text: 'Session restored.' },
+      ])
+    })
+
+    it('keeps the restored history when it binds somewhere other than the stored note', () => {
+      const props = builderWith('Lists/shopping.md').restore(aSnapshot(), presence)
+
+      const source = props.transcriptOf?.([])
+
+      expect(source?.chatHistory.map((message) => message.content)).toEqual(['add a heading'])
     })
 
     it('restores the stored entries into the panel, saying where the session came back', () => {

@@ -1,8 +1,8 @@
-import { TFile } from 'obsidian'
 import { Recorder } from '../recorder'
 import { MistralProvider } from '../model/providers/mistral-provider'
 import { SessionPanelProps } from '../session/views/SessionPanel'
 import { EditEngine } from '../engine/edit-engine'
+import { ActiveNote } from './active-note'
 import { EngineFactory } from './engine-factory'
 import { InstructionListeners } from '../session/instruction-listeners'
 import { SessionListeners } from '../session/session-listeners'
@@ -29,15 +29,6 @@ interface SessionChannels {
   notices: TurnNotices
 }
 
-// Where a session starts: the note it names and what the panel already holds.
-// A built session names a file and shows nothing; a restored one names a path
-// and shows the turns that came back.
-interface RestoredTarget {
-  name: string | null
-  path: string | null
-  entries: PanelEntry[]
-}
-
 // What the plugin cannot answer for itself: whether the panel is on screen, and
 // how to put it there when the user asks.
 export interface PanelPresence {
@@ -54,6 +45,9 @@ export class SessionBuilder {
     private settings: TytoSettings,
     private engineFactory: EngineFactory,
     private followEngine: (engine: EditEngine) => void,
+    // Asked at assemble time rather than handed a note, so a session built and
+    // a session restored reach the same answer.
+    private activeNote: ActiveNote,
     // Where the record goes. Built by the plugin, which is the only place that
     // knows the vault adapter and the folder the plugin was installed into.
     private store: SessionStore,
@@ -62,34 +56,33 @@ export class SessionBuilder {
     private pluginVersion = 'unknown',
   ) {}
 
-  build(file: TFile | null, presence: PanelPresence): SessionPanelProps {
+  build(presence: PanelPresence): SessionPanelProps {
     return this.assemble(
       presence,
-      { name: file?.basename ?? null, path: file?.path ?? null, entries: [] },
-      new SessionRepository(file),
-      // Nothing preceded the first step of a session built from a file, so the
+      [],
+      new SessionRepository(null),
+      // Nothing preceded the first step of a session built from scratch, so the
       // transcript starts at zero.
       new TranscriptRepository(),
     )
   }
 
-  // From a record rather than a file: the note a session was on is in the
-  // record, and so is the history the model reads back.
+  // From a record rather than from nothing: what the record supplies is the
+  // conversation and the entries. The note comes from the workspace, like every
+  // other session's.
   restore(stored: SessionSnapshot, presence: PanelPresence): SessionPanelProps {
     const messages = stored.messages.map((message) => StoredMessages.toMessage(message))
     return this.assemble(
       presence,
-      {
-        name: stored.targetPath === null ? null : NoteName.of(stored.targetPath),
-        path: stored.targetPath,
-        // Last, so it marks where the restored turns stop and the transcript
-        // starts explaining itself again.
-        entries: [
-          ...stored.entries,
-          { kind: 'restored', text: RestoredText.of(SessionBuilder.writtenAt(stored)) },
-        ],
-      },
-      SessionRepository.restored(stored.targetPath, messages),
+      // Last, so the restored line marks where the restored turns stop and the
+      // transcript starts explaining itself again.
+      [
+        ...stored.entries,
+        { kind: 'restored', text: RestoredText.of(SessionBuilder.writtenAt(stored)) },
+      ],
+      // No target from the record: assemble reads the workspace for it. The
+      // record names the note a session was on, not the note it comes back on.
+      SessionRepository.restored(null, messages),
       new TranscriptRepository(messages.length),
     )
   }
@@ -97,21 +90,25 @@ export class SessionBuilder {
   // Everything the two share, which is everything after the starting point.
   private assemble(
     presence: PanelPresence,
-    target: RestoredTarget,
+    entries: PanelEntry[],
     sessions: SessionRepository,
     // Built here rather than in EngineFactory, which returns only an EditEngine:
     // the panel reads both, and a recorded step is only meaningful beside the
     // history it indexes into.
     transcript: TranscriptRepository,
   ): SessionPanelProps {
+    // The rule, in the one place both entry points reach: the target is what the
+    // user has open, whatever the file a caller held or the record remembered.
+    const path = this.activeNote.path()
+    sessions.bindTo(path)
     const modelProvider = new MistralProvider(this.settings.mistralApiKey, this.settings.editModel)
     const channels = this.channelsFor(presence)
     const engine = this.engineFor(modelProvider, channels, transcript, sessions)
     const recorder = new SessionRecorder(sessions, this.store)
     return {
-      noteName: target.name,
-      notePath: target.path,
-      entries: target.entries,
+      noteName: path === null ? null : NoteName.of(path),
+      notePath: path,
+      entries,
       recorder: new Recorder(),
       transcribe: (blob, mimeType) => modelProvider.transcribe(blob, mimeType),
       startNewSession: () => presence.startNewSession(),

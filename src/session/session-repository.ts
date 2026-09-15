@@ -33,6 +33,13 @@ export class SessionRepository {
     this.targetPath = path
   }
 
+  // What the workspace says at the moment a session is assembled, which is null
+  // when nothing markdown is open. Separate from changeTargetNote, whose callers
+  // are a command or a file-open and can only ever move a session to a note.
+  bindTo(path: string | null): void {
+    this.targetPath = path
+  }
+
   chatHistory(): readonly ChatMessage[] {
     return this.messages
   }
