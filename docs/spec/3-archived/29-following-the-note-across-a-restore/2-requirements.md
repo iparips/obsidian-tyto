@@ -270,7 +270,7 @@ Then  the edit applies rather than failing as not open
 
 - [7-sessions-without-a-note](../../3-archived/7-sessions-without-a-note/1-index.md) - the active-note wiring that made following the user the norm
 - [22-session-persistence](../../3-archived/22-session-persistence/1-index.md) - why a session is restored at all, and what a record holds
-- [writing-the-session-outside-the-panel](../../2-active/writing-the-session-outside-the-panel/2-requirements.md) - the in-flight change to when a record is written, which this reads back
+- [30-writing-the-session-outside-the-panel](../30-writing-the-session-outside-the-panel/2-requirements.md) - the change to when a record is written, which this reads back
 
 ### Architecture
 
