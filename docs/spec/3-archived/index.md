@@ -32,6 +32,7 @@ when a later one supersedes it.
 - [24-remembering-skills-read](24-remembering-skills-read/1-index.md) - a skill body read once stays read
 - [25-opening-a-single-match](25-opening-a-single-match/1-index.md) - one candidate opens without asking
 - [28-not-losing-a-recording](28-not-losing-a-recording/1-index.md) - anything that ends a recording other than the user sends what it captured
+- [29-following-the-note-across-a-restore](29-following-the-note-across-a-restore/1-index.md) - a session binds to the note the user has open, restored or not
 
 ## Refactors
 
