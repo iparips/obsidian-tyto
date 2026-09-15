@@ -69,8 +69,16 @@ export class FakeWorkspace {
     }
   }
 
+  // The extension comes off the path, since a reader deciding whether the open
+  // file is a note has only what Obsidian puts on the TFile.
   getActiveFile(): TFile | null {
     if (this.activePath === null) return null
-    return { path: this.activePath, basename: '', stat: { mtime: 0 } } as TFile
+    const path = this.activePath
+    return {
+      path,
+      basename: '',
+      extension: path.slice(path.lastIndexOf('.') + 1),
+      stat: { mtime: 0 },
+    } as TFile
   }
 }
