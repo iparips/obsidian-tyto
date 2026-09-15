@@ -35,11 +35,11 @@ restoring, and a note being opened while one runs.
 
 Three entry points decide a binding, and only one of them follows the rule:
 
-| Path                                    | Today                                      | Under the rule |
-| --------------------------------------- | ------------------------------------------ | -------------- |
-| A note opened while a session runs       | Rebinds silently to it                     | Unchanged      |
-| A session started while another is bound | Prompts, and rebinding drops the history   | Binds silently |
-| A session restored                       | Keeps the stored path, never looks         | Binds silently |
+| Path                                     | Today                                    | Under the rule |
+| ---------------------------------------- | ---------------------------------------- | -------------- |
+| A note opened while a session runs       | Rebinds silently to it                   | Unchanged      |
+| A session started while another is bound | Prompts, and rebinding drops the history | Binds silently |
+| A session restored                       | Keeps the stored path, never looks       | Binds silently |
 
 The first is already the rule. EditEngine.followActiveNote states it directly:
 a note the user opened themselves is as much a retarget as one a command opened,
@@ -261,7 +261,7 @@ Then  the edit applies rather than failing as not open
 - [src/engine/edit-engine.ts](../../../../src/engine/edit-engine.ts) - followActiveNote, which already states the rule
 - [src/wiring/session-builder.ts](../../../../src/wiring/session-builder.ts) - build and restore, the two starting points that must agree
 - [src/session/session-repository.ts](../../../../src/session/session-repository.ts) - the one holder of the target
-- [src/session/views/obsidian/rebind-modal.ts](../../../../src/session/views/obsidian/rebind-modal.ts) - the prompt the rule removes
+- src/session/views/obsidian/rebind-modal.ts - the prompt the rule removes, deleted by the build
 - [src/model/prompt/note-context-message.ts](../../../../src/model/prompt/note-context-message.ts) - the last message in the request, and the one the wrong binding corrupted
 - [src/model/prompt/system-prompt-sections/command-section.ts](../../../../src/model/prompt/system-prompt-sections/command-section.ts) - the rule that asks for a command when an utterance names a destination
 - [src/session/models/session-snapshot.ts](../../../../src/session/models/session-snapshot.ts) - StoredMessages, which replays turn 1's tool calls whole

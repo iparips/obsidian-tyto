@@ -14,17 +14,17 @@ not plugin behaviour, and it is not what went wrong.
 
 ## Session metadata
 
-| Field    | Value                                          |
-| -------- | ---------------------------------------------- |
-| Copied   | 2026-09-14 22:12 GMT+10                        |
-| Plugin   | Tyto 0.1.0                                     |
-| Note     | 1 - Journal/Weekly/Week-38/09-15-Tue.md        |
-| Model    | mistral-medium-latest                          |
-| Search   | enabled                                        |
-| Open     | confirm                                        |
-| Skills   | 0 - Meta/Skills                                |
-| Commands | daily-notes:*, open-or-create-file-command:*   |
-| Turns    | 2 conversation turns, 0 turn steps             |
+| Field    | Value                                            |
+| -------- | ------------------------------------------------ |
+| Copied   | 2026-09-14 22:12 GMT+10                          |
+| Plugin   | Tyto 0.1.0                                       |
+| Note     | 1 - Journal/Weekly/Week-38/09-15-Tue.md          |
+| Model    | mistral-medium-latest                            |
+| Search   | enabled                                          |
+| Open     | confirm                                          |
+| Skills   | 0 - Meta/Skills                                  |
+| Commands | `daily-notes:*`, `open-or-create-file-command:*` |
+| Turns    | 2 conversation turns, 0 turn steps               |
 
 ## Conversation turn 1
 

@@ -144,11 +144,11 @@ it in the root, so skills keeps skill.ts beside skill-repository.ts.
 Wiring holds the three scopes, each of which lives for as long as the one above
 it and builds the one below.
 
-| Scope   | Class          | Lives for         | Holds                                                   |
-| ------- | -------------- | ----------------- | ------------------------------------------------------- |
-| Plugin  | PluginScope    | The loaded plugin | app, settings, SkillRepository, AgentsMdRepository      |
-| Session | EngineFactory  | One bound note    | SessionRepository, TranscriptRepository, the EditEngine |
-| Panel   | SessionBuilder | One visible panel | The listeners, the askers, the notices, the panel props |
+| Scope   | Class          | Lives for         | Holds                                                          |
+| ------- | -------------- | ----------------- | -------------------------------------------------------------- |
+| Plugin  | PluginScope    | The loaded plugin | app, settings, SkillRepository, AgentsMdRepository, ActiveNote |
+| Session | EngineFactory  | One bound note    | SessionRepository, TranscriptRepository, the EditEngine        |
+| Panel   | SessionBuilder | One visible panel | The listeners, the askers, the notices, the panel props        |
 
 PluginScope reads settings through a function rather than holding a value, since
 the settings tab replaces the object the plugin holds. A snapshot would freeze
@@ -168,10 +168,10 @@ own. Tests are counted against their own folder and exempt from the limit.
 | engine   | 7    | turn 9, turn/spending 3, turn/ending 3, tools 10, skill-gating 3, waiting 5, note-binding 5, note-editing 5 | 33    |
 | model    | 4    | prompt 6, its sections 7, providers 3, providers/models 3                                                   | 6     |
 | search   | 5    | models 6                                                                                                    | 7     |
-| session  | 10   | views 10, views/hooks 5, views/obsidian 3, models 8, transcript 9, transcript/models 4                      | 24    |
+| session  | 10   | views 10, views/hooks 5, views/obsidian 2, models 8, transcript 9, transcript/models 4                      | 24    |
 | settings | 8    | -                                                                                                           | 5     |
 | skills   | 4    | -                                                                                                           | 3     |
-| wiring   | 3    | -                                                                                                           | 1     |
+| wiring   | 4    | -                                                                                                           | 2     |
 
 Every folder is within the limit, and two sit exactly on it: views, and the
 session root now that SessionRecorder has joined it. Either is the next split.
