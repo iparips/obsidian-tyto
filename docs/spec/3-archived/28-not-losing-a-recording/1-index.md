@@ -45,5 +45,5 @@ reality is a missing record, which is worse.
 
 That is not a gap in what was designed here; the panel is the wrong place for
 the write to live. Moving it to something no unmount can reach is
-[writing-the-session-outside-the-panel](../../2-active/writing-the-session-outside-the-panel/1-index.md),
+[30-writing-the-session-outside-the-panel](../30-writing-the-session-outside-the-panel/1-index.md),
 which also closes the eviction window this spec named and deferred.
