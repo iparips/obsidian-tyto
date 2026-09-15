@@ -11,4 +11,5 @@ sequence. A spec takes its number when it moves to
 - [cross-file-skills](cross-file-skills/1-index.md) - lifting the one-note write limit so a skill can act across files
 - [desktop-v1](desktop-v1/1-index.md) - streaming capture, a second provider and review mode
 - [eval-suite](eval-suite/1-index.md) - measuring whether a prompt change helped
+- [following-the-note-across-a-restore](following-the-note-across-a-restore/1-index.md) - a resumed session editing the note the user left, and the command that dragged it back
 - [mobile-v1](mobile-v1/1-index.md) - the mobile polish pass and its release checklist
