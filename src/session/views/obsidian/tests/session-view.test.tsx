@@ -66,6 +66,41 @@ describe('SessionView', () => {
     })
   })
 
+  // Closing the panel nulls the props, and reopening starts the read again.
+  // Obsidian does not await setViewState, so the plugin reaches the view while
+  // that read is still in flight.
+  describe('when the panel is reopened with a session left behind', () => {
+    it('waits for the restore before reporting whether a session is bound', async () => {
+      view = new SessionView(
+        {} as WorkspaceLeaf,
+        () =>
+          new Promise<SessionPanelProps | null>((resolve) => setTimeout(() => resolve(restored))),
+      )
+
+      void view.onOpen()
+      await view.whenOpened()
+
+      expect(view.hasSession()).toBe(true)
+    })
+
+    it('settles when nothing was left behind, so the caller binds a fresh session', async () => {
+      view = new SessionView({} as WorkspaceLeaf, () => Promise.resolve(null))
+
+      void view.onOpen()
+      await view.whenOpened()
+
+      expect(view.hasSession()).toBe(false)
+    })
+
+    it('settles before the view has opened, so a caller never waits on a closed panel', async () => {
+      view = new SessionView({} as WorkspaceLeaf, () => Promise.resolve(restored))
+
+      await view.whenOpened()
+
+      expect(view.hasSession()).toBe(false)
+    })
+  })
+
   describe('when the view was built without a restore', () => {
     it('holds no session when nothing can restore one', async () => {
       view = new SessionView({} as WorkspaceLeaf)

@@ -17,6 +17,9 @@ export class SessionView extends ItemView {
   // Bumped on every bind, and the panel's whole key, so an unbound session needs
   // no note name to remount and clear the entries on screen.
   private sessionCount = 0
+  // The restore onOpen started, so a caller reaching the view mid-open waits for
+  // it rather than reading hasSession while the store read is still in flight.
+  private opening: Promise<void> | null = null
 
   constructor(
     leaf: WorkspaceLeaf,
@@ -61,6 +64,18 @@ export class SessionView extends ItemView {
   // sidebar that reads empty until you know to re-open it is the failure FR4
   // names.
   async onOpen(): Promise<void> {
+    this.opening = this.restoreStoredSession()
+    return this.opening
+  }
+
+  // Settles once the session left behind is back, or once there is none. The
+  // plugin waits on this before it decides the panel is empty: Obsidian does not
+  // await setViewState, so a leaf revealed by the ribbon is still opening.
+  async whenOpened(): Promise<void> {
+    await this.opening
+  }
+
+  private async restoreStoredSession(): Promise<void> {
     this.root = createRoot(this.contentEl)
     this.renderPanel()
     if (this.panelProps) return
@@ -74,6 +89,7 @@ export class SessionView extends ItemView {
     this.root?.unmount()
     this.root = null
     this.panelProps = null
+    this.opening = null
   }
 
   private renderPanel(): void {
