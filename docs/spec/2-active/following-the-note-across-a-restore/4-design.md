@@ -19,11 +19,11 @@ record remembers.
 Three places, and they disagree. The requirements call this out; these are the
 sites.
 
-| Site                                 | Today                                    |
-| ------------------------------------ | ---------------------------------------- |
-| EditEngine.followActiveNote          | Rebinds to the opened note, silently     |
-| TytoPlugin.bindOrAskRebind           | Prompts, and rebinding drops the history |
-| SessionBuilder.restore               | Takes stored.targetPath, never asks      |
+| Site                        | Today                                    |
+| --------------------------- | ---------------------------------------- |
+| EditEngine.followActiveNote | Rebinds to the opened note, silently     |
+| TytoPlugin.bindOrAskRebind  | Prompts, and rebinding drops the history |
+| SessionBuilder.restore      | Takes stored.targetPath, never asks      |
 
 The first is the rule already. The design makes the other two agree with it.
 
@@ -81,17 +81,22 @@ parameter:
 ```text
 assemble(presence, entries, sessions, transcript):
   path = activeNote.path()
-  sessions.changeTargetNote(path)     // or leaves it null
+  sessions.bindTo(path)
   ...
 ```
 
 build passes no file. restore passes no path. Both get the workspace's answer,
 which is the rule stated in the one place both reach.
 
-SessionRepository.restored keeps its targetPath parameter, because the record
-still holds one and reading it is how the repository is constructed. The
-overwrite happens after, and the next section says why that is not a wasted
-write.
+The write is bindTo rather than changeTargetNote, which takes a path and never
+null. Its callers are a command and a file-open, and neither can unbind a
+session; assemble can, because nothing markdown open is an unbound session.
+Widening changeTargetNote would have let those two unbind by accident.
+
+SessionRepository.restored keeps its targetPath parameter, since the tests
+construct a bound repository through it, but the production call passes null.
+Passing the stored path and overwriting it a line later reads as though the
+record still decided something.
 
 ## Why the record still stores a path
 
@@ -181,7 +186,7 @@ sequenceDiagram
     View->>Builder: restore, carrying the record
     Builder->>Active: path
     Active-->>Builder: the open note, or null
-    Builder->>Sessions: changeTargetNote
+    Builder->>Sessions: bindTo
     Note over Sessions: The record supplies the conversation, never the target
     User->>Engine: processUtterance
     Note over Engine: The edit lands on what the user is looking at
@@ -222,6 +227,11 @@ answers getActiveFile, so the binding decision is testable where it now lives.
 That is the answer to the requirements' note that main.ts has no tests: the
 decision moves out of main.ts.
 
+FakeWorkspace's getActiveFile needed one change: it returned a TFile with no
+extension, and a reader deciding whether the open file is a note has only what
+Obsidian puts on the TFile. The extension now comes off the path, so a test can
+say a canvas is in front by naming one.
+
 - A restored session binds to the open note, not the stored one
 - A restored session binds to null when nothing markdown is open
 - A restored session keeps its entries and its chat history whatever it binds to
@@ -261,6 +271,6 @@ By hand, against a real vault:
 - src/main.ts:155 - activeNote, which becomes ActiveNote
 - src/main.ts:122 - followActiveNoteWith, and the listener that needs no backlog
 - src/engine/edit-engine.ts:26 - followActiveNote, which already states the rule
-- src/session/session-repository.ts:16 - restored, whose target is overwritten
+- src/session/session-repository.ts:16 - restored, which the production call now passes null
 - src/wiring/tests/session-builder.test.ts:36 - where the binding tests go
 - src/test-support/fake-workspace.ts:72 - getActiveFile, which the tests already have

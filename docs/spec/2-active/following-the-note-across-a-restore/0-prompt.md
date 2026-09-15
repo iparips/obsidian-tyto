@@ -8,7 +8,7 @@ updated: 2026-09-15
 The block to paste into a fresh session that will build this spec.
 
 ```text
-Build the spec in docs/spec/1-upcoming/following-the-note-across-a-restore: a
+Build the spec in docs/spec/2-active/following-the-note-across-a-restore: a
 session is bound to the open markdown note, or to null when nothing markdown is
 open, whether it is new, restored, or already running.
 
