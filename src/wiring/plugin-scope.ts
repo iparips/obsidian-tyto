@@ -1,4 +1,5 @@
 import { App } from 'obsidian'
+import { ActiveNote } from './active-note'
 import { AgentsMdRepository } from '../agents/agents-md-repository'
 import { SkillRepository } from '../skills/skill-repository'
 import { TytoSettings } from '../settings/settings'
@@ -24,5 +25,9 @@ export class PluginScope {
 
   agentsMdRepository(): AgentsMdRepository {
     return new AgentsMdRepository(this.app.vault.adapter)
+  }
+
+  activeNote(): ActiveNote {
+    return new ActiveNote(this.app)
   }
 }
