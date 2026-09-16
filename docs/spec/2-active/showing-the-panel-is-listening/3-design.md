@@ -68,11 +68,17 @@ to attach to.
 A hook owns the audio graph, so the component holds no lifecycle:
 
 ```text
-useRecordingLevel(streamFn) -> level, 0 to 1
+useRecordingLevel(streamFn) -> level 0 to 1, elapsed seconds, begin()
 ```
 
-- An AudioContext and an AnalyserNode, built when a stream arrives and closed
-  when it goes. Nothing exists while idle (NFR3)
+- An AudioContext and an AnalyserNode, built at begin() and closed when the
+  stream goes. Nothing exists while idle (NFR3)
+- begin() rather than an effect watching the phase, because the context has to
+  be built inside the gesture itself. An effect reacting to a phase change runs
+  after the state update, which is already outside that gesture
+- The loop polls streamFn, since the stream only arrives once getUserMedia
+  resolves. A stream that never arrives releases the graph rather than looping
+  for one that is not coming
 - requestAnimationFrame reads getByteTimeDomainData and reduces it to one
   amplitude. A frame loop rather than a timer, so it stops when the panel is
   backgrounded
