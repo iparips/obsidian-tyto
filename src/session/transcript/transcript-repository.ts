@@ -6,6 +6,7 @@ import {
   TranscriptPart,
 } from './models/transcript-record'
 import { TurnEndingKind } from '../../engine/turn/ending/turn-ending-kind'
+import { RestoredCounts } from './models/restored-counts'
 
 // What a part was last recorded as, so an unchanged text is cited rather than
 // stored again.
@@ -23,14 +24,18 @@ export class TranscriptRepository {
   private readonly endings: RecordedEnding[] = []
   private readonly kept = new Map<PartName, KeptPart>()
   private readonly versions: TranscriptPart[] = []
-  private publishedPanelSteps = 0
-  private turn = 0
+  private publishedPanelSteps: number
+  private turn: number
 
-  // Where the first recorded step starts in the chat history. Zero for a
-  // session that never went away, and the restored history's length for one
-  // that did: without it the first step after a restore claims every message
-  // the previous session wrote.
-  constructor(private readonly restoredHistoryLength = 0) {}
+  // Where a restored session picks up in each of the three things a step
+  // indexes into. Zero throughout for a session that never went away; for one
+  // that came back, what the record already holds. Without them the first step
+  // after a restore claims the previous session's messages, panel steps and
+  // turn number as its own.
+  constructor(private readonly restored: RestoredCounts = RestoredCounts.none()) {
+    this.publishedPanelSteps = restored.panelSteps
+    this.turn = restored.turns
+  }
 
   // Called before the provider call, so the parts recorded are the ones that
   // call carried rather than what the next step will change them to.
@@ -110,6 +115,6 @@ export class TranscriptRepository {
   // the history once and writes no message twice.
   private historyStart(): number {
     const previous = this.steps.at(-1)
-    return previous ? previous.history.last + 1 : this.restoredHistoryLength
+    return previous ? previous.history.last + 1 : this.restored.messages
   }
 }

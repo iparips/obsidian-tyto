@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { TurnEndingKind } from '../../../engine/turn/ending/turn-ending-kind'
 import { TranscriptRepository } from '../transcript-repository'
+import { RestoredCounts } from '../models/restored-counts'
 import { PartName } from '../models/transcript-record'
 
 // A recorded step holds only what it did not share with the steps around it, so
@@ -29,7 +30,7 @@ describe('TranscriptRepository', () => {
 
   describe('when a session was restored', () => {
     beforeEach(() => {
-      transcript = new TranscriptRepository(4)
+      transcript = new TranscriptRepository(RestoredCounts.of(4, 0, 0))
     })
 
     it('starts the first recorded step past the restored history', () => {
@@ -42,6 +43,34 @@ describe('TranscriptRepository', () => {
 
     it('holds no steps from before the restore', () => {
       expect(transcript.isEmpty()).toBe(true)
+    })
+  })
+
+  // The restored entries carry the previous session's panel steps and turns, so
+  // a step counting either from zero renders that session's work as this one's.
+  describe('when a restored session already holds panel steps and turns', () => {
+    beforeEach(() => {
+      transcript = new TranscriptRepository(RestoredCounts.of(4, 3, 2))
+    })
+
+    it('starts the first recorded step past the restored panel steps', () => {
+      recordCall(6)
+
+      expect(transcript.recordedSteps()[0].panelSteps.first).toBe(3)
+    })
+
+    it('numbers the first recorded step past the restored turns', () => {
+      recordCall(6)
+
+      expect(transcript.recordedSteps()[0].turn).toBe(2)
+    })
+
+    it('numbers the step after an ending one turn on from the restored turns', () => {
+      recordCall(6)
+      transcript.recordEnding(TurnEndingKind.Replied)
+      recordCall(8)
+
+      expect(transcript.recordedSteps()[1].turn).toBe(3)
     })
   })
 
