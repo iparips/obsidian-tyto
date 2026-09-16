@@ -78,8 +78,10 @@ Tests: the result names the operation and the note, and does not echo the conten
 
 ## Also In This Work
 
-Amend [recording-a-retarget](../recording-a-retarget/1-index.md). Its D1 and D2
-are already marked superseded and its index carries the note; check nothing else
-in that spec still promises the model half once this lands.
+Amend [recording-a-retarget](../recording-a-retarget/1-index.md). Mark its D1
+and D2 superseded, note it in its index, and point its two model-half promises
+here: the tests file asks for a step where a retarget is now an entry, and its
+model-does-not-reach-back check is the one this spec's acceptance criteria
+carry.
 
 The checks a person runs are in [4-acceptance-criteria.md](4-acceptance-criteria.md).

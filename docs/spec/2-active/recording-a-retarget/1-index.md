@@ -15,6 +15,19 @@ the panel entry list and the model's own history all go without it.
 - [5-tests.md](5-tests.md) - four checks, and the one needing a real key
 - [6-tasks.md](6-tasks.md) - two commits, one per write, independent of each other
 
+Superseded in part by
+[reporting-what-a-turn-did](../reporting-what-a-turn-did/1-index.md). Its D1
+reverses the model half of D1 and D2 here: a retarget is a session event with
+its own panel entry kind, so nothing is appended to the chat history and the
+step is gone. What this spec still holds is that a retarget is worth recording
+at all, and that a person reading a session back should see when it changed
+note.
+
+Two defects came from the two homes this spec chose. A history message can land
+between a tool call and its result, which the provider answers with a 400. A
+step needs a turn to own it, and a restore leaves the entry the reducer scans
+for above the restore marker.
+
 Sibling to
 [binding-to-the-active-tab](../binding-to-the-active-tab/1-index.md), which
 fixes when a retarget happens. This one records that it did.
