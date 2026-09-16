@@ -23,11 +23,11 @@ user and the turn carries out the utterance it was given. Nothing needs telling
 the model, which leaves archived spec 33's removal of the history message
 standing.
 
-Every decision is settled, so the design can be written. A scattered edit becomes
-one whole-note write carrying all three guards D5 named, and one edit per step is
-enforced so a model that reaches for the anchored tools anyway cannot batch them.
-That is a rule the model cannot misjudge, where choosing the right tool was the
-guess this spec kept paying for.
+Every decision is settled, so the design can be written. One edit per step is
+enforced, so an anchor is always computed from the read that preceded it, which
+is the pairing a batch quietly broke. A whole-note write is what makes that
+affordable: a scattered edit costs one call rather than twelve steps, and it
+carries all three guards D5 named.
 
 Downstream of
 [33-reporting-what-a-turn-did](../../3-archived/33-reporting-what-a-turn-did/1-index.md),

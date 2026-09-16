@@ -57,17 +57,16 @@ Archived spec 33 raised this as D4 and left it open, on the grounds that the
 case was narrower than the one reported. This session is that case, and it cost
 the user's todo file.
 
-An edit scattered across a note, which archiving is, is the wrong shape for
-anchored edits: one rewrite has no siblings to go stale against. A whole-note
-tool takes all three guards D5 settled, so it refuses unless the model read the
+The note context is rebuilt per turn step, so an anchor is current when the step
+that computes it begins and stale the moment a sibling call lands. Enforcing one
+edit per step is what restores the pairing the anchored tools always assumed:
+one read, one edit, in that order.
+
+That makes a scattered edit expensive, which is why the whole-note write comes
+with it. Archiving becomes one call and one write rather than twelve steps, and
+it carries all three guards D5 settled: it refuses unless the model read the
 note this turn, refuses when the note moved under what it carries, and asks
 before it lands.
-
-The anchored tools stay for the single targeted edit a rewrite would be
-heavy-handed for, and one edit per step is enforced so they cannot be batched.
-That is what stops the drift rather than detecting it: the note context is
-rebuilt per turn step, so an edit that waits for the next step is shown the note
-before it writes.
 
 ## Steps to Replicate
 
