@@ -30,7 +30,7 @@ describe('SessionPanel transcript copy', () => {
         recorder={recorder}
         transcribe={transcribe}
         processUtterance={processUtterance}
-        onHidden={() => () => undefined}
+        onObsidianBackgrounded={() => () => undefined}
         transcriptOf={(entries) =>
           new TranscriptSource(
             { copiedAt: new Date(2026, 8, 10, 15, 25), pluginVersion: '0.1.0', notePath: 'a.md' },

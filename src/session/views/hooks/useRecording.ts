@@ -17,7 +17,7 @@ export interface RecordingPorts {
   // cancelled.
   transcribe(blob: Blob, mimeType: string): Promise<Attempt<string>>
   // The plugin owns the listener so Obsidian detaches it on unload.
-  onHidden?(listener: () => void): () => void
+  onObsidianBackgrounded?(listener: () => void): () => void
 }
 
 export interface Recording {
