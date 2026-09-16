@@ -13,8 +13,13 @@ differently, and a model sent both cannot tell which is current. Writing, it
 means the handle a turn holds shows another note once the user switches tabs,
 and the edit follows the handle.
 
-- [2-requirements.md](2-requirements.md) - the two sources, the handle that moves, and why the open note is the case that matters
-- [3-decisions.md](3-decisions.md) - what an edit writes through, where a read comes from, and whether grep follows
+Neither was visible. The panel names the session's note and has no way to say
+what the running turn is writing to, so both faults were found by opening the
+file rather than by reading the panel.
+
+- [2-requirements.md](2-requirements.md) - the two sources, the handle that moves, and the note the panel cannot name
+- [3-decisions.md](3-decisions.md) - what an edit writes through, and where a read of the open note comes from
+- [3-decisions-showing.md](3-decisions-showing.md) - what the header says while a turn writes somewhere else
 - [7-transcript.md](7-transcript.md) - the two answers, in one request
 
 A write goes through the editor where it still shows the path the tool named,
@@ -22,7 +27,9 @@ and through the vault where it does not. The common case keeps undo and the
 cursor; only a tab that moved falls back, which is the case that is silently
 wrong today.
 
-No design or tasks file yet. D1 is blocking, and one fact is still outstanding:
+No design or tasks file yet. D1 and D4 are blocking: one decides where a read of
+the open note comes from, the other whether the panel needs the turn's note at
+all. One fact is still outstanding:
 whether a vault write lands in the editor's undo stack when the note is open.
 That decides how loudly the fallback should announce itself, not which option
 to take.

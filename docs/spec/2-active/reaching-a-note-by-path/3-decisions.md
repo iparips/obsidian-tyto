@@ -3,7 +3,10 @@ created: 2026-09-16
 updated: 2026-09-16
 ---
 
-# Decisions
+# Decisions: Reaching The Note
+
+How a read and a write find the note they were asked for. What the panel says
+about it is in [3-decisions-showing.md](3-decisions-showing.md).
 
 ## Requirements
 
