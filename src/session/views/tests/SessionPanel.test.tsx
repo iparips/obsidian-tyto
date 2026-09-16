@@ -47,7 +47,7 @@ describe('SessionPanel', () => {
 
       await userEvent.click(screen.getByRole('button', { name: 'Record' }))
 
-      expect(screen.getByRole('button', { name: 'Stop recording' })).toBeTruthy()
+      expect(screen.getByRole('button', { name: 'Send recording' })).toBeTruthy()
     })
 
     it('carries the accent colour on the record button while recording', async () => {
@@ -55,7 +55,7 @@ describe('SessionPanel', () => {
 
       await userEvent.click(screen.getByRole('button', { name: 'Record' }))
 
-      expect(screen.getByRole('button', { name: 'Stop recording' }).className).toBe(
+      expect(screen.getByRole('button', { name: 'Send recording' }).className).toBe(
         'tyto-recording-button',
       )
     })
@@ -82,7 +82,7 @@ describe('SessionPanel', () => {
       renderPanel()
       await userEvent.click(screen.getByRole('button', { name: 'Record' }))
 
-      await userEvent.click(screen.getByRole('button', { name: 'Stop recording' }))
+      await userEvent.click(screen.getByRole('button', { name: 'Send recording' }))
 
       expect(screen.getByRole('button', { name: 'Record' }).hasAttribute('disabled')).toBe(true)
       resolveTranscribe(Outcomes.success('spoken words'))
@@ -128,7 +128,7 @@ describe('SessionPanel', () => {
       renderPanel()
       await userEvent.click(screen.getByRole('button', { name: 'Record' }))
 
-      await userEvent.click(screen.getByRole('button', { name: 'Stop recording' }))
+      await userEvent.click(screen.getByRole('button', { name: 'Send recording' }))
 
       await waitFor(() => expect(screen.getByText('spoken words')).toBeTruthy())
     })
@@ -137,7 +137,7 @@ describe('SessionPanel', () => {
       renderPanel()
       await userEvent.click(screen.getByRole('button', { name: 'Record' }))
 
-      await userEvent.click(screen.getByRole('button', { name: 'Stop recording' }))
+      await userEvent.click(screen.getByRole('button', { name: 'Send recording' }))
 
       await waitFor(() => expect(screen.getByText('made the edit')).toBeTruthy())
     })
@@ -147,7 +147,7 @@ describe('SessionPanel', () => {
       renderPanel()
       await userEvent.click(screen.getByRole('button', { name: 'Record' }))
 
-      await userEvent.click(screen.getByRole('button', { name: 'Stop recording' }))
+      await userEvent.click(screen.getByRole('button', { name: 'Send recording' }))
 
       await waitFor(() => expect(screen.getByText('chat failed: model unavailable')).toBeTruthy())
     })
@@ -801,7 +801,7 @@ describe('SessionPanel', () => {
       transcribe.mockResolvedValue(Outcomes.failure('transcription', 'rate limited'))
       renderPanel()
       await userEvent.click(screen.getByRole('button', { name: 'Record' }))
-      await userEvent.click(screen.getByRole('button', { name: 'Stop recording' }))
+      await userEvent.click(screen.getByRole('button', { name: 'Send recording' }))
     }
 
     it('offers a retry when the failure lands', async () => {
@@ -876,7 +876,7 @@ describe('SessionPanel', () => {
       transcribe.mockResolvedValue(Outcomes.success('said again'))
 
       await userEvent.click(screen.getByRole('button', { name: 'Record' }))
-      await userEvent.click(screen.getByRole('button', { name: 'Stop recording' }))
+      await userEvent.click(screen.getByRole('button', { name: 'Send recording' }))
 
       await waitFor(() => expect(transcribe).toHaveBeenLastCalledWith(second.blob, 'audio/mp4'))
     })
@@ -897,7 +897,7 @@ describe('SessionPanel', () => {
       transcribe.mockResolvedValue(Outcomes.failure('transcription', 'rate limited'))
       renderPanel()
       await userEvent.click(screen.getByRole('button', { name: 'Record' }))
-      await userEvent.click(screen.getByRole('button', { name: 'Stop recording' }))
+      await userEvent.click(screen.getByRole('button', { name: 'Send recording' }))
       await waitFor(() => expect(screen.getByLabelText('Retry transcription')).toBeTruthy())
       await userEvent.click(screen.getByRole('button', { name: 'Record' }))
 
@@ -913,7 +913,7 @@ describe('SessionPanel', () => {
       renderPanel()
       await userEvent.click(screen.getByRole('button', { name: 'Record' }))
 
-      await userEvent.click(screen.getByRole('button', { name: 'Stop recording' }))
+      await userEvent.click(screen.getByRole('button', { name: 'Send recording' }))
 
       await waitFor(() => expect(screen.getByText('chat failed: model unavailable')).toBeTruthy())
       expect(screen.queryByLabelText('Retry transcription')).toBeNull()
