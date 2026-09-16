@@ -590,5 +590,15 @@ describe('EditEngine', () => {
 
       expect(steps.at(-1)).toBe(`Edit: applied — ${TODO}`)
     })
+
+    // The model's result names the operation and the note, which the step
+    // already carries the path for: reusing it would name the note twice.
+    it('keeps the step short where the model reads the longer result', async () => {
+      respondsWith(findsTodo(), offersTodo(), opensTodo(), addsItem())
+
+      await engineOf().processUtterance('add toilet paper to my todo')
+
+      expect(steps.at(-1)).not.toContain('insert_text')
+    })
   })
 })

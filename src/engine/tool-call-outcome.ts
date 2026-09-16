@@ -12,7 +12,15 @@ export class ToolCallOutcome {
     // Set when the call was refused, so the loop counts repeats without reading
     // meaning into the result text.
     readonly refusal?: string,
+    // What the panel shows where that is not what the model reads. An applied
+    // edit names its operation and note for the model, which the step would
+    // then say a second time beside the path it already carries.
+    private panelSummary?: string,
   ) {}
+
+  descriptionForUser(): string {
+    return this.panelSummary ?? this.result
+  }
 
   // The ordinary case: the model reads the text and the loop does nothing else.
   static of(result: string): ToolCallOutcome {
@@ -23,8 +31,12 @@ export class ToolCallOutcome {
     return new ToolCallOutcome(reason, undefined, reason)
   }
 
-  static edited(result: string, editEndPosition: EditorPosition): ToolCallOutcome {
-    return new ToolCallOutcome(result, editEndPosition)
+  static edited(
+    result: string,
+    editEndPosition: EditorPosition,
+    panelSummary?: string,
+  ): ToolCallOutcome {
+    return new ToolCallOutcome(result, editEndPosition, undefined, panelSummary)
   }
 
   // An edit tool that changed nothing was refused, whatever it said: the reason
