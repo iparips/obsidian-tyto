@@ -417,16 +417,19 @@
    drawer is resized freely and read on a phone (NFR2). */
 .tyto-recording-meter {
   display: flex;
-  align-items: center;
-  gap: 2px;
+  align-items: flex-end;
+  gap: 1px;
   height: 16px;
   flex: 1 1 auto;
   min-width: 0;
 }
 
 .tyto-recording-bar {
-  width: 3px;
-  min-width: 0;
+  /* One bar per reading, so they share the width the clock leaves rather than
+     each holding a fixed one. */
+  flex: 1 1 0;
+  min-width: 1px;
+  max-width: 3px;
   border-radius: 2px;
   background-color: var(--interactive-accent);
   /* Fast enough to read as the signal rather than as an animation trailing it,

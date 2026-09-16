@@ -35,6 +35,29 @@ was width the meter needed and nobody could use. The clock moves left of the
 meter, where a fixed-width value anchors the row and the meter takes what is
 left.
 
+#### D5: A level meter or a trail of recent readings? [resolved 2026-09-16]
+
+A trail. Ilya asked for the shape a messaging app uses, where bars scroll left as
+time passes rather than pulsing at the current level.
+
+The design had rejected a waveform as answering a question nobody asked. That was
+wrong about which question the strip answers. A user looks at it to learn the
+microphone is working, and a level meter cannot say so: five bars at the floor
+are a quiet room and a dead microphone alike. A trail separates them, because a
+dead microphone draws a flat line where a quiet room still twitches.
+
+| Option                     | A dead microphone reads as      | Cost                              |
+| -------------------------- | ------------------------------- | --------------------------------- |
+| A trail of recent readings | A flat line, unmistakably       | A ring buffer in the hook         |
+| Five bars at the level     | Bars at the floor, like silence | None, which is what shipped first |
+
+Cheaper than the rejection assumed. The bars were already one element per
+reading, so no canvas is involved: the hook keeps an array and the strip maps it.
+
+The readings are sampled every 100ms rather than per frame. The loop runs at the
+display's rate, which would fill the trail in under half a second and show the
+last blink rather than a trail.
+
 #### D1: Does the meter share the recorder's stream or open its own? [resolved 2026-09-16]
 
 Shares it. Ilya: share the recorder stream.

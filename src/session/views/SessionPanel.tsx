@@ -145,7 +145,7 @@ export const SessionPanel = (props: SessionPanelProps) => {
       />
       <RecordingStrip
         phase={state.phase}
-        level={recordingLevel.level}
+        levels={recordingLevel.levels}
         elapsedSeconds={recordingLevel.elapsedSeconds}
       />
       <InputRow
