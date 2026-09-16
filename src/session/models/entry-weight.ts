@@ -14,11 +14,12 @@ const WEIGHTS: Record<PanelEntry['kind'], EntryWeight> = {
   warning: 'context',
   steps: 'context',
   restored: 'context',
+  retargeted: 'context',
 }
 
 // What an entry is worth on screen, which is not what it says. Six kinds are
-// replies and three are context, so the panel reads as a conversation rather
-// than as ten kinds of box.
+// replies and four are context, so the panel reads as a conversation rather
+// than as eleven kinds of box.
 export class EntryWeights {
   static of(kind: PanelEntry['kind']): EntryWeight {
     return WEIGHTS[kind]
