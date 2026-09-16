@@ -1,6 +1,7 @@
 import { FailureStep } from '../../shared/models/outcome'
 import { AskedEntries } from './asked-entries'
 import { PanelAction } from './panel-action'
+import { RetargetedText } from './retargeted-text'
 
 // cancelling sits between the click and the loop stopping, so the button stops
 // offering while the turn is still on its way down. choosing and asking both
@@ -26,6 +27,10 @@ export type PanelEntry =
   // restored panel is otherwise identical to one that never went away, so
   // without this a restore is invisible (FR7b).
   | { kind: 'restored'; text: string }
+  // Where the session moved to a different note. A session event rather than a
+  // step: it belongs to the moment it happened, so no turn has to own it and
+  // nothing is appended to the chat history to carry it.
+  | { kind: 'retargeted'; text: string }
   // pending while the rows are live; the outcome replaces them, because a row
   // that no longer does anything is worse than a line saying what happened.
   // The candidates stay once settled, so a turn that went nowhere still records
@@ -88,6 +93,14 @@ export class PanelReducer {
         return state.withEntry(state.phase, { kind: 'instructions', text: action.text })
       case 'warned':
         return state.withEntry(state.phase, { kind: 'warning', text: action.text })
+      // Appended where it happened rather than joining the open steps entry: a
+      // retarget belongs to no turn, and a restored panel leaves the entry
+      // withStep scans for above the restore marker.
+      case 'retargeted':
+        return state.withEntry(state.phase, {
+          kind: 'retargeted',
+          text: RetargetedText.of(action.path),
+        })
       case 'stepTaken':
         return PanelReducer.withStep(state, {
           label: action.label,

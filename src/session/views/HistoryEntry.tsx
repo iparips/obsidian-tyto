@@ -18,6 +18,7 @@ const ENTRY_CLASSES = {
   warning: 'tyto-entry-warning',
   steps: 'tyto-entry-steps-line',
   restored: 'tyto-entry-restored',
+  retargeted: 'tyto-entry-retargeted',
 }
 
 const entryText = (entry: PanelEntry) => {

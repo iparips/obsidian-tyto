@@ -30,12 +30,6 @@ export class TurnStep {
     return new TurnStep('Opened', path)
   }
 
-  // Null once the session can follow a tab holding no note, which is a bound
-  // session losing its target rather than a retarget that never happened.
-  static retargeted(path: string | null): TurnStep {
-    return new TurnStep('Retargeted', path ?? 'no note bound')
-  }
-
   // The count rather than the paths: the panel entry lists them, and a steps
   // line naming eight notes is a list where the others are one line each.
   static offered(candidates: number): TurnStep {
