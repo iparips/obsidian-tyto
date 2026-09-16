@@ -28,9 +28,12 @@ export class SkillDeclarationNotSatisfied {
     )
   }
 
+  // Names load_skill rather than saying "load": a model reading the short form
+  // retried the same call twice and spent the turn, where the refused open
+  // names choose_note and is obeyed.
   static someApplicableSkillsNotInSession(names: readonly string[]): SkillDeclarationNotSatisfied {
     return new SkillDeclarationNotSatisfied(
-      `load ${names.join(', ')}, then call this again declaring it`,
+      `call load_skill for ${names.join(', ')} now, then call this again declaring it. Do not retry this call first`,
     )
   }
 

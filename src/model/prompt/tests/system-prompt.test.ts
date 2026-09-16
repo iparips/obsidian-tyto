@@ -94,6 +94,22 @@ describe('the prompt messages', () => {
     })
   })
 
+  // A refused declaration told the model to "load shopping-list", which it read
+  // as prose and answered by retrying the same call until the turn was spent.
+  describe('when the vault defines skills', () => {
+    it('names load_skill as the way out of a refused declaration', () => {
+      const prompt = systemPromptText(aChain(), [], catalogue)
+
+      expect(prompt).toContain('Call load_skill with it')
+    })
+
+    it('says retrying the refused call first is refused again', () => {
+      const prompt = systemPromptText(aChain(), [], catalogue)
+
+      expect(prompt).toContain('retrying that call first is refused again')
+    })
+  })
+
   describe('when no folder holds instructions', () => {
     it('omits the instructions section when the chain is empty', () => {
       const prompt = systemPromptText()
