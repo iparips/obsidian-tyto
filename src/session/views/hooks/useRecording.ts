@@ -8,6 +8,8 @@ export interface RecorderPort {
   start(): Promise<Outcome<void>>
   stop(): Promise<Utterance>
   cancel(): void
+  // The live stream, so a meter shares it rather than opening a second one.
+  stream(): MediaStream | null
 }
 
 export interface RecordingPorts {
