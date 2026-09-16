@@ -10,7 +10,7 @@ Values a skill resolves rather than hardcodes. A row here beats the same row in
 the user-level AGENTS.md, since this repo is the thing being described.
 
 | Skill | Variable                  | Value                            |
-|-------|---------------------------|----------------------------------|
+| ----- | ------------------------- | -------------------------------- |
 | sdd   | work_dir                  | docs/spec                        |
 | sdd   | sdd.work_lifecycle_stages | 1-upcoming, 2-active, 3-archived |
 

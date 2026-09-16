@@ -1,0 +1,4 @@
+# Session transcripts are evidence, copied verbatim from the panel. Reformatting
+# the JSON inside them changes what the record says the model sent.
+docs/spec/**/8-transcripts.md
+docs/spec/**/*-transcript.md

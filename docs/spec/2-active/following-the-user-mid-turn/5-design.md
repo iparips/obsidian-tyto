@@ -14,7 +14,7 @@ that affordable.
 ## Behaviour Change
 
 | Concern                      | Today                                        | New                                        |
-|------------------------------|----------------------------------------------|--------------------------------------------|
+| ---------------------------- | -------------------------------------------- | ------------------------------------------ |
 | User opens a note mid-turn   | The running turn's target swaps under it     | The session binds; the turn keeps its note |
 | Second edit call in one step | Applied against a note the first one changed | Refused, naming the step boundary          |
 | A scattered edit             | A batch of anchors from one snapshot         | One whole-note write                       |
@@ -71,24 +71,41 @@ rather than the anchor, since an anchor never tried is not what was wrong.
 The count is per step, so a turn still makes as many edits as the instruction
 needs, and it lives in the method so no state outlives the call.
 
+The refusal is not recorded against RepeatedRefusalCounter. That counter ends a
+turn after two identical refusals, and a batch of three edits would produce the
+boundary refusal twice, so recording it would turn a deferral into a stuck turn.
+It is the one refusal that says the turn is working correctly, so
+executeToolCall passes null for it where it passes the reason for every other.
+
 ## The Whole-Note Write
 
 A fourth edit tool, WRITE_NOTE, taking the full content and the content the
-model last read. It reaches NoteEditor like the other three and replaces the
-whole range, so Obsidian's undo stack holds it as one entry.
+model last read. EditOperation gains a fourth kind for it, and NoteEditor.apply
+a branch replacing offset zero to the note's length, so Obsidian's undo stack
+holds the write as one entry.
+
+NoteOperationParser gains the parse, and ToolCall.isEditTool the name, which is
+what makes the step boundary cover it: a whole-note write is an edit, so a batch
+holding one and an anchored edit refuses the second like any other pair.
 
 The three guards from D5, in the order a model meets them:
 
 | Guard             | Refuses when                                            | Reads                                   |
-|-------------------|---------------------------------------------------------|-----------------------------------------|
+| ----------------- | ------------------------------------------------------- | --------------------------------------- |
 | Read this turn    | No read_note for this note has run this turn            | A set on TurnRepository                 |
 | Unchanged since   | The note no longer matches the content the call carries | The editor, against the call's argument |
 | The user confirms | The user declines                                       | NoteChoiceService, as an open does      |
 
-The first needs a repository the turn lacks. NotesReadRepository joins
-NotesChosenByUserRepository and PathsReturnedByVaultRepository on
-TurnRepository, written by HarnessToolsService.readNote. Turn-scoped like its
-siblings: a read in an earlier turn says nothing about the note now.
+The first needs a repository the turn lacks. NotesReadRepository is built in
+TurnRepository's constructor, as NotesChosenByUserRepository is, and written by
+HarnessToolsService.readNote.
+
+Turn-scoped rather than session-scoped, which is the split the existing three
+already make. PathsReturnedByVaultRepository and SkillsReadRepository are handed
+in by the session, because what they record stays true across turns: a path the
+user watched the model find, and a skill body still in the chat history. A read
+is not like that. The note can change between turns, so a read in an earlier one
+is no evidence about the note now, which is exactly what this guard is for.
 
 The second is what makes the tool safe to offer at all. The call carries what
 the model read, and the guard refuses when the editor no longer matches it.
