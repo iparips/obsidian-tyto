@@ -71,7 +71,7 @@ user's own utterance do not.
 ## Why the engine returns rather than publishes
 
 Steps, warnings and answers reach the panel through subscriptions, wired in
-SessionBuilder. The turn's ending does not.
+SessionPanelPropsBuilder. The turn's ending does not.
 
 A subscription suits an event with no caller waiting. The utterance has one:
 UtteranceQueue holds the promise so the next utterance can wait on it, and the
