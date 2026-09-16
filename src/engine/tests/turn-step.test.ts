@@ -58,6 +58,20 @@ describe('TurnStep', () => {
     })
   })
 
+  describe('when the session changes note', () => {
+    it('names the note the session moved to', () => {
+      expect(TurnStep.retargeted('Lists/todo.md').detail).toBe('Lists/todo.md')
+    })
+
+    it('says no note bound when the session moved to a tab holding none', () => {
+      expect(TurnStep.retargeted(null).detail).toBe('no note bound')
+    })
+
+    it('labels it as a retarget', () => {
+      expect(TurnStep.retargeted('Lists/todo.md').label).toBe('Retargeted')
+    })
+  })
+
   describe('when an edit lands', () => {
     it('names the note the edit reached alongside the result', () => {
       expect(TurnStep.edited('applied', 'Lists/todo.md').detail).toBe('applied — Lists/todo.md')
