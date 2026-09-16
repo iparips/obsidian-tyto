@@ -41,12 +41,12 @@ export class SessionController {
     // that. Deciding the panel is empty before the read settles is what bound a
     // fresh session over the one left behind.
     await view.whenOpened()
-    if (!view.hasSession()) view.bindSession(this.buildPanelProps(view))
+    if (!view.hasSession()) view.bindSession(this.buildInitialSessionProps(view))
   }
 
   // Asked by the view as it opens, which is where a leaf Obsidian reopened on
   // restart gets its session back without the user invoking Tyto again.
-  async storedPanelProps(view: SessionView): Promise<SessionPanelProps | null> {
+  async readPanelPropsFromSessionStore(view: SessionView): Promise<SessionPanelProps | null> {
     const sessionSnapshot = await this.sessionFileStore.read()
     if (!sessionSnapshot) return null
     return this.panelPropsBuilder().buildFromSessionSnapshot(
@@ -57,7 +57,7 @@ export class SessionController {
     )
   }
 
-  private buildPanelProps(view: SessionView): SessionPanelProps {
+  private buildInitialSessionProps(view: SessionView): SessionPanelProps {
     return this.panelPropsBuilder().buildFromLeafPresence(
       this.leaf,
       () => this.startNewSession(view),
@@ -84,7 +84,7 @@ export class SessionController {
   // does not come back on the next load (FR8).
   private startNewSession(view: SessionView): void {
     void this.sessionFileStore.discard()
-    view.bindSession(this.buildPanelProps(view))
+    view.bindSession(this.buildInitialSessionProps(view))
   }
 
   // Only the newest engine follows the user: an earlier session's engine keeps
