@@ -160,6 +160,29 @@ PluginScope reads settings through a function rather than holding a value, since
 the settings tab replaces the object the plugin holds. A snapshot would freeze
 the settings at plugin load.
 
+Two classes sit beside that chain rather than in it, since neither builds the
+scope below it. SessionController drives one session's life once the leaf
+exists: the panel props, the restore, and the engine following the user. It
+reaches the scopes through SessionBuilder rather than replacing them.
+SessionLeaf is the workspace side of the panel, finding the leaf holding the
+session and putting it in front of the user.
+
+The split between them is what each needs from Obsidian. SessionLeaf reads
+app.workspace and nothing else, so it tests against a workspace fake.
+SessionController needs two things only the plugin can do, registering a
+file-open listener and one for Obsidian going to the background, and takes them
+as a PluginRegistrations pair rather than taking the plugin. That keeps Obsidian's
+lifecycle class out of wiring, and left main.ts at 83 lines holding
+registration, settings persistence and delegation.
+
+SettingsPanelBuilder sits outside that chain, since the settings tab outlives
+every session and builds nothing below it. It assembles the panel's
+collaborators, reading settings through a function for the same reason
+PluginScope does: the allow-list is read off the settings being edited, so a
+search built once would answer against the entries as they stood when the tab
+opened. Saving an edit stays with the tab, which owns the React root the
+re-render goes through.
+
 ## Size
 
 The limit is 10 files per folder, counting the package root as a folder of its
@@ -177,7 +200,27 @@ own. Tests are counted against their own folder and exempt from the limit.
 | session  | 10   | views 10, views/hooks 5, views/obsidian 2, models 8, transcript 9, transcript/models 4                      | 24    |
 | settings | 1    | views 6, views/obsidian 1                                                                                   | 5     |
 | skills   | 4    | -                                                                                                           | 3     |
-| wiring   | 4    | -                                                                                                           | 2     |
+| wiring   | 7    | -                                                                                                           | 5     |
 
 Every folder is within the limit, and two sit exactly on it: views, and the
 session root now that SessionRecorder has joined it. Either is the next split.
+
+## Open: The Retarget Rule Sits in Wiring
+
+Two rules moved into SessionController with the extraction, and neither is
+construction knowledge:
+
+- Markdown only, in retargetActiveEngine. Obsidian opens canvases, PDFs and
+  Bases files through the same event, and binding to one strands every later
+  turn.
+- Only the newest engine follows the user, in followActiveNoteWith. An earlier
+  session's engine keeps the note it was bound to.
+
+Both are about what the engine does with the note the user opens, so they read
+as engine's. Wiring owns no behaviour, which makes this the one place it does.
+
+Moving them means engine declares the port and wiring registers it, the way the
+transcript split above is described. It is a behaviour-adjacent change rather
+than a mechanical one, so it was left out of the extraction that created the
+class. SessionController has no test covering either rule today, which is the
+other half of the cost.
