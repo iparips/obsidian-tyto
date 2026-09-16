@@ -12,7 +12,7 @@ updated: 2026-09-16
 #### D1: Should an unbound session say so in the panel beyond the header going blank? [resolved 2026-09-16]
 
 Not in this spec. Ilya:
-[recording-a-retarget](../recording-a-retarget/1-index.md) publishes a step when
+[recording-a-retarget](../32-recording-a-retarget/1-index.md) publishes a step when
 the session retargets, and that step says the session is unbound. The panel then
 says so without this spec adding anything beside the header.
 

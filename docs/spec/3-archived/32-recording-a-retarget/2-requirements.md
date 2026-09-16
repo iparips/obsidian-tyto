@@ -34,4 +34,4 @@ Three destinations, and the answer is yes for each.
 
 ### Project
 
-- [binding-to-the-active-tab](../binding-to-the-active-tab/1-index.md) - fixes when a retarget happens; this one records that it did
+- [binding-to-the-active-tab](../31-binding-to-the-active-tab/1-index.md) - fixes when a retarget happens; this one records that it did

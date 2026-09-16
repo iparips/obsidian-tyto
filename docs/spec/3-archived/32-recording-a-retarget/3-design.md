@@ -6,7 +6,7 @@ updated: 2026-09-16
 # Design
 
 The two homes chosen here were replaced by D1 of
-[reporting-what-a-turn-did](../reporting-what-a-turn-did/1-index.md), which
+[reporting-what-a-turn-did](../33-reporting-what-a-turn-did/1-index.md), which
 makes a retarget its own panel entry kind. Kept as the record of what shipped.
 
 A retarget moves the header and leaves no other trace. Three destinations want
@@ -71,7 +71,7 @@ static retargeted(path: string | null): TurnStep {
 ```
 
 The null case exists once
-[binding-to-the-active-tab](../binding-to-the-active-tab/1-index.md)
+[binding-to-the-active-tab](../31-binding-to-the-active-tab/1-index.md)
 lands. Before it, a retarget always carries a path.
 
 ## The Message To The Model
@@ -192,7 +192,7 @@ Request block already renders it.
 ## Out Of Scope
 
 - When a retarget happens, which is
-  [binding-to-the-active-tab](../binding-to-the-active-tab/1-index.md).
+  [binding-to-the-active-tab](../31-binding-to-the-active-tab/1-index.md).
 - Naming the note in the message. The note context that follows already names
   it, and the archived finding below is about note-naming.
 
@@ -212,7 +212,7 @@ cannot make, so test a real vault before calling it done, the way
 ## References
 
 - [2-requirements.md](2-requirements.md) - the three destinations and the open questions
-- [binding-to-the-active-tab](../binding-to-the-active-tab/1-index.md) - the sibling, which fixes when a retarget happens
+- [binding-to-the-active-tab](../31-binding-to-the-active-tab/1-index.md) - the sibling, which fixes when a retarget happens
 - [src/session/session-progress.ts:27](../../../../src/session/session-progress.ts) - the retargets channel, beside the skill-loaded step that shows the pattern
 - [src/engine/turn-step.ts:29](../../../../src/engine/turn-step.ts) - TurnStep.opened, the factory the new one is shaped after
 - [src/session/transcript/transcript-repository.ts:38](../../../../src/session/transcript/transcript-repository.ts) - recordCall, which is why a between-turns retarget has no turn

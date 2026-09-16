@@ -13,7 +13,7 @@ updated: 2026-09-16
 
 The panel checks below say step, which is what this spec built. A retarget is
 its own panel entry since D1 of
-[reporting-what-a-turn-did](../reporting-what-a-turn-did/1-index.md), so read
+[reporting-what-a-turn-did](../33-reporting-what-a-turn-did/1-index.md), so read
 them as a line on the timeline rather than a numbered step inside a turn.
 
 ### The panel says the note changed
@@ -58,7 +58,7 @@ Then  the edit lands on the note now in front of the user
 ```
 
 The message this check was written for is gone, dropped by D1 of
-[reporting-what-a-turn-did](../reporting-what-a-turn-did/1-index.md). The check
+[reporting-what-a-turn-did](../33-reporting-what-a-turn-did/1-index.md). The check
 itself still matters and moved there: it now asks whether NoteContextMessage
 alone keeps the edit on the note in front of the user. An edit landing on the
 first note means the message was carrying something, and that spec's D1 falls

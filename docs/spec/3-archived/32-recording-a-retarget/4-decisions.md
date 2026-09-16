@@ -15,7 +15,7 @@ All three. Ilya: a session read back should say when it changed note, and a
 chat message telling the model the target moved is fine.
 
 Superseded by D1 of
-[reporting-what-a-turn-did](../reporting-what-a-turn-did/3-decisions.md). The
+[reporting-what-a-turn-did](../33-reporting-what-a-turn-did/3-decisions.md). The
 model half is out: a retarget is a session event, as a restore is, so it reaches
 the panel and the transcript and never the model. NoteContextMessage already
 names the current note on every call and says it supersedes the conversation
@@ -48,7 +48,7 @@ transcript from there. Ilya asked for it recorded as it happens and reaching the
 model, which the history already does without a turn.
 
 Superseded by D1 of
-[reporting-what-a-turn-did](../reporting-what-a-turn-did/3-decisions.md). It
+[reporting-what-a-turn-did](../33-reporting-what-a-turn-did/3-decisions.md). It
 goes on the panel timeline as its own entry kind, which the transcript renders
 and the model never reads. The history was the one destination carrying risk,
 and the risk landed: a command that opens a note fires file-open while the tool

@@ -6,7 +6,7 @@ updated: 2026-09-16
 # Tasks
 
 Both writes below were replaced by D1 of
-[reporting-what-a-turn-did](../reporting-what-a-turn-did/1-index.md): the step
+[reporting-what-a-turn-did](../33-reporting-what-a-turn-did/1-index.md): the step
 and the history message are gone, and a retargeted panel entry carries the
 panel and the transcript instead. Kept as the record of what shipped here.
 
@@ -25,7 +25,7 @@ A retarget becomes a step, the way a loaded skill already does.
 - publishStep counts it against the transcript, as it does for every step
 
 The null case only arises once
-[binding-to-the-active-tab](../binding-to-the-active-tab/1-index.md) lands.
+[binding-to-the-active-tab](../31-binding-to-the-active-tab/1-index.md) lands.
 Before it, a retarget always carries a path, so the null test covers a state the
 sibling produces.
 

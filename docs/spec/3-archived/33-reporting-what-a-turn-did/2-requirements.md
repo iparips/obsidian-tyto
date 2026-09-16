@@ -115,5 +115,5 @@ utterance. It joins the steps entry at index 1, above the restored marker.
 
 ### Project
 
-- [recording-a-retarget](../recording-a-retarget/1-index.md) - added the retarget step and the history message; its D2 is reversed by D1 here and needs amending
+- [recording-a-retarget](../32-recording-a-retarget/1-index.md) - added the retarget step and the history message; its D2 is reversed by D1 here and needs amending
 - [29-following-the-note-across-a-restore](../../3-archived/29-following-the-note-across-a-restore/1-index.md) - the earlier finding that a past-tense note in the history drags the target back
