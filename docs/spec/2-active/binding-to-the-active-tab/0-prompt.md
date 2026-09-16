@@ -11,9 +11,10 @@ Paste the block below into a fresh session.
 Fix the session binding to the active tab, specified in
 docs/spec/2-active/binding-to-the-active-tab.
 
-Read 1-index.md, then 2-requirements.md, then 6-tasks.md. 5-tests.md holds the checks a person runs. 4-decisions.md holds
-one resolved decision and three assumptions; read it if a choice looks
-arbitrary. 3-design.md describes commit 1, which is already landed.
+Read 1-index.md, then 2-requirements.md, then 6-tasks.md. 5-tests.md holds the
+checks a person runs afterwards, and 4-decisions.md one resolved decision and
+three assumptions; read that if a choice looks arbitrary. 3-design.md describes
+commit 1, which is already landed.
 
 Load the code-generation and code-unit-tests skills before the first commit.
 Repo conventions are in docs/AGENTS.md. Read it before the first commit.
