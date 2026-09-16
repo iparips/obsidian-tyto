@@ -25,7 +25,11 @@ authoritative for finding notes. Every defect here is one of them failing.
 - [3-requirements.md](3-requirements.md) - the two sources, the handle that moves, and the note the panel cannot name
 - [4-decisions.md](4-decisions.md) - what an edit writes through, and where a read of the turn's note comes from
 - [4-decisions-showing.md](4-decisions-showing.md) - the note leaving the header, and whether a turn becomes a container
-- [7-transcript.md](7-transcript.md) - the two answers, in one request
+- [5-design.md](5-design.md) - where a write lands, where a read comes from, and the turn container
+- [6-unit-tests.md](6-unit-tests.md) - the unit tests each changed method needs
+- [7-acceptance-criteria.md](7-acceptance-criteria.md) - four checks, and the one that needs a moving tab
+- [8-tasks.md](8-tasks.md) - four commits, the first two shipping the fault fix alone
+- [9-transcript.md](9-transcript.md) - the two answers, in one request
 
 A write goes through the editor where it still shows the path the tool named,
 and through the vault where it does not. The common case keeps undo and the
@@ -40,9 +44,12 @@ target, its steps and its reply. That makes the grouping a fact rather than
 something scanned back to, which is what put a retarget in the wrong turn once
 already.
 
-Every decision is settled, so the design can be written. A turn starts on the
+Every decision is settled and the design is written. A turn starts on the
 session's note and shows it, which is what a user relies on when an utterance
-names no note at all, and a tool call moving it is the change worth seeing. One fact is still outstanding:
+names no note at all, and a tool call moving it is the change worth seeing.
+
+The first two commits are the fault and ship without the rest, which matters
+because the wrong-note write is live. One fact is still outstanding:
 whether a vault write lands in the editor's undo stack when the note is open.
 That decides how loudly the fallback should announce itself, not which option
 to take.
