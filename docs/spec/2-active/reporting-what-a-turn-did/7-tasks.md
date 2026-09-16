@@ -68,6 +68,8 @@ name beside a valid edit still lets the edit apply.
   the line the edit ended on, rather than the bare applied string
 - ApplyResult already carries endedAt, and the note is in hand as the OpenNote
   the method was given
+- ToolCallOutcome gains a panel summary, so the Edit step keeps the short form
+  rather than naming the note twice beside the path it already carries
 
 The content is not echoed: the model sent it one message earlier, and a dictated
 paragraph makes that cost unbounded.

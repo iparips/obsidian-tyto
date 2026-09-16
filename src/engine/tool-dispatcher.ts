@@ -129,7 +129,10 @@ export class ToolDispatcher {
   private recordEdit(call: ToolCall, outcome: ToolCallOutcome): ToolCallOutcome {
     if (outcome.editEndPosition) {
       this.turnProgressPublisher.publishStepTakenFn(
-        TurnStep.edited(outcome.result, this.turnRepository.targetNote()?.path ?? null),
+        TurnStep.edited(
+          outcome.descriptionForUser(),
+          this.turnRepository.targetNote()?.path ?? null,
+        ),
       )
       return outcome
     }
