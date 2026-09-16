@@ -28,7 +28,7 @@ export interface ParkedAnswers {
 // these settle what is behind it (NFR6).
 export const useParkedAnswers = (
   ports: ParkedAnswerPorts,
-  dispatch: (action: PanelAction) => void,
+  dispatchFn: (action: PanelAction) => void,
 ): ParkedAnswers => {
   const answerChoice = useRef<((chosen: string | null) => void) | null>(null)
   const answerQuestion = useRef<((answer: string) => void) | null>(null)
@@ -36,7 +36,7 @@ export const useParkedAnswers = (
   useEffect(
     () =>
       ports.onChoiceRequested?.((request) => {
-        dispatch({
+        dispatchFn({
           type: 'choiceRequested',
           candidates: [...request.candidates],
           purpose: request.purpose,
@@ -49,7 +49,7 @@ export const useParkedAnswers = (
   useEffect(
     () =>
       ports.onQuestionAsked?.((request) => {
-        dispatch({
+        dispatchFn({
           type: 'questionAsked',
           text: request.question,
           suggestions: [...request.suggestions],
@@ -63,20 +63,20 @@ export const useParkedAnswers = (
   // the session never returns to idle (FR29).
   return {
     settleChoice: (chosen) =>
-      settle(answerChoice, chosen, () => dispatch({ type: 'choiceAnswered', chosen })),
+      settle(answerChoice, chosen, () => dispatchFn({ type: 'choiceAnswered', chosen })),
     settleQuestion: (answer) =>
-      settle(answerQuestion, answer, () => dispatch({ type: 'questionAnswered' })),
+      settle(answerQuestion, answer, () => dispatchFn({ type: 'questionAnswered' })),
   }
 }
 
 const settle = <T>(
   held: { current: ((value: T) => void) | null },
   value: T,
-  report: () => void,
+  reportFn: () => void,
 ): void => {
   const resolve = held.current
   if (!resolve) return
   held.current = null
-  report()
+  reportFn()
   resolve(value)
 }

@@ -10,11 +10,11 @@ export class DateToolService {
   // The instant is read per call rather than per session, in the same place
   // DateMessage reads it, so a turn running past midnight resolves against the
   // day it is on rather than the day it started.
-  constructor(private now: () => Date = () => new Date()) {}
+  constructor(private nowFn: () => Date = () => new Date()) {}
 
   resolve(call: ToolCall): HarnessResult {
     const phrase = call.argument('phrase')
-    const resolution = new RelativeDateResolver(this.now()).resolve(phrase)
+    const resolution = new RelativeDateResolver(this.nowFn()).resolve(phrase)
     if (resolution.hasFailed()) return Refusal.of(resolution.reason)
     return new TextResult(resolution.describe(), TurnStep.resolved(phrase, resolution.isoDate()))
   }

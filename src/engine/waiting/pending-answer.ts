@@ -6,7 +6,7 @@ import { TurnCancellationController } from '../turn/turn-cancellation-controller
 // (NFR6).
 export class PendingAnswer<Request, Answer> {
   constructor(
-    private ask: (request: Request) => Promise<Answer>,
+    private askFn: (request: Request) => Promise<Answer>,
     private cancellationController: TurnCancellationController,
   ) {}
 
@@ -14,7 +14,7 @@ export class PendingAnswer<Request, Answer> {
   // so a cancelled turn never leaves the loop parked (FR29).
   async awaiting(request: Request, whenCancelled: Answer): Promise<Answer> {
     return Promise.race([
-      this.ask(request),
+      this.askFn(request),
       this.cancellationController.whenCancelled().then(() => whenCancelled),
     ])
   }

@@ -25,9 +25,9 @@ export class OpenedNoteWait {
   private resolveOnOpen(resolve: (path: string | null) => void): void {
     let reference: EventRef | null = null
     let settled = false
-    const timer = setTimeout(() => finish(null), this.timeoutMs)
+    const timer = setTimeout(() => finishFn(null), this.timeoutMs)
 
-    const finish = (path: string | null): void => {
+    const finishFn = (path: string | null): void => {
       if (settled) return
       settled = true
       clearTimeout(timer)
@@ -36,7 +36,7 @@ export class OpenedNoteWait {
     }
 
     reference = this.app.workspace.on('file-open', (file: TFile | null) =>
-      this.awaitEditor(file?.path ?? null, finish, () => settled),
+      this.awaitEditor(file?.path ?? null, finishFn, () => settled),
     )
   }
 
@@ -45,13 +45,13 @@ export class OpenedNoteWait {
   // editor is what makes the caller's resolve of that path succeed.
   private awaitEditor(
     path: string | null,
-    finish: (path: string | null) => void,
-    hasSettled: () => boolean,
+    finishFn: (path: string | null) => void,
+    hasSettledFn: () => boolean,
   ): void {
-    if (hasSettled()) return
-    if (path === null) return finish(null)
-    if (this.hasEditor(path)) return finish(path)
-    setTimeout(() => this.awaitEditor(path, finish, hasSettled), EDITOR_POLL_MS)
+    if (hasSettledFn()) return
+    if (path === null) return finishFn(null)
+    if (this.hasEditor(path)) return finishFn(path)
+    setTimeout(() => this.awaitEditor(path, finishFn, hasSettledFn), EDITOR_POLL_MS)
   }
 
   private hasEditor(path: string): boolean {

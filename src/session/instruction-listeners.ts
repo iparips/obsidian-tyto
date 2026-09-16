@@ -3,12 +3,12 @@
 export class InstructionListeners {
   private readonly listeners: ((text: string) => void)[] = []
 
-  subscribe(listener: (text: string) => void): () => void {
-    this.listeners.push(listener)
-    return () => this.listeners.splice(this.listeners.indexOf(listener), 1)
+  subscribe(listenerFn: (text: string) => void): () => void {
+    this.listeners.push(listenerFn)
+    return () => this.listeners.splice(this.listeners.indexOf(listenerFn), 1)
   }
 
   publish(text: string): void {
-    this.listeners.forEach((listener) => listener(text))
+    this.listeners.forEach((listenerFn) => listenerFn(text))
   }
 }

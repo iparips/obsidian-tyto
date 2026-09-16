@@ -23,19 +23,19 @@ export interface EngineEventPorts {
 // and the markup rather than the plumbing.
 export const useEngineEvents = (
   ports: EngineEventPorts,
-  dispatch: (action: PanelAction) => void,
-  endRecording: () => void,
+  dispatchFn: (action: PanelAction) => void,
+  endRecordingFn: () => void,
 ): void => {
-  useEffect(() => ports.onObsidianBackgrounded?.(endRecording), [])
+  useEffect(() => ports.onObsidianBackgrounded?.(endRecordingFn), [])
 
-  useEffect(() => ports.onInstructions?.((text) => dispatch({ type: 'instructions', text })), [])
+  useEffect(() => ports.onInstructions?.((text) => dispatchFn({ type: 'instructions', text })), [])
 
-  useEffect(() => ports.onWarning?.((text) => dispatch({ type: 'warned', text })), [])
+  useEffect(() => ports.onWarning?.((text) => dispatchFn({ type: 'warned', text })), [])
 
   useEffect(
     () =>
       ports.onStep?.((step) =>
-        dispatch({
+        dispatchFn({
           type: 'stepTaken',
           label: step.label,
           detail: step.detail,
@@ -48,7 +48,7 @@ export const useEngineEvents = (
   useEffect(
     () =>
       ports.onAnswer?.((report) =>
-        dispatch({ type: 'answer', text: report.text, sources: report.sources }),
+        dispatchFn({ type: 'answer', text: report.text, sources: report.sources }),
       ),
     [],
   )
