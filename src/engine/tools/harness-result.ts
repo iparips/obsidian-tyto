@@ -1,5 +1,6 @@
 import { PathsReturnedByVaultRepository } from '../turn/paths-returned-by-vault-repository'
 import { NotesOpenedCounter } from '../turn/notes-opened-counter'
+import { NotesReadRepository } from '../turn/notes-read-repository'
 import {
   ChoiceResult,
   ObsidianCommandRanResult,
@@ -13,10 +14,12 @@ import {
 export type HarnessResult = TextResult | ChoiceResult | OpenNoteResult | ObsidianCommandRanResult
 
 // What a tool reads off the turn it runs in. Narrower than TurnRepository, so
-// the tools see the two counters they spend and nothing else.
+// the tools see the counters they spend and the reads they record, and nothing
+// else.
 export interface TurnState {
   readonly notesOpenedCounter: NotesOpenedCounter
   readonly pathsReturnedByVault: PathsReturnedByVaultRepository
+  readonly notesRead: NotesReadRepository
 }
 
 // Shared by every tool that can refuse, so a cap message and a bad argument

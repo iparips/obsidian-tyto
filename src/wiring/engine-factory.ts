@@ -78,7 +78,6 @@ export class EngineFactory {
         toolNoteOpening,
       ),
       progress,
-      targetNote,
       toolNoteOpening,
     )
   }

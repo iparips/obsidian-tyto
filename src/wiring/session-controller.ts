@@ -92,10 +92,8 @@ export class SessionController {
   // same event, and binding the session to one strands every later turn: the
   // edit tools need an editor, and only a markdown view has one. Anything else
   // unbinds rather than leaving the session on the note the user has left.
-  // Not awaited: a workspace event handler has no one to return to, and the
-  // retarget is what the next tool call reads rather than this caller.
   private retargetActiveEngine(file: TFile | null): void {
     const path = file?.extension === 'md' ? file.path : null
-    void this.activeEngine?.followActiveNote(path)
+    this.activeEngine?.followActiveNote(path)
   }
 }

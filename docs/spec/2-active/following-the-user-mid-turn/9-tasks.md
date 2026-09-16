@@ -46,8 +46,9 @@ three does not end the turn.
   read, with a fourth EditOperation kind, a NoteEditor branch, a
   NoteOperationParser case, and the name added to ToolCall.isEditTool so the
   step boundary covers it
-- NotesReadRepository is built in TurnRepository's constructor, as
-  NotesChosenByUserRepository is, and written by HarnessToolsService.readNote
+- NotesReadRepository is built by TurnRepository itself, as
+  NotesChosenByUserRepository is in its field initialiser rather than its
+  constructor parameters, and written by HarnessToolsService.readNote
 - Three guards in order: refuse unless read this turn, refuse when the note has
   moved under the content carried, then confirm through NoteChoiceService
 
