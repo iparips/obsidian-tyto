@@ -16,6 +16,26 @@ The immediate cause was a resolve reading the session back, fixed separately.
 What remains is that the two answers come from different places and can still
 disagree.
 
+## The Rule
+
+A target note is set twice and by two parties.
+
+| Who       | When          | How                                       |
+| --------- | ------------- | ----------------------------------------- |
+| The user  | Before a turn | Opening a note, which the session follows |
+| The model | During a turn | A tool call that opens one                |
+
+Nothing else moves it. The user opening a note while a turn runs sets the target
+for the next turn, not the running one, which is D1 of
+[following-the-user-mid-turn](../following-the-user-mid-turn/1-index.md). The
+four places that write a target today are these two cases and no others:
+SessionPanelPropsBuilder reads the open note at session start, EditEngine
+follows a tab change, and ToolDispatcher moves it when a tool opens a note.
+
+Each defect below is that rule failing. A handle that follows the tab lets the
+user move a target mid-turn without meaning to, and a panel naming the session's
+note cannot say which of the two set the one a turn is using.
+
 ## In Scope
 
 ### The reading tools read the file, the note context reads the editor
