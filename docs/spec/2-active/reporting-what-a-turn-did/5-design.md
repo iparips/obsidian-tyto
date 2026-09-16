@@ -8,20 +8,20 @@ updated: 2026-09-16
 ## Goal
 
 Give a retarget its own panel entry kind so it needs neither a slot in the chat
-history nor a turn to own it, and refuse a tool name that is not offered before
-the dispatcher routes it anywhere.
+history nor a turn to own it, and refuse a tool name no tool carries before the
+dispatcher routes it anywhere.
 
 ## Behaviour Change
 
-| Concern                           | Today                                          | New                                              |
-|-----------------------------------|------------------------------------------------|--------------------------------------------------|
-| Retarget reaches the model        | System message appended to the chat history    | Nothing; NoteContextMessage already names the note |
-| Retarget in the panel             | A step inside the open turn's steps entry      | Its own entry, on the timeline where it happened |
-| Retarget in the transcript        | Rendered from the history system message       | Rendered from the entry, as a restore is         |
-| Retarget mid tool call            | Splits the tool pair, provider answers 400     | Nothing is appended, so the pair is intact       |
-| Retarget after a restore          | Joins the turn above the restore marker        | Sits after it, unattached                        |
-| Unknown tool name                 | Routed to NoteEditTool, refused by the parser  | Refused by the dispatcher, naming the offered tools |
-| Applied edit result               | `applied`                                      | Names the operation, the note and the line       |
+| Concern                    | Today                                         | New                                                 |
+| -------------------------- | --------------------------------------------- | --------------------------------------------------- |
+| Retarget reaches the model | System message appended to the chat history   | Nothing; NoteContextMessage already names the note  |
+| Retarget in the panel      | A step inside the open turn's steps entry     | Its own entry, on the timeline where it happened    |
+| Retarget in the transcript | Rendered from the history system message      | Rendered from the entry, as a restore is            |
+| Retarget mid tool call     | Splits the tool pair, provider answers 400    | Nothing is appended, so the pair is intact          |
+| Retarget after a restore   | Joins the turn above the restore marker       | Sits after it, unattached                           |
+| Unknown tool name          | Routed to NoteEditTool, refused by the parser | Refused by the dispatcher, naming the offered tools |
+| Applied edit result        | `applied`                                     | Names the operation, the note and the line          |
 
 ## Behaviour Sequence
 
@@ -148,11 +148,11 @@ limit.
 ## References
 
 - [3-decisions.md](3-decisions.md) - D1 choosing the session event, D2 and D3 settling the two results
-- src/session/models/panel-state.ts:12-36, 146-163 - the entry union, and withStep scoping to the last utterance
-- src/engine/edit-engine.ts:26-40 - followActiveNote and the retargetMessage factory that go
-- src/session/session-progress.ts:41-44 - retarget, publishing to both channels today
-- src/session/views/hooks/useEngineEvents.ts:35-46 - where the new subscription is forwarded
-- src/engine/tool-dispatcher.ts:53-65 - execute, and the fall-through the guard precedes
-- src/engine/tools/note-edit-tool.ts:37-42 - applyOperation and the bare applied string
-- src/session/transcript/models/transcript-turn.ts:28-36 - split, dropping entries before the first utterance
-- src/session/session-snapshot-factory.ts:29-32 - the filter naming restored alone
+- src/session/models/panel-state.ts:33, 99-103 - the retargeted kind, and the reducer case appending it
+- src/engine/edit-engine.ts:26 - followActiveNote, which now publishes and appends nothing
+- src/session/session-progress.ts:30 - the one channel a retarget reaches
+- src/session/views/hooks/useEngineEvents.ts:22, 61 - the port, and where it is forwarded to the action
+- src/engine/tool-dispatcher.ts:54 - execute, and the guard ahead of every branch
+- src/engine/tools/note-edit-tool.ts:43 - applyOperation and the result naming the operation
+- src/session/transcript/models/transcript-turn.ts:29, 36 - before, and the split that drops nothing now
+- src/session/session-snapshot-factory.ts:32 - the filter naming restored alone

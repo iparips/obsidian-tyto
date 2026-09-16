@@ -42,7 +42,7 @@ after role 'system'` and the turn ended as failed.
 Roles sent on the call that failed:
 
 | Position | Role      | Carries                   |
-|----------|-----------|---------------------------|
+| -------- | --------- | ------------------------- |
 | 3        | assistant | the run_command tool call |
 | 4        | system    | the retarget message      |
 | 5        | tool      | the command's result      |
