@@ -4,6 +4,8 @@ import { SessionListeners, StepReport } from '../session-listeners'
 import { AgentsMdChain } from '../../agents/agents-md-chain'
 import { AgentsMdFile } from '../../agents/agents-md-file'
 import { TurnStep } from '../../engine/turn-step'
+import { TranscriptRepository } from '../transcript/transcript-repository'
+import { StepRange } from '../transcript/models/transcript-record'
 
 // A skill and a resolved chain are things the turn did, so they belong in the
 // numbered list. Published on their own channels they landed beside it, and a
@@ -34,6 +36,34 @@ describe('SessionProgress', () => {
       publisher.publishStepTakenFn(TurnStep.edited('applied', 'Lists/todo.md'))
 
       expect(steps.map((step) => step.label)).toEqual(['Loaded skill', 'Edit'])
+    })
+  })
+
+  describe('when the session retargets', () => {
+    it('reports the retarget as a step, so it is numbered with the rest', () => {
+      publisherOf().retargetedFn('Lists/todo.md')
+
+      expect(steps).toEqual([{ label: 'Retargeted', detail: 'Lists/todo.md', refused: false }])
+    })
+
+    // The header names the note now; the step says the session moved. Losing
+    // either leaves the panel unable to tell one from the other.
+    it('still moves the header, which is the channel the step does not replace', () => {
+      const retargets: (string | null)[] = []
+      listeners.retargets.subscribe((path) => retargets.push(path))
+
+      publisherOf().retargetedFn('Lists/todo.md')
+
+      expect(retargets).toEqual(['Lists/todo.md'])
+    })
+
+    it('counts the step against the transcript, so the recorded ranges stay in step', () => {
+      const transcript = new TranscriptRepository()
+
+      new SessionProgress(listeners, transcript).publisher().retargetedFn('Lists/todo.md')
+      transcript.recordCall(new Map(), 1)
+
+      expect(transcript.recordedSteps()[0].panelSteps).toEqual(new StepRange(1, 0))
     })
   })
 

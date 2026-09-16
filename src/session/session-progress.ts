@@ -24,7 +24,7 @@ export class SessionProgress {
   publisher(): TurnProgressPublisher {
     return new TurnProgressPublisher(
       (text, sources) => this.session.answers.publish({ text, sources }),
-      (path) => this.session.retargets.publish(path),
+      (path) => this.retarget(path),
       (chain) => this.reportInstructions(chain),
       // Published as a step rather than a line beside the list: loading a skill
       // is one of the things the turn did, and its place in the order is what
@@ -33,6 +33,14 @@ export class SessionProgress {
       (text) => this.session.warnings.publish(text),
       (step) => this.publishStep(step),
     )
+  }
+
+  // The header keeps its own channel, since it names the note now rather than
+  // saying one thing the session did. The step is the saying, and its place in
+  // the order is what tells the user which edits landed on which note.
+  private retarget(path: string | null): void {
+    this.session.retargets.publish(path)
+    this.publishStep(TurnStep.retargeted(path))
   }
 
   private publishStep(step: TurnStep): void {
