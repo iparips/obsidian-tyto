@@ -28,17 +28,17 @@ results, and the reply claims the edit was already applied.
 
 #### Session metadata
 
-| Field | Value |
-| --- | --- |
-| Copied | 2026-09-16 13:24 GMT+10 |
-| Plugin | Tyto 0.1.0 |
-| Note | 1 - Journal/Weekly/Week-38/todo.md |
-| Model | mistral-medium-latest |
-| Search | enabled |
-| Open | confirm |
-| Skills | 0 - Meta/Skills |
-| Commands | daily-notes:*, open-or-create-file-command:* |
-| Turns | 2 conversation turns, 3 turn steps |
+| Field    | Value                                        |
+| -------- | -------------------------------------------- |
+| Copied   | 2026-09-16 13:24 GMT+10                      |
+| Plugin   | Tyto 0.1.0                                   |
+| Note     | 1 - Journal/Weekly/Week-38/todo.md           |
+| Model    | mistral-medium-latest                        |
+| Search   | enabled                                      |
+| Open     | confirm                                      |
+| Skills   | 0 - Meta/Skills                              |
+| Commands | daily-notes:_, open-or-create-file-command:_ |
+| Turns    | 2 conversation turns, 3 turn steps           |
 
 #### Conversation turn 1
 
@@ -53,13 +53,15 @@ Utterance: I had to go for a walk on top of my to-do.
 ##### Turn step 1
 
 Request to model
+
 - system prompt v1, date v1, note context v1
 - harness: The user moved to a different note. Later turns are about this one.
 - harness: The user moved to a different note. Later turns are about this one.
 - user: I had to go for a walk on top of my to-do.
 
 Response from model
-- tool call The `todo` skill does not cover adding new items to a todo.md file—it only covers archiving ticked items. This is a direct content addition, so I will proceed without loading a skill.  I will add the new task under the **Today** heading, as it is a task for today.  The content is: "I had to go for a walk on top of my to-do." I will format it as a new bullet point under **Today**.  The exact text to add is: "- [ ] I had to go for a walk on top of my to-do." I will insert it after the last item under **Today**. The last item under **Today** is: "- [ ] reserve dog man for Lewis". I will insert the new task after this line.   I will now make the edit.   The anchor text is: "- [ ] reserve dog man for Lewis". The replacement is: "- [ ] reserve dog man for Lewis\n- [ ] I had to go for a walk on top of my to-do".   I will use the `replace_text` tool.   The applicable skills are `[]` because the `todo` skill does not cover adding new items.   The anchor text is: "- [ ] reserve dog man for Lewis". The replacement is: "- [ ] reserve dog man for Lewis\n- [ ] I had to go for a walk on top of my to-do".   I will now make the edit.
+
+- tool call The `todo` skill does not cover adding new items to a todo.md file—it only covers archiving ticked items. This is a direct content addition, so I will proceed without loading a skill. I will add the new task under the **Today** heading, as it is a task for today. The content is: "I had to go for a walk on top of my to-do." I will format it as a new bullet point under **Today**. The exact text to add is: "- [ ] I had to go for a walk on top of my to-do." I will insert it after the last item under **Today**. The last item under **Today** is: "- [ ] reserve dog man for Lewis". I will insert the new task after this line. I will now make the edit. The anchor text is: "- [ ] reserve dog man for Lewis". The replacement is: "- [ ] reserve dog man for Lewis\n- [ ] I had to go for a walk on top of my to-do". I will use the `replace_text` tool. The applicable skills are `[]` because the `todo` skill does not cover adding new items. The anchor text is: "- [ ] reserve dog man for Lewis". The replacement is: "- [ ] reserve dog man for Lewis\n- [ ] I had to go for a walk on top of my to-do". I will now make the edit.
 
   ```json
   {
@@ -80,13 +82,15 @@ Response from model
   ```
 
 Harness
-- Refused The `todo` skill does not cover adding new items to a todo.md file—it only covers archiving ticked items. This is a direct content addition, so I will proceed without loading a skill.  I will add the new task under the **Today** heading, as it is a task for today.  The content is: "I had to go for a walk on top of my to-do." I will format it as a new bullet point under **Today**.  The exact text to add is: "- [ ] I had to go for a walk on top of my to-do." I will insert it after the last item under **Today**. The last item under **Today** is: "- [ ] reserve dog man for Lewis". I will insert the new task after this line.   I will now make the edit.   The anchor text is: "- [ ] reserve dog man for Lewis". The replacement is: "- [ ] reserve dog man for Lewis\n- [ ] I had to go for a walk on top of my to-do".   I will use the `replace_text` tool.   The applicable skills are `[]` because the `todo` skill does not cover adding new items.   The anchor text is: "- [ ] reserve dog man for Lewis". The replacement is: "- [ ] reserve dog man for Lewis\n- [ ] I had to go for a walk on top of my to-do".   I will now make the edit. - invalid arguments: unknown tool The `todo` skill does not cover adding new items to a todo.md file—it only covers archiving ticked items. This is a direct content addition, so I will proceed without loading a skill.  I will add the new task under the **Today** heading, as it is a task for today.  The content is: "I had to go for a walk on top of my to-do." I will format it as a new bullet point under **Today**.  The exact text to add is: "- [ ] I had to go for a walk on top of my to-do." I will insert it after the last item under **Today**. The last item under **Today** is: "- [ ] reserve dog man for Lewis". I will insert the new task after this line.   I will now make the edit.   The anchor text is: "- [ ] reserve dog man for Lewis". The replacement is: "- [ ] reserve dog man for Lewis\n- [ ] I had to go for a walk on top of my to-do".   I will use the `replace_text` tool.   The applicable skills are `[]` because the `todo` skill does not cover adding new items.   The anchor text is: "- [ ] reserve dog man for Lewis". The replacement is: "- [ ] reserve dog man for Lewis\n- [ ] I had to go for a walk on top of my to-do".   I will now make the edit. - refused
+
+- Refused The `todo` skill does not cover adding new items to a todo.md file—it only covers archiving ticked items. This is a direct content addition, so I will proceed without loading a skill. I will add the new task under the **Today** heading, as it is a task for today. The content is: "I had to go for a walk on top of my to-do." I will format it as a new bullet point under **Today**. The exact text to add is: "- [ ] I had to go for a walk on top of my to-do." I will insert it after the last item under **Today**. The last item under **Today** is: "- [ ] reserve dog man for Lewis". I will insert the new task after this line. I will now make the edit. The anchor text is: "- [ ] reserve dog man for Lewis". The replacement is: "- [ ] reserve dog man for Lewis\n- [ ] I had to go for a walk on top of my to-do". I will use the `replace_text` tool. The applicable skills are `[]` because the `todo` skill does not cover adding new items. The anchor text is: "- [ ] reserve dog man for Lewis". The replacement is: "- [ ] reserve dog man for Lewis\n- [ ] I had to go for a walk on top of my to-do". I will now make the edit. - invalid arguments: unknown tool The `todo` skill does not cover adding new items to a todo.md file—it only covers archiving ticked items. This is a direct content addition, so I will proceed without loading a skill. I will add the new task under the **Today** heading, as it is a task for today. The content is: "I had to go for a walk on top of my to-do." I will format it as a new bullet point under **Today**. The exact text to add is: "- [ ] I had to go for a walk on top of my to-do." I will insert it after the last item under **Today**. The last item under **Today** is: "- [ ] reserve dog man for Lewis". I will insert the new task after this line. I will now make the edit. The anchor text is: "- [ ] reserve dog man for Lewis". The replacement is: "- [ ] reserve dog man for Lewis\n- [ ] I had to go for a walk on top of my to-do". I will use the `replace_text` tool. The applicable skills are `[]` because the `todo` skill does not cover adding new items. The anchor text is: "- [ ] reserve dog man for Lewis". The replacement is: "- [ ] reserve dog man for Lewis\n- [ ] I had to go for a walk on top of my to-do". I will now make the edit. - refused
 - Edit - applied — 1 - Journal/Weekly/Week-38/todo.md
 - Outcome: continue
 
 ##### Turn step 2
 
 Request to model
+
 - system prompt v1, date v1, note context v2
 - tool result
 
@@ -101,15 +105,18 @@ Request to model
   ```
 
 Response from model
+
 - text: The edit was already applied. The task **"I had to go for a walk on top of my to-do"** is now listed under **Today**.
 
 No further action is needed.
+
 - text: The task **"go for a walk on top of my to-do list"** is already present in the note as:
 - **"I had to go for a walk on top of my to-do"** under **Today**.
 
 No further action is needed. If you meant to rephrase or move it, clarify.
 
 Harness
+
 - Outcome: replied
 
 Reply: The edit was already applied. The task **"I had to go for a walk on top of my to-do"** is now listed under **Today**.
@@ -125,25 +132,29 @@ Utterance: Add go for a walk on top of my to-do list.
 - Retargeted - 1 - Journal/Weekly/Week-38/shopping-list.md
 - Retargeted - 1 - Journal/Weekly/Week-38/todo.md
 - Loaded agent instructions - vault root
-- Refused The `todo` skill does not cover adding new items to a todo.md file—it only covers archiving ticked items. This is a direct content addition, so I will proceed without loading a skill.  I will add the new task under the **Today** heading, as it is a task for today.  The content is: "I had to go for a walk on top of my to-do." I will format it as a new bullet point under **Today**.  The exact text to add is: "- [ ] I had to go for a walk on top of my to-do." I will insert it after the last item under **Today**. The last item under **Today** is: "- [ ] reserve dog man for Lewis". I will insert the new task after this line.   I will now make the edit.   The anchor text is: "- [ ] reserve dog man for Lewis". The replacement is: "- [ ] reserve dog man for Lewis\n- [ ] I had to go for a walk on top of my to-do".   I will use the `replace_text` tool.   The applicable skills are `[]` because the `todo` skill does not cover adding new items.   The anchor text is: "- [ ] reserve dog man for Lewis". The replacement is: "- [ ] reserve dog man for Lewis\n- [ ] I had to go for a walk on top of my to-do".   I will now make the edit. - invalid arguments: unknown tool The `todo` skill does not cover adding new items to a todo.md file—it only covers archiving ticked items. This is a direct content addition, so I will proceed without loading a skill.  I will add the new task under the **Today** heading, as it is a task for today.  The content is: "I had to go for a walk on top of my to-do." I will format it as a new bullet point under **Today**.  The exact text to add is: "- [ ] I had to go for a walk on top of my to-do." I will insert it after the last item under **Today**. The last item under **Today** is: "- [ ] reserve dog man for Lewis". I will insert the new task after this line.   I will now make the edit.   The anchor text is: "- [ ] reserve dog man for Lewis". The replacement is: "- [ ] reserve dog man for Lewis\n- [ ] I had to go for a walk on top of my to-do".   I will use the `replace_text` tool.   The applicable skills are `[]` because the `todo` skill does not cover adding new items.   The anchor text is: "- [ ] reserve dog man for Lewis". The replacement is: "- [ ] reserve dog man for Lewis\n- [ ] I had to go for a walk on top of my to-do".   I will now make the edit. - refused
+- Refused The `todo` skill does not cover adding new items to a todo.md file—it only covers archiving ticked items. This is a direct content addition, so I will proceed without loading a skill. I will add the new task under the **Today** heading, as it is a task for today. The content is: "I had to go for a walk on top of my to-do." I will format it as a new bullet point under **Today**. The exact text to add is: "- [ ] I had to go for a walk on top of my to-do." I will insert it after the last item under **Today**. The last item under **Today** is: "- [ ] reserve dog man for Lewis". I will insert the new task after this line. I will now make the edit. The anchor text is: "- [ ] reserve dog man for Lewis". The replacement is: "- [ ] reserve dog man for Lewis\n- [ ] I had to go for a walk on top of my to-do". I will use the `replace_text` tool. The applicable skills are `[]` because the `todo` skill does not cover adding new items. The anchor text is: "- [ ] reserve dog man for Lewis". The replacement is: "- [ ] reserve dog man for Lewis\n- [ ] I had to go for a walk on top of my to-do". I will now make the edit. - invalid arguments: unknown tool The `todo` skill does not cover adding new items to a todo.md file—it only covers archiving ticked items. This is a direct content addition, so I will proceed without loading a skill. I will add the new task under the **Today** heading, as it is a task for today. The content is: "I had to go for a walk on top of my to-do." I will format it as a new bullet point under **Today**. The exact text to add is: "- [ ] I had to go for a walk on top of my to-do." I will insert it after the last item under **Today**. The last item under **Today** is: "- [ ] reserve dog man for Lewis". I will insert the new task after this line. I will now make the edit. The anchor text is: "- [ ] reserve dog man for Lewis". The replacement is: "- [ ] reserve dog man for Lewis\n- [ ] I had to go for a walk on top of my to-do". I will use the `replace_text` tool. The applicable skills are `[]` because the `todo` skill does not cover adding new items. The anchor text is: "- [ ] reserve dog man for Lewis". The replacement is: "- [ ] reserve dog man for Lewis\n- [ ] I had to go for a walk on top of my to-do". I will now make the edit. - refused
 - Edit - applied — 1 - Journal/Weekly/Week-38/todo.md
 
 ##### Turn step 1
 
 Request to model
+
 - system prompt v1, date v1, note context v3
 - user: Add go for a walk on top of my to-do list.
 
 Response from model
+
 - text: The task **"go for a walk on top of my to-do list"** is already present in the note as:
 - **"I had to go for a walk on top of my to-do"** under **Today**.
 
 No further action is needed. If you meant to rephrase or move it, clarify.
 
 Harness
+
 - Outcome: replied
 
 Reply: The task **"go for a walk on top of my to-do list"** is already present in the note as:
+
 - **"I had to go for a walk on top of my to-do"** under **Today**.
 
 No further action is needed. If you meant to rephrase or move it, clarify.

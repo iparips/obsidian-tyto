@@ -38,7 +38,7 @@ appends it to the history, so no tool pair can be split; it is not a step, so no
 turn has to own it.
 
 | Option                                 | Model is told | Cost                                                            |
-|----------------------------------------|---------------|-----------------------------------------------------------------|
+| -------------------------------------- | ------------- | --------------------------------------------------------------- |
 | A session event, as a restore is       | No            | Gives up the model half of recording-a-retarget                 |
 | Keep the step, move the history write  | Yes           | Fixes neither defect on its own; still needs a turn and a slot  |
 | Append as a user message, not a system | Yes           | Weakens the framing that this is the harness speaking           |
@@ -70,7 +70,7 @@ Ilya: naming the operation and the note is fine.
 an earlier edit.
 
 | Option                             | Cost                                                   |
-|------------------------------------|--------------------------------------------------------|
+| ---------------------------------- | ------------------------------------------------------ |
 | Name the operation and the note    | Chosen                                                 |
 | Echo the content back as well      | Doubles arbitrarily long text already in the history   |
 | Say only that this call applied it | A batch of edits gives identical results, one per call |
