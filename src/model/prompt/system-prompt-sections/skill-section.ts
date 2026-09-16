@@ -18,6 +18,8 @@ export class SkillSection {
       'Every call that reaches the vault names the skills covering the utterance in its',
       'applicable_skills argument. An empty list says none covers it. A skill you name',
       'must be read first, and the refusal says which to load.',
+      'A refused declaration names the skill you have not read. Call load_skill with it',
+      'and then repeat the call you made; retrying that call first is refused again.',
       'A skill knows where its notes live and how they are named, so a',
       'search you run before loading it is a search built on a guess.',
       'You decide which applies; the tools refuse until you have said. The summary',
