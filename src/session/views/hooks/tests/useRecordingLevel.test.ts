@@ -149,6 +149,63 @@ describe('useRecordingLevel', () => {
     })
   })
 
+  describe('when the stream has not arrived yet', () => {
+    it('keeps the loop running while getUserMedia is still resolving', () => {
+      stream = null
+      const { result } = renderLevel()
+      act(() => result.current.begin())
+
+      runFrame()
+
+      expect(openContexts()).toHaveLength(1)
+    })
+
+    it('counts the clock once the stream arrives', () => {
+      vi.useFakeTimers()
+      stream = null
+      const { result } = renderLevel()
+      act(() => result.current.begin())
+      runFrame()
+
+      stream = { id: 'live' } as unknown as MediaStream
+      vi.advanceTimersByTime(2000)
+      runFrame()
+
+      expect(result.current.elapsedSeconds).toBe(2)
+      vi.useRealTimers()
+    })
+  })
+
+  describe('when no stream ever arrives', () => {
+    it('closes the context rather than looping on a refused microphone', () => {
+      vi.useFakeTimers()
+      stream = null
+      const { result } = renderLevel()
+      act(() => result.current.begin())
+
+      vi.advanceTimersByTime(31_000)
+      runFrame()
+
+      expect(openContexts()).toEqual([])
+      vi.useRealTimers()
+    })
+  })
+
+  describe('when the platform has no Web Audio', () => {
+    it('still counts the clock, so a recording runs without a meter', () => {
+      vi.useFakeTimers()
+      vi.stubGlobal('AudioContext', undefined)
+      const { result } = renderLevel()
+
+      act(() => result.current.begin())
+      vi.advanceTimersByTime(4000)
+      runFrame()
+
+      expect(result.current.elapsedSeconds).toBe(4)
+      vi.useRealTimers()
+    })
+  })
+
   describe('when the panel unmounts', () => {
     it('closes the context so the microphone is not left graphed', () => {
       const { result, unmount } = renderLevel()

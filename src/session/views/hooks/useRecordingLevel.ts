@@ -11,6 +11,9 @@ export interface RecordingLevel {
 }
 
 const AT_REST = 0
+// Long enough for a permission prompt the user answers, short enough that a
+// refused microphone does not leave a context open with nothing to read.
+const WAIT_FOR_STREAM_MS = 30_000
 
 // The level and the clock, which are the two live facts a recording strip
 // shows. Both end with the stream, so one hook owns the frame loop that feeds
@@ -24,6 +27,10 @@ export const useRecordingLevel = (
   const graph = useRef<RecordingAudioGraph | null>(null)
   const startedAt = useRef(0)
   const frame = useRef<number | null>(null)
+  const running = useRef(false)
+  // The stream arrives after getUserMedia resolves, so the first frames run
+  // before it. Only a stream that has been seen and then gone ends the loop.
+  const streamArrived = useRef(false)
 
   // Read through a ref so the loop reads today's stream rather than the one
   // captured at the gesture.
@@ -33,19 +40,26 @@ export const useRecordingLevel = (
   const release = () => {
     if (frame.current !== null) cancelAnimationFrame(frame.current)
     frame.current = null
+    running.current = false
+    streamArrived.current = false
     graph.current?.close()
     graph.current = null
     setLevel(AT_REST)
     setElapsedSeconds(0)
   }
 
-  // One frame's work: read the stream if it is there, and let go once it has
-  // gone. The stream arrives after getUserMedia resolves, so the first frames
-  // run before it.
+  // Nothing to read: either the stream has gone, or the gesture that would have
+  // opened it was refused and none is coming.
+  const hasNothingToRead = (): boolean =>
+    streamArrived.current || Date.now() - startedAt.current > WAIT_FOR_STREAM_MS
+
+  // One frame's work: count the clock, read the level, and let go once there is
+  // nothing left to read.
   const readFrame = useRef(() => {})
   readFrame.current = () => {
     const stream = readStream.current()
-    if (!stream) return release()
+    if (!stream) return hasNothingToRead() ? release() : undefined
+    streamArrived.current = true
     setElapsedSeconds(Math.floor((Date.now() - startedAt.current) / 1000))
     if (reducedMotion) return
     graph.current?.listenTo(stream)
@@ -53,11 +67,11 @@ export const useRecordingLevel = (
   }
 
   // A frame loop rather than a timer, so it stops when the panel is
-  // backgrounded.
+  // backgrounded. It runs without a graph too, since the clock needs no audio.
   const scheduleFrame = () => {
     frame.current = requestAnimationFrame(() => {
       readFrame.current()
-      if (graph.current) scheduleFrame()
+      if (running.current) scheduleFrame()
     })
   }
 
@@ -67,7 +81,8 @@ export const useRecordingLevel = (
     level,
     elapsedSeconds,
     begin: () => {
-      if (graph.current) return
+      if (running.current) return
+      running.current = true
       graph.current = RecordingAudioGraph.open()
       startedAt.current = Date.now()
       scheduleFrame()
