@@ -4,6 +4,9 @@ import { RecordingAudioGraph } from './recording-audio-graph'
 export interface RecordingLevel {
   // 0 to 1, held at rest where the user has asked for less animation.
   level: number
+  // The recent levels, oldest first, so a flat trail reads as a dead mic where
+  // a few bars at the floor could be silence.
+  levels: readonly number[]
   elapsedSeconds: number
   // Called from the record gesture itself: WebKit suspends a context built
   // outside a user gesture, and Obsidian on iOS is a WKWebView.
@@ -11,6 +14,11 @@ export interface RecordingLevel {
 }
 
 const AT_REST = 0
+// How many bars the trail holds, and how often one is taken. The frame loop runs
+// at the display's rate, which would fill the trail in under half a second.
+export const TRAIL_BARS = 24
+const SAMPLE_EVERY_MS = 100
+const AT_REST_TRAIL: readonly number[] = Array.from({ length: TRAIL_BARS }, () => AT_REST)
 // Long enough for a permission prompt the user answers, short enough that a
 // refused microphone does not leave a context open with nothing to read.
 const WAIT_FOR_STREAM_MS = 30_000
@@ -23,7 +31,9 @@ export const useRecordingLevel = (
   reducedMotion = prefersReducedMotion(),
 ): RecordingLevel => {
   const [level, setLevel] = useState(AT_REST)
+  const [levels, setLevels] = useState(AT_REST_TRAIL)
   const [elapsedSeconds, setElapsedSeconds] = useState(0)
+  const sampledAt = useRef(0)
   const graph = useRef<RecordingAudioGraph | null>(null)
   const startedAt = useRef(0)
   const frame = useRef<number | null>(null)
@@ -45,6 +55,7 @@ export const useRecordingLevel = (
     graph.current?.close()
     graph.current = null
     setLevel(AT_REST)
+    setLevels(AT_REST_TRAIL)
     setElapsedSeconds(0)
   }
 
@@ -63,7 +74,18 @@ export const useRecordingLevel = (
     setElapsedSeconds(Math.floor((Date.now() - startedAt.current) / 1000))
     if (reducedMotion) return
     graph.current?.listenTo(stream)
-    setLevel(graph.current?.readLevel() ?? AT_REST)
+    const read = graph.current?.readLevel() ?? AT_REST
+    setLevel(read)
+    if (isDueForSample()) setLevels((trail) => [...trail.slice(1), read])
+  }
+
+  // Sampled on a clock rather than per frame, so the trail spans seconds rather
+  // than the last few hundred milliseconds.
+  const isDueForSample = (): boolean => {
+    const now = Date.now()
+    if (now - sampledAt.current < SAMPLE_EVERY_MS) return false
+    sampledAt.current = now
+    return true
   }
 
   // A frame loop rather than a timer, so it stops when the panel is
@@ -79,12 +101,14 @@ export const useRecordingLevel = (
 
   return {
     level,
+    levels,
     elapsedSeconds,
     begin: () => {
       if (running.current) return
       running.current = true
       graph.current = RecordingAudioGraph.open()
       startedAt.current = Date.now()
+      sampledAt.current = 0
       scheduleFrame()
     },
   }

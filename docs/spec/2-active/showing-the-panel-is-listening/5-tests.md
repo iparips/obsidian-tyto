@@ -16,18 +16,18 @@ updated: 2026-09-16
 ```gherkin
 Given the panel is idle
 When  the user presses the record button
-Then  a strip above the input row holds a clock and a meter
+Then  a strip above the input row holds a clock and a trail of bars
 And   the record button reads Stop in the accent colour
-And   the instruction field is gone, leaving the meter the width
+And   the instruction field is gone, leaving the trail the width
 ```
 
-### The meter follows the voice
+### The trail follows the voice
 
 ```gherkin
 Given a recording is running
 When  the user speaks
 Then  the bars rise above their resting floor
-And   they fall back when the user stops
+And   the raised bars travel left as the recording continues
 ```
 
 Bars frozen at rest while the clock still counts is a suspended AudioContext,
@@ -39,12 +39,13 @@ resume() on the record gesture is the first thing to try.
 ```gherkin
 Given the microphone is muted at the operating system
 When  the user speaks into a running recording
-Then  the bars stay at their resting floor
-And   the floor is visibly lower than speech was
+Then  the trail is a flat line at its resting floor
+And   the flat line is visibly lower than speech was
 ```
 
-A meter that looks the same muted and unmuted is the failure the feature exists
-to prevent, whatever the bars are doing.
+A strip that looks the same muted and unmuted is the failure the feature exists
+to prevent. The trail is what makes this readable at a glance, per D5: a level
+meter at the floor is a quiet room and a dead microphone alike.
 
 ### Stopping releases everything
 

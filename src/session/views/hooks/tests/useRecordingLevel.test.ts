@@ -89,6 +89,40 @@ describe('useRecordingLevel', () => {
       expect(result.current.level).toBe(0.5)
     })
 
+    it('starts the trail at rest, so the strip has bars to draw before a reading', () => {
+      const { result } = renderLevel()
+
+      expect(result.current.levels.every((level) => level === 0)).toBe(true)
+    })
+
+    it('appends a reading to the trail, dropping the oldest', () => {
+      const { result } = renderLevel()
+      act(() => result.current.begin())
+      const bars = result.current.levels.length
+
+      FakeAudioContext.instances[0].analyser.reading = 192
+      runFrame()
+
+      expect(result.current.levels).toHaveLength(bars)
+      expect(result.current.levels.at(-1)).toBe(0.5)
+    })
+
+    // A frame loop runs at the display's rate, which would fill the trail in
+    // under half a second and leave it showing the last blink rather than a
+    // trail.
+    it('samples the trail on a clock rather than once a frame', () => {
+      const { result } = renderLevel()
+      act(() => result.current.begin())
+
+      FakeAudioContext.instances[0].analyser.reading = 192
+      runFrame()
+      FakeAudioContext.instances[0].analyser.reading = 160
+      runFrame()
+
+      expect(result.current.levels.at(-1)).toBe(0.5)
+      expect(result.current.level).toBe(0.25)
+    })
+
     it('wires one source however many frames run', () => {
       const { result } = renderLevel()
       act(() => result.current.begin())
