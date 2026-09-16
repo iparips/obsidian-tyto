@@ -54,7 +54,7 @@ export class SessionPanelPropsBuilder {
     private pluginVersion = 'unknown',
   ) {}
 
-  buildFromLeafPresence(
+  buildInitialSessionProps(
     leaf: LeafPresence,
     startNewSessionFn: () => void,
     onObsidianBackgroundedFn: (listenerFn: () => void) => () => void,
