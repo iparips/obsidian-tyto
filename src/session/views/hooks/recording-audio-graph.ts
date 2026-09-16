@@ -17,7 +17,10 @@ export class RecordingAudioGraph {
     this.samples = new Uint8Array(analyser.fftSize)
   }
 
-  static open(): RecordingAudioGraph {
+  // Null where the platform has no Web Audio, so a recording still runs
+  // without a meter rather than failing at the gesture that starts it.
+  static open(): RecordingAudioGraph | null {
+    if (typeof AudioContext === 'undefined') return null
     const context = new AudioContext()
     const analyser = context.createAnalyser()
     analyser.fftSize = 2048
