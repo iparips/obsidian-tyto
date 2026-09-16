@@ -126,6 +126,24 @@ describe('EditEngine', () => {
       opensDailyNote()
     })
 
+    // The runner awaits the open, so Obsidian fires file-open and the session
+    // binds before the command returns. Publishing again there said the note
+    // changed twice for one open.
+    it('reports the move once when file-open fires before the command returns', async () => {
+      const engine = engineOf()
+      registry.executeCommandById = (id: string) => {
+        registry.executed.push(id)
+        workspace.finishesOpening(DAILY)
+        void engine.followActiveNote(DAILY)
+        return true
+      }
+      respondsWith(runCommand())
+
+      await engine.processUtterance('open my daily note')
+
+      expect(retargets).toEqual([DAILY])
+    })
+
     it('applies the following edit to the opened note when a command retargets', async () => {
       respondsWith(
         runCommand(),
