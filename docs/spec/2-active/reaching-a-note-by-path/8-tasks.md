@@ -10,9 +10,10 @@ last two are the panel and depend on each other.
 
 ## Commit 1: a write reaches the note by path
 
-- NoteEditor.apply takes the target path and asks WorkspaceNoteLocator for the
-  editor showing it now. The same handle the turn holds means the tab has not
-  moved, so the write goes through the editor as today
+- NoteEditor.apply already receives NoteDetails and its path, so it gains no
+  parameter. It asks WorkspaceNoteLocator for the editor showing that path now,
+  and the same handle the turn holds means the tab has not moved, so the write
+  goes through the editor as today
 - A different handle, or none, means the tab moved, so the write goes through
   Vault.process and skips focusEdit
 - An Editor does not name its file, which is why the locator answers rather than
@@ -27,6 +28,8 @@ takes the vault.
 
 ## Commit 2: a read of the turn's note comes from its editor
 
+- TurnState widens by one readonly field for the target note: readNote takes
+  that interface already, and it carries three repositories and no note
 - HarnessToolsService.readNote answers from the turn's editor where the path is
   the turn's target and the tab has not moved
 - Every other path, and a moved tab, answers from NoteReader as today
