@@ -38,10 +38,14 @@ an edit call after a search call
   applies the edit, since only edits count against the boundary
 a second edit in the next step
   applies it, since the count is per step
+three edits in one batch
+  refuses the second and the third
+  does not end the turn, since the boundary is not a repeated refusal
 ```
 
-The last case is what keeps a multi-edit instruction possible: the boundary
-defers an edit rather than forbidding it.
+The last case is the one that bites. RepeatedRefusalCounter ends a turn after two
+identical refusals, so a boundary refusal recorded against it would turn a
+three-edit batch into a stuck turn.
 
 ## NoteEditTool.execute, for a whole-note write
 
@@ -61,6 +65,14 @@ the note changed since the model read it
 
 The last leaf is the ordering the design states: the two refusals come before
 the confirmation, so a user is only asked about a write that is current.
+
+## NoteEditor.apply
+
+```text
+a whole-note operation
+  replaces the note from offset zero to its length
+  reports where the write ended, as the anchored kinds do
+```
 
 ## NotesReadRepository
 

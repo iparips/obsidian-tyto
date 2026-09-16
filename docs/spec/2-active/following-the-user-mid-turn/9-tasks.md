@@ -32,14 +32,22 @@ running turn on its own note.
 - The count is per step, so a turn still makes as many edits as the instruction
   needs
 
+The refusal is not recorded against RepeatedRefusalCounter. Two identical
+refusals end a turn, and a batch of three edits produces the boundary refusal
+twice, so recording it would turn a deferral into a stuck turn.
+
 Tests: a second edit in a batch is refused and the first applies, a search call
-between two edits does not count, and the next step's edit applies.
+between two edits does not count, the next step's edit applies, and a batch of
+three does not end the turn.
 
 ## Commit 3: the whole-note write
 
-- A fourth edit tool taking the full content and the content the model last read
-- NotesReadRepository joins the turn-scoped repositories, written by
-  HarnessToolsService.readNote
+- A fourth edit tool taking the full content and the content the model last
+  read, with a fourth EditOperation kind, a NoteEditor branch, a
+  NoteOperationParser case, and the name added to ToolCall.isEditTool so the
+  step boundary covers it
+- NotesReadRepository is built in TurnRepository's constructor, as
+  NotesChosenByUserRepository is, and written by HarnessToolsService.readNote
 - Three guards in order: refuse unless read this turn, refuse when the note has
   moved under the content carried, then confirm through NoteChoiceService
 

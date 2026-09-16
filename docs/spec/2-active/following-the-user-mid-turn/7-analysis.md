@@ -26,7 +26,7 @@ The model sent five replace_text calls computed from one snapshot. They apply in
 order, each against the note the one before it changed.
 
 | Call | Anchor computed from | Note when it applied     | Outcome |
-|------|----------------------|--------------------------|---------|
+| ---- | -------------------- | ------------------------ | ------- |
 | 1    | The turn's snapshot  | Unchanged                | Applied |
 | 2    | The same snapshot    | Shifted by call 1        | Applied |
 | 3    | The same snapshot    | Shifted by calls 1 and 2 | Refused |
