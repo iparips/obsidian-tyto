@@ -10,7 +10,7 @@ import { FakeSessionWorkspace } from '../../test-support/fake-session-workspace'
 
 // The plugin's registrations, which a controller built in a test never fires.
 class FakeRegistrations implements PluginRegistrations {
-  onFileOpen(): void {}
+  onObsidianFileOpened(): void {}
 
   onObsidianBackgrounded(): () => void {
     return () => {}

@@ -60,7 +60,7 @@ export default class TytoPlugin extends Plugin {
       new SessionLeaf(this.app),
       new SessionStore(this.app.vault.adapter, this.manifest.dir),
       {
-        onFileOpen: (listenerFn) => this.onFileOpen(listenerFn),
+        onObsidianFileOpened: (listenerFn) => this.onObsidianFileOpened(listenerFn),
         onObsidianBackgrounded: (listenerFn) => this.onObsidianBackgrounded(listenerFn),
       },
       this.manifest.version,
@@ -71,7 +71,7 @@ export default class TytoPlugin extends Plugin {
     return new SettingsPanelBuilder(this.app, () => this.settings)
   }
 
-  private onFileOpen(listenerFn: (file: TFile | null) => void): void {
+  private onObsidianFileOpened(listenerFn: (file: TFile | null) => void): void {
     this.registerEvent(this.app.workspace.on('file-open', listenerFn))
   }
 
