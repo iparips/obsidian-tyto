@@ -500,6 +500,81 @@ describe('EditEngine', () => {
     })
   })
 
+  // The reported session: the model sent its whole reasoning text as a function
+  // name beside a valid replace_text in one batch. The name fell through to the
+  // edit tool and was refused there, so the batch produced two results and the
+  // model read the applied one as evidence of an earlier edit.
+  describe('when the model calls a tool that does not exist', () => {
+    const REASONING = 'I should add the item under the heading the user named'
+
+    const resultsOf = (callIndex: number) =>
+      complete.mock.calls[callIndex][0].filter((m: ChatMessage) => m.isToolResult())
+
+    it('names the tools that may be called', async () => {
+      respondsWith(aToolTurn(aToolCall(REASONING, {})))
+
+      await engineOf().processUtterance('add an item')
+
+      expect(resultsOf(1)[0].content).toContain('the tools you may call are')
+    })
+
+    it('does not repeat the name it was sent', async () => {
+      respondsWith(aToolTurn(aToolCall(REASONING, {})))
+
+      await engineOf().processUtterance('add an item')
+
+      expect(resultsOf(1)[0].content).not.toContain(REASONING)
+    })
+
+    it('publishes a refused step, so a turn stalled on it says why', async () => {
+      respondsWith(aToolTurn(aToolCall(REASONING, {})))
+
+      await engineOf().processUtterance('add an item')
+
+      expect(steps.filter((step) => step.startsWith('Refused'))).toHaveLength(1)
+    })
+
+    it('reaches the edit tool not at all, so the note is untouched', async () => {
+      respondsWith(aToolTurn(aToolCall(REASONING, {})))
+
+      await engineOf().processUtterance('add an item')
+
+      expect(editor.content).toBe('# Budget\n\nbody')
+    })
+
+    it('runs no command, so the harness tools are never reached', async () => {
+      respondsWith(aToolTurn(aToolCall(REASONING, {})))
+
+      await engineOf().processUtterance('add an item')
+
+      expect(registry.executed).toEqual([])
+    })
+
+    describe('when a valid edit shares the batch', () => {
+      const aBatch = () =>
+        aToolTurn(
+          aToolCall(REASONING, {}),
+          aToolCall('replace_text', { anchor_text: '# Budget', replacement: '# Costs' }),
+        )
+
+      it('applies the edit, since one bad name refuses only itself', async () => {
+        respondsWith(aBatch())
+
+        await engineOf().processUtterance('rename the heading')
+
+        expect(editor.content).toBe('# Costs\n\nbody')
+      })
+
+      it('refuses the unknown name rather than the edit beside it', async () => {
+        respondsWith(aBatch())
+
+        await engineOf().processUtterance('rename the heading')
+
+        expect(resultsOf(1)[0].content).toContain('no tool named that')
+      })
+    })
+  })
+
   describe('when search is turned off', () => {
     it('refuses a glob when search is disabled in settings', async () => {
       respondsWith(aToolTurn(aToolCall('glob_notes', { pattern: 'Quotes/*.md' })))

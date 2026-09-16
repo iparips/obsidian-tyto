@@ -37,7 +37,7 @@ reproduced the defect, so it lands as written.
 ## ToolDispatcher.execute
 
 ```text
-a name that is not an offered tool
+a name no tool carries
   returns a refusal naming the tools that may be called
   does not repeat the name it was sent
   publishes a refused step

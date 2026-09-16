@@ -45,8 +45,10 @@ call and its result, and split keeping what precedes the first utterance.
 ## Commit 2: an unknown tool name is refused before dispatch
 
 - ToolDispatcher.execute gains a guard ahead of the load-skill branch, since a
-  name that is not offered is not a load_skill either
-- The offered set comes from ToolCatalogue.forCapabilities, which
+  name no tool carries is not a load_skill either
+- The guard checks TOOL_SCHEMAS, the defined names, so a tool a disabled
+  capability withheld still reaches the branch refusing it by name and reason
+- The refusal lists the offered set, from ToolCatalogue.forCapabilities, which
   HarnessToolsService already calls for the schemas sent with each request. The
   dispatcher reads that list rather than holding a second copy
 - The refusal names the tools that may be called and not the name it was sent
