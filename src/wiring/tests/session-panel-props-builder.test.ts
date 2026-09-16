@@ -76,19 +76,19 @@ describe('SessionPanelPropsBuilder', () => {
 
   describe('when a session is built fresh', () => {
     it('binds to the note the user has open', () => {
-      const props = builder.buildFromLeafPresence(leaf, startNewSession, onObsidianBackgrounded)
+      const props = builder.buildInitialSessionProps(leaf, startNewSession, onObsidianBackgrounded)
 
       expect(props.notePath).toBe('Journal/day.md')
     })
 
     it('names the note from the open path, so the panel header says where the turn lands', () => {
-      const props = builder.buildFromLeafPresence(leaf, startNewSession, onObsidianBackgrounded)
+      const props = builder.buildInitialSessionProps(leaf, startNewSession, onObsidianBackgrounded)
 
       expect(props.noteName).toBe('day')
     })
 
     it('stays unbound when nothing markdown is open', () => {
-      const props = builderWith(null).buildFromLeafPresence(
+      const props = builderWith(null).buildInitialSessionProps(
         leaf,
         startNewSession,
         onObsidianBackgrounded,
@@ -99,7 +99,7 @@ describe('SessionPanelPropsBuilder', () => {
     })
 
     it('stays unbound when a canvas is in front, since no editor can show one', () => {
-      const props = builderWith('Boards/plan.canvas').buildFromLeafPresence(
+      const props = builderWith('Boards/plan.canvas').buildInitialSessionProps(
         leaf,
         startNewSession,
         onObsidianBackgrounded,
@@ -109,7 +109,7 @@ describe('SessionPanelPropsBuilder', () => {
     })
 
     it('holds no entries when the session is built rather than restored', () => {
-      const props = builder.buildFromLeafPresence(leaf, startNewSession, onObsidianBackgrounded)
+      const props = builder.buildInitialSessionProps(leaf, startNewSession, onObsidianBackgrounded)
 
       expect(props.entries).toEqual([])
     })
@@ -117,7 +117,7 @@ describe('SessionPanelPropsBuilder', () => {
 
   describe('when the panel records its history', () => {
     it('writes the record to the store, so a closed panel leaves what it showed', async () => {
-      const props = builder.buildFromLeafPresence(leaf, startNewSession, onObsidianBackgrounded)
+      const props = builder.buildInitialSessionProps(leaf, startNewSession, onObsidianBackgrounded)
 
       const stored = await recordAndRead(props, [{ kind: 'user', text: 'add a heading' }])
 

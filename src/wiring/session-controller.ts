@@ -58,7 +58,7 @@ export class SessionController {
   }
 
   private buildInitialSessionProps(view: SessionView): SessionPanelProps {
-    return this.panelPropsBuilder().buildFromLeafPresence(
+    return this.panelPropsBuilder().buildInitialSessionProps(
       this.leaf,
       () => this.startNewSession(view),
       this.onObsidianBackgroundedFn,
