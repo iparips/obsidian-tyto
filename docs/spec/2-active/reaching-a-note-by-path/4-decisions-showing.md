@@ -6,7 +6,7 @@ updated: 2026-09-16
 # Decisions: Showing The Note
 
 What the panel says about the note a turn is writing to. How that note is
-reached is in [3-decisions.md](3-decisions.md).
+reached is in [4-decisions.md](4-decisions.md).
 
 ## Requirements
 
