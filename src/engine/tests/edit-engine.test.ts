@@ -106,7 +106,9 @@ describe('EditEngine', () => {
       complete
         .mockResolvedValueOnce(
           Outcomes.success(
-            aToolTurn(aToolCall('replace_text', { anchor_text: '# Budget', replacement: '# Costs' })),
+            aToolTurn(
+              aToolCall('replace_text', { anchor_text: '# Budget', replacement: '# Costs' }),
+            ),
           ),
         )
         .mockResolvedValueOnce(

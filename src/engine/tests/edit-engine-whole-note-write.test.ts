@@ -51,9 +51,7 @@ describe('EditEngine', () => {
 
   const readsThenWrites = (readContent = CONTENT) => {
     complete
-      .mockResolvedValueOnce(
-        Outcomes.success(aToolTurn(aToolCall('read_note', { path: TODO }))),
-      )
+      .mockResolvedValueOnce(Outcomes.success(aToolTurn(aToolCall('read_note', { path: TODO }))))
       .mockResolvedValueOnce(
         Outcomes.success(
           aToolTurn(aToolCall('write_note', { content: ARCHIVED, read_content: readContent })),
