@@ -30,9 +30,9 @@ Ready for a fresh session. A retarget becomes a session event, a malformed tool
 name is refused before dispatch, and an applied edit names the operation and the
 note. D4 is open and non-blocking, answerable during the build.
 
-Amending [recording-a-retarget](../recording-a-retarget/1-index.md) is part of
+Amending [recording-a-retarget](../32-recording-a-retarget/1-index.md) is part of
 this work: D1 here reverses its D2, and the two should not ship disagreeing.
 
-Downstream of [recording-a-retarget](../recording-a-retarget/1-index.md), which
+Downstream of [recording-a-retarget](../32-recording-a-retarget/1-index.md), which
 added the retarget step and the history message that two of the three defects
 come from.

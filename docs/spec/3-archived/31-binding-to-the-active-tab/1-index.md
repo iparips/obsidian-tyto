@@ -44,5 +44,5 @@ subscription and the retarget path both work. Only the empty tab is dropped,
 which puts the change in retargetActiveEngine rather than in a new subscription.
 
 Recording that a retarget happened is a sibling spec,
-[recording-a-retarget](../recording-a-retarget/1-index.md). This
+[recording-a-retarget](../32-recording-a-retarget/1-index.md). This
 one is about when it happens.
