@@ -19,9 +19,27 @@ describe('PanelHeader', () => {
   })
 
   const renderHeader = (overrides: Partial<PanelHeaderProps> = {}) =>
-    render(<PanelHeader name="note" path="a/note.md" running={false} {...overrides} />)
+    render(<PanelHeader running={false} {...overrides} />)
 
   const copyButton = () => screen.queryByRole('button', { name: 'Copy transcript' })
+
+  // The note left with the turns, since a target belongs to the turn that chose
+  // it (D4). What is left is a toolbar.
+  describe('whatever the session is on', () => {
+    it('names no note', () => {
+      const { container } = renderHeader({ onReset: vi.fn() })
+
+      expect(container.querySelector('.tyto-header-target')).toBeNull()
+      expect(screen.queryByText('No note open')).toBeNull()
+    })
+
+    it('offers Copy and Reset', () => {
+      renderHeader({ onReset: vi.fn(), onCopy: () => 'a transcript', hasEntries: true })
+
+      expect(screen.getByRole('button', { name: 'Reset session' })).toBeTruthy()
+      expect(copyButton()).toBeTruthy()
+    })
+  })
 
   describe('when the setting is off', () => {
     it('holds Reset and no Copy button', () => {

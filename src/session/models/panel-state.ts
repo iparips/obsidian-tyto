@@ -1,7 +1,4 @@
 import { FailureStep } from '../../shared/models/outcome'
-import { AskedEntries } from './asked-entries'
-import { PanelAction } from './panel-action'
-import { RetargetedText } from './retargeted-text'
 
 // cancelling sits between the click and the loop stopping, so the button stops
 // offering while the turn is still on its way down. choosing and asking both
@@ -20,7 +17,7 @@ export type PanelEntry =
   | { kind: 'warning'; text: string }
   // One entry per turn holding every step, so the panel gains a collapsed list
   // rather than a line per tool call.
-  | { kind: 'steps'; steps: PanelStep[] }
+  | { kind: 'progress'; lines: ProgressLine[] }
   | { kind: 'answer'; text: string; sources: string[] }
   | { kind: 'cancelled'; text: string }
   // Where a restored session picks up, naming when it was last written. A
@@ -40,7 +37,23 @@ export type PanelEntry =
   // as a record of what was asked, and its suggestions go (FR32).
   | { kind: 'question'; pending: boolean; suggestions: string[]; text: string }
 
-export interface PanelStep {
+// One turn and everything that belongs to it: the utterance that opened it, the
+// note it is writing to, and the entries it produced, the first of which is the
+// utterance as the panel renders it. A container rather than a convention, so
+// nothing scans back to a user entry to find out what belongs where (D6).
+export type PanelTurn = {
+  kind: 'turn'
+  // Null while the session is unbound. Starts as the session's note and moves
+  // only when a tool opens another (D5).
+  target: string | null
+  entries: PanelEntry[]
+}
+
+// What the panel holds at the top level: turns, and the entries belonging to no
+// turn, which is a restore marker or a retarget the user made (spec 32).
+export type PanelItem = PanelTurn | PanelEntry
+
+export interface ProgressLine {
   label: string
   detail: string
   refused: boolean
@@ -49,136 +62,71 @@ export interface PanelStep {
 export class PanelState {
   constructor(
     readonly phase: Phase,
-    readonly entries: PanelEntry[],
+    readonly entries: PanelItem[],
   ) {}
 
   withPhase(phase: Phase): PanelState {
     return new PanelState(phase, this.entries)
   }
 
+  // Into the open turn, which is where everything a turn produces belongs. Only
+  // a restore marker and the user's own retarget go beside one, through
+  // withItem.
   withEntry(phase: Phase, entry: PanelEntry): PanelState {
-    return new PanelState(phase, [...this.entries, entry])
+    const open = this.openTurnAt()
+    if (open === -1) return this.withItem(phase, entry)
+    const turn = this.entries[open] as PanelTurn
+    return new PanelState(
+      phase,
+      this.entries.with(open, { ...turn, entries: [...turn.entries, entry] }),
+    )
+  }
+
+  withItem(phase: Phase, item: PanelItem): PanelState {
+    return new PanelState(phase, [...this.entries, item])
+  }
+
+  // The turn the panel is adding to, which is the last one: a turn opens on an
+  // utterance and nothing reopens an earlier one.
+  withOpenTurn(change: (turn: PanelTurn) => PanelTurn): PanelState {
+    const open = this.openTurnAt()
+    if (open === -1) return this
+    return new PanelState(
+      this.phase,
+      this.entries.with(open, change(this.entries[open] as PanelTurn)),
+    )
+  }
+
+  // Every entry the panel holds, turns flattened into the order they were
+  // shown, so a reader that does not care about grouping sees what it used to.
+  flattened(): PanelEntry[] {
+    return this.entries.flatMap(PanelItems.entriesOf)
+  }
+
+  // Through the turns as well as beside them, so an entry a turn holds settles
+  // the same way one at the top level does.
+  mapEntries(change: (entry: PanelEntry) => PanelEntry): PanelState {
+    return new PanelState(this.phase, PanelItems.mapAll(this.entries, change))
+  }
+
+  private openTurnAt(): number {
+    return this.entries.findLastIndex((item) => item.kind === 'turn')
+  }
+}
+
+export class PanelItems {
+  static entriesOf(item: PanelItem): PanelEntry[] {
+    return item.kind === 'turn' ? item.entries : [item]
+  }
+
+  static mapAll(items: PanelItem[], change: (entry: PanelEntry) => PanelEntry): PanelItem[] {
+    return items.map((item) => PanelItems.mapped(item, change))
+  }
+
+  private static mapped(item: PanelItem, change: (entry: PanelEntry) => PanelEntry): PanelItem {
+    if (item.kind !== 'turn') return change(item)
+    return { ...item, entries: item.entries.map(change) }
   }
 }
 
 export const INITIAL_PANEL_STATE: PanelState = new PanelState('idle', [])
-
-export class PanelReducer {
-  static reduce(state: PanelState, action: PanelAction): PanelState {
-    switch (action.type) {
-      case 'recordingStarted':
-        return PanelReducer.withNothingToRetry(state).withPhase('recording')
-      case 'stopRequested':
-        return state.withPhase('transcribing')
-      case 'cancelled':
-        return state.withPhase('idle')
-      case 'transcript':
-        return PanelReducer.withNothingToRetry(state).withEntry('thinking', {
-          kind: 'user',
-          text: action.text,
-        })
-      case 'summary':
-        return AskedEntries.turnEnded(state).withEntry('idle', {
-          kind: 'assistant',
-          text: action.text,
-        })
-      case 'failed':
-        return AskedEntries.turnEnded(state).withEntry('idle', {
-          kind: 'error',
-          step: action.step,
-          text: action.message,
-          retryable: action.retryable,
-        })
-      case 'instructions':
-        return state.withEntry(state.phase, { kind: 'instructions', text: action.text })
-      case 'warned':
-        return state.withEntry(state.phase, { kind: 'warning', text: action.text })
-      // Appended where it happened rather than joining the open steps entry: a
-      // retarget belongs to no turn, and a restored panel leaves the entry
-      // withStep scans for above the restore marker.
-      case 'retargeted':
-        return state.withEntry(state.phase, {
-          kind: 'retargeted',
-          text: RetargetedText.of(action.path),
-        })
-      case 'stepTaken':
-        return PanelReducer.withStep(state, {
-          label: action.label,
-          detail: action.detail,
-          refused: action.refused,
-        })
-      case 'answer':
-        return state.withEntry(state.phase, {
-          kind: 'answer',
-          text: action.text,
-          sources: action.sources,
-        })
-      case 'cancelRequested':
-        return state.withPhase('cancelling')
-      case 'turnCancelled':
-        return AskedEntries.turnEnded(state).withEntry('idle', {
-          kind: 'cancelled',
-          text: PanelReducer.cancelledText(action.notesWritten),
-        })
-      case 'choiceRequested':
-        return state.withEntry('choosing', {
-          kind: 'choice',
-          candidates: action.candidates,
-          pending: true,
-          text: action.purpose,
-        })
-      case 'choiceAnswered':
-        return AskedEntries.choiceAnswered(state, action.chosen)
-      case 'questionAsked':
-        return state.withEntry('asking', {
-          kind: 'question',
-          pending: true,
-          suggestions: action.suggestions,
-          text: action.text,
-        })
-      case 'questionAnswered':
-        return AskedEntries.questionAnswered(state, 'thinking')
-    }
-  }
-
-  // Both callers are moments the panel stops holding the audio: a transcript
-  // came back, or a new recording replaced it. The control would otherwise
-  // retry an utterance that is gone.
-  private static withNothingToRetry(state: PanelState): PanelState {
-    return new PanelState(
-      state.phase,
-      state.entries.map((entry) =>
-        entry.kind === 'error' && entry.retryable ? { ...entry, retryable: false } : entry,
-      ),
-    )
-  }
-
-  // Appended to the turn's steps entry wherever it sits, rather than only when
-  // it is last: a skill or command entry landing between two steps must not
-  // split one turn's record into two lists.
-  private static withStep(state: PanelState, step: PanelStep): PanelState {
-    const at = PanelReducer.openStepsAt(state)
-    if (at === -1) return state.withEntry(state.phase, { kind: 'steps', steps: [step] })
-    const open = state.entries[at] as { kind: 'steps'; steps: PanelStep[] }
-    return new PanelState(
-      state.phase,
-      state.entries.with(at, { kind: 'steps', steps: [...open.steps, step] }),
-    )
-  }
-
-  // The last steps entry after the last utterance, since an utterance is where
-  // one turn ends and the next begins.
-  private static openStepsAt(state: PanelState): number {
-    const turnStart = state.entries.findLastIndex((entry) => entry.kind === 'user')
-    const within = state.entries.slice(turnStart + 1)
-    const at = within.findLastIndex((entry) => entry.kind === 'steps')
-    return at === -1 ? -1 : turnStart + 1 + at
-  }
-
-  // Naming the notes is the whole of what a cancel owes the user: nothing is
-  // reverted, so the panel says where to look.
-  private static cancelledText(notesWritten: readonly string[]): string {
-    if (notesWritten.length === 0) return 'Stopped. Nothing was changed.'
-    return `Stopped. Already changed: ${notesWritten.join(', ')}`
-  }
-}

@@ -3,6 +3,7 @@ import { EditEngine } from '../engine/edit-engine'
 import { ToolNoteOpening } from '../session/tool-note-opening'
 import { TurnEndingService } from '../engine/turn-ending-service'
 import { NoteEditor } from '../engine/note-editing/note-editor'
+import { TargetNoteWriter } from '../engine/note-editing/target-note-writer'
 import { HarnessToolsService } from '../engine/tools/harness-tools-service'
 import { TargetNoteResolver } from '../engine/note-binding/target-note-resolver'
 import { TurnProgressPublisher } from '../engine/turn-progress-publisher'
@@ -56,7 +57,7 @@ export class EngineFactory {
   ): EditEngine {
     const targetNote = new TargetNoteResolver(
       sessions,
-      new WorkspaceNoteLocator(this.scope.app),
+      this.buildNoteLocator(),
       this.scope.agentsMdRepository(),
       progress,
     )
@@ -82,6 +83,18 @@ export class EngineFactory {
     )
   }
 
+  // Holds only the app and reads the workspace on each call, so a second one
+  // answers the same as the first.
+  private buildNoteLocator(): WorkspaceNoteLocator {
+    return new WorkspaceNoteLocator(this.scope.app)
+  }
+
+  // Stateless, like the locator it holds: it reads the workspace and the vault
+  // on each call rather than remembering either.
+  private buildTargetNoteWriter(): TargetNoteWriter {
+    return new TargetNoteWriter(new NoteEditor(), this.buildNoteLocator(), this.scope.app.vault)
+  }
+
   private buildTurnFactory(
     sessions: SessionRepository,
     targetNote: TargetNoteResolver,
@@ -92,15 +105,16 @@ export class EngineFactory {
     transcript: TranscriptRepository,
     toolNoteOpening: ToolNoteOpening,
   ): TurnRunnerFactory {
+    const targetNoteWriter = this.buildTargetNoteWriter()
     return new TurnRunnerFactory(
       sessions,
       targetNote,
       this.scope.skillRepository(),
-      new NoteEditor(),
+      targetNoteWriter,
       harnessToolsService,
       progress,
       modelProvider,
-      new TurnEndingService(sessions, new NoteEditor()),
+      new TurnEndingService(sessions, targetNoteWriter),
       new NoteOpener(
         this.scope.app,
         new OpenedNoteWait(this.scope.app, undefined, toolNoteOpening),
@@ -134,6 +148,7 @@ export class EngineFactory {
         new NoteGrep(this.scope.app.vault),
       ),
       new DateToolService(),
+      this.buildTargetNoteWriter(),
       // Both modes ask about several candidates now, so both need the tool that
       // asks. The parameter stays because ToolCatalogue carries the search gate
       // through it (NFR4).

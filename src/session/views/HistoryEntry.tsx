@@ -4,7 +4,7 @@ import { EntryWeights } from '../models/entry-weight'
 import { EntrySources } from './EntrySources'
 import { EntryChoice } from './EntryChoice'
 import { EntrySuggestions } from './EntrySuggestions'
-import { EntrySteps } from './EntrySteps'
+import { EntryProgress } from './EntryProgress'
 
 const ENTRY_CLASSES = {
   user: 'tyto-entry-user',
@@ -16,14 +16,14 @@ const ENTRY_CLASSES = {
   choice: 'tyto-entry-choice-line',
   question: 'tyto-entry-question',
   warning: 'tyto-entry-warning',
-  steps: 'tyto-entry-steps-line',
+  progress: 'tyto-entry-progress-line',
   restored: 'tyto-entry-restored',
   retargeted: 'tyto-entry-retargeted',
 }
 
 const entryText = (entry: PanelEntry) => {
   if (entry.kind === 'error') return `${entry.step} failed: ${entry.text}`
-  return entry.kind === 'steps' ? '' : entry.text
+  return entry.kind === 'progress' ? '' : entry.text
 }
 
 export interface HistoryEntryProps {
@@ -54,8 +54,8 @@ export const HistoryEntry = ({
   return (
     <div className={`tyto-entry tyto-entry-${weight} ${ENTRY_CLASSES[entry.kind]}`}>
       <div className="tyto-entry-body">
-        {entry.kind === 'steps' ? (
-          <EntrySteps steps={entry.steps} />
+        {entry.kind === 'progress' ? (
+          <EntryProgress lines={entry.lines} />
         ) : (
           <div className="tyto-entry-text">{text}</div>
         )}

@@ -1,16 +1,17 @@
 import { describe, expect, it } from 'vitest'
 import { NoteEditor } from '../note-editing/note-editor'
-import { NoteDetails } from '../note-editing/note-details'
 import { FakeEditor } from '../../test-support/fake-editor'
 
 const noteEditor = new NoteEditor()
 
-const applyTo = (editor: FakeEditor, op: Parameters<NoteEditor['apply']>[2]) =>
-  noteEditor.apply(
-    editor.asEditor(),
-    new NoteDetails('note.md', editor.getValue(), editor.getCursor()),
-    op,
-  )
+// plan works the new content out and writes nothing, so the tests below apply
+// it to the editor themselves and go on asserting the content.
+const applyTo = (editor: FakeEditor, op: Parameters<NoteEditor['plan']>[2]) => {
+  const planned = noteEditor.plan(editor.getValue(), editor.getCursor(), op)
+  if (!planned.applied) return planned
+  editor.replaceRange(planned.write.replacement, planned.write.from, planned.write.to)
+  return { applied: true as const, endedAt: planned.write.endedAt }
+}
 
 describe('NoteEditor', () => {
   describe('when replacing', () => {

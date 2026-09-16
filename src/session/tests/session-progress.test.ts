@@ -1,16 +1,16 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { SessionProgress } from '../session-progress'
-import { RetargetReport, SessionListeners, StepReport } from '../session-listeners'
+import { RetargetReport, SessionListeners, ProgressLineReport } from '../session-listeners'
 import { AgentsMdChain } from '../../agents/agents-md-chain'
 import { AgentsMdFile } from '../../agents/agents-md-file'
-import { TurnStep } from '../../engine/turn-step'
+import { ProgressLine } from '../../engine/progress-line'
 
 // A skill and a resolved chain are things the turn did, so they belong in the
 // numbered list. Published on their own channels they landed beside it, and a
 // skill loaded before an edit read as though it came after.
 describe('SessionProgress', () => {
   let listeners: SessionListeners
-  let steps: StepReport[]
+  let steps: ProgressLineReport[]
 
   beforeEach(() => {
     listeners = new SessionListeners()
@@ -31,7 +31,7 @@ describe('SessionProgress', () => {
       const publisher = publisherOf()
 
       publisher.skillLoadedFn('shopping-list')
-      publisher.publishStepTakenFn(TurnStep.edited('applied', 'Lists/todo.md'))
+      publisher.publishProgressLineFn(ProgressLine.edited('applied', 'Lists/todo.md'))
 
       expect(steps.map((step) => step.label)).toEqual(['Loaded skill', 'Edit'])
     })

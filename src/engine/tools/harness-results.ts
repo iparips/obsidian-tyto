@@ -1,6 +1,6 @@
 import { NoteOpenedByObsidianCommand } from '../../commands/models/note-opened-by-obsidian-command'
 import { ChoiceRequest } from '../waiting/choice-request'
-import { TurnStep } from '../turn-step'
+import { ProgressLine } from '../progress-line'
 import { HarnessResultKind } from './harness-result-kind'
 
 // One class per kind, so a tool constructs its result rather than assembling an
@@ -13,13 +13,13 @@ export class TextResult {
 
   constructor(
     readonly result: string,
-    readonly publishStepSummary?: TurnStep,
+    readonly publishStepSummary?: ProgressLine,
   ) {}
 
   // Every refusal is a step, since it spent an iteration and is usually what the
   // user most needs to see when a turn goes nowhere.
   static refusing(reason: string): TextResult {
-    return new TextResult(reason, TurnStep.refusedByUnnamedTool(reason))
+    return new TextResult(reason, ProgressLine.refusedByUnnamedTool(reason))
   }
 }
 
@@ -30,7 +30,7 @@ export class ChoiceResult {
   constructor(
     readonly result: string,
     readonly presentChoiceToUser: ChoiceRequest,
-    readonly publishStepSummary?: TurnStep,
+    readonly publishStepSummary?: ProgressLine,
   ) {}
 }
 
@@ -41,7 +41,7 @@ export class OpenNoteResult {
   constructor(
     readonly result: string,
     readonly openNoteAtPath: string,
-    readonly publishStepSummary?: TurnStep,
+    readonly publishStepSummary?: ProgressLine,
   ) {}
 }
 
@@ -54,6 +54,6 @@ export class ObsidianCommandRanResult {
 
   constructor(
     readonly recordNoteOpenedByObsidianCommand: NoteOpenedByObsidianCommand,
-    readonly publishStepSummary?: TurnStep,
+    readonly publishStepSummary?: ProgressLine,
   ) {}
 }

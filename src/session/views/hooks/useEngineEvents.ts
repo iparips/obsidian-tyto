@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { PanelAction } from '../../models/panel-action'
-import { AnswerReport, RetargetReport, StepReport } from '../../session-listeners'
+import { AnswerReport, RetargetReport, ProgressLineReport } from '../../session-listeners'
 
 // What the engine reports as a turn runs. Each is a subscription returning its
 // own unsubscribe, so the panel holds none of them.
@@ -14,11 +14,10 @@ export interface EngineEventPorts {
   onWarning?(listener: (text: string) => void): () => void
   // Every step the turn takes, collected into one collapsed entry, so a turn
   // that goes nowhere can still be inspected.
-  onStep?(listener: (step: StepReport) => void): () => void
+  onProgressLine?(listener: (step: ProgressLineReport) => void): () => void
   onAnswer?(listener: (report: AnswerReport) => void): () => void
-  // The same subscription the header reads, forwarded to the timeline: a
-  // retarget is a session event, so it lands as its own entry rather than as a
-  // step inside whichever turn was open.
+  // Forwarded to the timeline two ways: the user's move is a session event and
+  // lands as its own entry, and a tool's moves the open turn's target.
   onTargetNoteChanged?(listener: (report: RetargetReport) => void): () => void
 }
 
@@ -38,9 +37,9 @@ export const useEngineEvents = (
 
   useEffect(
     () =>
-      ports.onStep?.((step) =>
+      ports.onProgressLine?.((step) =>
         dispatchFn({
-          type: 'stepTaken',
+          type: 'progressLine',
           label: step.label,
           detail: step.detail,
           refused: step.refused,
@@ -60,9 +59,10 @@ export const useEngineEvents = (
   useEffect(
     () =>
       ports.onTargetNoteChanged?.((report) => {
-        // A tool that opened a note published its own step, so an entry here
-        // would say the same thing twice. Only the user moving is news.
-        if (report.byUser) dispatchFn({ type: 'retargeted', path: report.path })
+        // The user's move belongs to no turn, so it lands beside them. A tool's
+        // moves the open turn's target instead, which is what the turn names.
+        if (report.byUser) return dispatchFn({ type: 'retargeted', path: report.path })
+        dispatchFn({ type: 'targetMoved', path: report.path })
       }),
     [],
   )

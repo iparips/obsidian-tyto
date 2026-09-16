@@ -21,7 +21,7 @@ import { UserQuestionService } from './waiting/user-question-service'
 import { AnswerRequest } from './waiting/answer-request'
 import { ModelAnswer } from './tools/model-answer'
 import { ChoiceRequest } from './waiting/choice-request'
-import { TurnStep } from './turn-step'
+import { ProgressLine } from './progress-line'
 import { TOOL_SCHEMAS } from './tools/tool-schemas'
 
 const CANCELLED_RESULT = 'the user stopped the turn; this call did not run'
@@ -83,7 +83,7 @@ export class ToolDispatcher {
   private refuseWhenNameIsNotOffered(call: ToolCall): ToolCallOutcome | null {
     if (ToolDispatcher.definedToolNames().includes(call.name)) return null
     const reason = `no tool named that; the tools you may call are ${this.offeredToolNames().join(', ')}`
-    this.turnProgressPublisher.publishStepTakenFn(TurnStep.refusedByUnnamedTool(reason))
+    this.turnProgressPublisher.publishProgressLineFn(ProgressLine.refusedByUnnamedTool(reason))
     return ToolCallOutcome.refused(reason)
   }
 
@@ -120,7 +120,7 @@ export class ToolDispatcher {
   // Published as a step, since a refusal the panel does not show reads as a
   // turn that stalled for no reason.
   private refuseDeclaration(call: ToolCall, reason: string): ToolCallOutcome {
-    this.turnProgressPublisher.publishStepTakenFn(TurnStep.refused(call.name, reason))
+    this.turnProgressPublisher.publishProgressLineFn(ProgressLine.refused(call.name, reason))
     return ToolCallOutcome.refused(reason)
   }
 
@@ -128,15 +128,17 @@ export class ToolDispatcher {
   // show them or a loop of failed anchors reads as a turn doing nothing.
   private recordEdit(call: ToolCall, outcome: ToolCallOutcome): ToolCallOutcome {
     if (outcome.editEndPosition) {
-      this.turnProgressPublisher.publishStepTakenFn(
-        TurnStep.edited(
+      this.turnProgressPublisher.publishProgressLineFn(
+        ProgressLine.edited(
           outcome.descriptionForUser(),
           this.turnRepository.targetNote()?.path ?? null,
         ),
       )
       return outcome
     }
-    this.turnProgressPublisher.publishStepTakenFn(TurnStep.refused(call.name, outcome.result))
+    this.turnProgressPublisher.publishProgressLineFn(
+      ProgressLine.refused(call.name, outcome.result),
+    )
     return outcome.asRefusal()
   }
 
@@ -174,7 +176,7 @@ export class ToolDispatcher {
   private publishStepSummary(call: ToolCall, harnessResult: HarnessResult): void {
     const step = harnessResult.publishStepSummary
     if (!step) return
-    this.turnProgressPublisher.publishStepTakenFn(step.refused ? step.byTool(call.name) : step)
+    this.turnProgressPublisher.publishProgressLineFn(step.refused ? step.byTool(call.name) : step)
   }
 
   // Refused as well as absent from the schemas, so the offered tool list is
@@ -221,7 +223,7 @@ export class ToolDispatcher {
   // The answer is the tool result, so the model reads it in the same turn
   // rather than the user restating the instruction (FR15, FR16).
   private async askUser(request: AnswerRequest): Promise<ToolCallOutcome> {
-    this.turnProgressPublisher.publishStepTakenFn(TurnStep.asked(request.question))
+    this.turnProgressPublisher.publishProgressLineFn(ProgressLine.asked(request.question))
     const answer = await this.userQuestionService.answerTo(request)
     return ToolCallOutcome.of(answer === '' ? NO_ANSWER_RESULT : `the user answered: ${answer}`)
   }
@@ -243,7 +245,7 @@ export class ToolDispatcher {
     // Opened before the target moves, because retargeting resolves against an
     // editor: a note the user has never had on screen has none until this runs.
     await this.noteOpener?.open(path)
-    this.turnProgressPublisher.publishStepTakenFn(TurnStep.opened(path))
+    this.turnProgressPublisher.publishProgressLineFn(ProgressLine.opened(path))
     const moved = await this.moveSessionTargetNoteTo(path)
     return ToolCallOutcome.of(
       moved ? `opened ${path}` : `opened ${path}, but it is not editable yet`,
@@ -259,7 +261,7 @@ export class ToolDispatcher {
     // refused here once wrote to the previous turn's note and reported success.
     this.turnRepository.cannotOpen(path)
     const reason = `${path} was not chosen by the user this turn; call choose_note with it now, then open it. Do not ask the user in prose`
-    this.turnProgressPublisher.publishStepTakenFn(TurnStep.refused(OPEN_NOTE, reason))
+    this.turnProgressPublisher.publishProgressLineFn(ProgressLine.refused(OPEN_NOTE, reason))
     return ToolCallOutcome.refused(reason)
   }
 
@@ -270,8 +272,8 @@ export class ToolDispatcher {
   private async publishCommandAndUpdateSessionTargetNote(
     noteOpenedByObsidianCommand: NoteOpenedByObsidianCommand,
   ): Promise<string> {
-    this.turnProgressPublisher.publishStepTakenFn(
-      TurnStep.commandRan(noteOpenedByObsidianCommand.descriptionForUser()),
+    this.turnProgressPublisher.publishProgressLineFn(
+      ProgressLine.commandRan(noteOpenedByObsidianCommand.descriptionForUser()),
     )
     const moved = await this.moveTargetNote(noteOpenedByObsidianCommand.openedPath)
     return noteOpenedByObsidianCommand.descriptionForModel(moved)

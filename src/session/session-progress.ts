@@ -3,7 +3,7 @@ import { AgentsMdChain } from '../agents/agents-md-chain'
 import { InstructionReport } from '../agents/instruction-report'
 import { SessionListeners } from './session-listeners'
 import { TurnProgressPublisher } from '../engine/turn-progress-publisher'
-import { TurnStep } from '../engine/turn-step'
+import { ProgressLine } from '../engine/progress-line'
 import { TranscriptRepository } from './transcript/transcript-repository'
 
 // Where each thing a turn narrates lands. A skill and a resolved chain join the
@@ -14,8 +14,9 @@ export class SessionProgress {
   // held to keep an unchanged chain from printing twice.
   private lastReported: InstructionReport | null = null
 
-  // Every panel step passes through publishStep, which is what advances the
-  // open turn step's range, so the engine's publish path is untouched.
+  // Every progress line passes through publishProgressLine, which is what
+  // advances the open turn step's range, so the engine's publish path is
+  // untouched.
   constructor(
     private session: SessionListeners,
     private transcriptRepository: TranscriptRepository = new TranscriptRepository(),
@@ -32,14 +33,14 @@ export class SessionProgress {
       // Published as a step rather than a line beside the list: loading a skill
       // is one of the things the turn did, and its place in the order is what
       // says whether it happened before the edit.
-      (name) => this.publishStep(TurnStep.skillLoaded(name)),
+      (name) => this.publishStep(ProgressLine.skillLoaded(name)),
       (text) => this.session.warnings.publish(text),
       (step) => this.publishStep(step),
     )
   }
 
-  private publishStep(step: TurnStep): void {
-    this.transcriptRepository.panelStepPublished()
+  private publishStep(step: ProgressLine): void {
+    this.transcriptRepository.progressLinePublished()
     this.session.steps.publish({
       label: step.label,
       detail: step.detail,
@@ -53,7 +54,7 @@ export class SessionProgress {
   private reportInstructions(chain: AgentsMdChain): void {
     const report = InstructionReport.of(chain)
     if (report.isEmpty() || report.sameAs(this.lastReported)) return
-    this.publishStep(TurnStep.instructionsApplied(report.stepText()))
+    this.publishStep(ProgressLine.instructionsApplied(report.stepText()))
     this.lastReported = report
     if (!chain.hasDrops()) return
     new Notice(report.noticeText())

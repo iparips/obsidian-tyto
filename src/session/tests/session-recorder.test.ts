@@ -4,6 +4,7 @@ import { ChatMessage } from '../../model/providers/models/chat-message'
 import { SessionRecorder } from '../session-recorder'
 import { SessionRepository } from '../session-repository'
 import { SessionFileStore } from '../session-file-store'
+import { SESSION_SNAPSHOT_VERSION } from '../models/session-snapshot'
 
 const PLUGIN_FOLDER = '.obsidian/plugins/tyto'
 const SESSION_PATH = `${PLUGIN_FOLDER}/session.json`
@@ -35,7 +36,7 @@ describe('SessionRecorder', () => {
       await vi.runAllTimersAsync()
 
       expect(JSON.parse(adapter.contentsOf(SESSION_PATH) ?? 'null')).toEqual({
-        version: 1,
+        version: SESSION_SNAPSHOT_VERSION,
         targetPath: 'Journal/day.md',
         messages: [{ role: 'user', content: 'add a heading', toolCalls: [], toolCallId: '' }],
         entries: [

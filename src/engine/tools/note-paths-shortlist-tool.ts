@@ -2,7 +2,7 @@ import { ToolCall } from '../../model/providers/types'
 import { HarnessResult, Refusal, TurnState } from './harness-result'
 import { ChoiceResult } from './harness-results'
 import { ChoiceRequest } from '../waiting/choice-request'
-import { TurnStep } from '../turn-step'
+import { ProgressLine } from '../progress-line'
 
 // Eight, because that is what a person reads without scrolling a phone drawer.
 // Over it the call refuses rather than truncating: silently dropping the note
@@ -39,7 +39,7 @@ export class NotePathsShortlistTool {
     return new ChoiceResult(
       'offered the notes to the user; their choice follows',
       new ChoiceRequest(candidates, purpose),
-      TurnStep.offered(candidates.length),
+      ProgressLine.offered(candidates.length),
     )
   }
 

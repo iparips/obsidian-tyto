@@ -1,10 +1,8 @@
 import { beforeEach, describe, expect, it } from 'vitest'
+import { aTurnState } from '../../test-support/builders'
 import { App } from 'obsidian'
 import { HarnessToolsService } from '../tools/harness-tools-service'
 import { TurnState } from '../tools/harness-result'
-import { NotesOpenedCounter } from '../turn/notes-opened-counter'
-import { PathsReturnedByVaultRepository } from '../turn/paths-returned-by-vault-repository'
-import { NotesReadRepository } from '../turn/notes-read-repository'
 import { ObsidianCommandCatalogue } from '../../commands/obsidian-command-catalogue'
 import { ObsidianCommandRegistry } from '../../commands/obsidian-command-registry'
 import { ObsidianCommandRunner } from '../../commands/obsidian-command-runner'
@@ -28,11 +26,7 @@ describe('HarnessToolsService', () => {
     vault = new FakeVault()
       .withNote(QUOTE, 'the roofing quote came to 12k')
       .withNote('Lists/shopping.md', 'milk and bread')
-    turn = {
-      notesOpenedCounter: new NotesOpenedCounter(),
-      pathsReturnedByVault: new PathsReturnedByVaultRepository(),
-      notesRead: new NotesReadRepository(),
-    }
+    turn = aTurnState()
   })
 
   const toolsOf = (searchEnabled = true): HarnessToolsService => {

@@ -29,6 +29,20 @@ export class FakeVault {
     return this.notes.get(file.path)?.content ?? ''
   }
 
+  // The real one reads, modifies and saves atomically, which a test observes
+  // only as the callback seeing what the note holds now.
+  async process(file: TFile, fn: (data: string) => string): Promise<string> {
+    const note = this.notes.get(file.path)
+    if (!note) return ''
+    const content = fn(note.content)
+    this.notes.set(file.path, { ...note, content })
+    return content
+  }
+
+  contentOf(path: string): string {
+    return this.notes.get(path)?.content ?? ''
+  }
+
   getAbstractFileByPath(path: string): TFile | null {
     const note = this.notes.get(path)
     return note ? FakeVault.fileOf(path, note) : null

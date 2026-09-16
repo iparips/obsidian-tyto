@@ -14,7 +14,7 @@ export class SessionListeners {
   readonly answers = new Listeners<AnswerReport>()
   readonly retargets = new Listeners<RetargetReport>()
   readonly warnings = new Listeners<string>()
-  readonly steps = new Listeners<StepReport>()
+  readonly steps = new Listeners<ProgressLineReport>()
 }
 
 // The header follows every retarget, where the timeline only wants the ones the
@@ -24,7 +24,7 @@ export interface RetargetReport {
   byUser: boolean
 }
 
-export interface StepReport {
+export interface ProgressLineReport {
   label: string
   detail: string
   refused: boolean

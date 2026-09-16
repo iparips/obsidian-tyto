@@ -1,5 +1,5 @@
 import { ChatMessage } from '../../model/providers/types'
-import { PanelEntry } from '../models/panel-state'
+import { PanelItem } from '../models/panel-state'
 import { LoadedSkills } from './loaded-skills'
 import { TranscriptEntryLines } from './transcript-entry-lines'
 import { TranscriptSource } from './models/transcript-source'
@@ -16,7 +16,7 @@ export class TranscriptDocument {
     const skills = TranscriptDocument.skillsLoadedIn(source.chatHistory)
     const sections = new TranscriptTurnSection(
       source,
-      TranscriptTurn.allPanelSteps(source.entries),
+      TranscriptTurn.allProgressLines(source.entries),
       skills,
     )
     return [
@@ -36,7 +36,7 @@ export class TranscriptDocument {
   // A session restored, or retargeted before the user spoke, shows entries no
   // turn owns. They open the document rather than being dropped, since the
   // panel shows them and the transcript is what the panel showed.
-  private static writeBeforeFirstTurn(entries: readonly PanelEntry[]): string[] {
+  private static writeBeforeFirstTurn(entries: readonly PanelItem[]): string[] {
     const before = TranscriptTurn.before(entries)
     if (before.length === 0) return []
     return ['## Before the first turn', '', ...before.flatMap(TranscriptEntryLines.of), '']

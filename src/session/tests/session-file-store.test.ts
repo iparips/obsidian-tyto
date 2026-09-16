@@ -6,6 +6,10 @@ import { SessionFileStore } from '../session-file-store'
 const PLUGIN_FOLDER = '.obsidian/plugins/tyto'
 const SESSION_PATH = `${PLUGIN_FOLDER}/session.json`
 
+// Older than anything the plugin has written, so the discard is asserted
+// against a version the current one can never become.
+const OUTDATED_VERSION = 0
+
 const aSnapshot = (version = SESSION_SNAPSHOT_VERSION): SessionSnapshot => ({
   version,
   targetPath: 'Journal/day.md',
@@ -66,7 +70,7 @@ describe('SessionFileStore', () => {
 
   describe('when the stored version is not the current one', () => {
     beforeEach(() => {
-      adapter.withFile(SESSION_PATH, JSON.stringify(aSnapshot(2)))
+      adapter.withFile(SESSION_PATH, JSON.stringify(aSnapshot(OUTDATED_VERSION)))
     })
 
     it('reads nothing when the version is not the current one', async () => {

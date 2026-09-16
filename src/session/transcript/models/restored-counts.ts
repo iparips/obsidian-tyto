@@ -4,7 +4,7 @@
 export class RestoredCounts {
   private constructor(
     readonly messages: number,
-    readonly panelSteps: number,
+    readonly progressLines: number,
     readonly turns: number,
   ) {}
 
@@ -12,7 +12,7 @@ export class RestoredCounts {
     return new RestoredCounts(0, 0, 0)
   }
 
-  static of(messages: number, panelSteps: number, turns: number): RestoredCounts {
-    return new RestoredCounts(messages, panelSteps, turns)
+  static of(messages: number, progressLines: number, turns: number): RestoredCounts {
+    return new RestoredCounts(messages, progressLines, turns)
   }
 }

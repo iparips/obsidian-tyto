@@ -1,4 +1,4 @@
-import { PanelEntry, PanelStep } from '../models/panel-state'
+import { PanelEntry, ProgressLine } from '../models/panel-state'
 
 // The PanelEntry union rendered case by case, as HistoryEntry renders it for
 // display. What the user saw goes in the transcript verbatim, so a reader
@@ -28,16 +28,16 @@ export class TranscriptEntryLines {
         return TranscriptEntryLines.choice(entry.text, entry.candidates, entry.pending)
       case 'question':
         return TranscriptEntryLines.question(entry.text, entry.pending)
-      case 'steps':
-        return entry.steps.map(TranscriptEntryLines.step)
+      case 'progress':
+        return entry.lines.map(TranscriptEntryLines.line)
     }
   }
 
   // The label and the detail as the panel's numbered list shows them, with a
-  // refusal marked: a refused step is what a turn that went nowhere is made of.
-  static step(step: PanelStep): string {
-    const line = `- ${step.label} - ${step.detail}`
-    return step.refused ? `${line} - refused` : line
+  // refusal marked: a refused line is what a turn that went nowhere is made of.
+  static line(line: ProgressLine): string {
+    const written = `- ${line.label} - ${line.detail}`
+    return line.refused ? `${written} - refused` : written
   }
 
   private static answer(text: string, sources: readonly string[]): string[] {

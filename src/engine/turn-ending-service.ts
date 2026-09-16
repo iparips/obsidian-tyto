@@ -2,7 +2,7 @@ import { EditorPosition } from 'obsidian'
 import { ChatMessage } from '../model/providers/types'
 import { ChatTurn } from '../model/providers/models/chat-turn'
 import { Cancelled, Failure, Outcomes } from '../shared/models/outcome'
-import { NoteEditor } from './note-editing/note-editor'
+import { TargetNoteWriter } from './note-editing/target-note-writer'
 import { OpenNote } from './note-editing/open-note'
 import { TurnOutcomes } from './turn/ending/turn-outcomes'
 import { TurnEndingKind } from './turn/ending/turn-ending-kind'
@@ -17,7 +17,7 @@ import { SessionRepository } from '../session/session-repository'
 export class TurnEndingService {
   constructor(
     private sessionRepository: SessionRepository,
-    private noteEditor: NoteEditor,
+    private targetNoteWriter: TargetNoteWriter,
   ) {}
 
   // The model said its piece, so the summary is the answer and the cursor
@@ -28,7 +28,7 @@ export class TurnEndingService {
     editEndPosition: EditorPosition | null,
   ): EndedTurn {
     this.sessionRepository.appendChatMessage(ChatMessage.model(summary))
-    if (note && editEndPosition) this.noteEditor.focusEdit(note.editor, editEndPosition)
+    if (note && editEndPosition) this.targetNoteWriter.focusEdit(note, editEndPosition)
     return TurnStepOutcomes.endedTurn(TurnEndingKind.Replied, Outcomes.success(summary))
   }
 

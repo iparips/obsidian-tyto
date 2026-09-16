@@ -2,7 +2,7 @@ import { ToolCall } from '../../model/providers/types'
 import { RelativeDateResolver } from '../../model/relative-date-resolver'
 import { HarnessResult, Refusal } from './harness-result'
 import { TextResult } from './harness-results'
-import { TurnStep } from '../turn-step'
+import { ProgressLine } from '../progress-line'
 
 // The harness side of resolve_date: it reads the phrase off the call, asks the
 // resolver, and reports. It reaches no vault, so it takes no turn state.
@@ -16,6 +16,9 @@ export class DateToolService {
     const phrase = call.argument('phrase')
     const resolution = new RelativeDateResolver(this.nowFn()).resolve(phrase)
     if (resolution.hasFailed()) return Refusal.of(resolution.reason)
-    return new TextResult(resolution.describe(), TurnStep.resolved(phrase, resolution.isoDate()))
+    return new TextResult(
+      resolution.describe(),
+      ProgressLine.resolved(phrase, resolution.isoDate()),
+    )
   }
 }

@@ -35,7 +35,7 @@ export class TranscriptMetadata {
   }
 
   private static turns(source: TranscriptSource): string {
-    const turns = source.entries.filter((entry) => entry.kind === 'user').length
+    const turns = source.entries.filter((item) => item.kind === 'turn').length
     return `${TranscriptMetadata.count(turns, 'conversation turn')}, ${TranscriptMetadata.count(source.steps.length, 'turn step')}`
   }
 
