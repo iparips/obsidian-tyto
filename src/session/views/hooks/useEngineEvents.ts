@@ -5,7 +5,7 @@ import { AnswerReport, StepReport } from '../../session-listeners'
 // What the engine reports as a turn runs. Each is a subscription returning its
 // own unsubscribe, so the panel holds none of them.
 export interface EngineEventPorts {
-  onHidden?(listener: () => void): () => void
+  onObsidianBackgrounded?(listener: () => void): () => void
   // The plugin owns the subscription, so the engine reports a resolved chain
   // without knowing the panel.
   onInstructions?(listener: (text: string) => void): () => void
@@ -26,7 +26,7 @@ export const useEngineEvents = (
   dispatch: (action: PanelAction) => void,
   endRecording: () => void,
 ): void => {
-  useEffect(() => ports.onHidden?.(endRecording), [])
+  useEffect(() => ports.onObsidianBackgrounded?.(endRecording), [])
 
   useEffect(() => ports.onInstructions?.((text) => dispatch({ type: 'instructions', text })), [])
 

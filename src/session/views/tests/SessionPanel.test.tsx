@@ -22,7 +22,7 @@ describe('SessionPanel', () => {
   })
 
   const hiddenListeners: (() => void)[] = []
-  const onHidden = (listener: () => void) => {
+  const onObsidianBackgrounded = (listener: () => void) => {
     hiddenListeners.push(listener)
     return () => hiddenListeners.splice(hiddenListeners.indexOf(listener), 1)
   }
@@ -35,7 +35,7 @@ describe('SessionPanel', () => {
         recorder={recorder}
         transcribe={transcribe}
         processUtterance={processUtterance}
-        onHidden={onHidden}
+        onObsidianBackgrounded={onObsidianBackgrounded}
         {...overrides}
       />,
     )

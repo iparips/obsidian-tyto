@@ -27,7 +27,7 @@ describe('SessionPanel', () => {
         recorder={recorder}
         transcribe={transcribe}
         processUtterance={processUtterance}
-        onHidden={() => () => undefined}
+        onObsidianBackgrounded={() => () => undefined}
         {...overrides}
       />,
     )

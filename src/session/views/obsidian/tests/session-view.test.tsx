@@ -15,7 +15,7 @@ describe('SessionView', () => {
       recorder: { start: vi.fn(), stop: vi.fn(), cancel: vi.fn() },
       transcribe: vi.fn(),
       processUtterance: vi.fn(),
-      onHidden: () => () => undefined,
+      onObsidianBackgrounded: () => () => undefined,
       ...overrides,
     }) as unknown as SessionPanelProps
 

@@ -22,7 +22,7 @@ const SESSION_PATH = `${PLUGIN_FOLDER}/session.json`
 const presence: PanelPresence = {
   isVisible: () => false,
   reveal: () => undefined,
-  onHidden: () => () => undefined,
+  onObsidianBackgrounded: () => () => undefined,
   startNewSession: () => undefined,
 }
 
