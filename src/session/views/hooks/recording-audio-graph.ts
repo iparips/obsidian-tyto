@@ -8,7 +8,9 @@ const FULL_SCALE = 128
 export class RecordingAudioGraph {
   private source: MediaStreamAudioSourceNode | null = null
   private listeningTo: MediaStream | null = null
-  private readonly samples: Uint8Array
+  // Pinned to ArrayBuffer, since getByteTimeDomainData rejects the
+  // ArrayBufferLike a bare Uint8Array widens to under newer lib types.
+  private readonly samples: Uint8Array<ArrayBuffer>
 
   private constructor(
     private readonly context: AudioContext,

@@ -201,7 +201,7 @@ describe('PanelReducer', () => {
     it('settles a pending choice when the turn fails', () => {
       const state = PanelReducer.reduce(choosing, {
         type: 'failed',
-        step: 'edit',
+        step: 'apply',
         message: 'broke',
       })
 

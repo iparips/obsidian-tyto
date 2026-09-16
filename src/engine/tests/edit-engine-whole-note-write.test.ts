@@ -1,5 +1,4 @@
 import { beforeEach, describe, expect, it, Mock, vi } from 'vitest'
-import { App } from 'obsidian'
 import { SessionRepository } from '../../session/session-repository'
 import { HarnessToolsService } from '../tools/harness-tools-service'
 import { SearchToolsService } from '../tools/search-tools-service'
@@ -22,7 +21,6 @@ import { FakeAdapter } from '../../test-support/fake-adapter'
 import { FakeEditor } from '../../test-support/fake-editor'
 import { FakeVault } from '../../test-support/fake-vault'
 import { FakeCommandRegistry } from '../../test-support/fake-command-registry'
-import { FakeWorkspace } from '../../test-support/fake-workspace'
 import { FakeNoteLocator } from '../../test-support/fake-note-locator'
 import { aSession, aTextTurn, aToolCall, aToolTurn, anEngine } from '../../test-support/builders'
 
@@ -70,23 +68,19 @@ describe('EditEngine', () => {
       .mockResolvedValue(Outcomes.success(aTextTurn('done')))
   }
 
-  const harnessOf = (): HarnessToolsService =>
-    new HarnessToolsService(
-      new ObsidianCommandRunner(
-        {} as App,
-        new ObsidianCommandRegistry(new FakeCommandRegistry().asRegistry()),
-        new FakeWorkspace().asWorkspace(),
-        new OpenedNoteWait(0),
-      ),
+  const harnessOf = (): HarnessToolsService => {
+    const app = new FakeCommandRegistry().asApp()
+    const registry = new ObsidianCommandRegistry(app)
+    const catalogue = new ObsidianCommandCatalogue(registry, new AllowList([]))
+    return new HarnessToolsService(
+      new ObsidianCommandRunner(app, catalogue, new OpenedNoteWait(app, 0), registry),
       new NoteReader(vault.asVault()),
-      new ObsidianCommandCatalogue(
-        new ObsidianCommandRegistry(new FakeCommandRegistry().asRegistry()),
-        new AllowList([]),
-      ),
+      catalogue,
       true,
       new SearchToolsService(new NoteGlob(vault.asVault()), new NoteGrep(vault.asVault())),
       new DateToolService(),
     )
+  }
 
   // Confirms the write when the user is asked about this note, and declines
   // otherwise, so a test states the answer rather than wiring a service.
