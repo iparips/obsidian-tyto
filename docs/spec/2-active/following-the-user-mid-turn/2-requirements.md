@@ -63,9 +63,11 @@ tool takes all three guards D5 settled, so it refuses unless the model read the
 note this turn, refuses when the note moved under what it carries, and asks
 before it lands.
 
-That leaves the anchored tools, which stay for the edits a rewrite would be
-heavy-handed for. D6 asks what stops their anchors drifting, since the note
-context is rebuilt per turn step rather than per tool call.
+The anchored tools stay for the single targeted edit a rewrite would be
+heavy-handed for, and one edit per step is enforced so they cannot be batched.
+That is what stops the drift rather than detecting it: the note context is
+rebuilt per turn step, so an edit that waits for the next step is shown the note
+before it writes.
 
 ## Steps to Replicate
 

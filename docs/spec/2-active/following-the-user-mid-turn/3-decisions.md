@@ -5,59 +5,55 @@ updated: 2026-09-16
 
 # Decisions
 
-What is still open. The four settled ones, with the reasoning that settled them,
-are in [3-decisions-settled.md](3-decisions-settled.md).
+Every decision is settled. The two here are about the turn the user moved under;
+the ones about how an edit is written at all are in
+[3-decisions-editing.md](3-decisions-editing.md).
 
 ## Requirements
 
 ### Decisions
 
-#### D6: How does an anchored edit avoid going stale? [open, blocking]
+#### D1: What happens to a turn the user retargets under it? [resolved 2026-09-16]
 
-D5 guards a whole-note write. This is the same question for the edit tools that
-stay, and Ilya asked it directly: bit-by-bit edits need something too.
+It finishes on the note it started. Ilya: the note change kicks in only once the
+original utterance has been processed.
 
-The staleness is structural rather than a model failing. NoteContextMessage is
-rebuilt per turn step, not per tool call, so every anchor in one batch is
-computed from the same snapshot and the note moves underneath them as the batch
-applies. The model is never shown the note between its own calls.
+The turn is mid-instruction on one note and the user opens another. Following is
+the rule and this spec does not reopen it; what the running turn does about it is
+what was unsettled.
 
-| Option                                      | Catches                          | Cost                                              |
-|---------------------------------------------|----------------------------------|---------------------------------------------------|
-| Stop the batch at the first refusal         | Damage after the first miss      | Taken as D3, and it contains rather than prevents |
-| Send the note again after each applied edit | The model's picture drifting     | A note-sized message per call in a batch          |
-| Refuse a batch whose anchors overlap        | The drift before any of it lands | A rule for overlapping, computed against the note |
-| One edit per step, never a batch            | All of it                        | A model call per edit, so an archive costs twelve |
+| Option                           | The archive turn would have                     | Cost                                                        |
+|----------------------------------|-------------------------------------------------|-------------------------------------------------------------|
+| Continue, and tell the model     | Carried on, told the note changed               | The model may still finish an instruction on the wrong note |
+| Finish on the note it started    | Completed the archive, bound the new note after | Chosen                                                      |
+| End the turn, saying what it did | Stopped, named the edits already applied        | An instruction half-applied, which is the state to avoid    |
 
-The second option is what the model would do for itself if it could: it is a
-read_note after every write. The cost is that a note the size of the reported
-todo file is sent once per call, and a batch of five sends it five times.
+An utterance is the unit the user asked for, so half-applying one is what to
+avoid. Ending the turn leaves the instruction incomplete instead, which is the
+same harm moved. Finishing and then following leaves neither partial.
 
-The fourth is the honest one. A batch exists because a model call is expensive,
-not because the edits belong together, and every defect in this spec comes from
-calls in one batch not seeing each other. Whether an archive can afford twelve
-model calls is the question, and the whole-note tool from D5 is what makes the
-answer not matter: one call, one write.
+The session still binds to the new note when the event fires. What defers is the
+running turn's own target, so the turn writes where it began and the next starts
+where the user is.
 
-Blocking. D3 contains the damage and does not stop the drift, so something here
-has to answer for the edit tools that remain after D5.
+A command opening a note mid-turn is untouched: ToolDispatcher reaches the turn
+repository directly, where the user's retarget arrives through the runner.
 
-#### D4: Is the model told its anchors go stale within a batch? [open]
+#### D2: Does the model need telling at all? [resolved 2026-09-16]
 
-The system prompt says multi-part instructions become multiple tool calls
-applied in order. It does not say that an anchor computed from the current note
-is stale once a sibling call lands.
+No, and D1 settles it. A turn finishing on the note it started never sees the
+new one, so there is nothing to tell it, and the next turn reads the change in
+its own note context as every between-turn retarget already does.
 
-Not blocking, and it is a prompt change, which this repo treats as a behaviour
-change needing a real vault to judge. Worth doing only if D3 leaves cases where
-a model can still batch overlapping anchors.
+Archived spec 33's removal of the history message therefore stands unamended.
 
 ### Assumptions
 
-- A refused anchor means the model's picture of the note is stale, rather than
-  the anchor being wrong from the start. Both produce the same refusal. If a
-  first-call refusal is common in practice, stopping the batch punishes a model
-  that got one anchor wrong and the rest right.
+- A turn finishing on the note the user has left is short enough that they do
+  not see edits landing in a note they are no longer watching. A turn is a
+  handful of model calls, and the panel names the note each edit reached. If a
+  long turn makes that read as the session ignoring them, the fallback is to
+  end the turn instead, which D1 weighed and did not take.
 
 ## Design
 
