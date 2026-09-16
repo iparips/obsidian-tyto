@@ -22,7 +22,7 @@ describe('SessionProgress', () => {
 
   describe('when a skill is loaded', () => {
     it('reports the skill as a step, so it is numbered with the rest', () => {
-      publisherOf().skillLoaded('shopping-list')
+      publisherOf().skillLoadedFn('shopping-list')
 
       expect(steps).toEqual([{ label: 'Loaded skill', detail: 'shopping-list', refused: false }])
     })
@@ -30,8 +30,8 @@ describe('SessionProgress', () => {
     it('keeps a skill in the order it was loaded, before a later edit', () => {
       const publisher = publisherOf()
 
-      publisher.skillLoaded('shopping-list')
-      publisher.publishStepTaken(TurnStep.edited('applied', 'Lists/todo.md'))
+      publisher.skillLoadedFn('shopping-list')
+      publisher.publishStepTakenFn(TurnStep.edited('applied', 'Lists/todo.md'))
 
       expect(steps.map((step) => step.label)).toEqual(['Loaded skill', 'Edit'])
     })
@@ -41,13 +41,13 @@ describe('SessionProgress', () => {
     const chainOf = () => new AgentsMdChain([new AgentsMdFile('AGENTS.md', '', 'be brief')])
 
     it('reports the instructions as a step, so they are numbered with the rest', () => {
-      publisherOf().instructionsResolved(chainOf())
+      publisherOf().instructionsResolvedFn(chainOf())
 
       expect(steps.map((step) => step.label)).toEqual(['Loaded agent instructions'])
     })
 
     it('names what applied without repeating the label', () => {
-      publisherOf().instructionsResolved(chainOf())
+      publisherOf().instructionsResolvedFn(chainOf())
 
       expect(steps[0].detail).not.toContain('Instructions applied')
     })
@@ -55,14 +55,14 @@ describe('SessionProgress', () => {
     it('reports an unchanged chain once, since a retarget resolves it again', () => {
       const publisher = publisherOf()
 
-      publisher.instructionsResolved(chainOf())
-      publisher.instructionsResolved(chainOf())
+      publisher.instructionsResolvedFn(chainOf())
+      publisher.instructionsResolvedFn(chainOf())
 
       expect(steps).toHaveLength(1)
     })
 
     it('reports nothing when the chain is empty', () => {
-      publisherOf().instructionsResolved(new AgentsMdChain())
+      publisherOf().instructionsResolvedFn(new AgentsMdChain())
 
       expect(steps).toEqual([])
     })

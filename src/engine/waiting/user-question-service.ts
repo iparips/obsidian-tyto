@@ -11,10 +11,10 @@ export class UserQuestionService {
   constructor(private pending: PendingAnswer<AnswerRequest, string>) {}
 
   static of(
-    ask: (request: AnswerRequest) => Promise<string>,
+    askFn: (request: AnswerRequest) => Promise<string>,
     cancellationController = new TurnCancellationController(),
   ): UserQuestionService {
-    return new UserQuestionService(new PendingAnswer(ask, cancellationController))
+    return new UserQuestionService(new PendingAnswer(askFn, cancellationController))
   }
 
   // Silent, and what a test constructs when the question is not what it is

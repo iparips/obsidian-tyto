@@ -18,22 +18,25 @@ export class NoteChoiceService {
   // rather than a title two notes could share (FR3). The purpose travels with
   // them, since the user is consenting to a write rather than to a path.
   static of(
-    ask: (request: ChoiceRequest) => Promise<string | null>,
+    askFn: (request: ChoiceRequest) => Promise<string | null>,
     cancellationController = new TurnCancellationController(),
     notesChosenByUser = new NotesChosenByUserRepository(),
   ): NoteChoiceService {
-    return new NoteChoiceService(new PendingAnswer(ask, cancellationController), notesChosenByUser)
+    return new NoteChoiceService(
+      new PendingAnswer(askFn, cancellationController),
+      notesChosenByUser,
+    )
   }
 
   // Auto mode: one candidate is a translation of what the search found, several
   // are a choice the user makes. A collaborator, not a branch (FR13).
   static singleMatch(
-    ask: (request: ChoiceRequest) => Promise<string | null>,
+    askFn: (request: ChoiceRequest) => Promise<string | null>,
     cancellationController = new TurnCancellationController(),
     notesChosenByUser = new NotesChosenByUserRepository(),
   ): NoteChoiceService {
     return NoteChoiceService.of(
-      (request) => NoteChoiceService.resolveOrAsk(request, ask),
+      (request) => NoteChoiceService.resolveOrAsk(request, askFn),
       cancellationController,
       notesChosenByUser,
     )
@@ -41,13 +44,13 @@ export class NoteChoiceService {
 
   private static resolveOrAsk(
     request: ChoiceRequest,
-    ask: (request: ChoiceRequest) => Promise<string | null>,
+    askFn: (request: ChoiceRequest) => Promise<string | null>,
   ): Promise<string | null> {
     if (request.candidates.length === 1) return Promise.resolve(request.candidates[0])
-    return ask(request)
+    return askFn(request)
   }
 
-  // The default where no panel exists to ask, so several decline rather than
+  // The default where no panel exists to askFn, so several decline rather than
   // parking forever.
   static unasked(notesChosenByUser = new NotesChosenByUserRepository()): NoteChoiceService {
     return NoteChoiceService.singleMatch(() => Promise.resolve(null), undefined, notesChosenByUser)
@@ -64,7 +67,7 @@ export class NoteChoiceService {
   }
 
   // What open_note checks. Separate from choose, because opening is a later
-  // call than choosing and must not re-ask (FR11).
+  // call than choosing and must not re-askFn (FR11).
   holds(path: string): boolean {
     return this.notesChosenByUser.includes(path)
   }

@@ -42,7 +42,7 @@ export class SessionPanelPropsBuilder {
   constructor(
     private settings: TytoSettings,
     private engineFactory: EngineFactory,
-    private followEngine: (engine: EditEngine) => void,
+    private followEngineFn: (engine: EditEngine) => void,
     // Asked at build time rather than handed a note, so a session built and
     // a session restored reach the same answer.
     private activeNote: ActiveNote,
@@ -202,7 +202,7 @@ export class SessionPanelPropsBuilder {
       transcript,
       sessions,
     )
-    this.followEngine(engine)
+    this.followEngineFn(engine)
     return engine
   }
 }

@@ -28,18 +28,18 @@ export interface StepReport {
 // reads an answer back, which is what the publisher's one-way callbacks cannot
 // do.
 export class Asker<Request, Answer> {
-  private askPanel: ((request: Request) => Promise<Answer>) | null = null
+  private askPanelFn: ((request: Request) => Promise<Answer>) | null = null
 
   constructor(private whenNobodyListens: Answer) {}
 
-  subscribe(listener: (request: Request) => Promise<Answer>): () => void {
-    this.askPanel = listener
-    return () => (this.askPanel = null)
+  subscribe(listenerFn: (request: Request) => Promise<Answer>): () => void {
+    this.askPanelFn = listenerFn
+    return () => (this.askPanelFn = null)
   }
 
   // A question nobody can see is one nobody answered, so the fallback stands in
   // rather than the turn parking on a promise no panel will settle (NFR1).
   ask(request: Request): Promise<Answer> {
-    return this.askPanel?.(request) ?? Promise.resolve(this.whenNobodyListens)
+    return this.askPanelFn?.(request) ?? Promise.resolve(this.whenNobodyListens)
   }
 }

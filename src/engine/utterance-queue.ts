@@ -7,13 +7,13 @@ export class UtteranceQueue {
   // Seeded resolved so the first starts immediately.
   private tail: Promise<unknown> = Promise.resolve()
 
-  constructor(private run: (text: string) => Promise<Outcome<string>>) {}
+  constructor(private runFn: (text: string) => Promise<Outcome<string>>) {}
 
   // The caller needs the rejection to show a failure message, so it gets the
   // run itself. The chain gets a swallowed copy, or one failure would reject
   // every utterance queued behind it.
   enqueue(text: string): Promise<Outcome<string>> {
-    const running = this.tail.then(() => this.run(text))
+    const running = this.tail.then(() => this.runFn(text))
     this.tail = running.catch(() => undefined)
     return running
   }
