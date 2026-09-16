@@ -11,6 +11,7 @@ import {
   TranscriptPart,
 } from '../models/transcript-record'
 import { TranscriptDocument } from '../transcript-document'
+import { TranscriptRepository } from '../transcript-repository'
 
 // The format is what a failed session is filed as, so the cases assert on the
 // document rather than on the classes that build it.
@@ -474,6 +475,76 @@ describe('TranscriptDocument', () => {
       const document = documentOf({ entries: [{ kind: 'user', text: 'hello' }] })
 
       expect(document).toContain('| Copied | 2026-09-10 15:25 ')
+    })
+  })
+
+  // Recorded through the repository rather than from hand-built ranges, since
+  // where a retarget lands is decided by the ranges recordCall produces.
+  describe('a retarget the session appended to the history', () => {
+    const RETARGET = 'The user moved to a different note.'
+
+    // 'utter', 'retarget' and 'reply' in the order they happened, played through
+    // the repository so the ranges are the ones a real session records.
+    const sessionThat = (...events: ('utter' | 'retarget' | 'reply')[]) => {
+      const transcript = new TranscriptRepository()
+      const history: ChatMessage[] = []
+      const entries: PanelEntry[] = []
+      let spoken = 0
+
+      const play = {
+        utter: () => {
+          const text = `utterance ${(spoken += 1)}`
+          history.push(ChatMessage.user(text))
+          entries.push({ kind: 'user', text })
+          transcript.recordCall(new Map([['systemPrompt', 'prompt']]), history.length)
+        },
+        retarget: () => history.push(ChatMessage.system(RETARGET)),
+        reply: () => {
+          history.push(ChatMessage.model('done'))
+          transcript.recordEnding(TurnEndingKind.Replied)
+        },
+      }
+      events.forEach((event) => play[event]())
+
+      return TranscriptDocument.write(
+        new TranscriptSource(
+          { copiedAt, pluginVersion: '0.1.0', notePath: 'a.md' },
+          DEFAULT_SETTINGS,
+          entries,
+          history,
+          transcript.recordedSteps(),
+          transcript.recordedEndings(),
+          transcript.recordedParts(),
+        ),
+      )
+    }
+
+    const betweenTurns = () => sessionThat('utter', 'reply', 'retarget', 'utter', 'reply')
+
+    it('writes one that happened between turns in the turn that followed it', () => {
+      expect(
+        lineOrderIn(betweenTurns(), [
+          '## Conversation turn 2',
+          `- harness: ${RETARGET}`,
+          '- user: utterance 2',
+        ]),
+      ).toBe(true)
+    })
+
+    // The last step has no step after it to carry the message into a Request
+    // block, which is the case a retarget on an idle session produces.
+    it('writes one that happened after the last turn in that turn', () => {
+      const document = sessionThat('utter', 'reply', 'retarget')
+
+      expect(lineOrderIn(document, ['Harness', `- ${RETARGET}`, '- Outcome: replied'])).toBe(true)
+    })
+
+    it('writes it once, so a reader cannot read one retarget as two', () => {
+      expect(betweenTurns().match(new RegExp(RETARGET, 'g'))).toHaveLength(1)
+    })
+
+    it('never files it as the user, who typed none of it', () => {
+      expect(sessionThat('utter', 'reply', 'retarget')).not.toContain(`- user: ${RETARGET}`)
     })
   })
 

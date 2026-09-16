@@ -51,11 +51,24 @@ export class TranscriptTurnSection {
     const ending = last ? this.source.endingOfTurn(step.turn) : null
     return TranscriptTurnStep.write(
       step,
-      { sent: this.slice(step), answered: this.answered(step, steps[at + 1], ending) },
+      {
+        sent: this.slice(step),
+        answered: this.answered(step, steps[at + 1], ending),
+        harnessNotes: this.harnessNotesAfter(step),
+      },
       this.panelStepsOf(step),
       ending,
       this.skills,
     )
+  }
+
+  // Every step but the session's last is followed by one whose Request block
+  // carries the messages after it, since a recorded step opens where the one
+  // before it closed. The last has no such step, so a retarget appended once
+  // the session went idle is only written if its Harness block says it.
+  private harnessNotesAfter(step: RecordedTurnStep): readonly ChatMessage[] {
+    if (step !== this.source.steps.at(-1)) return []
+    return this.tail(step).filter((message) => message.isSystem())
   }
 
   // The last step has no step after it, so its answer sits in the tail. On four
