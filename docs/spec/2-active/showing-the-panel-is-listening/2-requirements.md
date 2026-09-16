@@ -117,65 +117,6 @@ the bars stop animating and the clock alone carries the liveness.
 NFR5. The strip is presentation. PanelState gains no entry kind, and no
 publisher changes. The recording phase already exists.
 
-## Test Scenarios
-
-Setup is a bound note with a configured API key and microphone permission
-granted.
-
-### A recording says it is recording
-
-```gherkin
-Given the panel is idle
-When  the record button is pressed
-Then  the history shows a recording strip
-And   the record button reads Stop in the accent colour
-```
-
-### The meter follows the voice
-
-```gherkin
-Given a recording is running
-When  the user speaks
-Then  the level meter rises above its resting floor
-```
-
-### A dead microphone looks dead
-
-```gherkin
-Given a recording is running with a muted microphone
-When  the user speaks
-Then  the level meter stays at its resting floor
-```
-
-### The clock counts the dictation
-
-```gherkin
-Given a recording has been running for two minutes
-When  the user looks at the panel
-Then  the strip shows the elapsed time
-```
-
-### Stopping clears the strip
-
-```gherkin
-Given a recording is running
-When  the user presses Stop
-Then  the strip is replaced by the transcribing line
-And   the audio context is released
-```
-
-## Questions
-
-- Whether the meter reads the recorder's own stream or opens a second
-  getUserMedia. Sharing the stream is cheaper and avoids a second permission
-  prompt, and needs the recorder to expose it. This is the one question that
-  changes the design.
-- Whether the clock belongs in the strip or the header. The header is where a
-  running session already shows its state, but the strip keeps the two live
-  facts together.
-- Whether a long dictation earns a warning. Nothing breaks at any length, so the
-  argument for one is about the user's attention, not the system's limits.
-
 ## References
 
 ### Task

@@ -57,13 +57,4 @@ nothing. It now reads the way ActiveNote.path already does.
 Tests in the SessionController suite: unbinds on null, unbinds on a
 non-markdown file, binds on a markdown file.
 
-## Verifying
-
-The unit suite covers the branch. What it cannot cover is whether Obsidian
-fires file-open at all for an empty tab, which the requirements record as an
-assumption. Check it in a real vault: open a note, start a session, open an
-empty tab, and confirm the header clears.
-
-If the header does not clear, the event is not firing and the subscription in
-followActiveNoteWith needs a second source, most likely active-leaf-change. The
-two commits above stand either way; only the trigger moves.
+The checks a person runs are in [5-tests.md](5-tests.md).

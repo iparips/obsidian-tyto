@@ -42,7 +42,7 @@ A retarget appends a message to the chat history.
   which it already carries
 
 The history is the right home for the model (D2 in
-[4-decisions.md](4-decisions.md)), and the transcript does slice all of it:
+[4-decisions.md](4-decisions.md)). The transcript does slice all of it:
 recordCall opens each step's range where the one before it closed, so no message
 is skipped by index. The gap is in rendering, not slicing.
 
@@ -55,17 +55,4 @@ Tests: the engine appends the message whether or not a turn is running, and the
 prompt carries it ahead of the note context. The transcript renders a retarget
 at the point it happened, once, and never as the user.
 
-## Verifying
-
-Commit 1 is covered by the suite. Commit 2 is a prompt change, so it is not:
-[AGENTS.md](../../../AGENTS.md) says test those against a real vault and a real
-API key.
-
-What to watch for is the failure archived spec 29 found. Bind a session, give an
-instruction, switch to another note, then give a second instruction that names
-no note. The second should land on the note now in front of you, and the model
-should not reach back for the first.
-
-If it does reach back, the message is reading as a directive rather than as
-history. Take commit 2 out and keep commit 1: the panel and the transcript are
-the destinations with nothing against them.
+The checks a person runs are in [5-tests.md](5-tests.md).

@@ -13,7 +13,8 @@ same: one button reading Stop.
 - [2-requirements.md](2-requirements.md) - the three claims a recording panel owes the user, and the strip that makes them
 - [3-design.md](3-design.md) - the shared stream, the hook that owns the audio graph, and the strip's slot
 - [4-decisions.md](4-decisions.md) - three resolved decisions and the iOS assumption that shapes the hook
-- [5-tasks.md](5-tasks.md) - three commits, and what only a real device can check
+- [5-tests.md](5-tests.md) - five checks across three platforms
+- [6-tasks.md](6-tasks.md) - three commits, and what only a real device can check
 
 The proposal is a recording strip where the pending line already sits, holding a
 live level meter and an elapsed clock, plus a record button that carries the
