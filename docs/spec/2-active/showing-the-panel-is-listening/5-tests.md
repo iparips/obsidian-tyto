@@ -16,8 +16,9 @@ updated: 2026-09-16
 ```gherkin
 Given the panel is idle
 When  the user presses the record button
-Then  a strip in the history holds a meter and a clock
+Then  a strip above the input row holds a clock and a meter
 And   the record button reads Stop in the accent colour
+And   the instruction field is gone, leaving the meter the width
 ```
 
 ### The meter follows the voice

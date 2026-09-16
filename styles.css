@@ -410,16 +410,17 @@
   gap: var(--size-4-2);
   color: var(--text-muted);
   font-size: var(--font-ui-smaller);
+  padding: var(--size-4-1) var(--size-4-2) 0;
 }
 
-/* The meter shrinks rather than wrapping, since the drawer is resized freely
-   and read on a phone (NFR2). */
+/* Takes the width the clock leaves, and shrinks rather than wrapping, since the
+   drawer is resized freely and read on a phone (NFR2). */
 .tyto-recording-meter {
   display: flex;
   align-items: center;
   gap: 2px;
   height: 16px;
-  flex: 0 1 auto;
+  flex: 1 1 auto;
   min-width: 0;
 }
 

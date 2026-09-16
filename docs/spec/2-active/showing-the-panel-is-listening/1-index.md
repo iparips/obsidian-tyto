@@ -11,8 +11,8 @@ same: one button reading Stop.
 
 - [0-prompt.md](0-prompt.md) - the block to hand a fresh session that will build it
 - [2-requirements.md](2-requirements.md) - the three claims a recording panel owes the user, and the strip that makes them
-- [3-design.md](3-design.md) - the shared stream, the hook that owns the audio graph, and the strip's slot
-- [4-decisions.md](4-decisions.md) - three resolved decisions and the iOS assumption that shapes the hook
+- [3-design.md](3-design.md) - the shared stream, the hook that owns the audio graph, and where the strip sits
+- [4-decisions.md](4-decisions.md) - four resolved decisions, including the move out of the history, and the iOS assumption that shapes the hook
 - [5-tests.md](5-tests.md) - five checks across three platforms
 - [6-tasks.md](6-tasks.md) - three commits, and what only a real device can check
 
