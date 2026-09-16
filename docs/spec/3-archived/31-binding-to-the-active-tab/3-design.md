@@ -155,7 +155,7 @@ existing behaviour for a note the resolver cannot reach, and it needs no change.
 
 - Recording that a retarget happened, in the transcript, the panel entry list or
   the model's history. That is
-  [recording-a-retarget](../recording-a-retarget/1-index.md).
+  [recording-a-retarget](../32-recording-a-retarget/1-index.md).
 - Saying "no note bound" in the panel beyond the header going blank. The
   sibling's retarget step already says it (D1).
 - Moving the markdown-only rule out of wiring and into engine, which

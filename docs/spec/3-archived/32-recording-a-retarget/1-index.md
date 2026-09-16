@@ -16,7 +16,7 @@ the panel entry list and the model's own history all go without it.
 - [6-tasks.md](6-tasks.md) - two commits, one per write, independent of each other
 
 Superseded in part by
-[reporting-what-a-turn-did](../reporting-what-a-turn-did/1-index.md). Its D1
+[reporting-what-a-turn-did](../33-reporting-what-a-turn-did/1-index.md). Its D1
 reverses the model half of D1 and D2 here: a retarget is a session event with
 its own panel entry kind, so nothing is appended to the chat history and the
 step is gone. What this spec still holds is that a retarget is worth recording
@@ -29,5 +29,5 @@ step needs a turn to own it, and a restore leaves the entry the reducer scans
 for above the restore marker.
 
 Sibling to
-[binding-to-the-active-tab](../binding-to-the-active-tab/1-index.md), which
+[binding-to-the-active-tab](../31-binding-to-the-active-tab/1-index.md), which
 fixes when a retarget happens. This one records that it did.

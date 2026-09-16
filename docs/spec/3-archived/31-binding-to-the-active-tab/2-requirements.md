@@ -57,7 +57,7 @@ the subscription and the retarget path both work. Only the empty tab is dropped.
 ### Project
 
 - [29-following-the-note-across-a-restore](../../3-archived/29-following-the-note-across-a-restore/1-index.md) - states the binding rule and fixes the two entry points this one misses
-- [recording-a-retarget](../recording-a-retarget/1-index.md) - the sibling: this spec fixes when a retarget happens, that one records that it did
+- [recording-a-retarget](../32-recording-a-retarget/1-index.md) - the sibling: this spec fixes when a retarget happens, that one records that it did
 
 ### Architecture
 
