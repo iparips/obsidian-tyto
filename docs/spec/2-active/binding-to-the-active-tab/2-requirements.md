@@ -45,49 +45,6 @@ The instruction edits the note from step 1, and the header still names it.
 Switching between two tabs that each hold a note does retarget the session, so
 the subscription and the retarget path both work. Only the empty tab is dropped.
 
-## Test Scenarios
-
-Setup shared by every scenario:
-
-- A vault holding at least one markdown note.
-- A Tyto session running and bound to that note.
-
-### An empty tab unbinds the session
-
-```gherkin
-Given a session bound to a note
-When  the user opens a tab holding no file
-Then  the session is unbound
-And   the panel header names no note
-```
-
-### An unbound session does not edit the note it left
-
-```gherkin
-Given a session unbound by an empty tab
-When  the user gives an instruction that names no note
-Then  no note is edited
-And   the model is told no note is bound
-```
-
-### Opening a note binds the session again
-
-```gherkin
-Given a session unbound by an empty tab
-When  the user opens a markdown note
-Then  the session is bound to that note
-And   the panel header names it
-```
-
-### A canvas unbinds rather than binding to something no editor can show
-
-```gherkin
-Given a session bound to a note
-When  the user opens a canvas
-Then  the session is unbound
-And   the panel header names no note
-```
-
 ## References
 
 ### Task

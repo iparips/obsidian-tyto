@@ -11,8 +11,8 @@ Paste the block below into a fresh session.
 Show that the panel is listening, specified in
 docs/spec/2-active/showing-the-panel-is-listening.
 
-Read 1-index.md, 2-requirements.md, 5-tasks.md, then 3-design.md before commit
-1. 4-decisions.md holds the iOS assumption that shapes commit 2; read it before
+Read 1-index.md, 2-requirements.md, 6-tasks.md, then 3-design.md before commit
+1. 5-tests.md holds the checks a person runs. 4-decisions.md holds the iOS assumption that shapes commit 2; read it before
 writing the hook.
 
 Load the code-generation and code-unit-tests skills before the first commit.

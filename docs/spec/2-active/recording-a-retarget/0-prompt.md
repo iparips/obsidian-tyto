@@ -11,8 +11,8 @@ Paste the block below into a fresh session.
 Record a retarget where a person and the model can see it, specified in
 docs/spec/2-active/recording-a-retarget.
 
-Read 1-index.md, 2-requirements.md, 5-tasks.md, then 3-design.md before commit
-1. 4-decisions.md holds why this is not a queued turn.
+Read 1-index.md, 2-requirements.md, 6-tasks.md, then 3-design.md before commit
+1. 5-tests.md holds the checks a person runs. 4-decisions.md holds why this is not a queued turn.
 
 Load the code-generation and code-unit-tests skills before the first commit.
 Repo conventions are in docs/AGENTS.md. Read it before the first commit, and
