@@ -6,6 +6,7 @@ export type EditOperation =
   | { kind: 'replace'; anchor: string; replacement: string }
   | { kind: 'insert'; anchor: string; position: 'before' | 'after'; content: string }
   | { kind: 'insertAt'; location: 'noteStart' | 'noteEnd' | 'cursor'; content: string }
+  | { kind: 'writeNote'; content: string }
 
 // endedAt is where the edit finished, so the caller can focus it later without
 // the editor remembering anything.
@@ -20,6 +21,7 @@ export class NoteEditor {
   apply(editor: Editor, note: NoteDetails, op: EditOperation): ApplyResult {
     if (op.kind === 'replace') return this.replaceAnchor(editor, op.anchor, op.replacement)
     if (op.kind === 'insert') return this.insertAtAnchor(editor, op.anchor, op.position, op.content)
+    if (op.kind === 'writeNote') return this.writeWholeNote(editor, op.content)
     return this.insertAtLocation(editor, note, op.location, op.content)
   }
 
@@ -44,6 +46,12 @@ export class NoteEditor {
     if (!match.unique) return { applied: false, reason: match.reason }
     const offset = position === 'before' ? match.index : match.index + anchor.length
     return this.replaceOffsets(editor, offset, offset, content)
+  }
+
+  // One replaceRange over the whole note, so Obsidian's undo stack holds the
+  // write as a single entry the user can take back with one Ctrl-Z.
+  private writeWholeNote(editor: Editor, content: string): ApplyResult {
+    return this.replaceOffsets(editor, 0, editor.getValue().length, content)
   }
 
   private insertAtLocation(
