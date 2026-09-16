@@ -29,12 +29,13 @@ interface SessionChannels {
   notices: TurnNotices
 }
 
-// What the plugin cannot answer for itself: whether the panel is on screen, and
-// how to put it there when the user asks.
+// What the plugin cannot answer for itself: whether the panel is on screen, how
+// to put it there when the user asks, and when Obsidian goes to the background,
+// which is what ends a recording in progress.
 export interface PanelPresence {
   isVisible(): boolean
   reveal(): void
-  onHidden(listener: () => void): () => void
+  onObsidianBackgrounded(listener: () => void): () => void
   startNewSession(): void
 }
 
@@ -112,7 +113,7 @@ export class SessionBuilder {
       recorder: new Recorder(),
       transcribe: (blob, mimeType) => modelProvider.transcribe(blob, mimeType),
       startNewSession: () => presence.startNewSession(),
-      onHidden: (listener) => presence.onHidden(listener),
+      onObsidianBackgrounded: (listener) => presence.onObsidianBackgrounded(listener),
       settings: this.settings,
       transcriptOf: (entries) => this.transcriptBuilder(sessions, transcript).build(entries),
       recordHistory: (entries) => recorder.record(entries),
