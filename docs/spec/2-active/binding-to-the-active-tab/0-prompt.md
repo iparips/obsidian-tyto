@@ -15,6 +15,7 @@ Read 1-index.md, then 2-requirements.md, then 5-tasks.md. 4-decisions.md holds
 one resolved decision and three assumptions; read it if a choice looks
 arbitrary. 3-design.md describes commit 1, which is already landed.
 
+Load the code-generation and code-unit-tests skills before the first commit.
 Repo conventions are in docs/AGENTS.md. Read it before the first commit.
 
 Commit 1 is already landed: the signatures are widened and bindTo has replaced
