@@ -59,10 +59,8 @@ export default class TytoPlugin extends Plugin {
       this.pluginScope,
       new SessionLeaf(this.app),
       new SessionStore(this.app.vault.adapter, this.manifest.dir),
-      {
-        onObsidianFileOpened: (listenerFn) => this.onObsidianFileOpened(listenerFn),
-        onObsidianBackgrounded: (listenerFn) => this.onObsidianBackgrounded(listenerFn),
-      },
+      (listenerFn) => this.onObsidianFileOpened(listenerFn),
+      (listenerFn) => this.onObsidianBackgrounded(listenerFn),
       this.manifest.version,
     )
   }
@@ -75,9 +73,6 @@ export default class TytoPlugin extends Plugin {
     this.registerEvent(this.app.workspace.on('file-open', listenerFn))
   }
 
-  // Obsidian is one page, so document.hidden is the whole window going away:
-  // another app, a minimise, or a locked phone. Closing the panel does not fire
-  // it, and the view's own unmount covers that.
   private onObsidianBackgrounded(listenerFn: () => void): () => void {
     const handlerFn = () => document.hidden && listenerFn()
     this.registerDomEvent(document, 'visibilitychange', handlerFn)

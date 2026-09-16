@@ -9,15 +9,6 @@ import { PluginScope } from './plugin-scope'
 import { PanelPresence, SessionBuilder } from './session-builder'
 import { SessionLeaf } from './session-leaf'
 
-// What only the plugin can do, since both register against its lifetime and are
-// unregistered when it unloads.
-export interface PluginRegistrations {
-  // Every file, not only notes: Obsidian announces canvases, PDFs and Bases
-  // files through the same event, and null once nothing is open.
-  onObsidianFileOpened(listenerFn: (file: TFile | null) => void): void
-  onObsidianBackgrounded(listenerFn: () => void): () => void
-}
-
 // Owns a session once the leaf exists: assembling its panel props, restoring
 // the one left behind, and keeping the newest engine pointed at the note the
 // user is on.
@@ -29,7 +20,12 @@ export class SessionController {
     private scope: PluginScope,
     private leaf: SessionLeaf,
     private store: SessionStore,
-    private registrations: PluginRegistrations,
+    // The two registrations only the plugin can make, since both register
+    // against its lifetime and are unregistered when it unloads. The file is
+    // every file, not only notes: Obsidian announces canvases, PDFs and Bases
+    // files through the same event, and null once nothing is open.
+    private onObsidianFileOpenedFn: (listenerFn: (file: TFile | null) => void) => void,
+    private onObsidianBackgroundedFn: (listenerFn: () => void) => () => void,
     // From the manifest, so a transcript read months later says which build of
     // the plugin produced it.
     private pluginVersion: string,
@@ -81,7 +77,7 @@ export class SessionController {
     return {
       isVisible: () => this.leaf.isVisible(),
       reveal: () => void this.leaf.reveal(),
-      onObsidianBackgrounded: (listenerFn) => this.registrations.onObsidianBackgrounded(listenerFn),
+      onObsidianBackgrounded: (listenerFn) => this.onObsidianBackgroundedFn(listenerFn),
       startNewSession: () => this.startNewSession(view),
     }
   }
@@ -103,7 +99,7 @@ export class SessionController {
     this.activeEngine = engine
     if (this.followsActiveNote) return
     this.followsActiveNote = true
-    this.registrations.onObsidianFileOpened((file) => this.retargetActiveEngine(file))
+    this.onObsidianFileOpenedFn((file) => this.retargetActiveEngine(file))
   }
 
   // Markdown only. Obsidian opens canvases, PDFs and Bases files through the
