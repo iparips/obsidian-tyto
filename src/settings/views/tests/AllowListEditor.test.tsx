@@ -2,10 +2,10 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { AllowListEditor } from '../AllowListEditor'
-import { ObsidianCommandSearch } from '../../commands/obsidian-command-search'
-import { AllowList } from '../../commands/allow-list'
-import { AllowedObsidianCommand } from '../../commands/models/allowed-obsidian-command'
-import { FakeCommandRegistry } from '../../test-support/fake-command-registry'
+import { ObsidianCommandSearch } from '../../../commands/obsidian-command-search'
+import { AllowList } from '../../../commands/allow-list'
+import { AllowedObsidianCommand } from '../../../commands/models/allowed-obsidian-command'
+import { FakeCommandRegistry } from '../../../test-support/fake-command-registry'
 
 describe('AllowListEditor', () => {
   let registry: FakeCommandRegistry

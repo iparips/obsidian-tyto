@@ -2,10 +2,10 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { SettingsPanel } from '../SettingsPanel'
-import { DEFAULT_SETTINGS, TytoSettings } from '../settings'
-import { ObsidianCommandSearch } from '../../commands/obsidian-command-search'
-import { AllowList } from '../../commands/allow-list'
-import { FakeCommandRegistry } from '../../test-support/fake-command-registry'
+import { DEFAULT_SETTINGS, TytoSettings } from '../../settings'
+import { ObsidianCommandSearch } from '../../../commands/obsidian-command-search'
+import { AllowList } from '../../../commands/allow-list'
+import { FakeCommandRegistry } from '../../../test-support/fake-command-registry'
 
 // Off by default because the transcript carries note text and vault
 // instructions verbatim, which is the point of it and the reason to opt in.

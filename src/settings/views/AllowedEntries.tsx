@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { AllowList } from '../commands/allow-list'
+import { AllowList } from '../../commands/allow-list'
 
 export interface AllowedEntriesProps {
   entries: readonly string[]

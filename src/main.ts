@@ -3,7 +3,7 @@ import { SessionView, VIEW_TYPE_SESSION } from './session/views/obsidian/session
 import { SessionPanelProps } from './session/views/SessionPanel'
 import { registerTytoIcon, TYTO_ICON } from './session/views/obsidian/tyto-icon'
 import { DEFAULT_SETTINGS, TytoSettings } from './settings/settings'
-import { TytoSettingsTab } from './settings/settings-tab'
+import { TytoSettingsTab } from './settings/views/obsidian/settings-tab'
 import { EditEngine } from './engine/edit-engine'
 import { EngineFactory } from './wiring/engine-factory'
 import { PluginScope } from './wiring/plugin-scope'

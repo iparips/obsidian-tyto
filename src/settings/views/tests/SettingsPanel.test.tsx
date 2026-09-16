@@ -2,10 +2,10 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { SettingsPanel } from '../SettingsPanel'
-import { DEFAULT_SETTINGS, OpenMode, TytoSettings } from '../settings'
-import { ObsidianCommandSearch } from '../../commands/obsidian-command-search'
-import { AllowList } from '../../commands/allow-list'
-import { FakeCommandRegistry } from '../../test-support/fake-command-registry'
+import { DEFAULT_SETTINGS, OpenMode, TytoSettings } from '../../settings'
+import { ObsidianCommandSearch } from '../../../commands/obsidian-command-search'
+import { AllowList } from '../../../commands/allow-list'
+import { FakeCommandRegistry } from '../../../test-support/fake-command-registry'
 
 // The stored values stay 'confirm' and 'auto' (FR16), so no vault needs
 // migrating and a user who chose to be asked is still asked. Only the wording

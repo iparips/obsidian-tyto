@@ -1,4 +1,4 @@
-import { AllowedObsidianCommand } from '../commands/models/allowed-obsidian-command'
+import { AllowedObsidianCommand } from '../../commands/models/allowed-obsidian-command'
 
 // Collapsed by default: the entries are the setting, and what they resolve to
 // is a check the user opens when they want it (FR10, FR11).

@@ -2,9 +2,9 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { CommandPicker } from '../CommandPicker'
-import { ObsidianCommandSearch } from '../../commands/obsidian-command-search'
-import { AllowList } from '../../commands/allow-list'
-import { FakeCommandRegistry } from '../../test-support/fake-command-registry'
+import { ObsidianCommandSearch } from '../../../commands/obsidian-command-search'
+import { AllowList } from '../../../commands/allow-list'
+import { FakeCommandRegistry } from '../../../test-support/fake-command-registry'
 
 describe('CommandPicker', () => {
   let registry: FakeCommandRegistry
