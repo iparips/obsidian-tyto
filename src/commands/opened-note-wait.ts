@@ -1,4 +1,5 @@
 import { App, EventRef, MarkdownView, TFile } from 'obsidian'
+import { ToolNoteOpening } from '../session/tool-note-opening'
 
 const OPEN_TIMEOUT_MS = 1500
 const EDITOR_POLL_MS = 50
@@ -11,6 +12,11 @@ export class OpenedNoteWait {
   constructor(
     private app: App,
     private timeoutMs: number = OPEN_TIMEOUT_MS,
+    // Held open across the command, so the engine's own file-open handler reads
+    // the event as a tool's rather than the user moving. Obsidian calls handlers
+    // in registration order and the engine subscribed at load, so recording on
+    // the event itself would land after it had already run.
+    private toolNoteOpening: ToolNoteOpening = new ToolNoteOpening(),
   ) {}
 
   // The path of a note showing an editor, or nothing once the wait runs out. A
@@ -18,8 +24,9 @@ export class OpenedNoteWait {
   // enough not to be felt.
   forOpen(run: () => void): Promise<string | null> {
     const opened = new Promise<string | null>((resolve) => this.resolveOnOpen(resolve))
+    this.toolNoteOpening.openUntilSettled()
     run()
-    return opened
+    return opened.finally(() => this.toolNoteOpening.settle())
   }
 
   private resolveOnOpen(resolve: (path: string | null) => void): void {
