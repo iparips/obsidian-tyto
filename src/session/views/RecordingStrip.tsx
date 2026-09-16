@@ -12,18 +12,19 @@ const BARS = 5
 // and low enough that speech is plainly taller (FR: a dead mic looks dead).
 const FLOOR = 0.15
 
-// The one running phase the panel said nothing about. Takes PendingEntry's slot
-// in the history, which returns nothing while recording.
+// The one running phase the panel said nothing about. Sits above the input row
+// rather than in the history, which scrolls the meter out of sight once a
+// session has run a few turns.
 export const RecordingStrip = ({ phase, level, elapsedSeconds }: RecordingStripProps) => {
   if (phase !== 'recording') return null
   return (
     <div className="tyto-recording-strip" aria-label="Recording">
+      <span className="tyto-recording-clock">{asClock(elapsedSeconds)}</span>
       <div className="tyto-recording-meter">
         {heightsFor(level).map((height, index) => (
           <span key={index} className="tyto-recording-bar" style={{ height: `${height * 100}%` }} />
         ))}
       </div>
-      <span className="tyto-recording-clock">{asClock(elapsedSeconds)}</span>
     </div>
   )
 }

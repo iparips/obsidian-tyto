@@ -27,13 +27,17 @@ export const InputRow = (props: InputRowProps) => {
       >
         {recording ? 'Stop' : 'Mic'}
       </button>
-      <input
-        aria-label="Instruction"
-        value={props.draft}
-        disabled={running && props.phase !== 'asking'}
-        onChange={(event) => props.onDraftChange(event.target.value)}
-        onKeyDown={(event) => event.key === 'Enter' && props.onSend()}
-      />
+      {/* Gone while recording, where it is disabled anyway: the strip above
+          needs the width more than a field nobody can type into. */}
+      {recording ? null : (
+        <input
+          aria-label="Instruction"
+          value={props.draft}
+          disabled={running && props.phase !== 'asking'}
+          onChange={(event) => props.onDraftChange(event.target.value)}
+          onKeyDown={(event) => event.key === 'Enter' && props.onSend()}
+        />
+      )}
       {running ? (
         // Clickable until it is clicked, which is what stops a second click
         // reaching a turn that is already stopping.

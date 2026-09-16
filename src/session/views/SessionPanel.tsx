@@ -15,6 +15,7 @@ import { EngineEventPorts, useEngineEvents } from './hooks/useEngineEvents'
 import { RecordedHistoryPorts, useRecordedHistory } from './hooks/useRecordedHistory'
 import { TargetNotePorts, useTargetNote } from './hooks/useTargetNote'
 import { InputRow } from './InputRow'
+import { RecordingStrip } from './RecordingStrip'
 import { TytoSettings } from '../../settings/settings'
 import { TranscriptSource } from '../transcript/models/transcript-source'
 import { TranscriptDocument } from '../transcript/transcript-document'
@@ -138,11 +139,14 @@ export const SessionPanel = (props: SessionPanelProps) => {
       <HistoryList
         entries={state.entries}
         phase={state.phase}
-        level={recordingLevel.level}
-        elapsedSeconds={recordingLevel.elapsedSeconds}
         onChooseNote={settleChoice}
         onPickSuggestion={pickSuggestion}
         onRetry={recorded.retry}
+      />
+      <RecordingStrip
+        phase={state.phase}
+        level={recordingLevel.level}
+        elapsedSeconds={recordingLevel.elapsedSeconds}
       />
       <InputRow
         phase={state.phase}

@@ -46,6 +46,52 @@ describe('SessionPanel', () => {
   // What the recorder was last handed, which is what would be on disk.
   const lastRecorded = () => recordHistory.mock.lastCall?.[0]
 
+  // The strip lived in the history, where a session of any length scrolled it
+  // out of sight, which is the whole of what it is for.
+  describe('when a recording is running', () => {
+    const startRecording = async () => {
+      renderPanel()
+      await userEvent.click(screen.getByRole('button', { name: 'Record' }))
+    }
+
+    it('puts the strip below the history rather than inside it', async () => {
+      const { container } = renderPanel()
+
+      await userEvent.click(screen.getByRole('button', { name: 'Record' }))
+
+      const strip = container.querySelector('.tyto-recording-strip')
+      expect(strip).not.toBeNull()
+      expect(container.querySelector('.tyto-history')?.contains(strip)).toBe(false)
+    })
+
+    it('puts the strip above the input row', async () => {
+      const { container } = renderPanel()
+
+      await userEvent.click(screen.getByRole('button', { name: 'Record' }))
+
+      const rows = container.querySelectorAll('.tyto-recording-strip, .tyto-input-row')
+      expect([...rows].map((row) => row.className)).toEqual([
+        'tyto-recording-strip',
+        'tyto-input-row',
+      ])
+      expect(rows).toHaveLength(2)
+    })
+
+    it('hides the instruction field, which is disabled while recording anyway', async () => {
+      await startRecording()
+
+      expect(screen.queryByLabelText('Instruction')).toBeNull()
+    })
+
+    it('brings the instruction field back once the recording stops', async () => {
+      await startRecording()
+
+      await userEvent.click(screen.getByRole('button', { name: 'Cancel' }))
+
+      expect(screen.getByLabelText('Instruction')).toBeDefined()
+    })
+  })
+
   describe('when a turn is running', () => {
     it('records the utterance before the model is called, so an eviction keeps it', async () => {
       let settle: (outcome: Outcome<string>) => void = () => undefined
