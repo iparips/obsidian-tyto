@@ -16,9 +16,13 @@ export interface EngineEventPorts {
   // that goes nowhere can still be inspected.
   onStep?(listener: (step: StepReport) => void): () => void
   onAnswer?(listener: (report: AnswerReport) => void): () => void
+  // The same subscription the header reads, forwarded to the timeline: a
+  // retarget is a session event, so it lands as its own entry rather than as a
+  // step inside whichever turn was open.
+  onTargetNoteChanged?(listener: (path: string | null) => void): () => void
 }
 
-// Five subscriptions the panel only forwards to the reducer, wired once. They
+// Six subscriptions the panel only forwards to the reducer, wired once. They
 // share a shape, so listing them here leaves the component holding the state
 // and the markup rather than the plumbing.
 export const useEngineEvents = (
@@ -50,6 +54,11 @@ export const useEngineEvents = (
       ports.onAnswer?.((report) =>
         dispatchFn({ type: 'answer', text: report.text, sources: report.sources }),
       ),
+    [],
+  )
+
+  useEffect(
+    () => ports.onTargetNoteChanged?.((path) => dispatchFn({ type: 'retargeted', path })),
     [],
   )
 }

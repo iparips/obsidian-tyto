@@ -5,6 +5,10 @@ updated: 2026-09-16
 
 # Design
 
+The two homes chosen here were replaced by D1 of
+[reporting-what-a-turn-did](../reporting-what-a-turn-did/1-index.md), which
+makes a retarget its own panel entry kind. Kept as the record of what shipped.
+
 A retarget moves the header and leaves no other trace. Three destinations want
 it, and they do not all take it the same way.
 

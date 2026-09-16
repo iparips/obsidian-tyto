@@ -22,6 +22,7 @@ import { AnswerRequest } from './waiting/answer-request'
 import { ModelAnswer } from './tools/model-answer'
 import { ChoiceRequest } from './waiting/choice-request'
 import { TurnStep } from './turn-step'
+import { TOOL_SCHEMAS } from './tools/tool-schemas'
 
 const CANCELLED_RESULT = 'the user stopped the turn; this call did not run'
 const SEARCH_OFF_RESULT = 'searching the vault is turned off in settings'
@@ -53,6 +54,12 @@ export class ToolDispatcher {
   async execute(call: ToolCall): Promise<ToolCallOutcome> {
     // Between calls rather than inside one, so no edit is left half-applied.
     if (this.cancellationController.isCancelled()) return ToolCallOutcome.of(CANCELLED_RESULT)
+    // Ahead of every branch below, since a name that is not offered is not a
+    // load_skill either. Without it an unknown name fell through to the edit
+    // tool and was refused by the parser, which is a second result in the batch
+    // for the model to misread as an earlier edit.
+    const unknownNameRefusal = this.refuseWhenNameIsNotOffered(call)
+    if (unknownNameRefusal) return unknownNameRefusal
     if (call.isLoadSkill()) return ToolCallOutcome.of(await this.loadSkill(call))
     // Neither reaches the vault: both only read the call and act, so they are
     // handled here rather than round-tripping through the harness tools.
@@ -62,6 +69,34 @@ export class ToolDispatcher {
     if (skillsRefusal) return skillsRefusal
     if (call.isHarnessTool()) return this.callHarnessTool(call)
     return this.recordEdit(call, this.noteEditTool.execute(call))
+  }
+
+  // The refusal names the tools that may be called rather than echoing the
+  // name it was sent: the session that showed this sent its whole reasoning
+  // text as a function name, and echoing put that blob in the history three
+  // times in one conversation.
+  //
+  // Checked against every name the catalogue defines rather than the set this
+  // turn offers. A tool a disabled capability withheld is a real tool, and the
+  // branches below refuse it by name and reason, which is what keeps the
+  // schemas from being the only thing holding a disabled flow out of reach.
+  private refuseWhenNameIsNotOffered(call: ToolCall): ToolCallOutcome | null {
+    if (ToolDispatcher.definedToolNames().includes(call.name)) return null
+    const reason = `no tool named that; the tools you may call are ${this.offeredToolNames().join(', ')}`
+    this.turnProgressPublisher.publishStepTakenFn(TurnStep.refusedByUnnamedTool(reason))
+    return ToolCallOutcome.refused(reason)
+  }
+
+  private static definedToolNames(): string[] {
+    return TOOL_SCHEMAS.map((schema) => schema.name)
+  }
+
+  // What this turn was actually sent, so the refusal lists the tools the model
+  // can act on rather than every name the catalogue defines.
+  private offeredToolNames(): string[] {
+    return this.harnessToolsService
+      .getToolCallSchemas(this.turnRepository.definesSkills())
+      .map((schema) => schema.name)
   }
 
   private refuseWhenDeclaredSkillsAreNotInSession(call: ToolCall): ToolCallOutcome | null {
@@ -94,7 +129,10 @@ export class ToolDispatcher {
   private recordEdit(call: ToolCall, outcome: ToolCallOutcome): ToolCallOutcome {
     if (outcome.editEndPosition) {
       this.turnProgressPublisher.publishStepTakenFn(
-        TurnStep.edited(outcome.result, this.turnRepository.targetNote()?.path ?? null),
+        TurnStep.edited(
+          outcome.descriptionForUser(),
+          this.turnRepository.targetNote()?.path ?? null,
+        ),
       )
       return outcome
     }

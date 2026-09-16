@@ -384,6 +384,61 @@ describe('PanelReducer', () => {
     })
   })
 
+  // A session event rather than a step. As a step it needed a turn to own it,
+  // and a restored panel leaves the entry withStep scans for above the restore
+  // marker, so a retarget before the first new utterance joined the turn there.
+  describe('when the session retargets', () => {
+    const retargeted = (path: string | null = 'Lists/todo.md') =>
+      ({ type: 'retargeted', path }) as const
+
+    it('appends its own entry rather than joining the open steps entry', () => {
+      const running = PanelReducer.reduce(thinking, {
+        type: 'stepTaken',
+        label: 'Searched',
+        detail: 'milk — 3 matches',
+        refused: false,
+      })
+
+      const state = PanelReducer.reduce(running, retargeted())
+
+      expect(state.entries.at(-1)).toEqual({ kind: 'retargeted', text: 'Now editing todo.' })
+    })
+
+    it('leaves the phase unchanged, since a retarget stops no turn', () => {
+      const state = PanelReducer.reduce(thinking, retargeted())
+
+      expect(state.phase).toBe('thinking')
+    })
+
+    it('says the binding went when the session moved to a tab holding no note', () => {
+      const state = PanelReducer.reduce(thinking, retargeted(null))
+
+      expect(state.entries.at(-1)).toEqual({
+        kind: 'retargeted',
+        text: 'No note is bound to this session.',
+      })
+    })
+
+    it('appends below the restored marker when the session came back', () => {
+      const restored = new PanelState('idle', [
+        { kind: 'user', text: 'do it' },
+        { kind: 'steps', steps: [{ label: 'Edit', detail: 'applied', refused: false }] },
+        { kind: 'assistant', text: 'done' },
+        { kind: 'restored', text: 'Session restored.' },
+      ])
+
+      const state = PanelReducer.reduce(restored, retargeted())
+
+      expect(state.entries.at(-1)).toEqual({ kind: 'retargeted', text: 'Now editing todo.' })
+    })
+
+    it('appends without a user entry above it when no turn has run', () => {
+      const state = PanelReducer.reduce(INITIAL_PANEL_STATE, retargeted())
+
+      expect(state.entries).toEqual([{ kind: 'retargeted', text: 'Now editing todo.' }])
+    })
+  })
+
   describe('when a transcription fails with the audio still held', () => {
     const failed = (retryable?: boolean): PanelState =>
       PanelReducer.reduce(INITIAL_PANEL_STATE, {

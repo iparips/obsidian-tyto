@@ -66,6 +66,39 @@ describe('EditEngine', () => {
       expect(editor.content).toBe('# Costs\n\nbody\n- item')
     })
 
+    // The bare string applied carried no tense and no target, so a batch gave
+    // the model two identical results and it read one as an earlier edit.
+    describe('when an edit applies', () => {
+      const renames = () =>
+        aToolTurn(aToolCall('replace_text', { anchor_text: '# Budget', replacement: '# Costs' }))
+
+      const resultOfRename = async () => {
+        complete
+          .mockResolvedValueOnce(Outcomes.success(renames()))
+          .mockResolvedValueOnce(Outcomes.success(aTextTurn('done')))
+        await engine.processUtterance('rename it')
+        return toolResults()[0].content
+      }
+
+      it('names the operation that applied', async () => {
+        expect(await resultOfRename()).toContain('replace_text')
+      })
+
+      it('names the note the edit reached', async () => {
+        expect(await resultOfRename()).toContain('note.md')
+      })
+
+      it('names the line the edit ended on, so a batch is told apart', async () => {
+        expect(await resultOfRename()).toContain('line 1')
+      })
+
+      // The model sent the text one message earlier, and a dictated paragraph
+      // makes echoing it back unbounded.
+      it('does not echo the content it wrote', async () => {
+        expect(await resultOfRename()).not.toContain('# Costs')
+      })
+    })
+
     it('sends the failure reason as tool result when apply returns noMatch', async () => {
       complete
         .mockResolvedValueOnce(

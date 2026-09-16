@@ -740,6 +740,35 @@ describe('SessionPanel', () => {
     })
   })
 
+  // The same channel the header reads, so the timeline says the session moved
+  // and the header says which note it is on now.
+  describe('when the session moves to a different note', () => {
+    const renderRetargeting = () => {
+      let retarget: (path: string | null) => void = () => undefined
+      renderPanel({
+        onTargetNoteChanged: (listener) => {
+          retarget = listener
+          return () => undefined
+        },
+      })
+      return (path: string | null) => act(() => retarget(path))
+    }
+
+    it('renders an entry naming the note the session moved to', () => {
+      const retarget = renderRetargeting()
+
+      retarget('Lists/todo.md')
+
+      expect(screen.getByText('Now editing todo.')).toBeTruthy()
+    })
+
+    it('renders nothing on the timeline until the session moves', () => {
+      renderRetargeting()
+
+      expect(screen.queryByText('Now editing todo.')).toBeNull()
+    })
+  })
+
   describe('when a transcription fails', () => {
     const anUtterance = new Utterance(new Blob(['a']), 'audio/webm')
 

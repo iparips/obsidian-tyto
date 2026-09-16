@@ -23,6 +23,14 @@ export class TranscriptTurn {
     return entries.filter((entry) => entry.kind === 'steps').flatMap((entry) => entry.steps)
   }
 
+  // What the panel showed before the first utterance, which belongs to no turn:
+  // a restore marker, or a retarget the user made before speaking. split drops
+  // them, since every turn it builds opens on an utterance.
+  static before(entries: readonly PanelEntry[]): PanelEntry[] {
+    const firstUtteranceAt = entries.findIndex((entry) => entry.kind === 'user')
+    return firstUtteranceAt === -1 ? [...entries] : entries.slice(0, firstUtteranceAt)
+  }
+
   // An utterance is where one turn ends and the next begins, which is how
   // PanelReducer already finds a turn's open steps entry.
   static split(entries: readonly PanelEntry[]): TranscriptTurn[] {
