@@ -12,7 +12,9 @@ import { SessionLeaf } from './session-leaf'
 // What only the plugin can do, since both register against its lifetime and are
 // unregistered when it unloads.
 export interface PluginRegistrations {
-  onFileOpen(listenerFn: (file: TFile | null) => void): void
+  // Every file, not only notes: Obsidian announces canvases, PDFs and Bases
+  // files through the same event, and null once nothing is open.
+  onObsidianFileOpened(listenerFn: (file: TFile | null) => void): void
   onObsidianBackgrounded(listenerFn: () => void): () => void
 }
 
@@ -101,7 +103,7 @@ export class SessionController {
     this.activeEngine = engine
     if (this.followsActiveNote) return
     this.followsActiveNote = true
-    this.registrations.onFileOpen((file) => this.retargetActiveEngine(file))
+    this.registrations.onObsidianFileOpened((file) => this.retargetActiveEngine(file))
   }
 
   // Markdown only. Obsidian opens canvases, PDFs and Bases files through the
