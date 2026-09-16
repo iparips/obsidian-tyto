@@ -1,4 +1,4 @@
-import { PanelEntry } from './models/panel-state'
+import { PanelItem } from './models/panel-state'
 import { SessionRepository } from './session-repository'
 import {
   SESSION_SNAPSHOT_VERSION,
@@ -19,7 +19,7 @@ export class SessionSnapshotFactory {
   // one the machine happened to have.
   static of(
     sessions: SessionRepository,
-    entries: readonly PanelEntry[],
+    entries: readonly PanelItem[],
     writtenAt: Date = new Date(),
   ): SessionSnapshot {
     return {

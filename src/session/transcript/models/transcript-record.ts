@@ -34,7 +34,7 @@ export class StepRange {
 }
 
 // What one pass of the turn loop sent and owns: the parts it cited by version,
-// the slice of chat history it carried, and the panel steps running its tool
+// the slice of chat history it carried, and the progress lines running its tool
 // calls produced.
 export class RecordedTurnStep {
   constructor(
@@ -42,11 +42,11 @@ export class RecordedTurnStep {
     readonly step: number,
     readonly parts: readonly TranscriptPart[],
     readonly history: StepRange,
-    readonly panelSteps: StepRange,
+    readonly progressLines: StepRange,
   ) {}
 
-  withPanelSteps(panelSteps: StepRange): RecordedTurnStep {
-    return new RecordedTurnStep(this.turn, this.step, this.parts, this.history, panelSteps)
+  withProgressLines(progressLines: StepRange): RecordedTurnStep {
+    return new RecordedTurnStep(this.turn, this.step, this.parts, this.history, progressLines)
   }
 
   partNamed(name: PartName): TranscriptPart | null {

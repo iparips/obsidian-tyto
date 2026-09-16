@@ -1,5 +1,5 @@
 import { ChatMessage } from '../../../model/providers/types'
-import { PanelEntry } from '../../models/panel-state'
+import { PanelItem } from '../../models/panel-state'
 import { TytoSettings } from '../../../settings/settings'
 import { RecordedEnding, RecordedTurnStep, TranscriptPart } from './transcript-record'
 
@@ -18,7 +18,7 @@ export class TranscriptSource {
   constructor(
     readonly session: TranscriptSession,
     readonly settings: TytoSettings,
-    readonly entries: readonly PanelEntry[],
+    readonly entries: readonly PanelItem[],
     readonly chatHistory: readonly ChatMessage[],
     readonly steps: readonly RecordedTurnStep[],
     readonly endings: readonly RecordedEnding[],

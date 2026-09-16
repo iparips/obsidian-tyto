@@ -7,7 +7,7 @@ import { GrepResult } from '../../search/models/grep-result'
 import { ResultOrder } from '../../search/models/result-order'
 import { HarnessResult, Refusal, TurnState } from './harness-result'
 import { TextResult } from './harness-results'
-import { TurnStep } from '../turn-step'
+import { ProgressLine } from '../progress-line'
 
 // The two ways the model reaches a note it cannot name: a glob over paths and a
 // grep over content. Both record what they found, or open_note refuses
@@ -24,7 +24,7 @@ export class SearchToolsService {
     turn.pathsReturnedByVault.recordPaths(result.paths)
     return new TextResult(
       SearchReport.ofGlob(pattern, result),
-      TurnStep.globbed(pattern, result.total),
+      ProgressLine.globbed(pattern, result.total),
     )
   }
 
@@ -41,7 +41,7 @@ export class SearchToolsService {
     turn.pathsReturnedByVault.recordPaths(result.hits.map((hit) => hit.path))
     return new TextResult(
       SearchReport.ofGrep(pattern, result),
-      TurnStep.grepped(pattern, result.total),
+      ProgressLine.grepped(pattern, result.total),
     )
   }
 

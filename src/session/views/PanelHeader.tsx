@@ -1,12 +1,9 @@
 import { useState } from 'react'
 
+// The note left with the turns, since a target belongs to the turn that chose
+// it and a header naming one cannot say which utterance it belongs to (D4).
+// What is left is a toolbar, and reads as one.
 export interface PanelHeaderProps {
-  // Null while the session is unbound, which the header says rather than naming
-  // a note.
-  name: string | null
-  // The path from the vault root, beneath the name, so two notes sharing a name
-  // are told apart (FR14).
-  path: string | null
   running: boolean
   onReset?(): void
   // Absent unless the setting is on, the way Reset is absent without onReset: a
@@ -17,14 +14,7 @@ export interface PanelHeaderProps {
   hasEntries?: boolean
 }
 
-export const PanelHeader = ({
-  name,
-  path,
-  running,
-  onReset,
-  onCopy,
-  hasEntries,
-}: PanelHeaderProps) => {
+export const PanelHeader = ({ running, onReset, onCopy, hasEntries }: PanelHeaderProps) => {
   const [copied, setCopied] = useState(false)
 
   const copy = async () => {
@@ -36,14 +26,6 @@ export const PanelHeader = ({
 
   return (
     <div className="tyto-header">
-      <div className="tyto-header-target">
-        <span className="tyto-header-name">{name ?? NO_NOTE_BOUND}</span>
-        {path && (
-          <span className="tyto-header-path" aria-label="Note path">
-            {path}
-          </span>
-        )}
-      </div>
       {onCopy && (
         <button
           className="tyto-copy-transcript"
@@ -67,5 +49,3 @@ export const PanelHeader = ({
     </div>
   )
 }
-
-const NO_NOTE_BOUND = 'No note open'

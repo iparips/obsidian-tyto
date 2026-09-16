@@ -7,21 +7,19 @@ export class AskedEntries {
   // Back to thinking rather than idle: the turn is still running, and the panel
   // reads as the turn continuing rather than as one that ended.
   static choiceAnswered(state: PanelState, chosen: string | null): PanelState {
-    return new PanelState(
-      'thinking',
-      state.entries.map((entry) => AskedEntries.settledChoice(entry, chosen)),
-    )
+    return state
+      .withPhase('thinking')
+      .mapEntries((entry) => AskedEntries.settledChoice(entry, chosen))
   }
 
   // The text stays and the suggestions go, so a user who dismissed the notice
   // can still read what was asked without a control that no longer acts (FR32).
   static questionAnswered(state: PanelState, phase: Phase): PanelState {
-    return new PanelState(
-      phase,
-      state.entries.map((entry) =>
+    return state
+      .withPhase(phase)
+      .mapEntries((entry) =>
         entry.kind === 'question' && entry.pending ? { ...entry, pending: false } : entry,
-      ),
-    )
+      )
   }
 
   // A turn that ends leaves nothing answerable behind it, so both askers'
@@ -33,10 +31,7 @@ export class AskedEntries {
   }
 
   private static unanswered(state: PanelState): PanelState {
-    return new PanelState(
-      state.phase,
-      state.entries.map((entry) => AskedEntries.settled(entry, UNANSWERED_TEXT)),
-    )
+    return state.mapEntries((entry) => AskedEntries.settled(entry, UNANSWERED_TEXT))
   }
 
   private static settledChoice(entry: PanelEntry, chosen: string | null): PanelEntry {

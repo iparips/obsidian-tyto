@@ -1,12 +1,10 @@
 import { beforeEach, describe, expect, it } from 'vitest'
+import { aTurnState } from '../../test-support/builders'
 import { App } from 'obsidian'
 import { HarnessToolsService } from '../tools/harness-tools-service'
 import { HarnessResult, TurnState } from '../tools/harness-result'
 import { HarnessResultKind } from '../tools/harness-result-kind'
 import { ChoiceRequest } from '../waiting/choice-request'
-import { NotesOpenedCounter } from '../turn/notes-opened-counter'
-import { PathsReturnedByVaultRepository } from '../turn/paths-returned-by-vault-repository'
-import { NotesReadRepository } from '../turn/notes-read-repository'
 import { ObsidianCommandCatalogue } from '../../commands/obsidian-command-catalogue'
 import { ObsidianCommandRegistry } from '../../commands/obsidian-command-registry'
 import { ObsidianCommandRunner } from '../../commands/obsidian-command-runner'
@@ -30,11 +28,7 @@ describe('HarnessToolsService', () => {
 
   beforeEach(() => {
     vault = new FakeVault().withNote(TODO, '- [ ] milk').withNote(SHOPPING, '- [ ] bread')
-    turn = {
-      notesOpenedCounter: new NotesOpenedCounter(),
-      pathsReturnedByVault: new PathsReturnedByVaultRepository(),
-      notesRead: new NotesReadRepository(),
-    }
+    turn = aTurnState()
   })
 
   const toolsOf = (searchEnabled = true, choiceOffered = true): HarnessToolsService => {
@@ -55,6 +49,7 @@ describe('HarnessToolsService', () => {
       searchEnabled,
       new SearchToolsService(new NoteGlob(vault.asVault()), new NoteGrep(vault.asVault())),
       new DateToolService(),
+      null,
       choiceOffered,
     )
   }

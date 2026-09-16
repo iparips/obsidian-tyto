@@ -1,5 +1,5 @@
 import { Editor, EditorPosition } from 'obsidian'
-import { NoteDetails } from './note-details'
+import { NoteWrite } from './note-write'
 import { PositionConverter } from './position-converter'
 
 export type EditOperation =
@@ -8,21 +8,21 @@ export type EditOperation =
   | { kind: 'insertAt'; location: 'noteStart' | 'noteEnd' | 'cursor'; content: string }
   | { kind: 'writeNote'; content: string }
 
-// endedAt is where the edit finished, so the caller can focus it later without
-// the editor remembering anything.
-export type ApplyResult =
-  | { applied: true; endedAt: EditorPosition }
-  | { applied: false; reason: 'noMatch' | 'multipleMatches' }
+// What an edit worked out to, where the write itself has not happened yet.
+export type PlannedWrite =
+  { applied: true; write: NoteWrite } | { applied: false; reason: 'noMatch' | 'multipleMatches' }
 
 type AnchorMatch =
   { unique: true; index: number } | { unique: false; reason: 'noMatch' | 'multipleMatches' }
 
 export class NoteEditor {
-  apply(editor: Editor, note: NoteDetails, op: EditOperation): ApplyResult {
-    if (op.kind === 'replace') return this.replaceAnchor(editor, op.anchor, op.replacement)
-    if (op.kind === 'insert') return this.insertAtAnchor(editor, op.anchor, op.position, op.content)
-    if (op.kind === 'writeNote') return this.writeWholeNote(editor, op.content)
-    return this.insertAtLocation(editor, note, op.location, op.content)
+  // The note as text rather than the editor showing it, so an edit can be
+  // worked out for a note whose tab has moved and has no editor to read.
+  plan(before: string, cursor: EditorPosition, op: EditOperation): PlannedWrite {
+    if (op.kind === 'replace') return this.replaceAnchor(before, op.anchor, op.replacement)
+    if (op.kind === 'insert') return this.insertAtAnchor(before, op.anchor, op.position, op.content)
+    if (op.kind === 'writeNote') return this.writeWholeNote(before, op.content)
+    return this.insertAtLocation(before, cursor, op.location, op.content)
   }
 
   focusEdit(editor: Editor, position: EditorPosition): void {
@@ -30,65 +30,59 @@ export class NoteEditor {
     editor.scrollIntoView({ from: position, to: position }, true)
   }
 
-  private replaceAnchor(editor: Editor, anchor: string, replacement: string): ApplyResult {
-    const match = this.findAnchor(editor, anchor)
+  private replaceAnchor(before: string, anchor: string, replacement: string): PlannedWrite {
+    const match = this.findAnchor(before, anchor)
     if (!match.unique) return { applied: false, reason: match.reason }
-    return this.replaceOffsets(editor, match.index, match.index + anchor.length, replacement)
+    return this.replaceOffsets(before, match.index, match.index + anchor.length, replacement)
   }
 
   private insertAtAnchor(
-    editor: Editor,
+    before: string,
     anchor: string,
     position: 'before' | 'after',
     content: string,
-  ): ApplyResult {
-    const match = this.findAnchor(editor, anchor)
+  ): PlannedWrite {
+    const match = this.findAnchor(before, anchor)
     if (!match.unique) return { applied: false, reason: match.reason }
     const offset = position === 'before' ? match.index : match.index + anchor.length
-    return this.replaceOffsets(editor, offset, offset, content)
+    return this.replaceOffsets(before, offset, offset, content)
   }
 
   // One replaceRange over the whole note, so Obsidian's undo stack holds the
-  // write as a single entry the user can take back with one Ctrl-Z.
-  private writeWholeNote(editor: Editor, content: string): ApplyResult {
-    return this.replaceOffsets(editor, 0, editor.getValue().length, content)
+  // write as a single entry the user can take back with one editor undo.
+  private writeWholeNote(before: string, content: string): PlannedWrite {
+    return this.replaceOffsets(before, 0, before.length, content)
   }
 
   private insertAtLocation(
-    editor: Editor,
-    note: NoteDetails,
+    before: string,
+    cursor: EditorPosition,
     location: 'noteStart' | 'noteEnd' | 'cursor',
     content: string,
-  ): ApplyResult {
-    const offset = this.locationOffset(editor, note, location)
-    return this.replaceOffsets(editor, offset, offset, content)
+  ): PlannedWrite {
+    const offset = this.locationOffset(before, cursor, location)
+    return this.replaceOffsets(before, offset, offset, content)
   }
 
   private locationOffset(
-    editor: Editor,
-    note: NoteDetails,
+    before: string,
+    cursor: EditorPosition,
     location: 'noteStart' | 'noteEnd' | 'cursor',
   ): number {
-    const content = editor.getValue()
     if (location === 'noteStart') return 0
-    if (location === 'noteEnd') return content.length
-    return PositionConverter.posToOffset(content, note.cursor)
+    if (location === 'noteEnd') return before.length
+    return PositionConverter.posToOffset(before, cursor)
   }
 
-  private findAnchor(editor: Editor, anchor: string): AnchorMatch {
-    const content = editor.getValue()
-    const first = content.indexOf(anchor)
+  private findAnchor(before: string, anchor: string): AnchorMatch {
+    const first = before.indexOf(anchor)
     if (first === -1) return { unique: false, reason: 'noMatch' }
-    if (content.indexOf(anchor, first + 1) !== -1)
+    if (before.indexOf(anchor, first + 1) !== -1)
       return { unique: false, reason: 'multipleMatches' }
     return { unique: true, index: first }
   }
 
-  private replaceOffsets(editor: Editor, from: number, to: number, text: string): ApplyResult {
-    const content = editor.getValue()
-    const start = PositionConverter.offsetToPos(content, from)
-    editor.replaceRange(text, start, PositionConverter.offsetToPos(content, to))
-    const endedAt = PositionConverter.offsetToPos(editor.getValue(), from + text.length)
-    return { applied: true, endedAt }
+  private replaceOffsets(before: string, from: number, to: number, text: string): PlannedWrite {
+    return { applied: true, write: NoteWrite.ofReplacedOffsets(before, from, to, text) }
   }
 }

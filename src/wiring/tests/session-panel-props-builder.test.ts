@@ -9,7 +9,7 @@ import { ChatMessage } from '../../model/providers/models/chat-message'
 import { LeafPresence, SessionPanelPropsBuilder } from '../session-panel-props-builder'
 import { SessionFileStore } from '../../session/session-file-store'
 import { SessionPanelProps } from '../../session/views/SessionPanel'
-import { PanelEntry } from '../../session/models/panel-state'
+import { PanelItem } from '../../session/models/panel-state'
 import {
   SESSION_SNAPSHOT_VERSION,
   StoredMessages,
@@ -67,7 +67,7 @@ describe('SessionPanelPropsBuilder', () => {
   // that the recorder assembles it.
   const recordAndRead = async (
     props: SessionPanelProps,
-    entries: readonly PanelEntry[],
+    entries: readonly PanelItem[],
   ): Promise<SessionSnapshot> => {
     props.recordHistory?.(entries)
     await vi.waitFor(() => expect(adapter.contentsOf(SESSION_PATH)).toBeDefined())
@@ -304,7 +304,7 @@ describe('SessionPanelPropsBuilder', () => {
       const stored = await recordAndRead(props, [])
 
       expect(stored).toEqual({
-        version: 1,
+        version: SESSION_SNAPSHOT_VERSION,
         targetPath: 'Journal/day.md',
         messages: [{ role: 'user', content: 'add a heading', toolCalls: [], toolCallId: '' }],
         entries: [],

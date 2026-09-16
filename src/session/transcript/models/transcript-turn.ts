@@ -1,4 +1,10 @@
-import { PanelEntry, PanelStep } from '../../models/panel-state'
+import {
+  PanelEntry,
+  PanelItem,
+  PanelItems,
+  ProgressLine,
+  PanelTurn,
+} from '../../models/panel-state'
 
 // One conversation turn as the panel recorded it: the utterance that opened it
 // and every entry that landed before the next one. A turn is what the runner
@@ -11,39 +17,43 @@ export class TranscriptTurn {
   ) {}
 
   // What the panel showed beside the steps: replies, answers, warnings,
-  // choices. The steps themselves belong to the turn steps that produced them.
+  // choices. The steps themselves belong to the turn steps that produced them,
+  // and the utterance is written above as the turn's own line.
   entriesBesideSteps(): PanelEntry[] {
-    return this.entries.filter((entry) => entry.kind !== 'steps')
+    return this.entries.filter((entry) => entry.kind !== 'progress' && entry.kind !== 'user')
   }
 
-  // Every panel step of the session in publication order, which is what the
+  // Every progress line of the session in publication order, which is what the
   // recorded ranges index into: a range is a fact about the entries themselves,
   // so it counts across turns rather than within one.
-  static allPanelSteps(entries: readonly PanelEntry[]): PanelStep[] {
-    return entries.filter((entry) => entry.kind === 'steps').flatMap((entry) => entry.steps)
+  static allProgressLines(items: readonly PanelItem[]): ProgressLine[] {
+    return items
+      .flatMap(PanelItems.entriesOf)
+      .filter((entry) => entry.kind === 'progress')
+      .flatMap((entry) => entry.lines)
   }
 
-  // What the panel showed before the first utterance, which belongs to no turn:
-  // a restore marker, or a retarget the user made before speaking. split drops
-  // them, since every turn it builds opens on an utterance.
-  static before(entries: readonly PanelEntry[]): PanelEntry[] {
-    const firstUtteranceAt = entries.findIndex((entry) => entry.kind === 'user')
-    return firstUtteranceAt === -1 ? [...entries] : entries.slice(0, firstUtteranceAt)
+  // What the panel showed before the first turn, which belongs to none: a
+  // restore marker, or a retarget the user made before speaking.
+  static before(items: readonly PanelItem[]): PanelEntry[] {
+    const firstTurnAt = items.findIndex((item) => item.kind === 'turn')
+    const before = firstTurnAt === -1 ? [...items] : items.slice(0, firstTurnAt)
+    return before.flatMap(PanelItems.entriesOf)
   }
 
-  // An utterance is where one turn ends and the next begins, which is how
-  // PanelReducer already finds a turn's open steps entry.
-  static split(entries: readonly PanelEntry[]): TranscriptTurn[] {
-    const turns: TranscriptTurn[] = []
-    entries.forEach((entry) => {
-      if (entry.kind === 'user') return turns.push(new TranscriptTurn(turns.length, entry.text, []))
-      const open = turns.at(-1)
-      if (open) turns[turns.length - 1] = TranscriptTurn.plus(open, entry)
-    })
-    return turns
+  // Read off the turns the panel holds rather than inferred by scanning back to
+  // an utterance, which is what put a retarget in the wrong turn once (D6).
+  static split(items: readonly PanelItem[]): TranscriptTurn[] {
+    return items
+      .filter((item) => item.kind === 'turn')
+      .map(
+        (turn, index) => new TranscriptTurn(index, TranscriptTurn.utteranceOf(turn), turn.entries),
+      )
   }
 
-  private static plus(turn: TranscriptTurn, entry: PanelEntry): TranscriptTurn {
-    return new TranscriptTurn(turn.index, turn.utterance, [...turn.entries, entry])
+  // The turn's first entry, which is the utterance the reducer opened it with.
+  private static utteranceOf(turn: PanelTurn): string {
+    const first = turn.entries[0]
+    return first?.kind === 'user' ? first.text : ''
   }
 }

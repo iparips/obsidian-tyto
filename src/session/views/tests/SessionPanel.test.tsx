@@ -399,21 +399,18 @@ describe('SessionPanel', () => {
     })
   })
 
-  describe('when the header names the target note', () => {
-    it('names the note when the session is bound', () => {
-      renderPanel()
+  // D4: the note left the header, since a target belongs to the turn that chose
+  // it and a header naming one cannot say which utterance it belongs to.
+  describe('when the panel is rendered', () => {
+    it('names no note in the header, whatever the session is on', () => {
+      const { container } = renderPanel({ notePath: 'Journal/note.md' })
 
-      expect(screen.getByText('note')).toBeTruthy()
-    })
-
-    it('says no note is open when the session is unbound', () => {
-      renderPanel({ noteName: null })
-
-      expect(screen.getByText('No note open')).toBeTruthy()
+      expect(container.querySelector('.tyto-header-target')).toBeNull()
+      expect(screen.queryByLabelText('Note path')).toBeNull()
     })
   })
 
-  describe('when a command moves the target note', () => {
+  describe('when a turn names the note it is writing to', () => {
     const targetListeners: ((report: RetargetReport) => void)[] = []
     const onTargetNoteChanged = (listenerFn: (report: RetargetReport) => void) => {
       targetListeners.push(listenerFn)
@@ -422,60 +419,54 @@ describe('SessionPanel', () => {
     const retargetTo = (path: string | null, byUser = false) =>
       act(() => targetListeners.forEach((listenerFn) => listenerFn({ path, byUser })))
 
+    const speak = async () => {
+      await userEvent.type(screen.getByRole('textbox'), 'add milk')
+      await userEvent.click(screen.getByRole('button', { name: 'Send' }))
+    }
+
     beforeEach(() => {
       targetListeners.length = 0
     })
 
-    it('names the new target note in the header when a change is reported', () => {
-      renderPanel({ onTargetNoteChanged })
+    // D5: most utterances name no note, and the session's note is the answer
+    // for those rather than a guess.
+    it('names the session note the turn started on', async () => {
+      processUtterance.mockReturnValue(new Promise(() => undefined))
+      renderPanel({ notePath: 'Lists/todo.md' })
 
-      retargetTo('Journal/2026-09-02.md')
+      await speak()
 
-      expect(screen.getByText('2026-09-02')).toBeTruthy()
+      expect(screen.getByText('todo')).toBeTruthy()
     })
 
-    it('offers no way back to the starting note when a change is reported', () => {
-      renderPanel({ onTargetNoteChanged })
-
-      retargetTo('Journal/2026-09-02.md')
-
-      expect(screen.queryByRole('button', { name: /Return to/ })).toBeNull()
-    })
-
-    it('names no note when the session unbinds, so the header does not name one it left', () => {
-      renderPanel({ onTargetNoteChanged })
-
-      retargetTo(null)
-
-      expect(screen.queryByText('day')).toBeNull()
-    })
-
-    it('names the opened note when an unbound session binds', () => {
-      renderPanel({ noteName: null, onTargetNoteChanged })
-
-      retargetTo('Journal/2026-09-02.md')
-
-      expect(screen.getByText('2026-09-02')).toBeTruthy()
-    })
-
-    it('renders the note path beneath the note name when the session is bound', () => {
-      renderPanel({ notePath: 'Journal/note.md' })
-
-      expect(screen.getByLabelText('Note path').textContent).toBe('Journal/note.md')
-    })
-
-    it('renders no path when the session is unbound', () => {
+    it('names no note when the session is on none', async () => {
+      processUtterance.mockReturnValue(new Promise(() => undefined))
       renderPanel({ noteName: null, notePath: null })
 
-      expect(screen.queryByLabelText('Note path')).toBeNull()
+      await speak()
+
+      expect(screen.getByText('No note')).toBeTruthy()
     })
 
-    it('updates the path as well as the name when the target note changes', () => {
-      renderPanel({ notePath: 'note.md', onTargetNoteChanged })
+    it('names the new note once a tool opens one mid-turn', async () => {
+      processUtterance.mockReturnValue(new Promise(() => undefined))
+      renderPanel({ notePath: 'Lists/todo.md', onTargetNoteChanged })
+      await speak()
 
-      retargetTo('Journal/2026-09-02.md')
+      retargetTo('Lists/shopping.md')
 
-      expect(screen.getByLabelText('Note path').textContent).toBe('Journal/2026-09-02.md')
+      expect(screen.getByText('shopping')).toBeTruthy()
+    })
+
+    it('leaves an earlier turn naming the note it wrote to', async () => {
+      renderPanel({ notePath: 'Lists/todo.md', onTargetNoteChanged })
+      await speak()
+
+      retargetTo('Lists/shopping.md', true)
+      await speak()
+
+      expect(screen.getAllByText('todo')).toHaveLength(1)
+      expect(screen.getAllByText('shopping')).toHaveLength(1)
     })
   })
 

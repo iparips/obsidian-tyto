@@ -4,7 +4,7 @@ import { SessionRepository } from '../../session/session-repository'
 import { ToolDispatcher } from '../tool-dispatcher'
 import { TurnProgressPublisher } from '../turn-progress-publisher'
 import { TurnRepository } from './turn-repository'
-import { TurnStep } from '../turn-step'
+import { ProgressLine } from '../progress-line'
 
 const SECOND_EDIT_REFUSAL =
   'One edit per step. The note is read at the start of each step, so a second ' +
@@ -38,7 +38,9 @@ export class ToolCallExecutor {
   // Not recorded against RepeatedRefusalCounter: two identical refusals end a
   // turn, and a batch of three edits produces this one twice.
   private refuseSecondEdit(call: ToolCall): void {
-    this.turnProgressPublisher.publishStepTakenFn(TurnStep.refused(call.name, SECOND_EDIT_REFUSAL))
+    this.turnProgressPublisher.publishProgressLineFn(
+      ProgressLine.refused(call.name, SECOND_EDIT_REFUSAL),
+    )
     this.sessionRepository.appendChatMessage(
       ChatMessage.toolCallResult(call.id, SECOND_EDIT_REFUSAL),
     )

@@ -12,7 +12,7 @@ const WEIGHTS: Record<PanelEntry['kind'], EntryWeight> = {
   question: 'reply',
   instructions: 'context',
   warning: 'context',
-  steps: 'context',
+  progress: 'context',
   restored: 'context',
   retargeted: 'context',
 }

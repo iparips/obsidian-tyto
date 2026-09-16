@@ -22,7 +22,7 @@ describe('EntryWeights', () => {
 
   describe('when the entry lists what the turn did', () => {
     it('weighs a steps entry as context, so it sits under the reply', () => {
-      expect(EntryWeights.of('steps')).toBe('context')
+      expect(EntryWeights.of('progress')).toBe('context')
     })
   })
 })

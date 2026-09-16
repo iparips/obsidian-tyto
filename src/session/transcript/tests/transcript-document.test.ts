@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { TurnEndingKind } from '../../../engine/turn/ending/turn-ending-kind'
 import { ChatMessage, ToolCall } from '../../../model/providers/types'
 import { DEFAULT_SETTINGS, TytoSettings } from '../../../settings/settings'
-import { PanelEntry } from '../../models/panel-state'
+import { PanelEntry, PanelItem } from '../../models/panel-state'
 import { TranscriptSource } from '../models/transcript-source'
 import {
   RecordedEnding,
@@ -23,13 +23,19 @@ describe('TranscriptDocument', () => {
     new TranscriptPart('sessionTarget', 1, 'note context'),
   ]
 
-  const aStep = (step: number, history: StepRange, panelSteps: StepRange, version = 1) =>
-    new RecordedTurnStep(0, step, aPart(version), history, panelSteps)
+  const aStep = (step: number, history: StepRange, progressLines: StepRange, version = 1) =>
+    new RecordedTurnStep(0, step, aPart(version), history, progressLines)
 
   const aGlob = (pattern: string) => new ToolCall('c1', 'glob_notes', { pattern })
 
+  // entries are one turn's, which is what most cases are about. items says the
+  // shape outright, for the cases about what sits beside a turn.
+  const turnOf = (entries: PanelEntry[] = []): PanelItem[] =>
+    entries.length === 0 ? [] : [{ kind: 'turn', target: 'Journal/09-09-Wed.md', entries }]
+
   const documentOf = (options: {
     entries?: PanelEntry[]
+    items?: PanelItem[]
     history?: ChatMessage[]
     steps?: RecordedTurnStep[]
     endings?: RecordedEnding[]
@@ -45,7 +51,7 @@ describe('TranscriptDocument', () => {
           notePath: options.notePath === undefined ? 'Journal/09-09-Wed.md' : options.notePath,
         },
         { ...DEFAULT_SETTINGS, ...options.settings },
-        options.entries ?? [],
+        options.items ?? turnOf(options.entries),
         options.history ?? [],
         options.steps ?? [],
         options.endings ?? [],
@@ -84,7 +90,7 @@ describe('TranscriptDocument', () => {
       const document = documentOf({
         entries: [
           { kind: 'user', text: 'rename it' },
-          { kind: 'steps', steps: [{ label: 'Globbed', detail: '**/*.md', refused: false }] },
+          { kind: 'progress', lines: [{ label: 'Globbed', detail: '**/*.md', refused: false }] },
           { kind: 'error', step: 'chat', text: 'Tyto ran out of steps' },
         ],
         steps: [aStep(0, new StepRange(0, 0), new StepRange(0, 0))],
@@ -163,8 +169,8 @@ describe('TranscriptDocument', () => {
         entries: [
           { kind: 'user', text: 'open it' },
           {
-            kind: 'steps',
-            steps: [{ label: 'Refused', detail: 'not chosen by the user', refused: true }],
+            kind: 'progress',
+            lines: [{ label: 'Refused', detail: 'not chosen by the user', refused: true }],
           },
         ],
         steps: [aStep(0, new StepRange(0, 0), new StepRange(0, 0))],
@@ -179,8 +185,8 @@ describe('TranscriptDocument', () => {
       entries: [
         { kind: 'user', text: 'find it' },
         {
-          kind: 'steps',
-          steps: [
+          kind: 'progress',
+          lines: [
             { label: 'Globbed', detail: '**/a.md - 1 note', refused: false },
             { label: 'Globbed', detail: '**/b.md - nothing matched', refused: false },
           ],
@@ -248,7 +254,7 @@ describe('TranscriptDocument', () => {
       )
     })
 
-    it('nests the panel steps each turn step produced, in order', () => {
+    it('nests the progress lines each turn step produced, in order', () => {
       const document = documentOf(twoSteps())
 
       expect(
@@ -261,13 +267,13 @@ describe('TranscriptDocument', () => {
       ).toBe(true)
     })
 
-    it('nests both panel steps of a turn step that returned two tool calls', () => {
+    it('nests both progress lines of a turn step that returned two tool calls', () => {
       const document = documentOf({
         entries: [
           { kind: 'user', text: 'do both' },
           {
-            kind: 'steps',
-            steps: [
+            kind: 'progress',
+            lines: [
               { label: 'Edit', detail: 'applied', refused: false },
               { label: 'Edit', detail: 'applied again', refused: false },
             ],
@@ -303,13 +309,13 @@ describe('TranscriptDocument', () => {
   })
 
   describe('the Setup block', () => {
-    it('holds the panel steps published before the first model call', () => {
+    it('holds the progress lines published before the first model call', () => {
       const document = documentOf({
         entries: [
           { kind: 'user', text: 'go' },
           {
-            kind: 'steps',
-            steps: [
+            kind: 'progress',
+            lines: [
               { label: 'Loaded agent instructions', detail: 'vault root', refused: false },
               { label: 'Globbed', detail: '**/a.md', refused: false },
             ],
@@ -506,15 +512,14 @@ describe('TranscriptDocument', () => {
     })
   })
 
-  // TranscriptTurn.split builds every turn from an utterance, so what precedes
-  // the first one belonged to no turn and was dropped. A session restored, or
-  // retargeted before the user spoke, is exactly that case.
-  describe('the entries before the first utterance', () => {
+  // What precedes the first turn belongs to none and was once dropped. A
+  // session restored, or retargeted before the user spoke, is that case.
+  describe('the entries before the first turn', () => {
     it('writes a retarget that arrived before the user spoke', () => {
       const document = documentOf({
-        entries: [
+        items: [
           { kind: 'retargeted', text: 'Now editing todo.' },
-          { kind: 'user', text: 'add milk' },
+          ...turnOf([{ kind: 'user', text: 'add milk' }]),
         ],
       })
 
@@ -523,9 +528,9 @@ describe('TranscriptDocument', () => {
 
     it('writes them above the turn that followed', () => {
       const document = documentOf({
-        entries: [
+        items: [
           { kind: 'retargeted', text: 'Now editing todo.' },
-          { kind: 'user', text: 'add milk' },
+          ...turnOf([{ kind: 'user', text: 'add milk' }]),
         ],
       })
 

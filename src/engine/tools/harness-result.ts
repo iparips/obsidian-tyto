@@ -1,3 +1,4 @@
+import { OpenNote } from '../note-editing/open-note'
 import { PathsReturnedByVaultRepository } from '../turn/paths-returned-by-vault-repository'
 import { NotesOpenedCounter } from '../turn/notes-opened-counter'
 import { NotesReadRepository } from '../turn/notes-read-repository'
@@ -20,6 +21,9 @@ export interface TurnState {
   readonly notesOpenedCounter: NotesOpenedCounter
   readonly pathsReturnedByVault: PathsReturnedByVaultRepository
   readonly notesRead: NotesReadRepository
+  // Null while the session is unbound. A read of this note comes from the
+  // editor it holds, which is where the turn's writes go.
+  targetNote(): OpenNote | null
 }
 
 // Shared by every tool that can refuse, so a cap message and a bad argument

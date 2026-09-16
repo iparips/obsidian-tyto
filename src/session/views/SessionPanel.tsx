@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Outcome } from '../../shared/models/outcome'
 import { HistoryList } from './HistoryList'
-import { PanelEntry } from '../models/panel-state'
+import { PanelItem } from '../models/panel-state'
 import { PanelHeader } from './PanelHeader'
 import {
   ChoiceRequest,
@@ -44,11 +44,11 @@ export interface SessionPanelProps
   // What a restored session already holds, empty for a session that starts
   // fresh. Settled and set idle on the way in, since no turn is running after
   // a load (FR5, FR6).
-  entries?: PanelEntry[]
+  entries?: PanelItem[]
   settings?: TytoSettings
   // What the panel cannot see: the chat history the recorded steps index into,
   // and what each of those steps was sent. Absent until the setting is on.
-  transcriptOf?(entries: readonly PanelEntry[]): TranscriptSource
+  transcriptOf?(entries: readonly PanelItem[]): TranscriptSource
 }
 
 export const SessionPanel = (props: SessionPanelProps) => {
@@ -64,7 +64,7 @@ export const SessionPanel = (props: SessionPanelProps) => {
   // A cancelled turn tells nobody: the user is the one who stopped it, so they
   // already know (FR28).
   const runTurn = async (text: string) => {
-    dispatch({ type: 'transcript', text })
+    dispatch({ type: 'transcript', text, target: targetNote })
     const outcome = await props.processUtterance(text)
     if (outcome.succeeded()) {
       dispatch({ type: 'summary', text: outcome.value })
@@ -129,8 +129,6 @@ export const SessionPanel = (props: SessionPanelProps) => {
   return (
     <div className="tyto-panel">
       <PanelHeader
-        name={targetNote.name}
-        path={targetNote.path}
         running={state.phase !== 'idle'}
         onReset={props.startNewSession}
         onCopy={copyTranscript}

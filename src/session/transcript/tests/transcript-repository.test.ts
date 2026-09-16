@@ -24,8 +24,8 @@ describe('TranscriptRepository', () => {
   const recordCall = (historyLength: number, systemPrompt = 'prompt', target = 'note v1') =>
     transcript.recordCall(partsOf(systemPrompt, target), historyLength)
 
-  const publishPanelSteps = (count: number) => {
-    for (let index = 0; index < count; index++) transcript.panelStepPublished()
+  const publishProgressLines = (count: number) => {
+    for (let index = 0; index < count; index++) transcript.progressLinePublished()
   }
 
   describe('when a session was restored', () => {
@@ -46,17 +46,17 @@ describe('TranscriptRepository', () => {
     })
   })
 
-  // The restored entries carry the previous session's panel steps and turns, so
+  // The restored entries carry the previous session's progress lines and turns, so
   // a step counting either from zero renders that session's work as this one's.
-  describe('when a restored session already holds panel steps and turns', () => {
+  describe('when a restored session already holds progress lines and turns', () => {
     beforeEach(() => {
       transcript = new TranscriptRepository(RestoredCounts.of(4, 3, 2))
     })
 
-    it('starts the first recorded step past the restored panel steps', () => {
+    it('starts the first recorded step past the restored progress lines', () => {
       recordCall(6)
 
-      expect(transcript.recordedSteps()[0].panelSteps.first).toBe(3)
+      expect(transcript.recordedSteps()[0].progressLines.first).toBe(3)
     })
 
     it('numbers the first recorded step past the restored turns', () => {
@@ -87,25 +87,27 @@ describe('TranscriptRepository', () => {
       ])
     })
 
-    it('holds a panel step range closed by the next recording', () => {
+    it('holds a progress line range closed by the next recording', () => {
       recordCall(1)
-      publishPanelSteps(2)
+      publishProgressLines(2)
       recordCall(3)
 
       const [first] = transcript.recordedSteps()
-      expect([first.panelSteps.first, first.panelSteps.last]).toEqual([0, 1])
+      expect([first.progressLines.first, first.progressLines.last]).toEqual([0, 1])
     })
 
-    it('owns only the panel steps published between the recordings either side', () => {
-      publishPanelSteps(1)
+    it('owns only the progress lines published between the recordings either side', () => {
+      publishProgressLines(1)
       recordCall(1)
-      publishPanelSteps(2)
+      publishProgressLines(2)
       recordCall(3)
-      publishPanelSteps(1)
+      publishProgressLines(1)
       transcript.recordEnding(TurnEndingKind.Replied)
 
       expect(
-        transcript.recordedSteps().map((step) => [step.panelSteps.first, step.panelSteps.last]),
+        transcript
+          .recordedSteps()
+          .map((step) => [step.progressLines.first, step.progressLines.last]),
       ).toEqual([
         [1, 2],
         [3, 3],
@@ -116,18 +118,18 @@ describe('TranscriptRepository', () => {
       recordCall(1)
       transcript.recordEnding(TurnEndingKind.Replied)
 
-      expect(transcript.recordedSteps()[0].panelSteps.isEmpty()).toBe(true)
+      expect(transcript.recordedSteps()[0].progressLines.isEmpty()).toBe(true)
     })
   })
 
   describe('when a turn ends', () => {
     it('closes the last step open panel range', () => {
       recordCall(1)
-      publishPanelSteps(3)
+      publishProgressLines(3)
       transcript.recordEnding(TurnEndingKind.Exhausted)
 
       const [only] = transcript.recordedSteps()
-      expect([only.panelSteps.first, only.panelSteps.last]).toEqual([0, 2])
+      expect([only.progressLines.first, only.progressLines.last]).toEqual([0, 2])
     })
 
     it('holds the kind and the step the harness decided it at', () => {

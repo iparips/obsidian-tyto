@@ -24,16 +24,16 @@ export class TranscriptRepository {
   private readonly endings: RecordedEnding[] = []
   private readonly kept = new Map<PartName, KeptPart>()
   private readonly versions: TranscriptPart[] = []
-  private publishedPanelSteps: number
+  private publishedProgressLines: number
   private turn: number
 
   // Where a restored session picks up in each of the three things a step
   // indexes into. Zero throughout for a session that never went away; for one
   // that came back, what the record already holds. Without them the first step
-  // after a restore claims the previous session's messages, panel steps and
+  // after a restore claims the previous session's messages, progress lines and
   // turn number as its own.
   constructor(private readonly restored: RestoredCounts = RestoredCounts.none()) {
-    this.publishedPanelSteps = restored.panelSteps
+    this.publishedProgressLines = restored.progressLines
     this.turn = restored.turns
   }
 
@@ -46,7 +46,7 @@ export class TranscriptRepository {
       this.stepsThisTurn(),
       [...parts].map(([name, text]) => this.versionOf(name, text)),
       new StepRange(this.historyStart(), historyLength - 1),
-      new StepRange(this.publishedPanelSteps, this.publishedPanelSteps - 1),
+      new StepRange(this.publishedProgressLines, this.publishedProgressLines - 1),
     )
     this.steps.push(step)
   }
@@ -59,10 +59,10 @@ export class TranscriptRepository {
     this.turn += 1
   }
 
-  // Advanced from SessionProgress as each panel step is published, so the
+  // Advanced from SessionProgress as each progress line is published, so the
   // engine's publish path, PanelAction and PanelReducer are untouched.
-  panelStepPublished(): void {
-    this.publishedPanelSteps += 1
+  progressLinePublished(): void {
+    this.publishedProgressLines += 1
   }
 
   recordedSteps(): readonly RecordedTurnStep[] {
@@ -87,7 +87,7 @@ export class TranscriptRepository {
   // runs to whatever has landed by the time the transcript is read.
   private closedAt(step: RecordedTurnStep, index: number): RecordedTurnStep {
     if (index < this.steps.length - 1) return step
-    return step.withPanelSteps(step.panelSteps.extendedTo(this.publishedPanelSteps - 1))
+    return step.withProgressLines(step.progressLines.extendedTo(this.publishedProgressLines - 1))
   }
 
   private closeOpenStep(): void {

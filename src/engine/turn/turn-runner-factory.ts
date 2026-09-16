@@ -1,6 +1,6 @@
 import { SkillRepository } from '../../skills/skill-repository'
 import { SkillsReadRepository } from '../../skills/skills-read-repository'
-import { NoteEditor } from '../note-editing/note-editor'
+import { TargetNoteWriter } from '../note-editing/target-note-writer'
 import { NoteEditTool } from '../tools/note-edit-tool'
 import { HarnessToolsService } from '../tools/harness-tools-service'
 import { TargetNoteResolver } from '../note-binding/target-note-resolver'
@@ -30,7 +30,7 @@ export class TurnRunnerFactory {
     private sessionRepository: SessionRepository,
     private targetNoteResolver: TargetNoteResolver,
     private skillRepository: SkillRepository,
-    private noteEditor: NoteEditor,
+    private targetNoteWriter: TargetNoteWriter,
     private harnessToolsService: HarnessToolsService,
     private turnProgressPublisher: TurnProgressPublisher,
     private modelProvider: ChatProvider,
@@ -134,7 +134,7 @@ export class TurnRunnerFactory {
       this.sessionRepository,
       this.targetNoteResolver,
       this.skillRepository,
-      new NoteEditTool(this.noteEditor, repository, askers.noteChoiceService),
+      new NoteEditTool(this.targetNoteWriter, repository, askers.noteChoiceService),
       this.harnessToolsService,
       this.turnProgressPublisher,
       repository,

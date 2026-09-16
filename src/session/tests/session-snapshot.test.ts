@@ -24,7 +24,7 @@ describe('SessionSnapshot', () => {
       }
 
       expect(roundTripped(session)).toEqual({
-        version: 1,
+        version: SESSION_SNAPSHOT_VERSION,
         targetPath: 'Journal/day.md',
         messages: [{ role: 'user', content: 'add a heading', toolCalls: [], toolCallId: '' }],
         entries: [{ kind: 'user', text: 'add a heading' }],
@@ -113,7 +113,7 @@ describe('SessionSnapshot', () => {
         { kind: 'error', step: 'chat', text: 'the provider failed' },
         { kind: 'instructions', text: 'loaded the journal skill' },
         { kind: 'warning', text: 'the note moved' },
-        { kind: 'steps', steps: [{ label: 'read_note', detail: 'day.md', refused: false }] },
+        { kind: 'progress', lines: [{ label: 'read_note', detail: 'day.md', refused: false }] },
         { kind: 'answer', text: 'three notes', sources: ['day.md'] },
         { kind: 'cancelled', text: 'Stopped. Nothing was changed.' },
         { kind: 'choice', candidates: ['a.md', 'b.md'], pending: true, text: 'which note' },

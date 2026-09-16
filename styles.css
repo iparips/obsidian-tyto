@@ -14,38 +14,8 @@
   gap: var(--size-4-2);
 }
 
-.tyto-header-target {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-}
-
-.tyto-header-name {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-/* Subordinate to the name, per the context weight the panel already uses. It
-   truncates rather than wrapping, so the header stays one line in a narrow
-   drawer (NFR10).
-
-   The head truncates, not the tail: the trailing folders say which sibling the
-   note is, and that is what a path under a name answers. */
-.tyto-header-path {
-  font-size: var(--font-ui-smaller);
-  font-weight: var(--font-normal);
-  color: var(--text-muted);
-  overflow: hidden;
-  white-space: nowrap;
-  /* rtl puts the ellipsis at the head; the isolate keeps the path itself
-     reading left to right inside it. */
-  direction: rtl;
-  text-align: left;
-  unicode-bidi: plaintext;
-}
-
+/* The header is a toolbar now the note sits on the turn, so the buttons take
+   the row rather than sitting beside a name (D4). */
 .tyto-new-session,
 .tyto-copy-transcript {
   flex: 0 0 auto;
@@ -60,6 +30,25 @@
   flex-direction: column;
   gap: var(--size-4-2);
   padding: var(--size-4-2);
+}
+
+/* One turn, holding its target and everything it produced. */
+.tyto-turn {
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-4-2);
+}
+
+/* The most prominent thing a turn says about itself, so it opens the turn
+   rather than sitting under it (D4). It truncates rather than wrapping, so a
+   turn stays readable in a narrow drawer (NFR10). */
+.tyto-turn-target {
+  font-size: var(--font-ui-smaller);
+  font-weight: var(--font-semibold);
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .tyto-entry {
@@ -531,13 +520,13 @@
 
 /* Collapsed by default, like the resolved commands in settings. The summary
    carries the context weight; the open list indents under it. */
-.tyto-entry-steps summary {
+.tyto-entry-progress summary {
   cursor: pointer;
   color: var(--text-muted);
   font-size: var(--font-ui-smaller);
 }
 
-.tyto-entry-steps ol {
+.tyto-entry-progress ol {
   margin: var(--size-4-1) 0 0;
   padding-left: var(--size-4-4);
   font-size: var(--font-ui-smaller);
@@ -545,18 +534,18 @@
   font-style: normal;
 }
 
-.tyto-entry-steps li {
+.tyto-entry-progress li {
   margin-bottom: var(--size-4-1);
 }
 
-.tyto-step-label {
+.tyto-progress-label {
   font-weight: var(--font-semibold);
   margin-right: var(--size-4-1);
 }
 
 /* A refusal is why the list gets opened, so it is the one row that stands out
    from the muted rest. */
-.tyto-step-refused .tyto-step-label,
-.tyto-step-refused .tyto-step-detail {
+.tyto-progress-refused .tyto-progress-label,
+.tyto-progress-refused .tyto-progress-detail {
   color: var(--text-warning);
 }

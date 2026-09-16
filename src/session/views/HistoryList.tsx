@@ -1,9 +1,10 @@
 import { HistoryEntry } from './HistoryEntry'
+import { HistoryTurn } from './HistoryTurn'
 import { PendingEntry } from './PendingEntry'
-import { PanelEntry, Phase } from '../models/panel-state'
+import { PanelItem, Phase } from '../models/panel-state'
 
 export interface HistoryListProps {
-  entries: PanelEntry[]
+  entries: PanelItem[]
   phase: Phase
   onChooseNote?(chosen: string | null): void
   onPickSuggestion?(suggestion: string): void
@@ -18,15 +19,25 @@ export const HistoryList = ({
   onRetry,
 }: HistoryListProps) => (
   <div className="tyto-history">
-    {entries.map((entry, index) => (
-      <HistoryEntry
-        key={index}
-        entry={entry}
-        onChooseNote={onChooseNote}
-        onPickSuggestion={onPickSuggestion}
-        onRetry={onRetry}
-      />
-    ))}
+    {entries.map((item, index) =>
+      item.kind === 'turn' ? (
+        <HistoryTurn
+          key={index}
+          turn={item}
+          onChooseNote={onChooseNote}
+          onPickSuggestion={onPickSuggestion}
+          onRetry={onRetry}
+        />
+      ) : (
+        <HistoryEntry
+          key={index}
+          entry={item}
+          onChooseNote={onChooseNote}
+          onPickSuggestion={onPickSuggestion}
+          onRetry={onRetry}
+        />
+      ),
+    )}
     <PendingEntry phase={phase} />
   </div>
 )

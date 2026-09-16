@@ -1,4 +1,4 @@
-import { PanelEntry } from './models/panel-state'
+import { PanelItem } from './models/panel-state'
 import { SessionRepository } from './session-repository'
 import { SessionSnapshotFactory } from './session-snapshot-factory'
 import { SessionFileStore } from './session-file-store'
@@ -17,7 +17,7 @@ export class SessionRecorder {
   // rewrites an earlier entry, so the record is a snapshot and never a log.
   // Not awaited, because the write is already fire and forget and the turn that
   // produced these entries has already happened (NFR3).
-  record(entries: readonly PanelEntry[]): void {
+  record(entries: readonly PanelItem[]): void {
     void this.store.write(SessionSnapshotFactory.of(this.sessions, entries))
   }
 }

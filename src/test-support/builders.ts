@@ -16,6 +16,7 @@ import { FakeAdapter } from './fake-adapter'
 import { EditEngine } from '../engine/edit-engine'
 import { TurnEndingService } from '../engine/turn-ending-service'
 import { NoteEditor } from '../engine/note-editing/note-editor'
+import { TargetNoteWriter } from '../engine/note-editing/target-note-writer'
 import { TargetNoteResolver } from '../engine/note-binding/target-note-resolver'
 import { TurnProgressPublisher } from '../engine/turn-progress-publisher'
 import { TurnRunnerFactory } from '../engine/turn/turn-runner-factory'
@@ -30,6 +31,11 @@ import { ChatProvider } from '../model/providers/types'
 import { NoteChoiceService } from '../engine/waiting/note-choice-service'
 import { NoteOpener } from '../engine/note-binding/note-opener'
 import { NotesChosenByUserRepository } from '../engine/turn/notes-chosen-by-user-repository'
+import { NotesOpenedCounter } from '../engine/turn/notes-opened-counter'
+import { NotesReadRepository } from '../engine/turn/notes-read-repository'
+import { PathsReturnedByVaultRepository } from '../engine/turn/paths-returned-by-vault-repository'
+import { OpenNote } from '../engine/note-editing/open-note'
+import { TurnState } from '../engine/tools/harness-result'
 import { TurnCancellationController } from '../engine/turn/turn-cancellation-controller'
 import { UserQuestionService } from '../engine/waiting/user-question-service'
 
@@ -57,6 +63,9 @@ export interface EnginePartsOptions {
   userQuestionService?: (cancellationController: TurnCancellationController) => UserQuestionService
   transcript?: TranscriptRepository
   toolNoteOpening?: ToolNoteOpening
+  // Where a write lands once the tab has moved off the target, which is the
+  // only case that reaches it.
+  vault?: FakeVault
 }
 
 // The resolver and dispatcher a test needs beside an engine, wired the way
@@ -65,6 +74,11 @@ export const anEngine = (modelProvider: ChatProvider, options: EnginePartsOption
   const skills = options.skillRepository ?? new SkillRepository(new FakeAdapter().asAdapter(), '')
   const harness = options.harnessToolsService ?? noHarness()
   const progress = options.progress ?? TurnProgressPublisher.silent()
+  const targetNoteWriter = new TargetNoteWriter(
+    new NoteEditor(),
+    options.noteLocator,
+    (options.vault ?? new FakeVault()).asVault(),
+  )
   const targetNote = new TargetNoteResolver(
     options.sessions,
     options.noteLocator,
@@ -75,11 +89,11 @@ export const anEngine = (modelProvider: ChatProvider, options: EnginePartsOption
     options.sessions,
     targetNote,
     skills,
-    new NoteEditor(),
+    targetNoteWriter,
     harness,
     progress,
     modelProvider,
-    new TurnEndingService(options.sessions, new NoteEditor()),
+    new TurnEndingService(options.sessions, targetNoteWriter),
     options.noteOpener ?? null,
     options.noteChoiceService ??
       ((_cancellationController, notesChosenByUser) =>
@@ -89,6 +103,15 @@ export const anEngine = (modelProvider: ChatProvider, options: EnginePartsOption
   )
   return new EditEngine(options.sessions, turnFactory, progress, options.toolNoteOpening)
 }
+
+// The narrow view a tool sees of its turn. Unbound by default, since only a
+// read of the turn's own note looks at the target.
+export const aTurnState = (targetNote: OpenNote | null = null): TurnState => ({
+  notesOpenedCounter: new NotesOpenedCounter(),
+  pathsReturnedByVault: new PathsReturnedByVaultRepository(),
+  notesRead: new NotesReadRepository(),
+  targetNote: () => targetNote,
+})
 
 export const aSession = (path = 'note.md'): SessionRepository =>
   new SessionRepository({ path, basename: path.replace(/\.md$/, '') } as TFile)

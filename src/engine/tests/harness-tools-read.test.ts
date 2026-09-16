@@ -1,10 +1,13 @@
 import { beforeEach, describe, expect, it } from 'vitest'
+import { TargetNoteWriter } from '../note-editing/target-note-writer'
+import { NoteEditor } from '../note-editing/note-editor'
+import { OpenNote } from '../note-editing/open-note'
+import { FakeEditor } from '../../test-support/fake-editor'
+import { FakeNoteLocator } from '../../test-support/fake-note-locator'
+import { aTurnState } from '../../test-support/builders'
 import { App } from 'obsidian'
 import { HarnessToolsService } from '../tools/harness-tools-service'
 import { TurnState } from '../tools/harness-result'
-import { NotesOpenedCounter } from '../turn/notes-opened-counter'
-import { PathsReturnedByVaultRepository } from '../turn/paths-returned-by-vault-repository'
-import { NotesReadRepository } from '../turn/notes-read-repository'
 import { ObsidianCommandCatalogue } from '../../commands/obsidian-command-catalogue'
 import { ObsidianCommandRegistry } from '../../commands/obsidian-command-registry'
 import { ObsidianCommandRunner } from '../../commands/obsidian-command-runner'
@@ -27,14 +30,10 @@ describe('HarnessToolsService', () => {
 
   beforeEach(() => {
     vault = new FakeVault().withNote(TODO, '- [ ] milk')
-    turn = {
-      notesOpenedCounter: new NotesOpenedCounter(),
-      pathsReturnedByVault: new PathsReturnedByVaultRepository(),
-      notesRead: new NotesReadRepository(),
-    }
+    turn = aTurnState()
   })
 
-  const toolsOf = (): HarnessToolsService => {
+  const toolsOf = (targetNoteWriter: TargetNoteWriter | null = null): HarnessToolsService => {
     const app = {} as App
     const catalogue = new ObsidianCommandCatalogue(
       new ObsidianCommandRegistry(app),
@@ -52,10 +51,15 @@ describe('HarnessToolsService', () => {
       true,
       new SearchToolsService(new NoteGlob(vault.asVault()), new NoteGrep(vault.asVault())),
       new DateToolService(),
+      targetNoteWriter,
     )
   }
 
-  const readNote = (path: string) => toolsOf().execute(aToolCall('read_note', { path }), turn)
+  const readNote = (path: string, targetNoteWriter: TargetNoteWriter | null = null) =>
+    toolsOf(targetNoteWriter).execute(aToolCall('read_note', { path }), turn)
+
+  const aWriter = (locator: FakeNoteLocator): TargetNoteWriter =>
+    new TargetNoteWriter(new NoteEditor(), locator, vault.asVault())
 
   // A skill names a path outright, so the model can read it without searching.
   // Without the read counting as having found it, the path can never be offered
@@ -71,6 +75,48 @@ describe('HarnessToolsService', () => {
       await readNote(TODO)
 
       expect(turn.pathsReturnedByVault.includes(TODO)).toBe(true)
+    })
+  })
+
+  // D1: a read of the note the turn writes to comes from the editor its writes
+  // go through, so an anchor the model matches is one the write will find.
+  describe('when the path is the target the turn holds', () => {
+    it('answers with the unsaved text the file does not have', async () => {
+      const editor = new FakeEditor('- [ ] milk\n- [ ] eggs, unsaved')
+      turn = aTurnState(new OpenNote(editor.asEditor(), TODO, editor.getCursor()))
+
+      const harnessResult = await readNote(
+        TODO,
+        aWriter(new FakeNoteLocator().withOpenNote(TODO, editor)),
+      )
+
+      expect(harnessResult.result).toBe('- [ ] milk\n- [ ] eggs, unsaved')
+    })
+
+    it('answers from the file once the tab has moved off it', async () => {
+      const editor = new FakeEditor('- [ ] milk\n- [ ] eggs, unsaved')
+      turn = aTurnState(new OpenNote(editor.asEditor(), TODO, editor.getCursor()))
+
+      const harnessResult = await readNote(
+        TODO,
+        aWriter(new FakeNoteLocator().withOpenNote('other.md', new FakeEditor('# Other'))),
+      )
+
+      expect(harnessResult.result).toBe('- [ ] milk')
+    })
+  })
+
+  describe('when the path is a note the turn is not on', () => {
+    it('answers from the file, as a read of any other note does', async () => {
+      const editor = new FakeEditor('# Shopping, unsaved')
+      turn = aTurnState(new OpenNote(editor.asEditor(), 'shopping.md', editor.getCursor()))
+
+      const harnessResult = await readNote(
+        TODO,
+        aWriter(new FakeNoteLocator().withOpenNote('shopping.md', editor)),
+      )
+
+      expect(harnessResult.result).toBe('- [ ] milk')
     })
   })
 

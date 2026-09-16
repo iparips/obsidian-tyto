@@ -1,5 +1,5 @@
 import { ChatMessage } from '../../model/providers/types'
-import { PanelStep } from '../models/panel-state'
+import { ProgressLine } from '../models/panel-state'
 import { TurnEndingKind } from '../../engine/turn/ending/turn-ending-kind'
 import { LoadedSkills } from './loaded-skills'
 import { RecordedEnding, RecordedTurnStep } from './models/transcript-record'
@@ -18,7 +18,7 @@ const isModelText = (message: ChatMessage): boolean =>
 export class TranscriptTurnSection {
   constructor(
     private source: TranscriptSource,
-    private panelSteps: readonly PanelStep[],
+    private progressLines: readonly ProgressLine[],
     private skills: LoadedSkills,
   ) {}
 
@@ -39,9 +39,12 @@ export class TranscriptTurnSection {
   // the loop starts, so what it narrates belongs ahead of the first step rather
   // than inside a step no model call produced.
   private setup(steps: readonly RecordedTurnStep[]): string[] {
-    const before = this.panelSteps.slice(0, steps[0]?.panelSteps.first ?? this.panelSteps.length)
+    const before = this.progressLines.slice(
+      0,
+      steps[0]?.progressLines.first ?? this.progressLines.length,
+    )
     if (before.length === 0) return []
-    return ['### Setup', '', ...before.map(TranscriptEntryLines.step), '']
+    return ['### Setup', '', ...before.map(TranscriptEntryLines.line), '']
   }
 
   // The step's own answer opens the next step's history slice, so a step is
@@ -56,7 +59,7 @@ export class TranscriptTurnSection {
         answered: this.answered(step, steps[at + 1], ending),
         harnessNotes: this.harnessNotesAfter(step),
       },
-      this.panelStepsOf(step),
+      this.progressLinesOf(step),
       ending,
       this.skills,
     )
@@ -90,9 +93,9 @@ export class TranscriptTurnSection {
     return at === -1 ? tail.length : at
   }
 
-  private panelStepsOf(step: RecordedTurnStep): PanelStep[] {
-    if (step.panelSteps.isEmpty()) return []
-    return this.panelSteps.slice(step.panelSteps.first, step.panelSteps.last + 1)
+  private progressLinesOf(step: RecordedTurnStep): ProgressLine[] {
+    if (step.progressLines.isEmpty()) return []
+    return this.progressLines.slice(step.progressLines.first, step.progressLines.last + 1)
   }
 
   private slice(step: RecordedTurnStep): readonly ChatMessage[] {

@@ -4,13 +4,13 @@ import userEvent from '@testing-library/user-event'
 import { ChoiceRequest, SessionPanel, RecorderPort, SessionPanelProps } from '../SessionPanel'
 import { Utterance } from '../../../recorder'
 import { Attempt, Outcome, Outcomes } from '../../../shared/models/outcome'
-import { PanelEntry } from '../../models/panel-state'
+import { PanelItem } from '../../models/panel-state'
 
 describe('SessionPanel', () => {
   let recorder: RecorderPort
   let transcribe: Mock<[Blob, string], Promise<Attempt<string>>>
   let processUtterance: Mock<[string], Promise<Outcome<string>>>
-  let recordHistory: Mock<[readonly PanelEntry[]], void>
+  let recordHistory: Mock<[readonly PanelItem[]], void>
 
   beforeEach(() => {
     vi.clearAllMocks()
@@ -101,7 +101,9 @@ describe('SessionPanel', () => {
 
       await runTurn()
 
-      expect(lastRecorded()).toEqual([{ kind: 'user', text: 'add a heading' }])
+      expect(lastRecorded()).toEqual([
+        { kind: 'turn', target: null, entries: [{ kind: 'user', text: 'add a heading' }] },
+      ])
       await act(async () => settle(Outcomes.success('made the edit')))
     })
   })
@@ -114,8 +116,14 @@ describe('SessionPanel', () => {
 
       await waitFor(() =>
         expect(lastRecorded()).toEqual([
-          { kind: 'user', text: 'add a heading' },
-          { kind: 'assistant', text: 'made the edit' },
+          {
+            kind: 'turn',
+            target: null,
+            entries: [
+              { kind: 'user', text: 'add a heading' },
+              { kind: 'assistant', text: 'made the edit' },
+            ],
+          },
         ]),
       )
     })
@@ -128,8 +136,14 @@ describe('SessionPanel', () => {
 
       await waitFor(() =>
         expect(lastRecorded()).toEqual([
-          { kind: 'user', text: 'add a heading' },
-          { kind: 'error', step: 'chat', text: 'the provider failed' },
+          {
+            kind: 'turn',
+            target: null,
+            entries: [
+              { kind: 'user', text: 'add a heading' },
+              { kind: 'error', step: 'chat', text: 'the provider failed' },
+            ],
+          },
         ]),
       )
     })
@@ -142,8 +156,14 @@ describe('SessionPanel', () => {
 
       await waitFor(() =>
         expect(lastRecorded()).toEqual([
-          { kind: 'user', text: 'add a heading' },
-          { kind: 'cancelled', text: 'Stopped. Nothing was changed.' },
+          {
+            kind: 'turn',
+            target: null,
+            entries: [
+              { kind: 'user', text: 'add a heading' },
+              { kind: 'cancelled', text: 'Stopped. Nothing was changed.' },
+            ],
+          },
         ]),
       )
     })
@@ -178,8 +198,14 @@ describe('SessionPanel', () => {
 
       await waitFor(() =>
         expect(lastRecorded()).toEqual([
-          { kind: 'user', text: 'add a heading' },
-          { kind: 'assistant', text: 'made the edit' },
+          {
+            kind: 'turn',
+            target: null,
+            entries: [
+              { kind: 'user', text: 'add a heading' },
+              { kind: 'assistant', text: 'made the edit' },
+            ],
+          },
         ]),
       )
     })
@@ -203,12 +229,18 @@ describe('SessionPanel', () => {
       await userEvent.click(screen.getByRole('button', { name: 'Cancel' }))
 
       expect(lastRecorded()).toEqual([
-        { kind: 'user', text: 'add a heading' },
         {
-          kind: 'choice',
-          candidates: ['a.md'],
-          pending: false,
-          text: 'Declined every note offered',
+          kind: 'turn',
+          target: null,
+          entries: [
+            { kind: 'user', text: 'add a heading' },
+            {
+              kind: 'choice',
+              candidates: ['a.md'],
+              pending: false,
+              text: 'Declined every note offered',
+            },
+          ],
         },
       ])
     })
@@ -217,7 +249,7 @@ describe('SessionPanel', () => {
   describe('when the app is evicted mid-turn', () => {
     // What eviction leaves behind is whatever was last recorded, so the record
     // taken mid-turn is what the next session opens on.
-    const evictedMidTurn = async (): Promise<readonly PanelEntry[]> => {
+    const evictedMidTurn = async (): Promise<readonly PanelItem[]> => {
       processUtterance.mockReturnValue(new Promise(() => undefined))
       const view = renderPanel()
       await runTurn()

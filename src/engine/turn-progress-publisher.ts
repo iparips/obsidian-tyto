@@ -1,5 +1,5 @@
 import { AgentsMdChain } from '../agents/agents-md-chain'
-import { TurnStep } from './turn-step'
+import { ProgressLine } from './progress-line'
 
 // What a turn publishes as it runs. One way: nothing here returns anything the
 // turn reads, and a silent publisher is a working engine. The plugin supplies
@@ -18,7 +18,7 @@ export class TurnProgressPublisher {
     readonly runningLowFn: (text: string) => void = () => undefined,
     // Every step a turn takes, collapsed in the panel: the entries say what the
     // turn produced, and this says what it did to get there.
-    readonly publishStepTakenFn: (step: TurnStep) => void = () => undefined,
+    readonly publishProgressLineFn: (step: ProgressLine) => void = () => undefined,
   ) {}
 
   static silent(): TurnProgressPublisher {

@@ -1,5 +1,5 @@
 import { ChatMessage, ToolCall } from '../../model/providers/types'
-import { PanelStep } from '../models/panel-state'
+import { ProgressLine } from '../models/panel-state'
 import { LoadedSkills } from './loaded-skills'
 import { PartName, RecordedEnding, RecordedTurnStep } from './models/transcript-record'
 import { TranscriptEntryLines } from './transcript-entry-lines'
@@ -29,7 +29,7 @@ export class TranscriptTurnStep {
   static write(
     step: RecordedTurnStep,
     history: TurnStepHistory,
-    panelSteps: readonly PanelStep[],
+    progressLines: readonly ProgressLine[],
     ending: RecordedEnding | null,
     skills: LoadedSkills,
   ): string[] {
@@ -40,7 +40,7 @@ export class TranscriptTurnStep {
       '',
       ...TranscriptTurnStep.response(history.answered),
       '',
-      ...TranscriptTurnStep.harness(panelSteps, ending, history.harnessNotes),
+      ...TranscriptTurnStep.harness(progressLines, ending, history.harnessNotes),
     ]
   }
 
@@ -75,13 +75,13 @@ export class TranscriptTurnStep {
   // turn goes on. The model never ends a turn, so a step that ends one is a
   // harness verdict on what the tool calls returned.
   private static harness(
-    panelSteps: readonly PanelStep[],
+    progressLines: readonly ProgressLine[],
     ending: RecordedEnding | null,
     harnessNotes: readonly ChatMessage[],
   ): string[] {
     return [
       'Harness',
-      ...panelSteps.map(TranscriptEntryLines.step),
+      ...progressLines.map(TranscriptEntryLines.line),
       ...harnessNotes.map((message) => `- ${message.content}`),
       `- Outcome: ${ending?.kind ?? 'continue'}`,
     ]

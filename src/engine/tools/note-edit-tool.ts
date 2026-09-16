@@ -1,5 +1,6 @@
 import { ToolCall } from '../../model/providers/types'
-import { EditOperation, NoteEditor } from '../note-editing/note-editor'
+import { EditOperation } from '../note-editing/note-editor'
+import { TargetNoteWriter } from '../note-editing/target-note-writer'
 import { NoteChoiceService } from '../waiting/note-choice-service'
 import { NoteOperationParser } from '../note-editing/note-operation-parser'
 import { OpenNote } from '../note-editing/open-note'
@@ -8,7 +9,7 @@ import { ToolCallOutcome } from '../tool-call-outcome'
 
 export class NoteEditTool {
   constructor(
-    private noteEditor: NoteEditor,
+    private targetNoteWriter: TargetNoteWriter,
     private turnRepository: TurnRepository,
     private noteChoiceService: NoteChoiceService,
   ) {}
@@ -45,7 +46,7 @@ export class NoteEditTool {
     op: EditOperation,
     note: OpenNote,
   ): Promise<ToolCallOutcome> {
-    const refusal = this.refuseUncurrentWrite(call, note)
+    const refusal = await this.refuseUncurrentWrite(call, note)
     if (refusal) return refusal
     if (!(await this.noteChoiceService.confirmsWrite(note.path)))
       return ToolCallOutcome.of(`the user declined the write to ${note.path}`)
@@ -55,12 +56,15 @@ export class NoteEditTool {
   // A rewrite applies whatever it is given where an anchor fails loudly, so it
   // is refused unless the model read this note this turn and the note still
   // matches what that read returned.
-  private refuseUncurrentWrite(call: ToolCall, note: OpenNote): ToolCallOutcome | null {
+  private async refuseUncurrentWrite(
+    call: ToolCall,
+    note: OpenNote,
+  ): Promise<ToolCallOutcome | null> {
     if (!this.turnRepository.notesRead.includes(note.path))
       return ToolCallOutcome.of(
         `call read_note on ${note.path} in this turn before writing the whole of it`,
       )
-    if (note.editor.getValue() !== call.argument('read_content'))
+    if ((await this.targetNoteWriter.read(note)) !== call.argument('read_content'))
       return ToolCallOutcome.of(
         `${note.path} has changed since you read it; read it again and rewrite from what it says now`,
       )
@@ -73,8 +77,12 @@ export class NoteEditTool {
   // The content is not echoed: the model sent it one message earlier, and a
   // dictated paragraph makes that cost unbounded. The path and the line are
   // short and fixed-cost, and are what the model cannot infer.
-  private applyOperation(tool: string, op: EditOperation, note: OpenNote): ToolCallOutcome {
-    const result = this.noteEditor.apply(note.editor, note.details(), op)
+  private async applyOperation(
+    tool: string,
+    op: EditOperation,
+    note: OpenNote,
+  ): Promise<ToolCallOutcome> {
+    const result = await this.targetNoteWriter.write(note, op)
     if (result.applied)
       return ToolCallOutcome.edited(
         `${tool} applied to ${note.path}, ending at line ${result.endedAt.line + 1}`,

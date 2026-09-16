@@ -14,7 +14,7 @@ import { TranscriptRepository } from '../session/transcript/transcript-repositor
 import { TranscriptBuilder } from '../session/transcript/transcript-builder'
 import { SessionRepository } from '../session/session-repository'
 import { NoteName } from '../session/models/note-name'
-import { PanelEntry } from '../session/models/panel-state'
+import { PanelItem } from '../session/models/panel-state'
 import { RestoredText } from '../session/models/restored-text'
 import { StoredMessages, SessionSnapshot } from '../session/models/session-snapshot'
 import { RestoredCounts } from '../session/transcript/models/restored-counts'
@@ -105,7 +105,7 @@ export class SessionPanelPropsBuilder {
     leaf: LeafPresence,
     startNewSessionFn: () => void,
     onObsidianBackgroundedFn: (listenerFn: () => void) => () => void,
-    entries: PanelEntry[],
+    entries: PanelItem[],
     sessions: SessionRepository,
     // Built here rather than in EngineFactory, which returns only an EditEngine:
     // the panel reads both, and a recorded step is only meaningful beside the
@@ -135,13 +135,13 @@ export class SessionPanelPropsBuilder {
     }
   }
 
-  // The restored entries carry the previous session's panel steps and turns, so
+  // The restored entries carry the previous session's progress lines and turns, so
   // a step recorded now has to index past them. The record holds no count of
   // either, so both are read back off the entries it does hold.
   private static countsIn(stored: SessionSnapshot, messages: number): RestoredCounts {
     return RestoredCounts.of(
       messages,
-      TranscriptTurn.allPanelSteps(stored.entries).length,
+      TranscriptTurn.allProgressLines(stored.entries).length,
       TranscriptTurn.split(stored.entries).length,
     )
   }
@@ -173,7 +173,7 @@ export class SessionPanelPropsBuilder {
       cancelTurn: () => engine.cancelTurn(),
       onInstructions: (listener) => listeners.subscribe(listener),
       onWarning: (listener) => session.warnings.subscribe(listener),
-      onStep: (listener) => session.steps.subscribe(listener),
+      onProgressLine: (listener) => session.steps.subscribe(listener),
       onAnswer: (listener) => session.answers.subscribe(listener),
       onTargetNoteChanged: (listener) => session.retargets.subscribe(listener),
       onChoiceRequested: (listener) => askers.choices.subscribe(listener),
@@ -228,7 +228,7 @@ type EnginePanelProps = Pick<
   | 'cancelTurn'
   | 'onInstructions'
   | 'onWarning'
-  | 'onStep'
+  | 'onProgressLine'
   | 'onAnswer'
   | 'onTargetNoteChanged'
   | 'onChoiceRequested'

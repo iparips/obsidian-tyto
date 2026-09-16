@@ -1,11 +1,13 @@
 import { ToolCall, ToolSchema } from '../../model/providers/types'
 import { ObsidianCommandRunner } from '../../commands/obsidian-command-runner'
 import { NoteReader } from '../../search/note-reader'
+import { Attempt, Outcomes } from '../../shared/models/outcome'
+import { TargetNoteWriter } from '../note-editing/target-note-writer'
 import { NotesOpenedCounter } from '../turn/notes-opened-counter'
 import { ObsidianCommandCatalogue } from '../../commands/obsidian-command-catalogue'
 import { AllowedObsidianCommand } from '../../commands/models/allowed-obsidian-command'
 import { ToolCatalogue } from './tool-schemas'
-import { TurnStep } from '../turn-step'
+import { ProgressLine } from '../progress-line'
 import { HarnessResult, Refusal, TurnState } from './harness-result'
 import { ObsidianCommandRanResult, OpenNoteResult, TextResult } from './harness-results'
 import { SearchToolsService } from './search-tools-service'
@@ -20,6 +22,10 @@ export class HarnessToolsService {
     private searchEnabled: boolean,
     private searchToolsService: SearchToolsService,
     private dateToolService: DateToolService,
+    // A read of the turn's own note comes from where its writes go, so an
+    // anchor the model matches is one the write will find (D1). Null in the
+    // tests that exercise a tool having nothing to do with the target.
+    private targetNoteWriter: TargetNoteWriter | null = null,
     // Auto mode opens the first note the model offers, so the tool that asks is
     // absent rather than answering itself (FR13). A flag here rather than a
     // branch in the loop, so the offered set states the mode in one place.
@@ -95,10 +101,19 @@ export class HarnessToolsService {
   // and the model retries the edit it cannot land.
   private async readNote(call: ToolCall, turn: TurnState): Promise<HarnessResult> {
     const path = call.argument('path')
-    const contentsOutcome = await this.noteReader.read(path)
+    const contentsOutcome = await this.readContents(path, turn)
     if (contentsOutcome.hasFailed()) return Refusal.of(contentsOutcome.message)
     turn.pathsReturnedByVault.recordPaths([path])
     turn.notesRead.record(path)
-    return new TextResult(contentsOutcome.value, TurnStep.read(path))
+    return new TextResult(contentsOutcome.value, ProgressLine.read(path))
+  }
+
+  // The turn's own note reads from the editor holding it, every other note from
+  // the file (D1). A tab that moved has no editor of the target to read, so the
+  // writer answers from the file and the read is stale rather than wrong.
+  private async readContents(path: string, turn: TurnState): Promise<Attempt<string>> {
+    const target = turn.targetNote()
+    if (!this.targetNoteWriter || target?.path !== path) return this.noteReader.read(path)
+    return Outcomes.success(await this.targetNoteWriter.read(target))
   }
 }
