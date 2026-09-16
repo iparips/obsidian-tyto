@@ -9,7 +9,11 @@ Recording is the only running phase the panel says nothing about. A click that
 missed, a muted microphone, and a dictation running five minutes all look the
 same: one button reading Stop.
 
+- [0-prompt.md](0-prompt.md) - the block to hand a fresh session that will build it
 - [2-requirements.md](2-requirements.md) - the three claims a recording panel owes the user, and the strip that makes them
+- [3-design.md](3-design.md) - the shared stream, the hook that owns the audio graph, and the strip's slot
+- [4-decisions.md](4-decisions.md) - three resolved decisions and the iOS assumption that shapes the hook
+- [5-tasks.md](5-tasks.md) - three commits, and what only a real device can check
 
 The proposal is a recording strip where the pending line already sits, holding a
 live level meter and an elapsed clock, plus a record button that carries the
@@ -32,6 +36,6 @@ The strip is also where streaming capture's live partials land, so
 [desktop-v1](../../1-upcoming/desktop-v1/3-streaming-capture.md) inherits the row rather than
 inventing one.
 
-One open question changes the design: whether the meter shares the recorder's
-MediaStream or opens its own. Sharing needs Recorder to expose the stream it
-holds privately today.
+The meter shares the recorder's MediaStream rather than opening its own, so
+Recorder exposes the stream it holds privately today. That is also the safer
+half on iOS, where a second track on one device is where capture breaks.

@@ -1,0 +1,67 @@
+---
+created: 2026-09-16
+updated: 2026-09-16
+---
+
+# Decisions
+
+## Requirements
+
+### Decisions
+
+#### D1: Does the meter share the recorder's stream or open its own? [resolved 2026-09-16]
+
+Shares it. Ilya: share the recorder stream.
+
+| Option                | Cost                                                     |
+| --------------------- | -------------------------------------------------------- |
+| Share the stream      | Recorder and RecorderPort each gain one accessor         |
+| A second getUserMedia | A second permission prompt, and two tracks on one device |
+
+Sharing is also the safer half on iOS, where a second track on the same device
+is where capture tends to break. Recorder already reaches through to the stream
+when releasing tracks, so exposing it adds no new coupling.
+
+#### D2: Does the clock sit in the strip or the header? [resolved 2026-09-16]
+
+In the strip, beside the meter. Ilya: clock besides the meter is fine.
+
+The header already carries the note name and a running flag. Keeping the two
+live facts together means a user watching the level is not also looking up.
+
+#### D3: Does a long dictation earn a warning? [resolved 2026-09-16]
+
+No. Ilya: no long dictation warning is fine.
+
+Nothing breaks at any length. The transcription limits are 60 minutes and 500
+MB, which no dictation reaches, so a warning would be about the user's attention
+rather than the system's.
+
+### Assumptions
+
+- A meter that moves with the signal is what proves the microphone is live. The
+  requirements argue this and the design follows it. If the bars turn out to be
+  unreadable at panel width, the clock alone still answers two of the three
+  claims, and the meter is the part to rethink.
+
+## Design
+
+### Assumptions
+
+- The AudioContext can be created inside the record-button handler and iOS will
+  not suspend it. WebKit suspends a context created outside a user gesture, and
+  Obsidian on iOS is a WKWebView, so it follows Safari's rules rather than
+  Chrome's. If it suspends, the meter needs an explicit resume() on the same
+  gesture, which is a small change but only findable on a device.
+- AnalyserNode reads a MediaStream the same way on all three platforms.
+  Archived spec [2-mobile-mvp](../../3-archived/2-mobile-mvp/1-index.md) records
+  that capture already differs by platform, iOS producing mp4 and Android webm,
+  but that difference is in the recorded blob rather than in the live stream the
+  analyser reads. If the meter is dead on one platform and not another, this
+  assumption is where to look first.
+- Widening RecorderPort costs its implementors nothing. The hook codes against
+  the port rather than the class, and the fakes in the panel tests implement it,
+  so each gains one method returning null.
+- The strip renders where PendingEntry does, so it inherits the history's
+  scrolling and needs no layout of its own. If it instead has to pin to the
+  bottom of the list, that is a layout change the design does not carry.
