@@ -64,17 +64,18 @@ describe('SessionPanel', () => {
       expect(container.querySelector('.tyto-history')?.contains(strip)).toBe(false)
     })
 
-    it('puts the strip above the input row', async () => {
+    // The row keeps its shape, so the buttons stay under the thumb that reached
+    // for them and only the field between them changes.
+    it('puts the strip between the buttons, where the instruction field was', async () => {
       const { container } = renderPanel()
 
       await userEvent.click(screen.getByRole('button', { name: 'Record' }))
 
-      const rows = container.querySelectorAll('.tyto-recording-strip, .tyto-input-row')
-      expect([...rows].map((row) => row.className)).toEqual([
-        'tyto-recording-strip',
-        'tyto-input-row',
-      ])
-      expect(rows).toHaveLength(2)
+      const row = container.querySelector('.tyto-input-row')
+      const labels = [...(row?.children ?? [])].map(
+        (child) => child.getAttribute('aria-label') ?? child.className,
+      )
+      expect(labels).toEqual(['Stop recording', 'Recording', 'Cancel'])
     })
 
     it('hides the instruction field, which is disabled while recording anyway', async () => {
