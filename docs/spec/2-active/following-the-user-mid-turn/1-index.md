@@ -14,14 +14,17 @@ Following the user is the rule and stays. What a running turn does about it, and
 what a batch does when one of its anchors goes stale, are what this settles.
 
 - [2-requirements.md](2-requirements.md) - the two defects, and the batch table showing how the anchors drifted
-- [3-decisions.md](3-decisions.md) - what a retargeted turn does, and whether a batch stops at the first refusal
+- [3-decisions.md](3-decisions.md) - a turn finishing what it started, and whether a batch stops at the first refusal
 - [8-transcripts.md](8-transcripts.md) - the reported session, where note context v4 is the retarget
 
-No design or tasks file yet. D1 and D3 are both blocking: one decides whether a
-retargeted turn ends, defers or continues, the other whether the fix sits in the
-executor loop or the anchor check.
+A running turn now finishes on the note it started, so the session follows the
+user and the turn carries out the utterance it was given. Nothing needs telling
+the model, which leaves archived spec 33's removal of the history message
+standing.
+
+No design or tasks file yet. D3 is blocking: it decides whether the batch fix
+sits in the executor loop or in the anchor check.
 
 Downstream of
 [33-reporting-what-a-turn-did](../../3-archived/33-reporting-what-a-turn-did/1-index.md),
-which removed the history message this partly restores and left the batch
-question open.
+which left the batch question open as D4.
