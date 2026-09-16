@@ -1,7 +1,7 @@
-import { TytoSettings } from './settings'
+import { TytoSettings } from '../settings'
 import { AllowListEditor } from './AllowListEditor'
-import { ObsidianCommandSearch } from '../commands/obsidian-command-search'
-import { AllowedObsidianCommand } from '../commands/models/allowed-obsidian-command'
+import { ObsidianCommandSearch } from '../../commands/obsidian-command-search'
+import { AllowedObsidianCommand } from '../../commands/models/allowed-obsidian-command'
 
 export interface SettingsPanelProps {
   settings: TytoSettings

@@ -126,10 +126,16 @@ which hold a folder of their own:
 | note-editing  | The note editor, its parser and positions                      |
 | note-binding  | Resolving and opening the target note                          |
 
-Session's views outgrew the limit as one concept, so it is the one place that
-splits by kind: views/ holds the React components, views/hooks/ the four
+Views are the one thing that splits by kind, and they split the same way in
+every package that renders: views/ holds the React components, views/hooks/ the
 subscription hooks, and views/obsidian/ what extends an Obsidian class rather
-than rendering React.
+than rendering React. Session and settings both follow it, so nothing outside a
+views/ folder imports React.
+
+That rule is positional like the construction rule above it, and for the same
+reason. A reader who wants the UI opens views/; a reader who wants the logic
+knows the rest of the package is free of it. Both are checkable by reading a
+path.
 
 The root holds only what spans the folders. The placement test for tools/ is
 written down: a tool takes a ToolCall and returns a result, so NoteEditor,
@@ -169,7 +175,7 @@ own. Tests are counted against their own folder and exempt from the limit.
 | model    | 4    | prompt 6, its sections 7, providers 3, providers/models 3                                                   | 6     |
 | search   | 5    | models 6                                                                                                    | 7     |
 | session  | 10   | views 10, views/hooks 5, views/obsidian 2, models 8, transcript 9, transcript/models 4                      | 24    |
-| settings | 8    | -                                                                                                           | 5     |
+| settings | 1    | views 6, views/obsidian 1                                                                                   | 5     |
 | skills   | 4    | -                                                                                                           | 3     |
 | wiring   | 4    | -                                                                                                           | 2     |
 

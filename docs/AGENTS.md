@@ -40,10 +40,15 @@ what this repo decided.
   NoteEditor takes an EditOperation, so it lives in note-editing.
 - Smaller packages keep a models/ folder for value objects, so skills keeps
   skill.ts beside skill-repository.ts rather than alone in one.
-- views/ holds React components and Obsidian view classes. A component holds
-  what it decides; subscriptions that only dispatch go in a hook that declares
-  its own ports interface, as useEngineEvents does.
-- tests/ holds the package's tests.
+- Anything that renders lives under views/, in every package that renders.
+  Nothing outside a views/ folder imports React. Both rules are greppable, which
+  is why they are written this way rather than as a judgement call.
+- views/ holds the React components, views/hooks/ the subscription hooks, and
+  views/obsidian/ what extends an Obsidian class rather than rendering React. A
+  component holds what it decides; subscriptions that only dispatch go in a hook
+  that declares its own ports interface, as useEngineEvents does.
+- tests/ holds the package's tests, beside the code under test. A views/ folder
+  keeps its own views/tests/.
 
 Session is the UI package. Dependencies point one way apart from two open
 cycles, model to engine and engine to session, and

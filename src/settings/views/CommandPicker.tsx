@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ObsidianCommandSearch } from '../commands/obsidian-command-search'
+import { ObsidianCommandSearch } from '../../commands/obsidian-command-search'
 import { CommandMatchRow } from './CommandMatchRow'
 
 export interface CommandPickerProps {
