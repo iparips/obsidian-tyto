@@ -7,10 +7,11 @@ import { SessionView, VIEW_TYPE_SESSION } from '../session/views/obsidian/sessio
 export class SessionLeaf {
   constructor(private app: App) {}
 
-  // Null when the leaf could not be opened, which leaves the caller with no
-  // session to bind rather than a half-built one.
+  // Null leaves the caller with no session to bind rather than a half-built one.
   async reveal(): Promise<SessionView | null> {
     const leaf = await this.leaf()
+    // In exceptional cases, Obsidian gives no sidebar leaf, so there is
+    // nothing to reveal and nothing to build a session in.
     if (!leaf) return null
     await this.app.workspace.revealLeaf(leaf)
     return leaf.view instanceof SessionView ? leaf.view : null
