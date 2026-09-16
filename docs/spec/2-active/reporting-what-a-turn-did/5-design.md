@@ -126,6 +126,14 @@ already carries endedAt, and the note is in hand as the OpenNote it was given.
 The content is not echoed: the model sent it one message earlier, and a dictated
 paragraph makes that cost unbounded.
 
+The operation is the tool name the model called, not the parsed EditOperation
+kind: the model reads back the name it sent rather than an internal word for it.
+
+The panel keeps the short form. ToolDispatcher publishes the result as an Edit
+step beside the note path, so the fuller sentence would name the note twice.
+ToolCallOutcome gains a panel summary and descriptionForUser, which is the
+repo's convention for a value both the model and the panel read.
+
 ## Unit Tests
 
 In [6-unit-tests.md](6-unit-tests.md), broken out to keep this file under the
