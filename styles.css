@@ -405,12 +405,15 @@
    yet either, so the strip sits where the reply will land rather than reading
    as an entry. */
 .tyto-recording-strip {
+  /* Takes the instruction field's place in the row, so it grows the same way
+     and the buttons either side do not move. */
+  flex: 1 1 auto;
   display: flex;
   align-items: center;
   gap: var(--size-4-2);
+  min-width: 0;
   color: var(--text-muted);
   font-size: var(--font-ui-smaller);
-  padding: var(--size-4-1) var(--size-4-2) 0;
 }
 
 /* Takes the width the clock leaves, and shrinks rather than wrapping, since the

@@ -143,13 +143,15 @@ export const SessionPanel = (props: SessionPanelProps) => {
         onPickSuggestion={pickSuggestion}
         onRetry={recorded.retry}
       />
-      <RecordingStrip
-        phase={state.phase}
-        levels={recordingLevel.levels}
-        elapsedSeconds={recordingLevel.elapsedSeconds}
-      />
       <InputRow
         phase={state.phase}
+        recordingStrip={
+          <RecordingStrip
+            phase={state.phase}
+            levels={recordingLevel.levels}
+            elapsedSeconds={recordingLevel.elapsedSeconds}
+          />
+        }
         draft={draft}
         onDraftChange={setDraft}
         onSend={sendDraft}
