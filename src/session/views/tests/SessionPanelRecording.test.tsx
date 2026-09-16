@@ -75,7 +75,7 @@ describe('SessionPanel', () => {
       const labels = [...(row?.children ?? [])].map(
         (child) => child.getAttribute('aria-label') ?? child.className,
       )
-      expect(labels).toEqual(['Stop recording', 'Recording', 'Cancel'])
+      expect(labels).toEqual(['Send recording', 'Recording', 'Cancel'])
     })
 
     it('hides the instruction field, which is disabled while recording anyway', async () => {
