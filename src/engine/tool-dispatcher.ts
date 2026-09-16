@@ -288,6 +288,10 @@ export class ToolDispatcher {
   // the note it moved from is the one mobile just detached, so keeping it
   // strands the session on a note no retry can reach.
   private async moveSessionTargetNoteTo(path: string): Promise<boolean> {
+    // Read before the bind, because the command runner awaits the open: Obsidian
+    // fires file-open first, so followActiveNote has already bound and published
+    // by the time this runs. Publishing again says the note changed twice.
+    const alreadyBound = this.sessionRepository.targetNote() === path
     this.sessionRepository.bindTo(path)
     const maybeNote = await this.targetNoteResolver.resolveOrNothing()
     if (maybeNote === null) {
@@ -295,7 +299,7 @@ export class ToolDispatcher {
       return false
     }
     this.turnRepository.retargetTo(maybeNote)
-    this.turnProgressPublisher.retargetedFn(path)
+    if (!alreadyBound) this.turnProgressPublisher.retargetedFn(path)
     return true
   }
 }
