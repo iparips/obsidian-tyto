@@ -22,10 +22,14 @@ user and the turn carries out the utterance it was given. Nothing needs telling
 the model, which leaves archived spec 33's removal of the history message
 standing.
 
-No design or tasks file yet. D3 and D5 are blocking, and they are one question:
-whether a scattered edit should be one whole-note write rather than a batch of
-anchored ones, and what guard a whole-note write would need to fail as loudly as
-an anchor does.
+No design or tasks file yet. D5 is the last blocking decision: a whole-note write
+needs a guard, because an anchored edit fails loudly on a stale picture where a
+rewrite applies whatever it was given. Obsidian's own undo reverses a model edit,
+which lowers the cost of that without removing the need for the guard.
+
+3-decisions.md runs over the file limit at five decisions. It shrinks when D5
+and D4 resolve, so it is left whole rather than split into files too small to
+be worth opening.
 
 Downstream of
 [33-reporting-what-a-turn-did](../../3-archived/33-reporting-what-a-turn-did/1-index.md),
