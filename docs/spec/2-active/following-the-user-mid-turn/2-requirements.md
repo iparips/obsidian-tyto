@@ -57,9 +57,15 @@ Archived spec 33 raised this as D4 and left it open, on the grounds that the
 case was narrower than the one reported. This session is that case, and it cost
 the user's todo file.
 
-An edit scattered across a note, which archiving is, may be the wrong shape for
-anchored edits altogether: one rewrite has no siblings to go stale against. That
-is D3's first option, and D5 costs out the guard it would need.
+An edit scattered across a note, which archiving is, is the wrong shape for
+anchored edits: one rewrite has no siblings to go stale against. A whole-note
+tool takes all three guards D5 settled, so it refuses unless the model read the
+note this turn, refuses when the note moved under what it carries, and asks
+before it lands.
+
+That leaves the anchored tools, which stay for the edits a rewrite would be
+heavy-handed for. D6 asks what stops their anchors drifting, since the note
+context is rebuilt per turn step rather than per tool call.
 
 ## Steps to Replicate
 
