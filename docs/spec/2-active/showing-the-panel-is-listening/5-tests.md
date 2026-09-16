@@ -17,7 +17,7 @@ updated: 2026-09-16
 Given the panel is idle
 When  the user presses the record button
 Then  the instruction field is replaced by a clock and a trail of bars
-And   the record button reads Stop in the accent colour
+And   the record button reads Send in the accent colour
 And   the record and cancel buttons stay where they were
 ```
 

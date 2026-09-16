@@ -39,7 +39,7 @@ instruction field's place in the input row, so the buttons either side stay put.
 | -------------------- | ------------------------ | ---------------------------------------- |
 | Strip placement      | Nothing                  | The instruction field's place in the row |
 | History, other waits | The pending line         | Unchanged                                |
-| Record button        | Reads Stop               | Reads Stop in the accent colour          |
+| Record button        | Reads Stop, unaccented   | Reads Send in the accent colour          |
 | Instruction field    | Disabled while recording | Hidden while recording                   |
 | Audio context        | None                     | One, open only while the stream is       |
 | PanelState           | No recording entry       | Unchanged, the strip is presentation     |
