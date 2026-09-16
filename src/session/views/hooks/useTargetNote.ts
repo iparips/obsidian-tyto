@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { NoteName } from '../../models/note-name'
+import { RetargetReport } from '../../session-listeners'
 
 export interface TargetNotePorts {
   // Null while the session is unbound, which the header says rather than naming
@@ -8,7 +9,7 @@ export interface TargetNotePorts {
   // The path from the vault root, beneath the name, so two notes sharing a name
   // are told apart (FR14).
   notePath?: string | null
-  onTargetNoteChanged?(listenerFn: (path: string | null) => void): () => void
+  onTargetNoteChanged?(listenerFn: (report: RetargetReport) => void): () => void
 }
 
 export interface TargetNote {
@@ -25,7 +26,7 @@ export const useTargetNote = (ports: TargetNotePorts): TargetNote => {
 
   useEffect(
     () =>
-      ports.onTargetNoteChanged?.((changedTo) => {
+      ports.onTargetNoteChanged?.(({ path: changedTo }) => {
         setName(changedTo === null ? null : NoteName.of(changedTo))
         setPath(changedTo)
       }),

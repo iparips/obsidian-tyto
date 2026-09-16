@@ -299,7 +299,7 @@ export class ToolDispatcher {
       return false
     }
     this.turnRepository.retargetTo(maybeNote)
-    if (!alreadyBound) this.turnProgressPublisher.retargetedFn(path)
+    if (!alreadyBound) this.turnProgressPublisher.retargetedFn(path, false)
     return true
   }
 }
