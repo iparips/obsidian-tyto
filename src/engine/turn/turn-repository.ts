@@ -4,6 +4,7 @@ import { AgentsMdChain } from '../../agents/agents-md-chain'
 import { ResolvedNote } from '../note-binding/resolved-note'
 import { NotesOpenedCounter } from './notes-opened-counter'
 import { NotesChosenByUserRepository } from './notes-chosen-by-user-repository'
+import { NotesReadRepository } from './notes-read-repository'
 import { PathsReturnedByVaultRepository } from './paths-returned-by-vault-repository'
 import { Skill } from '../../skills/skill'
 import { SkillsReadRepository } from '../../skills/skills-read-repository'
@@ -36,6 +37,10 @@ export class TurnRepository {
   // NotesChosenByUserRepository the session supplied would outlive the write the user consented
   // to, and a second turn would open the note without asking.
   readonly notesChosenByUser = new NotesChosenByUserRepository()
+
+  // Built here for the same reason: the note can change between turns, so a
+  // read recorded in an earlier one says nothing about the note now.
+  readonly notesRead = new NotesReadRepository()
 
   // Null while the session is unbound, which is a turn that can search but not
   // write.
