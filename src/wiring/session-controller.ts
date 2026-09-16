@@ -19,21 +19,13 @@ export class SessionController {
     private scope: PluginScope,
     private leaf: SessionLeaf,
     private sessionFileStore: SessionFileStore,
-    // The two registrations only the plugin can make, since both register
-    // against its lifetime and are unregistered when it unloads. The file is
-    // every file, not only notes: Obsidian announces canvases, PDFs and Bases
-    // files through the same event, and null once nothing is open.
     private onObsidianFileOpenedFn: (listenerFn: (file: TFile | null) => void) => void,
     private onObsidianBackgroundedFn: (listenerFn: () => void) => () => void,
-    // From the manifest, so a transcript read months later says which build of
+    // So that a transcript read months later says which build of
     // the plugin produced it.
     private pluginVersion: string,
   ) {}
 
-  // A session starts whether or not a note is open: unbound, it searches and
-  // answers, and binds to the first note the user opens. A session already
-  // running is left alone, since it binds to the open note as it is assembled
-  // and follows the user from there.
   async openSession(): Promise<void> {
     const view = await this.leaf.reveal()
     if (!view) return
