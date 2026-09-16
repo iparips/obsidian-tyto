@@ -102,7 +102,7 @@ once the five-minute detail landed, because the limits it works around are sixty
 minutes and 500 MB and no dictation reaches them.
 
 A recording that does reach an hour is a real but different problem, and
-streaming in [desktop-v1](../../1-upcoming/desktop-v1/3-streaming-capture.md)
+streaming in [desktop-v1](../../1-upcoming/2026-09-14b-desktop-v1/3-streaming-capture.md)
 removes it properly rather than working around it.
 
 ## What holding the audio does not promise
@@ -239,7 +239,7 @@ And   a retry control is offered
   it on the entry, beside the failure it undoes.
 - Whether a user who wants a hide to discard should be able to choose that. The
   onBackground setting in
-  [mobile-v1](../../1-upcoming/mobile-v1/2-component-design.md) is where the
+  [mobile-v1](../../1-upcoming/2026-09-14c-mobile-v1/2-component-design.md) is where the
   choice belongs; this spec ships one behaviour rather than a setting with one
   option.
 - Whether a lock screen should be told apart from an app switch. It cannot be:
@@ -258,5 +258,5 @@ And   a retry control is offered
 ### Project
 
 - [22-session-persistence](../22-session-persistence/2-requirements.md) - where discarding audio on background was deferred, and where WebView eviction is recorded
-- [mobile-v1](../../1-upcoming/mobile-v1/2-component-design.md) - the onBackground setting this spec defers to
-- [desktop-v1](../../1-upcoming/desktop-v1/3-streaming-capture.md) - streaming, which removes the duration limit properly
+- [mobile-v1](../../1-upcoming/2026-09-14c-mobile-v1/2-component-design.md) - the onBackground setting this spec defers to
+- [desktop-v1](../../1-upcoming/2026-09-14b-desktop-v1/3-streaming-capture.md) - streaming, which removes the duration limit properly

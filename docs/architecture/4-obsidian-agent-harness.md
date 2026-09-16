@@ -36,4 +36,4 @@ The binding moves as a tool result, never silently. The model is told the target
 
 ## Out of Scope
 
-Search-and-edit, creating a note at a model-chosen path, and multi-file writes. The first two are the same risk: a destination the model picked rather than one Obsidian computed. Multi-file writes arrive in [cross-file-skills/index.md](../spec/1-upcoming/cross-file-skills/1-index.md).
+Search-and-edit, creating a note at a model-chosen path, and multi-file writes. The first two are the same risk: a destination the model picked rather than one Obsidian computed. Multi-file writes arrive in [cross-file-skills/index.md](../spec/1-upcoming/2026-09-14a-cross-file-skills/1-index.md).

@@ -84,9 +84,9 @@ file. A whole-note write applies whatever it was given.
 
 Undo answers half of it. Every edit goes through `editor.replaceRange`, the
 CodeMirror API Obsidian gives a plugin, and nothing in the tree writes to the
-vault directly. So a model's edit sits in the editor's own undo stack and Ctrl-Z
+vault directly. So a model's edit sits in the editor's own undo stack and one undo
 reverses it, exactly as it reverses a typed one. A whole-note write is one
-`replaceRange` over the full range, so one Ctrl-Z takes it back.
+`replaceRange` over the full range, so one editor undo takes it back.
 
 That is weaker than it sounds, for three reasons worth stating rather than
 discovering. The stack is per editor, so closing the tab loses it. A batch of

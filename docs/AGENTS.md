@@ -4,6 +4,12 @@ Repo-specific conventions for AI coding agents. Branching rules are in the root
 [AGENTS.md](../AGENTS.md); human setup and build commands are in
 [CONTRIBUTING.md](CONTRIBUTING.md).
 
+The architecture docs are indexed at
+[architecture/0-index.md](architecture/0-index.md). Read
+[architecture/12-the-panel-vocabulary.md](architecture/12-the-panel-vocabulary.md)
+before naming anything a turn, a step or a target: one concept takes one word
+here, and those three are the ones most often confused.
+
 ## Skill Inputs
 
 Values a skill resolves rather than hardcodes. A row here beats the same row in
@@ -38,7 +44,7 @@ what this repo decided.
 
 - Engine splits into six concept folders: turn, tools, skill-gating, waiting,
   note-editing, note-binding. The root holds only what spans them: EditEngine,
-  ToolDispatcher, TurnProgressPublisher, TurnStep, TurnEndingService,
+  ToolDispatcher, TurnProgressPublisher, ProgressLine, TurnEndingService,
   UtteranceQueue.
 - Construction knowledge lives in wiring, and only there: a file may construct a
   class from another package only if its path starts with src/wiring. Everything
@@ -123,14 +129,20 @@ Specs live under docs/spec, one folder per feature, in three buckets by state.
 A feature folder holds requirements, then design, then tasks. Read the spec
 before changing behaviour it describes, and update it when the behaviour moves.
 
-| Bucket     | Holds                         | Numbered |
-| ---------- | ----------------------------- | -------- |
-| 1-upcoming | Designed, no code in the tree | No       |
-| 2-active   | Being built now               | No       |
-| 3-archived | Built and shipped             | Yes      |
+| Bucket     | Holds                         | Folder prefix      |
+| ---------- | ----------------------------- | ------------------ |
+| 1-upcoming | Designed, no code in the tree | The date begun     |
+| 2-active   | Being built now               | The date begun     |
+| 3-archived | Built and shipped             | Its shipped number |
 
 A spec takes its number on the way into 3-archived, not on the way into
 1-upcoming. The number is chronological and permanent: commit messages and the
 architecture docs cite it, so a shipped spec keeps it even once superseded.
 Numbering unbuilt work instead forces a renumber every time something ships out
 of order.
+
+Before it ships, a spec folder carries the date work started instead:
+`2026-09-17-naming-what-a-turn-touched`. That sorts 1-upcoming and 2-active in
+the order they were begun, which a number cannot do without renumbering. Two
+specs begun the same day take a letter, `2026-09-17a-` and `2026-09-17b-`; a
+lone spec for a date takes none. The date comes off as the number goes on.

@@ -352,7 +352,7 @@ Where the user declines, the prompt says to ask rather than search:
 ## Out of Scope
 
 - Creating a note at a chosen path, which stays with
-  [cross-file-skills](../../1-upcoming/cross-file-skills/1-index.md).
+  [cross-file-skills](../../1-upcoming/2026-09-14a-cross-file-skills/1-index.md).
 - Excerpts or modification times beside a candidate. The path identifies a note
   in a vault organised by path, and a read per candidate costs what a glob
   deliberately avoids.

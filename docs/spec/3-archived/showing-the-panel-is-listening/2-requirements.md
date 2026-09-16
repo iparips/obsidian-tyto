@@ -22,7 +22,7 @@ That leaves three questions a dictation cannot answer:
 
 The third matters most on a phone, where the panel is the whole screen and a
 long dictation is the normal case.
-[28-not-losing-a-recording](../../3-archived/28-not-losing-a-recording/1-index.md)
+[28-not-losing-a-recording](../28-not-losing-a-recording/1-index.md)
 is the record of a five-minute dictation that was spoken twice.
 
 ## What the panel shows today
@@ -96,7 +96,7 @@ input row should not have to look up.
 - A pause control. Stop and Send is the whole gesture.
 - A countdown or a limit warning. No dictation reaches the limits.
 - Live partial transcripts. Those arrive with streaming capture in
-  [desktop-v1](../../1-upcoming/desktop-v1/3-streaming-capture.md), and the strip is the place
+  [desktop-v1](../../1-upcoming/2026-09-14b-desktop-v1/3-streaming-capture.md), and the strip is the place
   they will land.
 
 ## Constraints
@@ -129,9 +129,9 @@ publisher changes. The recording phase already exists.
 
 ### Project
 
-- [28-not-losing-a-recording](../../3-archived/28-not-losing-a-recording/1-index.md) - the lost five-minute dictation this is answering
-- [desktop-v1](../../1-upcoming/desktop-v1/3-streaming-capture.md) - streaming capture, which puts live partials in the strip's row
+- [28-not-losing-a-recording](../28-not-losing-a-recording/1-index.md) - the lost five-minute dictation this is answering
+- [desktop-v1](../../1-upcoming/2026-09-14b-desktop-v1/3-streaming-capture.md) - streaming capture, which puts live partials in the strip's row
 
 ### Architecture
 
-- [6-tidy-up-chat-panel](../../3-archived/6-tidy-up-chat-panel/3-component-design.md) - the three weights the panel uses, and where styling lives
+- [6-tidy-up-chat-panel](../6-tidy-up-chat-panel/3-component-design.md) - the three weights the panel uses, and where styling lives

@@ -8,7 +8,7 @@ updated: 2026-09-16
 Paste the block below into a fresh session to build this spec.
 
 ```text
-Build the spec in docs/spec/2-active/following-the-user-mid-turn. A turn was
+Build the spec in docs/spec/2-active/2026-09-16a-following-the-user-mid-turn. A turn was
 redirected to another note halfway through because the user opened it, and a
 batch of anchored edits corrupted the note it was archiving. Four commits.
 

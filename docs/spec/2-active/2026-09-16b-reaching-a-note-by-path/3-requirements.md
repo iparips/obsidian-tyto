@@ -95,4 +95,4 @@ than the one the tool opened.
 
 ### Project
 
-- [following-the-user-mid-turn](../following-the-user-mid-turn/1-index.md) - fixed the resolve that made the two diverge here, and left this
+- [following-the-user-mid-turn](../2026-09-16a-following-the-user-mid-turn/1-index.md) - fixed the resolve that made the two diverge here, and left this

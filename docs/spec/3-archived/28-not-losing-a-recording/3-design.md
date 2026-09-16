@@ -97,7 +97,7 @@ The edit the turn makes is the part that happened unwatched, and Obsidian's own
 undo reverses it. The transcript is the part that cannot be reconstructed, and
 sending is what preserves it.
 
-[mobile-v1](../../1-upcoming/mobile-v1/2-component-design.md) reaches the same
+[mobile-v1](../../1-upcoming/2026-09-14c-mobile-v1/2-component-design.md) reaches the same
 position as its onBackground default, on the grounds that losing dictated
 content is worse than a truncated utterance. A user who wants the other
 behaviour gets the setting there.
@@ -285,10 +285,10 @@ rather than to this path. It is not in this spec.
   hole above.
 - A choice between sending and holding on a hide. This spec always sends; the
   onBackground setting in
-  [mobile-v1](../../1-upcoming/mobile-v1/2-component-design.md) is where the
+  [mobile-v1](../../1-upcoming/2026-09-14c-mobile-v1/2-component-design.md) is where the
   other option lands.
 - Splitting a long recording, and any countdown or indicator for the limits.
-- Streaming capture, which is [desktop-v1](../../1-upcoming/desktop-v1/3-streaming-capture.md).
+- Streaming capture, which is [desktop-v1](../../1-upcoming/2026-09-14b-desktop-v1/3-streaming-capture.md).
 
 ## References
 
