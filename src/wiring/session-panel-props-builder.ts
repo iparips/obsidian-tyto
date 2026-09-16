@@ -17,6 +17,8 @@ import { NoteName } from '../session/models/note-name'
 import { PanelEntry } from '../session/models/panel-state'
 import { RestoredText } from '../session/models/restored-text'
 import { StoredMessages, SessionSnapshot } from '../session/models/session-snapshot'
+import { RestoredCounts } from '../session/transcript/models/restored-counts'
+import { TranscriptTurn } from '../session/transcript/models/transcript-turn'
 import { SessionRecorder } from '../session/session-recorder'
 import { SessionFileStore } from '../session/session-file-store'
 
@@ -94,7 +96,7 @@ export class SessionPanelPropsBuilder {
       // No target from the record: build reads the workspace for it. The
       // record names the note a session was on, not the note it comes back on.
       SessionRepository.restored(null, messages),
-      new TranscriptRepository(messages.length),
+      new TranscriptRepository(SessionPanelPropsBuilder.countsIn(stored, messages.length)),
     )
   }
 
@@ -131,6 +133,17 @@ export class SessionPanelPropsBuilder {
       recordHistory: (entries) => recorder.record(entries),
       ...SessionPanelPropsBuilder.enginePanelProps(engine, channels),
     }
+  }
+
+  // The restored entries carry the previous session's panel steps and turns, so
+  // a step recorded now has to index past them. The record holds no count of
+  // either, so both are read back off the entries it does hold.
+  private static countsIn(stored: SessionSnapshot, messages: number): RestoredCounts {
+    return RestoredCounts.of(
+      messages,
+      TranscriptTurn.allPanelSteps(stored.entries).length,
+      TranscriptTurn.split(stored.entries).length,
+    )
   }
 
   // Absent on a record written before the field existed, and unusable on one
