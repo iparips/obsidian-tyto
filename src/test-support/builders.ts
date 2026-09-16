@@ -85,7 +85,7 @@ export const anEngine = (modelProvider: ChatProvider, options: EnginePartsOption
     options.userQuestionService ?? (() => UserQuestionService.unanswered()),
     options.transcript ?? new TranscriptRepository(),
   )
-  return new EditEngine(options.sessions, turnFactory, progress, targetNote)
+  return new EditEngine(options.sessions, turnFactory, progress)
 }
 
 export const aSession = (path = 'note.md'): SessionRepository =>
