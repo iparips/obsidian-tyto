@@ -19,54 +19,50 @@ edits the note behind the user is worse than one that follows.
 
 ## In Scope
 
-### A running turn is redirected mid-instruction
+Four changes. The first answers the retarget; the other three replace the
+anchored batch, and they only work together.
 
-ConversationTurnRunner.retargetTo swaps the note the turn writes to and returns.
-The next step reads a different note context, and nothing in the conversation
-says why. Its own comment says the turn owns what it writes to, which is what
-the method disproves.
+### A running turn finishes on the note it started
 
-So the model spent three turns insisting the open note was the shopping list,
-which was true, and being unable to say how it got there.
+ConversationTurnRunner.retargetTo swaps the note a running turn writes to, so
+the turn carried on against the shopping list and the model could not say how it
+got there. It stops swapping: the session still binds to the new note when the
+event fires, and the running turn keeps the note it began on.
 
-A turn that finished what it started would not have been in that position. The
-session still binds to the new note when the event fires; what defers is the
-running turn's own target, so the utterance the user gave is carried out on the
-note they gave it about, and the next turn starts where they now are.
+The utterance the user gave is then carried out on the note they gave it about,
+and the next turn starts where they now are. Nothing is said to the model,
+because a turn that never sees the new note has nothing to be told.
 
-### A batch of edits anchors against content the batch has changed
+### One edit per step, enforced
 
-The model sent five replace_text calls computed from one snapshot. They apply in
-order, each against the note the one before it changed. Edits one and two moved
-the content, so anchor three missed. The repair attempts then duplicated the
-Today items and left the Admin items twice under Archived.
+A second edit call in one step is refused. The note context is rebuilt per turn
+step, so an anchor is current when its step begins and stale the moment a
+sibling call lands. Enforcing the boundary pairs every anchor with the read that
+preceded it, which is what the anchored tools always assumed.
 
-| Call | Anchor computed from | Note when it applied     | Outcome |
-|------|----------------------|--------------------------|---------|
-| 1    | The turn's snapshot  | Unchanged                | Applied |
-| 2    | The same snapshot    | Shifted by call 1        | Applied |
-| 3    | The same snapshot    | Shifted by calls 1 and 2 | Refused |
-| 4    | The same snapshot    | Shifted by 1 and 2       | Applied |
-| 5    | The same snapshot    | Shifted by 1, 2 and 4    | Applied |
+This is the fix. The two below are what make it affordable and what bounds the
+damage while a batch is still possible.
 
-The system prompt tells the model that multi-part instructions become multiple
-tool calls applied in order, so the batch is what it was asked for. What it is
-not told is that an anchor it computed is stale the moment a sibling call lands.
+### A whole-note write
 
-Archived spec 33 raised this as D4 and left it open, on the grounds that the
-case was narrower than the one reported. This session is that case, and it cost
-the user's todo file.
+A tool that replaces the note rather than anchoring into it, so a scattered edit
+costs one call rather than one step per line. Without it, one edit per step
+makes archiving twelve model calls.
 
-The note context is rebuilt per turn step, so an anchor is current when the step
-that computes it begins and stale the moment a sibling call lands. Enforcing one
-edit per step is what restores the pairing the anchored tools always assumed:
-one read, one edit, in that order.
+It carries three guards, since a rewrite applies whatever it is given where an
+anchor fails loudly: it is refused unless the model read the note this turn,
+refused when the note moved under the content it carries, and confirmed by the
+user before it lands.
 
-That makes a scattered edit expensive, which is why the whole-note write comes
-with it. Archiving becomes one call and one write rather than twelve steps, and
-it carries all three guards D5 settled: it refuses unless the model read the
-note this turn, refuses when the note moved under what it carries, and asks
-before it lands.
+Two prompt lines change with it. ModelsRole asks for a batch today, in the line
+that produced the reported session, and forbids a whole-note write in as many
+words. A skill whose workflow is inherently scattered, as the todo skill's
+archive is, says so in its own steps.
+
+### A batch stops at its first refusal
+
+A backstop rather than a fix. With one edit per step there is no batch of edits
+to stop, so this covers a batch mixing an edit with other calls.
 
 ## Steps to Replicate
 
@@ -85,6 +81,7 @@ and a model that retries from the same snapshot misses again.
 - [src/engine/turn/conversation-turn-runner.ts](../../../../src/engine/turn/conversation-turn-runner.ts) - open first: retargetTo, which swaps the note and tells no one
 - [src/engine/turn/tool-call-executor.ts](../../../../src/engine/turn/tool-call-executor.ts) - the loop applying a batch in order, where a stale anchor is caught or is not
 - [src/engine/edit-engine.ts](../../../../src/engine/edit-engine.ts) - followActiveNote, which decides a running turn follows at all
+- [7-analysis.md](7-analysis.md) - how the session reached the state it did, and the table of drifting anchors
 - [8-transcripts.md](8-transcripts.md) - the reported session, where note context v4 is the retarget
 
 ### Project
