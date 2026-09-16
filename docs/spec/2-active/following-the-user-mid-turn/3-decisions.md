@@ -9,42 +9,6 @@ updated: 2026-09-16
 
 ### Decisions
 
-#### D3: Does a batch stop at the first refused edit? [open, blocking]
-
-Archived spec 33 raised this as D4 and left it open, calling the case narrower
-than the one reported. The reported session is that case.
-
-| Option                                   | Cost                                                                  |
-|------------------------------------------|-----------------------------------------------------------------------|
-| A whole-note write for scattered edits   | A new tool, and it reverses a standing rule in the system prompt      |
-| Stop the batch at the first refusal      | A batch of independent edits loses the ones after the failure         |
-| Apply all, report each                   | What happens today, and what duplicated the user's content            |
-| Refuse the batch when anchors overlap    | Needs a rule for what overlapping means, computed before applying     |
-
-Blocking: it decides whether the fix is a new tool, a change to the executor
-loop, or an anchor check, and those are three different sizes of work.
-
-The first is Ilya's: an edit scattered across a note, such as archiving a todo
-list, is better expressed as one rewrite than as a line-by-line batch. It is the
-only option that removes the stale-anchor problem rather than detecting it,
-because a single write has no siblings to go stale against.
-
-Two things stand in its way, neither fatal. There is no whole-note tool: the
-three edit tools are replace_text, insert_text and insert_at, all anchored. And
-ModelsRole says "Never rewrite the whole note; make the smallest targeted edits
-that satisfy the instruction", so the rule needs narrowing rather than a tool
-added beside it.
-
-The rule exists for a reason worth keeping: a model rewriting a note it has only
-partly read loses whatever it did not echo back. Archiving is safe from that
-only because the todo skill has it read the file first. The narrowing is
-therefore not "rewrite when you like" but closer to "rewrite only what you read
-in full this turn", which D5 costs out.
-
-Stopping at the first refusal stays worth doing whichever way this lands: it is
-small, it sits in the executor loop, and it bounds the damage while a batch is
-still what the model sends.
-
 #### D5: What does a whole-note write cost, and what guards it? [open, blocking]
 
 Raised by D3's first option. A whole-note tool is the largest change this spec
@@ -60,14 +24,37 @@ The second row is the sharp one. An anchored edit fails safe on a stale picture,
 which is why the reported session cost three duplicated blocks rather than the
 file. A whole-note write applies whatever it was given.
 
-So the guard decides this, not the tool. Candidates, cheapest first: the write
-carries what the model last read and is refused when the note has changed since;
-the tool is offered only after a read_note this turn; the write takes the same
-confirmation an open does.
+Undo answers half of it. Every edit goes through `editor.replaceRange`, the
+CodeMirror API Obsidian gives a plugin, and nothing in the tree writes to the
+vault directly. So a model's edit sits in the editor's own undo stack and Ctrl-Z
+reverses it, exactly as it reverses a typed one. A whole-note write is one
+`replaceRange` over the full range, so one Ctrl-Z takes it back.
 
-Blocking, and the real question behind D3. A whole-note tool with no staleness
-guard trades a loud failure for a silent one, which is worse than what this spec
-set out to fix.
+That is weaker than it sounds, for three reasons worth stating rather than
+discovering. The stack is per editor, so closing the tab loses it. A batch of
+five anchored edits is five undos where one whole-note write is one, which
+favours the rewrite. And undo only helps a user who notices: a silent
+overwrite of a paragraph they had not looked at recently is one they may never
+think to undo.
+
+So undo lowers the cost of a wrong call without removing the need for a guard.
+It turns "the note" into "the note, until the tab closes", which is enough to
+make the tool worth having and not enough to ship it unguarded.
+
+The guard options, cheapest first:
+
+| Guard                                | Catches                                  | Cost                                       |
+|--------------------------------------|------------------------------------------|--------------------------------------------|
+| Refuse unless read_note ran this turn | A model writing from an earlier turn     | One flag on the turn repository            |
+| The write carries the content it read | The note changing under the model        | The full note in the tool call, both ways  |
+| The user confirms, as an open does    | Everything, at the cost of a prompt      | A wait on every scattered edit             |
+
+The first is where D5 leans: it is the cheapest, it matches the guard the edit
+tools already carry for a refused open, and it addresses the failure the reported
+session actually had, which was a model writing from a snapshot it took before
+its own edits landed.
+
+Blocking, since the tool cannot be specified without it.
 
 #### D4: Is the model told its anchors go stale within a batch? [open]
 
@@ -112,6 +99,44 @@ new one, so there is nothing to tell it, and the next turn reads the change in
 its own note context as every between-turn retarget already does.
 
 Archived spec 33's removal of the history message therefore stands unamended.
+
+#### D3: Does a batch stop at the first refused edit? [resolved 2026-09-16]
+
+Yes. Ilya approved stopping at the first refusal. It is small, sits in the
+executor loop, and bounds the damage while a batch is still what the model
+sends, whichever way D5 lands.
+
+
+Archived spec 33 raised this as D4 and left it open, calling the case narrower
+than the one reported. The reported session is that case.
+
+| Option                                   | Cost                                                                  |
+|------------------------------------------|-----------------------------------------------------------------------|
+| A whole-note write for scattered edits   | A new tool, and it reverses a standing rule in the system prompt      |
+| Stop the batch at the first refusal      | A batch of independent edits loses the ones after the failure         |
+| Apply all, report each                   | What happens today, and what duplicated the user's content            |
+| Refuse the batch when anchors overlap    | Needs a rule for what overlapping means, computed before applying     |
+
+The whole-note option below is not closed by this: it removes the need for a
+batch rather than changing what one does, so the two sit side by side. D5 holds
+it.
+
+The whole-note option is Ilya's: an edit scattered across a note, such as archiving a todo
+list, is better expressed as one rewrite than as a line-by-line batch. It is the
+only option that removes the stale-anchor problem rather than detecting it,
+because a single write has no siblings to go stale against.
+
+Two things stand in its way, neither fatal. There is no whole-note tool: the
+three edit tools are replace_text, insert_text and insert_at, all anchored. And
+ModelsRole says "Never rewrite the whole note; make the smallest targeted edits
+that satisfy the instruction", so the rule needs narrowing rather than a tool
+added beside it.
+
+The rule exists for a reason worth keeping: a model rewriting a note it has only
+partly read loses whatever it did not echo back. Archiving is safe from that
+only because the todo skill has it read the file first. The narrowing is
+therefore not "rewrite when you like" but closer to "rewrite only what you read
+in full this turn", which D5 costs out.
 
 ### Assumptions
 
