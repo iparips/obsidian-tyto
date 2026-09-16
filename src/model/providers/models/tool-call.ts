@@ -11,6 +11,7 @@ export const RESOLVE_DATE = 'resolve_date'
 export const REPLACE_TEXT = 'replace_text'
 export const INSERT_TEXT = 'insert_text'
 export const INSERT_AT = 'insert_at'
+export const WRITE_NOTE = 'write_note'
 export const APPLICABLE_SKILLS = 'applicable_skills'
 
 // One tool call the model asked for. It classifies itself, so callers dispatch
@@ -90,8 +91,19 @@ export class ToolCall {
     )
   }
 
+  // write_note counts, which is what puts it under the step boundary: a batch
+  // holding it and an anchored edit refuses the second like any other pair.
   isEditTool(): boolean {
-    return this.name === REPLACE_TEXT || this.name === INSERT_TEXT || this.name === INSERT_AT
+    return (
+      this.name === REPLACE_TEXT ||
+      this.name === INSERT_TEXT ||
+      this.name === INSERT_AT ||
+      this.name === WRITE_NOTE
+    )
+  }
+
+  isWriteNote(): boolean {
+    return this.name === WRITE_NOTE
   }
 
   // The calls that carry applicable_skills: the four that open vault access,
