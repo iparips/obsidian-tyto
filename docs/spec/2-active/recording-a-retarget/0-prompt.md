@@ -11,10 +11,10 @@ Paste the block below into a fresh session.
 Record a retarget where a person and the model can see it, specified in
 docs/spec/2-active/recording-a-retarget.
 
-Read 1-index.md, then 2-requirements.md, then 5-tasks.md. Read 3-design.md
-before commit 1. 4-decisions.md holds why this is not a queued turn, which is
-worth reading before changing the approach.
+Read 1-index.md, 2-requirements.md, 5-tasks.md, then 3-design.md before commit
+1. 4-decisions.md holds why this is not a queued turn.
 
+Load the code-generation and code-unit-tests skills before the first commit.
 Repo conventions are in docs/AGENTS.md. Read it before the first commit, and
 again for the rule that a prompt change is a behaviour change.
 
