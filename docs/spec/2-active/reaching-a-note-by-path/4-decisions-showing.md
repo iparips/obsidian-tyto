@@ -12,18 +12,6 @@ reached is in [4-decisions.md](4-decisions.md).
 
 ### Decisions
 
-#### D5: What does a turn show before it has a target? [open]
-
-A turn determines its note partway through: an utterance naming the shopping
-list runs a command first, and the target is known only once that returns. Under
-D4's first option there is a window where the turn exists and its target does
-not.
-
-Not blocking, and only D4's first option raises it. Showing nothing until the
-target lands is honest and leaves the turn briefly unlabelled. Showing the note
-the session was on is a guess that is usually right and wrong exactly when it
-matters, which is the failure this spec exists to fix.
-
 #### D4: Where does the user learn which note a turn is writing to? [resolved 2026-09-16]
 
 The header names the session's note. A turn can hold a different one, and does
@@ -57,12 +45,37 @@ entries saying a note changed.
 
 The header is left with Copy and Reset, which is a toolbar and reads as one.
 
-What it gives up is the answer before speaking. Today the header says "No note
-open" or names one, and a user reads it before an utterance. Under this they
-learn the target from the turn that determined it, which is after they have
-spoken. Ilya accepted that: a target that is wrong is worth seeing against the
-turn it was wrong for, and a header naming a note before a turn exists was
-answering a question the panel could not actually answer.
+What it moves is the answer before speaking. Today the header says "No note
+open" or names one, and a user reads it before an utterance. Under this the
+answer is the previous turn's target, which is the session's note unless a tool
+moved it, and the panel is a record of where edits have been landing rather than
+a claim about where the next one will.
+
+D5 keeps that honest: a turn starts on the session's note, so the reading a user
+takes from the last turn is the one the next turn will start with.
+
+#### D5: What target does a turn start with? [resolved 2026-09-16]
+
+The session's note, which a tool call can later move. Ilya: a user who says "add
+bananas" expects the edit to land on the note in front of them.
+
+The question was put wrongly first. It assumed a window where a turn exists and
+its target does not, because an utterance naming the shopping list runs a
+command before the target moves. There is no such window:
+TurnRunnerFactory.build resolves the session's note before the runner exists, so
+a turn has a target from its first step and the question is only whether that
+target is right to show.
+
+It is, and for a reason the first framing missed. Most utterances name no note
+at all, and the session's note is not a guess for those: it is the answer, and
+the one the user is relying on when they speak. A turn that showed nothing until
+a tool moved the target would say nothing at all for the majority of turns,
+which never move it.
+
+So the target starts as the session's note and changes when a tool opens
+another. That change is the thing worth seeing, and it has somewhere to be seen
+now that the target is a per-turn fact rather than a header that moves under
+everything.
 
 #### D6: Does a turn become a container in the entry list? [resolved 2026-09-16]
 
