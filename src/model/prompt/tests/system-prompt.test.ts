@@ -117,6 +117,15 @@ describe('the prompt messages', () => {
 
       expect(prompt).toContain('Reach it with a listed command where one')
     })
+
+    // The reason a command is preferred, rather than the instruction alone: a
+    // searched path is refused until the user picks it, so searching for a note
+    // a command reaches spends the user's consent on a note they named.
+    it('says a command opens the note where a searched path needs the user', () => {
+      const prompt = systemPromptText(aChain(), [], catalogue)
+
+      expect(prompt).toContain('refused until the user picks it')
+    })
   })
 
   describe('when no folder holds instructions', () => {
