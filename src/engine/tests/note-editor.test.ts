@@ -132,6 +132,25 @@ describe('NoteEditor', () => {
     })
   })
 
+  describe('when writing the whole note', () => {
+    it('replaces the note from offset zero to its length', () => {
+      const editor = new FakeEditor('# Budget\n\n- milk\n- eggs\n')
+
+      const result = applyTo(editor, { kind: 'writeNote', content: '# Archive\n\n- milk\n' })
+
+      expect(result.applied).toBe(true)
+      expect(editor.content).toBe('# Archive\n\n- milk\n')
+    })
+
+    it('reports where the write ended, as the anchored kinds do', () => {
+      const editor = new FakeEditor('# Budget\n\nbody')
+
+      const result = applyTo(editor, { kind: 'writeNote', content: '# Costs\n' })
+
+      expect(result).toEqual({ applied: true, endedAt: { line: 1, ch: 0 } })
+    })
+  })
+
   describe('when focusing an edit', () => {
     it('moves the cursor to the given position', () => {
       const editor = new FakeEditor('# Costs\n\ntext')

@@ -96,8 +96,9 @@ The three guards from D5, in the order a model meets them:
 | Unchanged since   | The note no longer matches the content the call carries | The editor, against the call's argument |
 | The user confirms | The user declines                                       | NoteChoiceService, as an open does      |
 
-The first needs a repository the turn lacks. NotesReadRepository is built in
-TurnRepository's constructor, as NotesChosenByUserRepository is, and written by
+The first needs a repository the turn lacks. NotesReadRepository is built by
+TurnRepository itself, in a field initialiser as NotesChosenByUserRepository is
+rather than among the constructor parameters the session fills, and written by
 HarnessToolsService.readNote.
 
 Turn-scoped rather than session-scoped, which is the split the existing three

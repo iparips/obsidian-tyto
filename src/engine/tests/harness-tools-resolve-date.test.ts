@@ -5,6 +5,7 @@ import { DateToolService } from '../tools/date-tool-service'
 import { TurnState } from '../tools/harness-result'
 import { NotesOpenedCounter } from '../turn/notes-opened-counter'
 import { PathsReturnedByVaultRepository } from '../turn/paths-returned-by-vault-repository'
+import { NotesReadRepository } from '../turn/notes-read-repository'
 import { ObsidianCommandCatalogue } from '../../commands/obsidian-command-catalogue'
 import { ObsidianCommandRegistry } from '../../commands/obsidian-command-registry'
 import { ObsidianCommandRunner } from '../../commands/obsidian-command-runner'
@@ -30,6 +31,7 @@ describe('HarnessToolsService', () => {
     turn = {
       notesOpenedCounter: new NotesOpenedCounter(),
       pathsReturnedByVault: new PathsReturnedByVaultRepository(),
+      notesRead: new NotesReadRepository(),
     }
   })
 

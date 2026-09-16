@@ -12,7 +12,8 @@ import { AgentsMdFile } from '../../../agents/agents-md-file'
 import { AllowedObsidianCommand } from '../../../commands/models/allowed-obsidian-command'
 // Stored rather than rebuilt, so a change to the prompt a vault without commands
 // or search sees is deliberate rather than drift. Release 4 moved none of it;
-// release 5 adds the heading rule and re-records this.
+// release 5 adds the heading rule and re-records this. The whole-note write and
+// the one-edit-per-step rule re-record it again.
 import RELEASE_3_PROMPT from './fixtures/release-3-prompt.txt?raw'
 
 const aNote = (): NoteDetails => new NoteDetails('note.md', '# Budget\n\nbody', { line: 2, ch: 0 })
@@ -415,6 +416,29 @@ describe('the prompt messages', () => {
       const prompt = systemPromptText()
 
       expect(prompt).toContain('stopped you and what the user can do next')
+    })
+
+    it('tells the model a scattered edit is one whole-note write', () => {
+      const prompt = systemPromptText()
+
+      expect(prompt).toContain(
+        'Rewrite the whole\nnote with write_note only when the edit touches several places at once',
+      )
+    })
+
+    it('no longer asks for a batch of edits applied in order', () => {
+      const prompt = systemPromptText()
+
+      expect(prompt).not.toContain(
+        'Multi-part instructions become multiple tool calls, applied in order',
+      )
+    })
+
+    // So a refusal reads as the rule rather than as a fault in the anchor.
+    it('says why the one-edit-per-step boundary exists', () => {
+      const prompt = systemPromptText()
+
+      expect(prompt).toContain('the note is read at the start of each')
     })
 
     it('produces the release 3 prompt when commands and search are absent', () => {
