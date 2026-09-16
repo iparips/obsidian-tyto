@@ -406,8 +406,9 @@
    as an entry. */
 .tyto-recording-strip {
   /* Takes the instruction field's place in the row, so it grows the same way
-     and the buttons either side do not move. */
-  flex: 1 1 auto;
+     and the buttons either side do not move. A zero basis like the field's, or
+     the bars size it from their own content and the row keeps the slack. */
+  flex: 1 1 0;
   display: flex;
   align-items: center;
   /* The row's own gap, so the clock sits off the trail by the same space the
