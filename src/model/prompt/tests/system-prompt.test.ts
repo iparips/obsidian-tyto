@@ -108,6 +108,15 @@ describe('the prompt messages', () => {
 
       expect(prompt).toContain('retrying that call first is refused again')
     })
+
+    // The command sections already said to prefer a command, and a model
+    // reasoning about which skill applied globbed a path a command reached.
+    // This says it where that reasoning happens.
+    it('says to reach a skill note by command before searching for it', () => {
+      const prompt = systemPromptText(aChain(), [], catalogue)
+
+      expect(prompt).toContain('Reach it with a listed command where one')
+    })
   })
 
   describe('when no folder holds instructions', () => {
