@@ -410,7 +410,10 @@
   flex: 1 1 auto;
   display: flex;
   align-items: center;
-  gap: var(--size-4-2);
+  /* The row's own gap, so the clock sits off the trail by the same space the
+     buttons sit off the strip. */
+  gap: var(--size-4-1);
+  padding: 0 var(--size-4-1);
   min-width: 0;
   color: var(--text-muted);
   font-size: var(--font-ui-smaller);
@@ -421,18 +424,17 @@
 .tyto-recording-meter {
   display: flex;
   align-items: flex-end;
-  gap: 1px;
+  gap: 2px;
   height: 16px;
   flex: 1 1 auto;
   min-width: 0;
 }
 
 .tyto-recording-bar {
-  /* One bar per reading, so they share the width the clock leaves rather than
-     each holding a fixed one. */
+  /* One bar per reading, sharing the width the clock leaves. Uncapped, since a
+     cap leaves the meter wider than the bars and the trail bunches left. */
   flex: 1 1 0;
   min-width: 1px;
-  max-width: 3px;
   border-radius: 2px;
   background-color: var(--interactive-accent);
   /* Fast enough to read as the signal rather than as an animation trailing it,
