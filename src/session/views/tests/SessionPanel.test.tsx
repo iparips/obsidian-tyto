@@ -50,6 +50,30 @@ describe('SessionPanel', () => {
       expect(screen.getByRole('button', { name: 'Stop recording' })).toBeTruthy()
     })
 
+    it('carries the accent colour on the record button while recording', async () => {
+      renderPanel()
+
+      await userEvent.click(screen.getByRole('button', { name: 'Record' }))
+
+      expect(screen.getByRole('button', { name: 'Stop recording' }).className).toBe(
+        'tyto-recording-button',
+      )
+    })
+
+    it('leaves the record button unaccented while idle', () => {
+      renderPanel()
+
+      expect(screen.getByRole('button', { name: 'Record' }).className).toBe('')
+    })
+
+    it('shows the recording strip in the history while recording', async () => {
+      renderPanel()
+
+      await userEvent.click(screen.getByRole('button', { name: 'Record' }))
+
+      expect(screen.getByLabelText('Recording')).toBeTruthy()
+    })
+
     it('transitions to transcribing when the mic is clicked while recording', async () => {
       let resolveTranscribe: (value: Attempt<string>) => void = () => undefined
       transcribe.mockReturnValue(

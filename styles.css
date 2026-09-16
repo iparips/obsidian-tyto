@@ -401,6 +401,57 @@
   font-style: italic;
 }
 
+/* The same context weight as the pending line: recording has produced nothing
+   yet either, so the strip sits where the reply will land rather than reading
+   as an entry. */
+.tyto-recording-strip {
+  display: flex;
+  align-items: center;
+  gap: var(--size-4-2);
+  color: var(--text-muted);
+  font-size: var(--font-ui-smaller);
+}
+
+/* The meter shrinks rather than wrapping, since the drawer is resized freely
+   and read on a phone (NFR2). */
+.tyto-recording-meter {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: 16px;
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
+.tyto-recording-bar {
+  width: 3px;
+  min-width: 0;
+  border-radius: 2px;
+  background-color: var(--interactive-accent);
+  /* Fast enough to read as the signal rather than as an animation trailing it,
+     and slow enough not to strobe at one frame per height. */
+  transition: height 80ms linear;
+}
+
+/* The bars are the animation reduced motion asks about: the hook holds them at
+   rest, so the transition would only smooth a height that never changes. */
+@media (prefers-reduced-motion: reduce) {
+  .tyto-recording-bar {
+    transition: none;
+  }
+}
+
+.tyto-recording-clock {
+  font-variant-numeric: tabular-nums;
+}
+
+/* The accent on the button rather than a second indicator, so the live state is
+   visible in the row the thumb is already on. */
+.tyto-input-row button.tyto-recording-button {
+  background-color: var(--interactive-accent);
+  color: var(--text-on-accent);
+}
+
 /* Stacked rather than laid in a row: two buttons fitted a narrow drawer side by
    side, and eight paths do not (NFR5). */
 .tyto-entry-choice {
