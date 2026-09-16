@@ -34,14 +34,16 @@ Nothing consumes it yet, so the suite is green on the accessor alone.
 
 A hook owning the audio graph, so no component holds a lifecycle.
 
-`useRecordingLevel(streamFn)` returns a level from 0 to 1 and an elapsed
-seconds count.
+`useRecordingLevel(streamFn)` returns a level from 0 to 1, an elapsed seconds
+count, and a `begin()` the record gesture calls.
 
-- An AudioContext and an AnalyserNode built when a stream first arrives, closed
-  when it goes. Nothing exists while the stream is null (NFR3)
+- An AudioContext and an AnalyserNode built at `begin()`, closed when the stream
+  goes. Nothing exists while the stream is null (NFR3)
 - Create the context inside the gesture that starts recording, not in an effect
   reacting to the phase. iOS suspends a context created outside a user gesture,
-  and that is an assumption in 4-decisions.md worth respecting up front
+  and that is an assumption in 4-decisions.md worth respecting up front. That is
+  what `begin()` is for: an effect watching the phase runs after the state
+  update, so it is already outside the gesture
 - requestAnimationFrame reads getByteTimeDomainData and reduces it to one
   amplitude, so the loop stops when the panel is backgrounded
 - Reduced motion holds the level at rest and stops the loop (NFR4)

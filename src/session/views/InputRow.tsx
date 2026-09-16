@@ -19,6 +19,9 @@ export const InputRow = (props: InputRowProps) => {
     <div className="tyto-input-row">
       <button
         aria-label={recording ? 'Stop recording' : 'Record'}
+        // The live state in the row the thumb is already on, so a user looking
+        // at the input does not have to look up at the strip.
+        className={recording ? 'tyto-recording-button' : undefined}
         disabled={running && !recording}
         onClick={recording ? props.onStopRecording : props.onRecord}
       >
