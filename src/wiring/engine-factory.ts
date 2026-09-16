@@ -47,7 +47,7 @@ export class EngineFactory {
     file: TFile | null,
     progress: TurnProgressPublisher,
     askers: EngineAskers = {},
-    // Both built by SessionBuilder rather than here, because the panel reads
+    // Both built by SessionPanelPropsBuilder rather than here, because the panel reads
     // them and nothing built inside this factory can be read back. A recorded
     // step indexes into the history, so the two travel together.
     transcript: TranscriptRepository = new TranscriptRepository(),

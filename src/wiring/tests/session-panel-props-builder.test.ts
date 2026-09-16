@@ -6,7 +6,7 @@ import { FakeAdapter } from '../../test-support/fake-adapter'
 import { FakeWorkspace } from '../../test-support/fake-workspace'
 import { DEFAULT_SETTINGS } from '../../settings/settings'
 import { ChatMessage } from '../../model/providers/models/chat-message'
-import { PanelPresence, SessionBuilder } from '../session-builder'
+import { PanelPresence, SessionPanelPropsBuilder } from '../session-panel-props-builder'
 import { SessionFileStore } from '../../session/session-file-store'
 import { SessionPanelProps } from '../../session/views/SessionPanel'
 import { PanelEntry } from '../../session/models/panel-state'
@@ -34,19 +34,19 @@ const aSnapshot = (overrides: Partial<SessionSnapshot> = {}): SessionSnapshot =>
   ...overrides,
 })
 
-describe('SessionBuilder', () => {
-  let builder: SessionBuilder
+describe('SessionPanelPropsBuilder', () => {
+  let builder: SessionPanelPropsBuilder
   let adapter: FakeAdapter
 
   // The workspace decides every binding now, so each test says what the user has
   // open rather than what it hands the builder.
-  const builderWith = (openPath: string | null): SessionBuilder => {
+  const builderWith = (openPath: string | null): SessionPanelPropsBuilder => {
     const app = {
       vault: { adapter: adapter.asAdapter() },
       workspace: new FakeWorkspace(openPath).asWorkspace(),
     } as App
     const scope = new PluginScope(app, () => DEFAULT_SETTINGS)
-    return new SessionBuilder(
+    return new SessionPanelPropsBuilder(
       DEFAULT_SETTINGS,
       new EngineFactory(scope),
       vi.fn(),
