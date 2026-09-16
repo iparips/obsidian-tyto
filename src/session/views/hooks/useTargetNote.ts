@@ -8,7 +8,7 @@ export interface TargetNotePorts {
   // The path from the vault root, beneath the name, so two notes sharing a name
   // are told apart (FR14).
   notePath?: string | null
-  onTargetNoteChanged?(listener: (path: string) => void): () => void
+  onTargetNoteChanged?(listenerFn: (path: string | null) => void): () => void
 }
 
 export interface TargetNote {
@@ -26,7 +26,7 @@ export const useTargetNote = (ports: TargetNotePorts): TargetNote => {
   useEffect(
     () =>
       ports.onTargetNoteChanged?.((changedTo) => {
-        setName(NoteName.of(changedTo))
+        setName(changedTo === null ? null : NoteName.of(changedTo))
         setPath(changedTo)
       }),
     [],

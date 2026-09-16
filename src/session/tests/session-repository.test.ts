@@ -46,21 +46,31 @@ describe('SessionRepository', () => {
     })
 
     it('binds to the note when the target changes', () => {
-      sessions.changeTargetNote('Journal/day.md')
+      sessions.bindTo('Journal/day.md')
 
       expect(sessions.isBound()).toBe(true)
     })
 
     it('targets the opened note when the target changes', () => {
-      sessions.changeTargetNote('Journal/day.md')
+      sessions.bindTo('Journal/day.md')
 
       expect(sessions.targetNote()).toBe('Journal/day.md')
     })
   })
 
+  describe('when the target goes away', () => {
+    it('reports itself unbound, so the turn is told no note is bound', () => {
+      sessions.bindTo('Journal/day.md')
+
+      sessions.bindTo(null)
+
+      expect(sessions.isBound()).toBe(false)
+    })
+  })
+
   describe('when a command moves the target', () => {
     beforeEach(() => {
-      sessions.changeTargetNote('Journal/day.md')
+      sessions.bindTo('Journal/day.md')
     })
 
     it('targets the new note when the target changes', () => {
