@@ -29,13 +29,9 @@ export class SessionRepository {
     return this.targetPath !== null
   }
 
-  changeTargetNote(path: string): void {
-    this.targetPath = path
-  }
-
-  // What the workspace says at the moment a session is assembled, which is null
-  // when nothing markdown is open. Separate from changeTargetNote, whose callers
-  // are a command or a file-open and can only ever move a session to a note.
+  // Null when nothing markdown is open, which is an unbound session. Every
+  // caller can produce one: the workspace at assemble time, and a file-open
+  // carrying a canvas or an empty tab.
   bindTo(path: string | null): void {
     this.targetPath = path
   }

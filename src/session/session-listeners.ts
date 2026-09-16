@@ -12,7 +12,7 @@ export interface AnswerReport {
 // publisher's one-way channels cannot do.
 export class SessionListeners {
   readonly answers = new Listeners<AnswerReport>()
-  readonly retargets = new Listeners<string>()
+  readonly retargets = new Listeners<string | null>()
   readonly warnings = new Listeners<string>()
   readonly steps = new Listeners<StepReport>()
 }

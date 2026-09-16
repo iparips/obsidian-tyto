@@ -18,9 +18,9 @@ worth reading before changing the approach.
 Repo conventions are in docs/AGENTS.md. Read it before the first commit, and
 again for the rule that a prompt change is a behaviour change.
 
-Commit 1 touches no file the sibling spec touches and can start now. Commit 2
-edits EditEngine.followActiveNote, which binding-to-the-active-tab widens in its
-commit 1. Wait for that to land, then build against the widened signature.
+EditEngine.followActiveNote already takes string or null, so both commits can
+start now. The sibling spec touches the same method; rebase rather than assume
+its shape.
 
 Verify before trusting:
 - TranscriptTurnSection slices chatHistory by a step's recorded range. Confirm

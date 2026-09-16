@@ -39,7 +39,7 @@ describe('EditEngine', () => {
   let sessions: SessionRepository
   let skills: string[]
   let answers: { text: string; sources: string[] }[]
-  let retargets: string[]
+  let retargets: (string | null)[]
 
   beforeEach(() => {
     vi.clearAllMocks()

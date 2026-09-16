@@ -39,7 +39,7 @@ describe('EditEngine', () => {
   let vault: FakeVault
   let sessions: SessionRepository
   let noteLocator: FakeNoteLocator
-  let retargets: string[]
+  let retargets: (string | null)[]
   let asked: string[]
   let questions: AnswerRequest[]
   let steps: string[]

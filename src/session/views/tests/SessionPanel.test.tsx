@@ -388,13 +388,13 @@ describe('SessionPanel', () => {
   })
 
   describe('when a command moves the target note', () => {
-    const targetListeners: ((path: string) => void)[] = []
-    const onTargetNoteChanged = (listener: (path: string) => void) => {
-      targetListeners.push(listener)
-      return () => targetListeners.splice(targetListeners.indexOf(listener), 1)
+    const targetListeners: ((path: string | null) => void)[] = []
+    const onTargetNoteChanged = (listenerFn: (path: string | null) => void) => {
+      targetListeners.push(listenerFn)
+      return () => targetListeners.splice(targetListeners.indexOf(listenerFn), 1)
     }
-    const retargetTo = (path: string) =>
-      act(() => targetListeners.forEach((listener) => listener(path)))
+    const retargetTo = (path: string | null) =>
+      act(() => targetListeners.forEach((listenerFn) => listenerFn(path)))
 
     beforeEach(() => {
       targetListeners.length = 0
@@ -414,6 +414,14 @@ describe('SessionPanel', () => {
       retargetTo('Journal/2026-09-02.md')
 
       expect(screen.queryByRole('button', { name: /Return to/ })).toBeNull()
+    })
+
+    it('names no note when the session unbinds, so the header does not name one it left', () => {
+      renderPanel({ onTargetNoteChanged })
+
+      retargetTo(null)
+
+      expect(screen.queryByText('day')).toBeNull()
     })
 
     it('names the opened note when an unbound session binds', () => {

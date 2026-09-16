@@ -12,7 +12,7 @@ That order keeps the suite green at each. After commit 1 nothing behaves
 differently: the types accept null and no caller passes one. Commit 2 is the
 behaviour change, and it is three lines.
 
-## Commit 1: null reaches the panel
+## Commit 1: null reaches the panel [done]
 
 Widen the four signatures the path travels through, so an unbound session can
 be published the way a bound one is.
@@ -31,6 +31,9 @@ Tests: the repository reports itself unbound after binding to null, and
 useTargetNote clears the header name when the retarget carries null.
 
 Nothing produces a null yet, so the suite is green on the widening alone.
+
+Landed ahead of both specs, since recording-a-retarget needs the same widening.
+The remaining work here is commit 2 alone.
 
 ## Commit 2: an empty tab unbinds
 
