@@ -9,38 +9,6 @@ updated: 2026-09-16
 
 ### Decisions
 
-#### D1: What happens to a turn the user retargets under it? [open, blocking]
-
-The turn is mid-instruction on one note and the user opens another. Following is
-the rule and this spec does not reopen it; what the running turn does about it is
-unsettled.
-
-| Option                           | The archive turn would have                     | Cost                                                        |
-|----------------------------------|-------------------------------------------------|-------------------------------------------------------------|
-| Continue, and tell the model     | Carried on, told the note changed               | The model may still finish an instruction on the wrong note |
-| Finish on the note it started    | Completed the archive, bound the new note after | The user watches edits land on a note they have left        |
-| End the turn, saying what it did | Stopped, named the edits already applied        | An instruction half-applied, which is the state to avoid    |
-
-Blocking: it decides whether the fix is a message, a deferral or an ending, and
-those touch different classes.
-
-The third is the recommendation. The user moving away mid-instruction is a
-signal the turn is no longer what they are watching, and an edit tool with no
-undo should stop rather than guess. It also matches what a cancel already does,
-which archived spec 8 settled: name the notes written and stop.
-
-#### D2: Does the model need telling at all? [open]
-
-Only the continue option needs a message; the other two end or defer the turn.
-Raised separately because it reopens what archived spec 33 removed.
-
-That spec dropped the history message because it split a tool call from its
-result and the provider rejected the sequence. A message sent at the top of the
-next step, rather than appended the moment the event fires, has no such problem:
-the pair is closed by then.
-
-Not blocking. If D1 ends the turn, this decision disappears.
-
 #### D3: Does a batch stop at the first refused edit? [open, blocking]
 
 Archived spec 33 raised this as D4 and left it open, calling the case narrower
@@ -69,12 +37,52 @@ Not blocking, and it is a prompt change, which this repo treats as a behaviour
 change needing a real vault to judge. Worth doing only if D3 leaves cases where
 a model can still batch overlapping anchors.
 
+#### D1: What happens to a turn the user retargets under it? [resolved 2026-09-16]
+
+It finishes on the note it started. Ilya: the note change kicks in only once the
+original utterance has been processed.
+
+The turn is mid-instruction on one note and the user opens another. Following is
+the rule and this spec does not reopen it; what the running turn does about it is
+what was unsettled.
+
+| Option                           | The archive turn would have                     | Cost                                                        |
+|----------------------------------|-------------------------------------------------|-------------------------------------------------------------|
+| Continue, and tell the model     | Carried on, told the note changed               | The model may still finish an instruction on the wrong note |
+| Finish on the note it started    | Completed the archive, bound the new note after | Chosen                                                      |
+| End the turn, saying what it did | Stopped, named the edits already applied        | An instruction half-applied, which is the state to avoid    |
+
+An utterance is the unit the user asked for, so half-applying one is the state
+worth avoiding. Ending the turn avoids it by leaving the instruction incomplete,
+which is the same harm in a different place. Finishing the instruction and then
+following is the only option that leaves neither the note nor the utterance in a
+partial state.
+
+The session binds to the new note the moment the event fires, as it does today.
+What defers is the running turn's own target, so the turn writes where it began
+and the next turn starts where the user is.
+
+A command opening a note mid-turn is untouched. ToolDispatcher reaches the turn
+repository directly, where the user's retarget arrives through the runner, so
+deferring one leaves the other as archived specs 31 and 32 left it.
+
+#### D2: Does the model need telling at all? [resolved 2026-09-16]
+
+No, and D1 is what settles it. A turn that finishes on the note it started never
+sees the new one, so there is nothing to tell it. The next turn reads the new
+note in its own note context, which is what every retarget between turns already
+relies on.
+
+Archived spec 33's removal of the history message therefore stands unamended,
+rather than needing the narrower version this spec was opened to consider.
+
 ### Assumptions
 
-- The user opening a note mid-turn is rare enough that ending the turn costs
-  little. This session is the first sighting. If it turns out common, ending
-  every time is worse than continuing with the model told, and D1 falls back to
-  the first option.
+- A turn finishing on the note the user has left is short enough that they do
+  not see edits landing in a note they are no longer watching. A turn is a
+  handful of model calls, and the panel names the note each edit reached. If a
+  long turn makes that read as the session ignoring them, the fallback is to
+  end the turn instead, which D1 weighed and did not take.
 - A refused anchor means the model's picture of the note is stale, rather than
   the anchor being wrong from the start. Both produce the same refusal. If a
   first-call refusal is common in practice, stopping the batch punishes a model

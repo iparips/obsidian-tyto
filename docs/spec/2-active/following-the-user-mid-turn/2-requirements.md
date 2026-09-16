@@ -19,21 +19,20 @@ edits the note behind the user is worse than one that follows.
 
 ## In Scope
 
-### A running turn is redirected without being told
+### A running turn is redirected mid-instruction
 
 ConversationTurnRunner.retargetTo swaps the note the turn writes to and returns.
 The next step reads a different note context, and nothing in the conversation
 says why. Its own comment says the turn owns what it writes to, which is what
 the method disproves.
 
-Until 2026-09-16 the model was told: archived spec 32 appended a system message
-naming the change. Archived spec 33 removed it, because it split a tool call
-from its result and produced an API 400. That was right for a retarget between
-turns, where the note context on the next call already carries the change. It
-left the mid-turn case with no signal at all.
-
 So the model spent three turns insisting the open note was the shopping list,
 which was true, and being unable to say how it got there.
+
+A turn that finished what it started would not have been in that position. The
+session still binds to the new note when the event fires; what defers is the
+running turn's own target, so the utterance the user gave is carried out on the
+note they gave it about, and the next turn starts where they now are.
 
 ### A batch of edits anchors against content the batch has changed
 
