@@ -72,7 +72,6 @@ export class EngineFactory {
         transcript,
       ),
       progress,
-      targetNote,
     )
   }
 
