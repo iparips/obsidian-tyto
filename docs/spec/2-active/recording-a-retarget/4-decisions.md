@@ -9,10 +9,18 @@ updated: 2026-09-16
 
 ### Decisions
 
-#### D1: Should a retarget reach the transcript, the panel list and the model? [resolved 2026-09-16]
+#### D1: Should a retarget reach the transcript, the panel list and the model? [superseded 2026-09-16]
 
 All three. Ilya: a session read back should say when it changed note, and a
 chat message telling the model the target moved is fine.
+
+Superseded by D1 of
+[reporting-what-a-turn-did](../reporting-what-a-turn-did/3-decisions.md). The
+model half is out: a retarget is a session event, as a restore is, so it reaches
+the panel and the transcript and never the model. NoteContextMessage already
+names the current note on every call and says it supersedes the conversation
+above it. The transcript and panel halves stand, through a retargeted entry kind
+rather than through a step and a history message.
 
 The three destinations were weighed separately, since only one carries risk:
 
@@ -33,11 +41,22 @@ The three destinations were weighed separately, since only one carries risk:
 
 ### Decisions
 
-#### D2: Where does a retarget between turns go? [resolved 2026-09-16]
+#### D2: Where does a retarget between turns go? [superseded 2026-09-16]
 
 Appended to the chat history the moment it happens, and rendered into the
 transcript from there. Ilya asked for it recorded as it happens and reaching the
 model, which the history already does without a turn.
+
+Superseded by D1 of
+[reporting-what-a-turn-did](../reporting-what-a-turn-did/3-decisions.md). It
+goes on the panel timeline as its own entry kind, which the transcript renders
+and the model never reads. The history was the one destination carrying risk,
+and the risk landed: a command that opens a note fires file-open while the tool
+is still running, so the message was appended between the assistant tool call
+and its result and the provider rejected the sequence.
+
+The assumption below was the right one to hold, and it is not what failed. The
+model did not drag the target back; the message split a tool pair.
 
 | Option                           | Cost                                               |
 | -------------------------------- | -------------------------------------------------- |

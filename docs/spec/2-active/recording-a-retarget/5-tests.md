@@ -11,6 +11,11 @@ updated: 2026-09-16
 - A configured API key, since the model half cannot be checked without one
 - A Tyto session running and bound to one of the notes
 
+The panel checks below say step, which is what this spec built. A retarget is
+its own panel entry since D1 of
+[reporting-what-a-turn-did](../reporting-what-a-turn-did/1-index.md), so read
+them as a line on the timeline rather than a numbered step inside a turn.
+
 ### The panel says the note changed
 
 ```gherkin
@@ -40,8 +45,8 @@ When  the user copies the transcript from the panel header
 Then  the transcript names the retarget between the two turns
 ```
 
-A retarget missing entirely is the between-turns case, which the design records
-as the one the history carries rather than a step.
+A retarget missing entirely is the between-turns case. It is carried by the
+entry now, not by a history message, and the transcript renders it from there.
 
 ### The model does not reach back
 
@@ -52,9 +57,12 @@ When  the user gives an instruction that names no note
 Then  the edit lands on the note now in front of the user
 ```
 
-An edit landing on the first note means the retarget message is reading as a
-directive rather than as history, which is the failure archived spec 29 found.
-Drop the message and keep the panel step.
+The message this check was written for is gone, dropped by D1 of
+[reporting-what-a-turn-did](../reporting-what-a-turn-did/1-index.md). The check
+itself still matters and moved there: it now asks whether NoteContextMessage
+alone keeps the edit on the note in front of the user. An edit landing on the
+first note means the message was carrying something, and that spec's D1 falls
+back to an option keeping it.
 
 ## Platforms
 

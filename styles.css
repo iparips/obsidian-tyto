@@ -460,6 +460,12 @@
   font-style: italic;
 }
 
+/* Narration rather than a boundary: the session moved note, which is worth
+   saying on the timeline without the rule a restore draws across it. */
+.tyto-entry-retargeted {
+  font-style: italic;
+}
+
 /* Collapsed by default, like the resolved commands in settings. The summary
    carries the context weight; the open list indents under it. */
 .tyto-entry-steps summary {

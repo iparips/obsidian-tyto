@@ -106,7 +106,7 @@ describe('SessionSnapshot', () => {
   })
 
   describe('when the panel entries are written and read back', () => {
-    it('keeps all eleven kinds when the panel held one of each', () => {
+    it('keeps all twelve kinds when the panel held one of each', () => {
       const entries: PanelEntry[] = [
         { kind: 'user', text: 'add a heading' },
         { kind: 'assistant', text: 'added it' },
@@ -119,6 +119,7 @@ describe('SessionSnapshot', () => {
         { kind: 'choice', candidates: ['a.md', 'b.md'], pending: true, text: 'which note' },
         { kind: 'question', pending: true, suggestions: ['yes'], text: 'go ahead?' },
         { kind: 'restored', text: 'Session restored.' },
+        { kind: 'retargeted', text: 'Now editing todo.' },
       ]
 
       expect(roundTripped(sessionHoldingEntries(entries)).entries).toEqual(entries)
