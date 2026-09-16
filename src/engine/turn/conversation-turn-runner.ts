@@ -80,7 +80,7 @@ export class ConversationTurnRunner {
   private spendOn(spend: TurnSpend, calls: number): void {
     spend.iterationCounter.spend(calls)
     if (spend.iterationCounter.justRanLow())
-      this.turnProgressPublisher.runningLow(spend.iterationCounter.warning())
+      this.turnProgressPublisher.runningLowFn(spend.iterationCounter.warning())
   }
   private endTurnWithModelUtterance(summary: string): EndedTurn {
     return this.turnEndingService.endTurnWithModelUtterance(

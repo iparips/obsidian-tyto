@@ -3,12 +3,12 @@
 export class Listeners<T> {
   private readonly listeners: ((value: T) => void)[] = []
 
-  subscribe(listener: (value: T) => void): () => void {
-    this.listeners.push(listener)
-    return () => this.listeners.splice(this.listeners.indexOf(listener), 1)
+  subscribe(listenerFn: (value: T) => void): () => void {
+    this.listeners.push(listenerFn)
+    return () => this.listeners.splice(this.listeners.indexOf(listenerFn), 1)
   }
 
   publish(value: T): void {
-    this.listeners.forEach((listener) => listener(value))
+    this.listeners.forEach((listenerFn) => listenerFn(value))
   }
 }

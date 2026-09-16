@@ -49,7 +49,7 @@ export class TargetNoteResolver {
   // passed down rather than held, so no chain reaches another target (FR8, FR13).
   private async collectAgentMdInstructions(note: OpenNote): Promise<AgentsMdChain> {
     const chain = await this.agentsMdRepository.resolveFor(note.path)
-    this.turnProgressPublisher.instructionsResolved(chain)
+    this.turnProgressPublisher.instructionsResolvedFn(chain)
     return chain
   }
 }

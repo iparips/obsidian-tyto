@@ -8,7 +8,7 @@ export const VIEW_TYPE_SESSION = 'tyto-session'
 // What the view cannot answer for itself: whether a session was left behind,
 // and what its props are. Only the plugin reaches the store. It takes the view
 // back because a session's props carry the action that rebinds this view.
-export type RestoreSession = (view: SessionView) => Promise<SessionPanelProps | null>
+export type RestoreSessionFn = (view: SessionView) => Promise<SessionPanelProps | null>
 
 export class SessionView extends ItemView {
   private root: Root | null = null
@@ -24,7 +24,7 @@ export class SessionView extends ItemView {
     leaf: WorkspaceLeaf,
     // Absent for a view built before the plugin can restore, which renders
     // empty as it did before.
-    private restoreSession?: RestoreSession,
+    private restoreSessionFn?: RestoreSessionFn,
   ) {
     super(leaf)
   }
@@ -78,7 +78,7 @@ export class SessionView extends ItemView {
     this.root = createRoot(this.contentEl)
     this.renderPanel()
     if (this.panelProps) return
-    const restored = await this.restoreSession?.(this)
+    const restored = await this.restoreSessionFn?.(this)
     // Checked again: the user may have started a session while the read was in
     // flight, and a restore must not replace one they are already using.
     if (restored && !this.panelProps) this.bindSession(restored)

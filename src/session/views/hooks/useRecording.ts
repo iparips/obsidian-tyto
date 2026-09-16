@@ -33,8 +33,8 @@ export interface Recording {
 export const useRecording = (
   ports: RecordingPorts,
   phase: Phase,
-  dispatch: (action: PanelAction) => void,
-  runTurn: (text: string) => Promise<void>,
+  dispatchFn: (action: PanelAction) => void,
+  runTurnFn: (text: string) => Promise<void>,
 ): Recording => {
   // The last utterance, so a failed transcription costs a click rather than the
   // recording. One at a time: the retry is for the recording just made.
@@ -43,11 +43,11 @@ export const useRecording = (
   const cancel = () => {
     ports.recorder.cancel()
     held.current = null
-    dispatch({ type: 'cancelled' })
+    dispatchFn({ type: 'cancelled' })
   }
 
   const stop = async () => {
-    dispatch({ type: 'stopRequested' })
+    dispatchFn({ type: 'stopRequested' })
     held.current = await ports.recorder.stop()
     await transcribe(held.current)
   }
@@ -55,7 +55,7 @@ export const useRecording = (
   const retry = async () => {
     const utterance = held.current
     if (!utterance) return
-    dispatch({ type: 'stopRequested' })
+    dispatchFn({ type: 'stopRequested' })
     await transcribe(utterance)
   }
 
@@ -64,14 +64,14 @@ export const useRecording = (
   const transcribe = async (utterance: Utterance) => {
     const transcript = await ports.transcribe(utterance.blob, utterance.mimeType)
     if (transcript.hasFailed())
-      return dispatch({
+      return dispatchFn({
         type: 'failed',
         step: transcript.step,
         message: transcript.message,
         retryable: true,
       })
     held.current = null
-    await runTurn(transcript.value)
+    await runTurnFn(transcript.value)
   }
 
   // Anything that ends a recording other than the user sends what it captured:
@@ -95,11 +95,11 @@ export const useRecording = (
     start: async () => {
       const outcome = await ports.recorder.start()
       if (outcome.hasFailed())
-        return dispatch({ type: 'failed', step: outcome.step, message: outcome.message })
+        return dispatchFn({ type: 'failed', step: outcome.step, message: outcome.message })
       // Recording again is what drops the previous utterance, so the control
       // above it goes with the audio it would have retried.
       held.current = null
-      dispatch({ type: 'recordingStarted' })
+      dispatchFn({ type: 'recordingStarted' })
     },
   }
 }

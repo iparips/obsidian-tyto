@@ -15,8 +15,8 @@ export class TurnNotices {
   constructor(
     // Only the plugin can answer whether the session leaf is showing, and only
     // the user's own click may open it (FR27).
-    private panelIsVisible: () => boolean,
-    private revealPanel: () => void,
+    private panelIsVisibleFn: () => boolean,
+    private revealPanelFn: () => void,
   ) {}
 
   waiting(question: string): void {
@@ -41,7 +41,7 @@ export class TurnNotices {
   // Nothing when the panel is showing: a visible panel is the notification, and
   // a notice would only repeat it (NFR9).
   private show(text: string, duration: number): Notice | null {
-    if (this.panelIsVisible()) return null
+    if (this.panelIsVisibleFn()) return null
     const notice = new Notice(text, duration)
     notice.messageEl.addEventListener('click', () => this.reveal(notice))
     return notice
@@ -49,6 +49,6 @@ export class TurnNotices {
 
   private reveal(notice: Notice): void {
     notice.hide()
-    this.revealPanel()
+    this.revealPanelFn()
   }
 }
