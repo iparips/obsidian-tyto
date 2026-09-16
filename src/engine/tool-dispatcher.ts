@@ -68,7 +68,7 @@ export class ToolDispatcher {
     const skillsRefusal = this.refuseWhenDeclaredSkillsAreNotInSession(call)
     if (skillsRefusal) return skillsRefusal
     if (call.isHarnessTool()) return this.callHarnessTool(call)
-    return this.recordEdit(call, this.noteEditTool.execute(call))
+    return this.recordEdit(call, await this.noteEditTool.execute(call))
   }
 
   // The refusal names the tools that may be called rather than echoing the

@@ -49,7 +49,9 @@ describe('EditEngine', () => {
   })
 
   describe('when the model responds with tool calls', () => {
-    it('applies operations in order when a turn has multiple tool calls', async () => {
+    // The second anchor was computed against the note the first call changed,
+    // which is what duplicated the reported user's content.
+    it('applies the first edit only when a turn batches two of them', async () => {
       complete
         .mockResolvedValueOnce(
           Outcomes.success(
@@ -63,7 +65,80 @@ describe('EditEngine', () => {
 
       await engine.processUtterance('rename and add')
 
+      expect(editor.content).toBe('# Costs\n\nbody')
+    })
+
+    it('names the step boundary when a turn batches two edits', async () => {
+      complete
+        .mockResolvedValueOnce(
+          Outcomes.success(
+            aToolTurn(
+              aToolCall('replace_text', { anchor_text: '# Budget', replacement: '# Costs' }),
+              aToolCall('insert_at', { location: 'note_end', content: '\n- item' }),
+            ),
+          ),
+        )
+        .mockResolvedValueOnce(Outcomes.success(aTextTurn('done')))
+
+      await engine.processUtterance('rename and add')
+
+      expect(toolResults()[1].content).toContain('One edit per step')
+    })
+
+    it('applies an edit that follows a search call, since only edits count', async () => {
+      complete
+        .mockResolvedValueOnce(
+          Outcomes.success(
+            aToolTurn(
+              aToolCall('glob_notes', { pattern: '*.md' }),
+              aToolCall('replace_text', { anchor_text: '# Budget', replacement: '# Costs' }),
+            ),
+          ),
+        )
+        .mockResolvedValueOnce(Outcomes.success(aTextTurn('done')))
+
+      await engine.processUtterance('find and rename')
+
+      expect(editor.content).toBe('# Costs\n\nbody')
+    })
+
+    it('applies an edit in the next step, since the count is per step', async () => {
+      complete
+        .mockResolvedValueOnce(
+          Outcomes.success(
+            aToolTurn(aToolCall('replace_text', { anchor_text: '# Budget', replacement: '# Costs' })),
+          ),
+        )
+        .mockResolvedValueOnce(
+          Outcomes.success(
+            aToolTurn(aToolCall('insert_at', { location: 'note_end', content: '\n- item' })),
+          ),
+        )
+        .mockResolvedValueOnce(Outcomes.success(aTextTurn('done')))
+
+      await engine.processUtterance('rename then add')
+
       expect(editor.content).toBe('# Costs\n\nbody\n- item')
+    })
+
+    // RepeatedRefusalCounter ends a turn after two identical refusals, so a
+    // boundary refusal recorded against it would make a three-edit batch stick.
+    it('keeps the turn going when a batch of three edits refuses twice', async () => {
+      complete
+        .mockResolvedValueOnce(
+          Outcomes.success(
+            aToolTurn(
+              aToolCall('replace_text', { anchor_text: '# Budget', replacement: '# Costs' }),
+              aToolCall('insert_at', { location: 'note_end', content: '\n- one' }),
+              aToolCall('insert_at', { location: 'note_end', content: '\n- two' }),
+            ),
+          ),
+        )
+        .mockResolvedValueOnce(Outcomes.success(aTextTurn('done')))
+
+      const outcome = await engine.processUtterance('three edits')
+
+      expect(outcome).toEqual(Outcomes.success('done'))
     })
 
     // The bare string applied carried no tense and no target, so a batch gave

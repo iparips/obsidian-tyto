@@ -71,4 +71,13 @@ export class NoteChoiceService {
   holds(path: string): boolean {
     return this.notesChosenByUser.includes(path)
   }
+
+  // A whole-note write asks every time, where choose lets auto mode resolve a
+  // single candidate without asking: that exemption is about opening the one
+  // note a search found, and consenting to replace a note is not the same act.
+  // Nothing is recorded, so a second write in a later turn asks again.
+  async confirmsWrite(path: string): Promise<boolean> {
+    const request = new ChoiceRequest([path], `replace the whole of ${path}`)
+    return (await this.pending.awaiting(request, null)) === path
+  }
 }

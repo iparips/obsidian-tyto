@@ -367,7 +367,9 @@ describe('EditEngine', () => {
   })
 
   describe('when the vault allows no commands and disables search', () => {
-    it('offers only the release 3 tools when neither flow is available', async () => {
+    // NFR8: no command or search tool leaks into a vault that disabled both.
+    // The edit tools are not frozen by it, and write_note joins them.
+    it('offers the edit tools alone when neither flow is available', async () => {
       respondsWith()
 
       await engineOf([], false).processUtterance('edit')
@@ -376,6 +378,7 @@ describe('EditEngine', () => {
         'replace_text',
         'insert_text',
         'insert_at',
+        'write_note',
         'load_skill',
       ])
     })

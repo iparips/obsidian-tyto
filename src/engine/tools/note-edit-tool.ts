@@ -1,5 +1,6 @@
 import { ToolCall } from '../../model/providers/types'
 import { EditOperation, NoteEditor } from '../note-editing/note-editor'
+import { NoteChoiceService } from '../waiting/note-choice-service'
 import { NoteOperationParser } from '../note-editing/note-operation-parser'
 import { OpenNote } from '../note-editing/open-note'
 import { TurnRepository } from '../turn/turn-repository'
@@ -9,9 +10,10 @@ export class NoteEditTool {
   constructor(
     private noteEditor: NoteEditor,
     private turnRepository: TurnRepository,
+    private noteChoiceService: NoteChoiceService,
   ) {}
 
-  execute(call: ToolCall): ToolCallOutcome {
+  async execute(call: ToolCall): Promise<ToolCallOutcome> {
     const refused = this.turnRepository.refusedOpen()
     if (refused)
       return ToolCallOutcome.of(
@@ -28,10 +30,41 @@ export class NoteEditTool {
     return this.callToolOnNote(call, note)
   }
 
-  private callToolOnNote(call: ToolCall, note: OpenNote): ToolCallOutcome {
+  private async callToolOnNote(call: ToolCall, note: OpenNote): Promise<ToolCallOutcome> {
     const parsed = NoteOperationParser.parse(call)
     if (parsed.hasFailed()) return ToolCallOutcome.of(`invalid arguments: ${parsed.message}`)
-    return this.applyOperation(call.name, parsed.value, note)
+    if (!call.isWriteNote()) return this.applyOperation(call.name, parsed.value, note)
+    return this.applyGuardedWrite(call, parsed.value, note)
+  }
+
+  // The two refusals come before the confirmation, so a user is only asked
+  // about a write that is current: asking about one already doomed spends a
+  // prompt on nothing.
+  private async applyGuardedWrite(
+    call: ToolCall,
+    op: EditOperation,
+    note: OpenNote,
+  ): Promise<ToolCallOutcome> {
+    const refusal = this.refuseUncurrentWrite(call, note)
+    if (refusal) return refusal
+    if (!(await this.noteChoiceService.confirmsWrite(note.path)))
+      return ToolCallOutcome.of(`the user declined the write to ${note.path}`)
+    return this.applyOperation(call.name, op, note)
+  }
+
+  // A rewrite applies whatever it is given where an anchor fails loudly, so it
+  // is refused unless the model read this note this turn and the note still
+  // matches what that read returned.
+  private refuseUncurrentWrite(call: ToolCall, note: OpenNote): ToolCallOutcome | null {
+    if (!this.turnRepository.notesRead.includes(note.path))
+      return ToolCallOutcome.of(
+        `call read_note on ${note.path} in this turn before writing the whole of it`,
+      )
+    if (note.editor.getValue() !== call.argument('read_content'))
+      return ToolCallOutcome.of(
+        `${note.path} has changed since you read it; read it again and rewrite from what it says now`,
+      )
+    return null
   }
 
   // The bare string `applied` carried no tense and no target, so a batch gave
