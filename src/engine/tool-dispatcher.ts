@@ -293,7 +293,10 @@ export class ToolDispatcher {
     // by the time this runs. Publishing again says the note changed twice.
     const alreadyBound = this.sessionRepository.targetNote() === path
     this.sessionRepository.bindTo(path)
-    const maybeNote = await this.targetNoteResolver.resolveOrNothing()
+    // Resolved for the path the tool opened, not the session's: the user moving
+    // tabs while this runs rebinds the session, and reading it back would hand
+    // the turn an editor showing the note they moved to.
+    const maybeNote = await this.targetNoteResolver.resolveOrNothing(path)
     if (maybeNote === null) {
       this.turnRepository.cannotWriteTo(path)
       return false

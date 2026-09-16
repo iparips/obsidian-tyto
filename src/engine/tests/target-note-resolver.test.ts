@@ -26,6 +26,28 @@ describe('TargetNoteResolver', () => {
       TurnProgressPublisher.silent(),
     )
 
+  // The user clicking around rebinds the session, and a tool that opened a note
+  // named which one: reading the session back would hand the turn the editor
+  // showing whatever the user moved to.
+  describe('when the session moved after a tool named its note', () => {
+    beforeEach(() => {
+      noteLocator.withOpenNote('Lists/todo.md', new FakeEditor('# Todo'))
+    })
+
+    it('resolves the note it was given rather than the one now bound', async () => {
+      const sessions = aSession('note.md')
+      const resolution = await resolverFor(sessions).resolveFor('Lists/todo.md')
+
+      expect(resolution.noteOrNull()?.note.path).toBe('Lists/todo.md')
+    })
+
+    it('yields nothing when the note it was given has no editor', async () => {
+      const sessions = aSession('note.md')
+
+      expect(await resolverFor(sessions).resolveOrNothing('Lists/gone.md')).toBeNull()
+    })
+  })
+
   describe('when the session is unbound', () => {
     it('says no note is bound when no note is open', async () => {
       const resolution = await resolverFor(new SessionRepository(null)).resolve()
