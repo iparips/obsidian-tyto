@@ -3,7 +3,7 @@ created: 2026-09-16
 updated: 2026-09-16
 ---
 
-# Reading What The Editor Holds
+# Reaching A Note By Path
 
 ## Motivation
 
@@ -35,6 +35,19 @@ A model given both in one request has no way to tell which is current. The note
 context asserts it supersedes every earlier copy, which is true of the
 conversation and says nothing about a tool result arriving beside it.
 
+### An edit writes through a handle that can move
+
+TargetNoteResolver resolves a path to the Editor of whichever leaf shows it, and
+the turn holds that handle for its whole life. Obsidian gives an editor to a
+leaf rather than to a file, so the user switching tabs leaves the same handle
+showing a different note. The write follows the handle.
+
+Two reported sessions put an item into a note nobody named. The second did it
+after the resolve was corrected, so the handle is what remains. Its own comment
+anticipated half of this, saying an editor handle would go stale when the tab
+closed. It goes wrong when the tab merely changes, and wrongly rather than
+loudly.
+
 ### The open note is the one case where the editor is authoritative
 
 Every other note the tools read has no editor, so the file is all there is. The
@@ -47,9 +60,13 @@ that no longer exists, or hide one that does.
 
 ## Steps to Replicate
 
-Open a note, type into it without saving, and ask a question that makes the
-model call read_note on that note. The result and the note context disagree by
-whatever was typed.
+The reads. Open a note, type into it without saving, and ask a question that
+makes the model call read_note on that note. The result and the note context
+disagree by whatever was typed.
+
+The write. Ask for an edit to a note the session is not on, so a tool opens it,
+and switch tabs while the turn runs. The edit lands in the note now shown rather
+than the one the tool opened.
 
 ## References
 
@@ -57,6 +74,8 @@ whatever was typed.
 
 - [src/search/note-reader.ts](../../../../src/search/note-reader.ts) - open first: read calls cachedRead, which is where the file is preferred
 - [src/model/prompt/note-context-message.ts](../../../../src/model/prompt/note-context-message.ts) - builds from the editor, and asserts it supersedes what came before
+- [src/engine/note-binding/workspace-note-locator.ts](../../../../src/engine/note-binding/workspace-note-locator.ts) - findEditor, which reads the leaf showing a path rather than the file
+- [src/engine/note-editing/note-editor.ts](../../../../src/engine/note-editing/note-editor.ts) - the four editor calls a write makes, two of them cosmetic
 - [src/search/note-grep.ts](../../../../src/search/note-grep.ts) - the second reader, so a fix has two call sites rather than one
 - [7-transcript.md](7-transcript.md) - the reported session, where the two answers sit in one request
 
