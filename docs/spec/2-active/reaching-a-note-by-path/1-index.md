@@ -22,7 +22,7 @@ by the model during one, and by nothing else. Every defect here is that rule
 failing.
 
 - [2-requirements.md](2-requirements.md) - the two sources, the handle that moves, and the note the panel cannot name
-- [3-decisions.md](3-decisions.md) - what an edit writes through, and where a read of the open note comes from
+- [3-decisions.md](3-decisions.md) - what an edit writes through, and where a read of the turn's note comes from
 - [3-decisions-showing.md](3-decisions-showing.md) - where the user learns which note a turn is writing to
 - [7-transcript.md](7-transcript.md) - the two answers, in one request
 
@@ -31,9 +31,12 @@ and through the vault where it does not. The common case keeps undo and the
 cursor; only a tab that moved falls back, which is the case that is silently
 wrong today.
 
-No design or tasks file yet. D1 and D4 are blocking: one decides where a read of
-the open note comes from, the other whether the header keeps a note at all or a
-target becomes a per-turn fact. One fact is still outstanding:
+A read of the turn's note comes from the editor it holds, every other note from
+the file, which is D1 and the same principle as D3 from the reading side.
+
+No design or tasks file yet. D4 is the last blocking one: whether the header
+keeps a note at all, or a target becomes a per-turn fact. Its answer is chosen
+and what remains is whether losing the before-you-speak answer costs anything. One fact is still outstanding:
 whether a vault write lands in the editor's undo stack when the note is open.
 That decides how loudly the fallback should announce itself, not which option
 to take.
