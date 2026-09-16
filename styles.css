@@ -424,7 +424,9 @@
    drawer is resized freely and read on a phone (NFR2). */
 .tyto-recording-meter {
   display: flex;
-  align-items: flex-end;
+  /* Centred rather than sitting on a floor, so a quiet trail runs along the
+     clock's midline rather than below it. */
+  align-items: center;
   gap: 2px;
   height: 16px;
   flex: 1 1 auto;
