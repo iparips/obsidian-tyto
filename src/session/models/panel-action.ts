@@ -13,6 +13,8 @@ export type PanelAction =
   | { type: 'failed'; step: FailureStep; message: string; retryable?: boolean }
   | { type: 'instructions'; text: string }
   | { type: 'warned'; text: string }
+  // The path the session moved to, or null when the last note closed.
+  | { type: 'retargeted'; path: string | null }
   | { type: 'stepTaken'; label: string; detail: string; refused: boolean }
   | { type: 'answer'; text: string; sources: string[] }
   | { type: 'cancelRequested' }

@@ -27,6 +27,16 @@ import { EditEngine } from '../edit-engine'
 
 const DAILY = 'Journal/2026-09-02.md'
 
+// The sequence the provider rejects: a tool result must follow the assistant
+// message that called it, so anything appended between the two ends the turn.
+const systemMessagesSplittingToolPairsIn = (sent: readonly ChatMessage[]): string[] =>
+  sent
+    .filter(
+      (message, at) =>
+        message.isSystem() && !!sent[at - 1]?.hasToolCalls() && !!sent[at + 1]?.isToolResult(),
+    )
+    .map((message) => message.content)
+
 describe('EditEngine', () => {
   let editor: FakeEditor
   let dailyEditor: FakeEditor
@@ -431,24 +441,11 @@ describe('EditEngine', () => {
       expect(retargets).toEqual([])
     })
 
-    it('records the move in the history, so the next turn reads why the note changed', () => {
+    // A retarget is a session event, so it reaches the panel and stops there.
+    // The note context is built per call and names the note now bound, which is
+    // what the history message used to say less precisely.
+    it('appends nothing to the history when the user opens a different note', () => {
       engineOf().followActiveNote(DAILY)
-
-      expect(sessions.chatHistory()).toEqual([
-        ChatMessage.system('The user moved to a different note. Later turns are about this one.'),
-      ])
-    })
-
-    // Naming a note is what archived spec 29 found dragging the target back, and
-    // the note context that follows already names the one now bound.
-    it('names no note in the recorded move', () => {
-      engineOf().followActiveNote(DAILY)
-
-      expect(sessions.chatHistory()[0].content).not.toContain(DAILY)
-    })
-
-    it('records nothing when the user opens the note already targeted', () => {
-      engineOf().followActiveNote('note.md')
 
       expect(sessions.chatHistory()).toEqual([])
     })
@@ -479,19 +476,18 @@ describe('EditEngine', () => {
       expect(dailyEditor.content).toBe('# Today\n\n## Meetings\n- plates\n')
     })
 
-    // The note context is built per call and sent last, so a retarget the turn
-    // heard about reads as history rather than as the standing instruction.
-    it('sends the recorded move ahead of the note context on the next call', async () => {
+    // The regression test for the 400. A command that opens a note fires
+    // file-open while the tool is still running, so a message appended there
+    // landed between the assistant tool call and its result, and Mistral
+    // answered `Unexpected role 'tool' after role 'system'`.
+    it('sends no system message between a tool call and its result', async () => {
       const engine = engineOf()
       opensMidTurn(engine, DAILY)
 
       await engine.processUtterance('add plates to the list')
 
       const sent = complete.mock.calls[1][0] as ChatMessage[]
-      const movedAt = sent.findIndex((message) => message.content.startsWith('The user moved'))
-      const contextAt = sent.findIndex((message) => message.content.includes(DAILY))
-      expect(movedAt).toBeGreaterThan(-1)
-      expect(movedAt).toBeLessThan(contextAt)
+      expect(systemMessagesSplittingToolPairsIn(sent)).toEqual([])
     })
 
     it('leaves the turn on its note when a mid-turn open will not resolve', async () => {
