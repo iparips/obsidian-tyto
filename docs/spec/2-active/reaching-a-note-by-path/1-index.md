@@ -40,8 +40,9 @@ target, its steps and its reply. That makes the grouping a fact rather than
 something scanned back to, which is what put a retarget in the wrong turn once
 already.
 
-No design or tasks file yet, and nothing blocking. D5 and D2 are open and can be
-answered while the design is written. One fact is still outstanding:
+Every decision is settled, so the design can be written. A turn starts on the
+session's note and shows it, which is what a user relies on when an utterance
+names no note at all, and a tool call moving it is the change worth seeing. One fact is still outstanding:
 whether a vault write lands in the editor's undo stack when the note is open.
 That decides how loudly the fallback should announce itself, not which option
 to take.
