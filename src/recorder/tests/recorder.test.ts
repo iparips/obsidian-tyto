@@ -93,6 +93,25 @@ describe('Recorder', () => {
     })
   })
 
+  describe('when the stream is read', () => {
+    it('answers the stream it is recording while a recording runs', async () => {
+      await recorder.start()
+
+      expect(recorder.stream()).toBe(FakeMediaRecorder.instances[0].stream)
+    })
+
+    it('answers nothing before a recording has started', () => {
+      expect(recorder.stream()).toBeNull()
+    })
+
+    it('answers nothing once a recording has stopped', async () => {
+      await recorder.start()
+      await recorder.stop()
+
+      expect(recorder.stream()).toBeNull()
+    })
+  })
+
   describe('when recording is cancelled', () => {
     it('discards the recording when cancel is called', async () => {
       await recorder.start()
