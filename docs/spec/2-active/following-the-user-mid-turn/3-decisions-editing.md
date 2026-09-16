@@ -15,10 +15,13 @@ the reported note; the ones about the retarget that started it are in
 
 #### D6: How does an anchored edit avoid going stale? [resolved 2026-09-16]
 
-It does not have to, and it is not left to the model to get right. Ilya: the
-whole-note write is the better approach for a scattered edit, and one edit per
-step is enforced so a model that reaches for the anchored tools anyway cannot
-batch them.
+By never anchoring against a note it has not just been shown. Ilya: one edit per
+step is enforced, so the note is read once per turn step and an anchor is always
+computed from the read that preceded it.
+
+A batch is what breaks that, since the second call in one anchors against a note
+the first has already changed. Enforcing the step boundary restores the pairing
+the anchored tools always assumed: one read, one edit, in that order.
 
 D5 guards a whole-note write. This is the same question for the edit tools that
 stay, and Ilya asked it directly: bit-by-bit edits need something too.
@@ -35,12 +38,11 @@ applies. The model is never shown the note between its own calls.
 | Refuse a batch whose anchors overlap        | The drift before any of it lands | A rule for overlapping, computed against the note |
 | One edit per step, never a batch            | All of it                        | Chosen, with the whole-note tool paying its cost  |
 
-Two of the four are taken together, and they answer different halves. The
-whole-note tool removes the reason to batch for the case that produced this
-spec: one call, one write, nothing to go stale against. Enforcing one edit per
-step removes the ability to batch at all, so a model that judges wrongly and
-reaches for the anchored tools writes once and is shown the note before it
-writes again.
+Two of the four are taken together, and they answer different halves. Enforcing
+one edit per step is the fix: it pairs every anchor with the read that precedes
+it, which is what the anchored tools always assumed and what a batch quietly
+broke. The whole-note write is what makes that affordable, since a scattered
+edit that would have cost twelve steps costs one call and one write instead.
 
 The enforcement is what makes the rest hold. A batch exists because a model call
 is expensive, not because the edits belong together, and asking a model to
