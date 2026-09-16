@@ -92,9 +92,17 @@ so a malformed name reaches NoteOperationParser and is refused there. The
 refusal is correct and the wording is not: it echoes the name, and it arrives
 from the edit tool rather than from the dispatcher.
 
-Refusing against the offered set is what makes the batch case safe.
-ToolCatalogue.forCapabilities already builds that set for the turn, so the
-dispatcher has a list to check against without a new source of truth.
+Refusing a name no tool carries is what makes the batch case safe. TOOL_SCHEMAS
+already names every tool the catalogue defines, so the dispatcher has a list to
+check against without a new source of truth.
+
+The check is against the defined names rather than the narrower set this turn
+offers. A tool a disabled capability withheld is a real tool, and the branches
+below the guard refuse it by name and reason: search off answers `searching the
+vault is turned off in settings`. Checking against the offered set would replace
+that with `no tool named that`, which is both wrong and a loss, since NFR4 wants
+the schemas never to be the only thing holding a disabled flow out of reach. The
+refusal still lists the offered set, which is what the model may act on.
 
 This is the primary fix for the phantom edit. D2 narrows what a batch can be
 misread as; this removes the second result that was misread at all.

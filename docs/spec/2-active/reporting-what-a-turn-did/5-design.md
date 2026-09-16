@@ -95,18 +95,24 @@ Without it the transcript loses the case the panel now gets right.
 ## The Unknown Tool Name
 
 ToolDispatcher.execute gains a guard before the load-skill branch, since a name
-that is not offered is not a load_skill either. The offered set comes from
-ToolCatalogue.forCapabilities, which HarnessToolsService already calls for the
-schemas sent with each request; the dispatcher reads that list, not a copy.
+no tool carries is not a load_skill either. The names come from TOOL_SCHEMAS,
+which the catalogue itself filters; the dispatcher reads that list, not a copy.
 
 ```text
-if the call's name is not in the offered set
-  publish a refused step naming the call
+if the call's name is not one TOOL_SCHEMAS defines
+  publish a refused step
   return a refusal naming the tools that may be called
 ```
 
-The refusal names the offered tools, not the name it was sent: echoing it is
-what put the model's reasoning blob into the history three times in one session.
+Two lists, each doing its own job. The guard checks the defined names, so a tool
+a disabled capability withheld still reaches the branch that refuses it by name
+and reason, which is NFR4. The refusal then lists the offered set, which is what
+this turn can act on.
+
+The step is labelled Refused and carries the reason alone, through
+TurnStep.refusedByUnnamedTool. The refusal names the offered tools and not the
+name it was sent: echoing it is what put the model's reasoning blob into the
+history three times in one session, and into the panel with it.
 
 NoteOperationParser keeps its own unknown-tool branch, unreachable from the
 dispatcher once this lands. It is exhaustiveness, not a second gate.
