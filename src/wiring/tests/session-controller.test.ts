@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { SessionController, PluginRegistrations } from '../session-controller'
+import { SessionController } from '../session-controller'
 import { SessionLeaf } from '../session-leaf'
 import { PluginScope } from '../plugin-scope'
 import { SessionStore } from '../../session/session-store'
@@ -8,21 +8,15 @@ import { DEFAULT_SETTINGS } from '../../settings/settings'
 import { FakeAdapter } from '../../test-support/fake-adapter'
 import { FakeSessionWorkspace } from '../../test-support/fake-session-workspace'
 
-// The plugin's registrations, which a controller built in a test never fires.
-class FakeRegistrations implements PluginRegistrations {
-  onObsidianFileOpened(): void {}
-
-  onObsidianBackgrounded(): () => void {
-    return () => {}
-  }
-}
-
 const controllerOver = (workspace: FakeSessionWorkspace, adapter: FakeAdapter): SessionController =>
   new SessionController(
     new PluginScope(workspace.asApp(), () => DEFAULT_SETTINGS),
     new SessionLeaf(workspace.asApp()),
     new SessionStore(adapter.asAdapter(), 'plugins/tyto'),
-    new FakeRegistrations(),
+    // Never fired by a controller built in a test, which reads the props rather
+    // than the events.
+    () => {},
+    () => () => {},
     '1.0.0',
   )
 
