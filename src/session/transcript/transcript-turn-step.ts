@@ -16,6 +16,9 @@ const PART_LABELS: Record<PartName, string> = {
 export interface TurnStepHistory {
   sent: readonly ChatMessage[]
   answered: readonly ChatMessage[]
+  // Only the session's last step has any: every earlier step is followed by one
+  // whose Request block renders what came after it.
+  harnessNotes: readonly ChatMessage[]
 }
 
 // One pass of the turn loop, in the three blocks the loop runs them in: what
@@ -37,7 +40,7 @@ export class TranscriptTurnStep {
       '',
       ...TranscriptTurnStep.response(history.answered),
       '',
-      ...TranscriptTurnStep.harness(panelSteps, ending),
+      ...TranscriptTurnStep.harness(panelSteps, ending, history.harnessNotes),
     ]
   }
 
@@ -74,10 +77,12 @@ export class TranscriptTurnStep {
   private static harness(
     panelSteps: readonly PanelStep[],
     ending: RecordedEnding | null,
+    harnessNotes: readonly ChatMessage[],
   ): string[] {
     return [
       'Harness',
       ...panelSteps.map(TranscriptEntryLines.step),
+      ...harnessNotes.map((message) => `- ${message.content}`),
       `- Outcome: ${ending?.kind ?? 'continue'}`,
     ]
   }
@@ -93,6 +98,9 @@ const requestLines = (
   calls: readonly ToolCall[],
   skills: LoadedSkills,
 ): string[] => {
+  // A harness note the user never typed, so labelling it user would file a
+  // retarget as something the user said in this turn.
+  if (message.isSystem()) return [`- harness: ${message.content}`]
   if (!message.isToolResult()) return [`- user: ${message.content}`]
   // A skill body is several hundred words, and the same body reaches every step
   // after it through the history. Cited so the step stays one line.
