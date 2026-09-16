@@ -16,6 +16,7 @@ describe('SessionPanel', () => {
       start: vi.fn().mockResolvedValue(Outcomes.success(undefined)),
       stop: vi.fn().mockResolvedValue(new Utterance(new Blob(['a']), 'audio/webm')),
       cancel: vi.fn(),
+      stream: vi.fn().mockReturnValue(null),
     }
     transcribe = vi.fn().mockResolvedValue(Outcomes.success('spoken words'))
     processUtterance = vi.fn().mockResolvedValue(Outcomes.success('made the edit'))
