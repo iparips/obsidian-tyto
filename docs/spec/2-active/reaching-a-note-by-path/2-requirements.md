@@ -87,14 +87,18 @@ and can hold a different one: a command opens a note mid-turn, or the user moves
 while the turn runs, and from then on the header names one note and the edits go
 to another.
 
-Nothing says so. Both reported sessions were found by opening the file, not by
-reading the panel, and in the second every step named todo.md while the write
-landed in shopping-list.md.
+Nothing says so. Both reported sessions were found by opening the file rather
+than the panel: in the second, every step named todo.md while the write landed
+in shopping-list.md.
 
 The header is one note with no turn attached to it, so it cannot say which
-utterance that note belongs to. A target is a fact about a turn: the turn
-determined it, the turn writes through it, and it stops meaning anything when
-the turn ends.
+utterance that note belongs to. A target is a fact about a turn: determined by
+it, written through by it, and meaningless once it ends.
+
+So the note leaves the header and the turn part of the panel is redesigned
+around its target. That reaches further than a field: a turn is not a container
+today, and the eleven entry kinds are flat siblings grouped by scanning back to
+the last user entry.
 
 ## Steps to Replicate
 
