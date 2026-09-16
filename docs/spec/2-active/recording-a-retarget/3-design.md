@@ -136,6 +136,28 @@ message and publishes one step.
 Enqueueing the retarget as a turn was rejected. See D2 in
 [4-decisions.md](4-decisions.md).
 
+## What The Transcript Had To Change
+
+The history reaches the transcript already: recordCall opens each step's slice
+where the step before it closed, so no message is skipped by index. What the
+transcript could not do was render a system message once it arrived.
+
+| Where the retarget lands | Sliced by                     | Rendered before |
+| ------------------------ | ----------------------------- | --------------- |
+| Inside a turn            | The next turn step's Request  | As the user     |
+| Between two turns        | The next turn's first Request | As the user     |
+| After the last turn      | The last step's tail          | Not at all      |
+
+The first two were mislabelled: requestLines files anything that is not a tool
+result as the user, so a retarget read as something the user typed. They now
+render as a harness line.
+
+The third was dropped: the tail reaches the Response block, which keeps only
+tool calls and the model's own words. A retarget on an idle session is the case
+this spec raised, so the last step's Harness block now carries it. Only the
+session's last step does, since every earlier step is followed by one whose
+Request block already renders it.
+
 ## Test Plan
 
 ### TurnStep
@@ -150,8 +172,10 @@ Enqueueing the retarget as a turn was rejected. See D2 in
 
 ### TranscriptTurnSection
 
-- writes a retarget that happened inside a turn, in that turn
-- writes a retarget that happened between turns, at the point it happened
+- writes a retarget that happened between turns, in the turn that followed it
+- writes a retarget that happened after the last turn, in that turn
+- writes it once, so a reader cannot read one retarget as two
+- never files it as the user, who typed none of it
 
 ### PromptFactory
 

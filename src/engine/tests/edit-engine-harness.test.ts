@@ -430,6 +430,28 @@ describe('EditEngine', () => {
 
       expect(retargets).toEqual([])
     })
+
+    it('records the move in the history, so the next turn reads why the note changed', () => {
+      engineOf().followActiveNote(DAILY)
+
+      expect(sessions.chatHistory()).toEqual([
+        ChatMessage.system('The user moved to a different note. Later turns are about this one.'),
+      ])
+    })
+
+    // Naming a note is what archived spec 29 found dragging the target back, and
+    // the note context that follows already names the one now bound.
+    it('names no note in the recorded move', () => {
+      engineOf().followActiveNote(DAILY)
+
+      expect(sessions.chatHistory()[0].content).not.toContain(DAILY)
+    })
+
+    it('records nothing when the user opens the note already targeted', () => {
+      engineOf().followActiveNote('note.md')
+
+      expect(sessions.chatHistory()).toEqual([])
+    })
   })
 
   // The user switching tabs mid-turn is a retarget like any other, so the turn
@@ -455,6 +477,21 @@ describe('EditEngine', () => {
       await engine.processUtterance('add plates to the list')
 
       expect(dailyEditor.content).toBe('# Today\n\n## Meetings\n- plates\n')
+    })
+
+    // The note context is built per call and sent last, so a retarget the turn
+    // heard about reads as history rather than as the standing instruction.
+    it('sends the recorded move ahead of the note context on the next call', async () => {
+      const engine = engineOf()
+      opensMidTurn(engine, DAILY)
+
+      await engine.processUtterance('add plates to the list')
+
+      const sent = complete.mock.calls[1][0] as ChatMessage[]
+      const movedAt = sent.findIndex((message) => message.content.startsWith('The user moved'))
+      const contextAt = sent.findIndex((message) => message.content.includes(DAILY))
+      expect(movedAt).toBeGreaterThan(-1)
+      expect(movedAt).toBeLessThan(contextAt)
     })
 
     it('leaves the turn on its note when a mid-turn open will not resolve', async () => {

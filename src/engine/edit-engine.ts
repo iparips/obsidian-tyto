@@ -26,8 +26,17 @@ export class EditEngine {
   async followActiveNote(path: string | null): Promise<void> {
     if (path === this.sessionRepository.targetNote()) return
     this.sessionRepository.bindTo(path)
+    this.sessionRepository.appendChatMessage(EditEngine.retargetMessage())
     this.turnProgressPublisher.retargetedFn(path)
     await this.retargetRunningTurn()
+  }
+
+  // Appended where it happened rather than enqueued as a turn, so the model
+  // reads it as history on its next real turn. It names no note: the note
+  // context that follows names the current one, and naming one here is what
+  // archived spec 29 found dragging the target back.
+  private static retargetMessage(): ChatMessage {
+    return ChatMessage.system('The user moved to a different note. Later turns are about this one.')
   }
 
   // Resolved after the session target moved, since that is what the resolver
