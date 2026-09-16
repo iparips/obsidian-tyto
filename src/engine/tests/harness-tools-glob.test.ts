@@ -4,6 +4,7 @@ import { HarnessToolsService } from '../tools/harness-tools-service'
 import { TurnState } from '../tools/harness-result'
 import { NotesOpenedCounter } from '../turn/notes-opened-counter'
 import { PathsReturnedByVaultRepository } from '../turn/paths-returned-by-vault-repository'
+import { NotesReadRepository } from '../turn/notes-read-repository'
 import { ObsidianCommandCatalogue } from '../../commands/obsidian-command-catalogue'
 import { ObsidianCommandRegistry } from '../../commands/obsidian-command-registry'
 import { ObsidianCommandRunner } from '../../commands/obsidian-command-runner'
@@ -30,6 +31,7 @@ describe('HarnessToolsService', () => {
     turn = {
       notesOpenedCounter: new NotesOpenedCounter(),
       pathsReturnedByVault: new PathsReturnedByVaultRepository(),
+      notesRead: new NotesReadRepository(),
     }
   })
 
@@ -57,8 +59,8 @@ describe('HarnessToolsService', () => {
   const glob = (pattern: string, args: Record<string, unknown> = {}) =>
     toolsOf().execute(aToolCall('glob_notes', { pattern, ...args }), turn)
 
-  const namesOf = (tools: HarnessToolsService, spent: readonly string[] = []) =>
-    tools.getToolCallSchemas(spent).map((schema) => schema.name)
+  const namesOf = (tools: HarnessToolsService) =>
+    tools.getToolCallSchemas().map((schema) => schema.name)
 
   describe('when a glob matches notes', () => {
     it('runs a glob when glob_notes is called, listing one path per line', async () => {

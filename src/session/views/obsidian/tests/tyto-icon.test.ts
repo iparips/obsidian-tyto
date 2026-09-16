@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest'
-import { REGISTERED_ICONS } from 'obsidian'
+import { REGISTERED_ICONS } from '../../../../test-support/__mocks__/obsidian'
 import { registerTytoIcon, TYTO_ICON } from '../tyto-icon'
 
 // The glyph itself is checked by eye in the ribbon, which is the only place it

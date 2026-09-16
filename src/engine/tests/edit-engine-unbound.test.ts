@@ -99,6 +99,15 @@ describe('EditEngine', () => {
       },
     )
 
+  // The note context is sent last, so it is what the model reads about the
+  // note. Thrown rather than optional-chained, since a call with no messages is
+  // a broken test rather than a passing one.
+  const lastSent = (): ChatMessage => {
+    const sent = complete.mock.calls[0][0].at(-1)
+    if (!sent) throw new Error('the model was called with no messages')
+    return sent
+  }
+
   const respondsWith = (...turns: ReturnType<typeof aToolTurn>[]) => {
     turns.forEach((turn) => complete.mockResolvedValueOnce(Outcomes.success(turn)))
     complete.mockResolvedValue(Outcomes.success(aTextTurn('done')))
@@ -121,7 +130,7 @@ describe('EditEngine', () => {
 
       await engineOf().processUtterance('what is in my vault')
 
-      expect(complete.mock.calls[0][0].at(-1).content).toContain('No note is open')
+      expect(lastSent().content).toContain('No note is open')
     })
 
     it('tells the model to open the note by command when one is allowed', async () => {
@@ -129,9 +138,7 @@ describe('EditEngine', () => {
 
       await engineOf().processUtterance('what is in my vault')
 
-      expect(complete.mock.calls[0][0].at(-1).content).toContain(
-        'run the command that opens the note they named',
-      )
+      expect(lastSent().content).toContain('run the command that opens the note they named')
     })
 
     it('offers the edit tools when no note is open', async () => {
