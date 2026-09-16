@@ -27,7 +27,7 @@ export class SessionProgress {
       // One channel, read twice: the header names the note now, and the panel
       // dispatches its own entry off the same subscription. Not a step, since a
       // retarget belongs to the moment rather than to the turn that was open.
-      (path) => this.session.retargets.publish(path),
+      (path, byUser) => this.session.retargets.publish({ path, byUser }),
       (chain) => this.reportInstructions(chain),
       // Published as a step rather than a line beside the list: loading a skill
       // is one of the things the turn did, and its place in the order is what

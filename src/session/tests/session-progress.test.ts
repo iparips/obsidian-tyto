@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { SessionProgress } from '../session-progress'
-import { SessionListeners, StepReport } from '../session-listeners'
+import { RetargetReport, SessionListeners, StepReport } from '../session-listeners'
 import { AgentsMdChain } from '../../agents/agents-md-chain'
 import { AgentsMdFile } from '../../agents/agents-md-file'
 import { TurnStep } from '../../engine/turn-step'
@@ -39,19 +39,30 @@ describe('SessionProgress', () => {
 
   describe('when the session retargets', () => {
     it('moves the header, which is the one channel a retarget reaches', () => {
-      const retargets: (string | null)[] = []
-      listeners.retargets.subscribe((path) => retargets.push(path))
+      const retargets: RetargetReport[] = []
+      listeners.retargets.subscribe((report) => retargets.push(report))
 
-      publisherOf().retargetedFn('Lists/todo.md')
+      publisherOf().retargetedFn('Lists/todo.md', true)
 
-      expect(retargets).toEqual(['Lists/todo.md'])
+      expect(retargets).toEqual([{ path: 'Lists/todo.md', byUser: true }])
+    })
+
+    // The header follows either way; the timeline reads byUser to drop the ones
+    // a tool made, which published their own step already.
+    it('says who moved it, so a tool retarget reaches the header alone', () => {
+      const retargets: RetargetReport[] = []
+      listeners.retargets.subscribe((report) => retargets.push(report))
+
+      publisherOf().retargetedFn('Lists/todo.md', false)
+
+      expect(retargets).toEqual([{ path: 'Lists/todo.md', byUser: false }])
     })
 
     // Not a step: a retarget belongs to the moment it happened, and the panel
     // dispatches its own entry off the header's subscription. As a step it
     // joined the turn above a restore marker, which is the defect this retires.
     it('publishes no step, since a retarget belongs to no turn', () => {
-      publisherOf().retargetedFn('Lists/todo.md')
+      publisherOf().retargetedFn('Lists/todo.md', true)
 
       expect(steps).toEqual([])
     })

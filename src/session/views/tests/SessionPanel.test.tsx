@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event'
 import { SessionPanel, RecorderPort, SessionPanelProps } from '../SessionPanel'
 import { Utterance } from '../../../recorder'
 import { Attempt, Outcome, Outcomes } from '../../../shared/models/outcome'
+import { RetargetReport } from '../../session-listeners'
 
 describe('SessionPanel', () => {
   let recorder: RecorderPort
@@ -413,13 +414,13 @@ describe('SessionPanel', () => {
   })
 
   describe('when a command moves the target note', () => {
-    const targetListeners: ((path: string | null) => void)[] = []
-    const onTargetNoteChanged = (listenerFn: (path: string | null) => void) => {
+    const targetListeners: ((report: RetargetReport) => void)[] = []
+    const onTargetNoteChanged = (listenerFn: (report: RetargetReport) => void) => {
       targetListeners.push(listenerFn)
       return () => targetListeners.splice(targetListeners.indexOf(listenerFn), 1)
     }
-    const retargetTo = (path: string | null) =>
-      act(() => targetListeners.forEach((listenerFn) => listenerFn(path)))
+    const retargetTo = (path: string | null, byUser = false) =>
+      act(() => targetListeners.forEach((listenerFn) => listenerFn({ path, byUser })))
 
     beforeEach(() => {
       targetListeners.length = 0
@@ -769,22 +770,32 @@ describe('SessionPanel', () => {
   // and the header says which note it is on now.
   describe('when the session moves to a different note', () => {
     const renderRetargeting = () => {
-      let retarget: (path: string | null) => void = () => undefined
+      let retarget: (report: RetargetReport) => void = () => undefined
       renderPanel({
         onTargetNoteChanged: (listener) => {
           retarget = listener
           return () => undefined
         },
       })
-      return (path: string | null) => act(() => retarget(path))
+      return (path: string | null, byUser = true) => act(() => retarget({ path, byUser }))
     }
 
-    it('renders an entry naming the note the session moved to', () => {
+    it('renders an entry naming the note the user moved to', () => {
       const retarget = renderRetargeting()
 
       retarget('Lists/todo.md')
 
       expect(screen.getByText('Now editing todo.')).toBeTruthy()
+    })
+
+    // A tool that opened a note published its own step saying so, so an entry
+    // here would say the same thing twice.
+    it('renders no entry when a tool moved the note, since its step said so', () => {
+      const retarget = renderRetargeting()
+
+      retarget('Lists/todo.md', false)
+
+      expect(screen.queryByText('Now editing todo.')).toBeNull()
     })
 
     it('renders nothing on the timeline until the session moves', () => {

@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { PanelAction } from '../../models/panel-action'
-import { AnswerReport, StepReport } from '../../session-listeners'
+import { AnswerReport, RetargetReport, StepReport } from '../../session-listeners'
 
 // What the engine reports as a turn runs. Each is a subscription returning its
 // own unsubscribe, so the panel holds none of them.
@@ -19,7 +19,7 @@ export interface EngineEventPorts {
   // The same subscription the header reads, forwarded to the timeline: a
   // retarget is a session event, so it lands as its own entry rather than as a
   // step inside whichever turn was open.
-  onTargetNoteChanged?(listener: (path: string | null) => void): () => void
+  onTargetNoteChanged?(listener: (report: RetargetReport) => void): () => void
 }
 
 // Six subscriptions the panel only forwards to the reducer, wired once. They
@@ -58,7 +58,12 @@ export const useEngineEvents = (
   )
 
   useEffect(
-    () => ports.onTargetNoteChanged?.((path) => dispatchFn({ type: 'retargeted', path })),
+    () =>
+      ports.onTargetNoteChanged?.((report) => {
+        // A tool that opened a note published its own step, so an entry here
+        // would say the same thing twice. Only the user moving is news.
+        if (report.byUser) dispatchFn({ type: 'retargeted', path: report.path })
+      }),
     [],
   )
 }

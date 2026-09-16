@@ -7,7 +7,10 @@ import { TurnStep } from './turn-step'
 export class TurnProgressPublisher {
   constructor(
     readonly publishModelAnswerFn: (text: string, sources: string[]) => void,
-    readonly retargetedFn: (path: string | null) => void,
+    // byUser separates the two callers: the user opening a note is the only
+    // retarget the timeline shows, since a tool that opened one said so in the
+    // steps already.
+    readonly retargetedFn: (path: string | null, byUser: boolean) => void,
     readonly instructionsResolvedFn: (chain: AgentsMdChain) => void,
     readonly skillLoadedFn: (name: string) => void,
     // Said once, as the turn nears its cap, so a user watching a long turn can
