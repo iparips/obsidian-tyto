@@ -5,6 +5,11 @@ updated: 2026-09-16
 
 # Tasks
 
+Both writes below were replaced by D1 of
+[reporting-what-a-turn-did](../reporting-what-a-turn-did/1-index.md): the step
+and the history message are gone, and a retargeted panel entry carries the
+panel and the transcript instead. Kept as the record of what shipped here.
+
 Two commits, one per write. They are independent: the panel step and the history
 message share nothing but the moment they happen, so either order works and
 either can land alone.
