@@ -67,19 +67,4 @@ Tests: the strip renders the meter and the clock while recording, renders
 nothing in every other phase, and shows elapsed time as m:ss. InputRow carries
 the accent colour while recording.
 
-## Verifying
-
-The suite covers the lifecycle and the rendering. It cannot cover the thing the
-feature exists for: whether the bars visibly follow a voice and sit low in
-silence.
-
-Check on all three platforms, since the assumptions in 4-decisions.md differ by
-platform:
-
-- Desktop: speak and watch the bars, then mute and watch them fall
-- Android: the same, over adb with Chrome DevTools
-- iOS: the same, over Safari Web Inspector. This is where a suspended
-  AudioContext would show as a meter frozen at rest while the clock still runs
-
-A meter frozen at rest on iOS alone is the suspended-context assumption failing,
-not a dead microphone. Try resume() on the record gesture before anything else.
+The checks a person runs are in [5-tests.md](5-tests.md).

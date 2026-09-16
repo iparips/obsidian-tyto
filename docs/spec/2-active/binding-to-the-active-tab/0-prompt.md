@@ -11,7 +11,7 @@ Paste the block below into a fresh session.
 Fix the session binding to the active tab, specified in
 docs/spec/2-active/binding-to-the-active-tab.
 
-Read 1-index.md, then 2-requirements.md, then 5-tasks.md. 4-decisions.md holds
+Read 1-index.md, then 2-requirements.md, then 6-tasks.md. 5-tests.md holds the checks a person runs. 4-decisions.md holds
 one resolved decision and three assumptions; read it if a choice looks
 arbitrary. 3-design.md describes commit 1, which is already landed.
 
