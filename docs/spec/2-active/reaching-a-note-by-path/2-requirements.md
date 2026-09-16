@@ -58,6 +58,21 @@ against.
 So a read of the open note that returns the file can hand the model an anchor
 that no longer exists, or hide one that does.
 
+### The panel shows the session's note, never the turn's
+
+PanelHeader is given one note, and it is the session's. A turn resolves its own
+and can hold a different one: a command opens a note mid-turn, or the user moves
+while the turn runs, and from then on the header names one note and the edits go
+to another.
+
+Nothing says so. Both reported sessions were found by opening the file, not by
+reading the panel, and in the second every step named todo.md while the write
+landed in shopping-list.md.
+
+The header is the right place, since it is what a user checks before speaking.
+What it cannot do today is say two things at once: where the next utterance will
+go, and where the one now running is writing.
+
 ## Steps to Replicate
 
 The reads. Open a note, type into it without saving, and ask a question that
