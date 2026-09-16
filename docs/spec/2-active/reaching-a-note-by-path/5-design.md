@@ -40,25 +40,27 @@ flowchart TB
 
 Arrows: data flow (direction data moves).
 
-NoteEditor takes the target path and compares before writing. The editor branch
-is what happens today, so undo and the cursor are unchanged in the case that is
+NoteEditor.apply already receives NoteDetails, which carries the path, so it
+gains no parameter and compares before writing. The editor branch is what
+happens today, so undo and the cursor are unchanged in the case that is
 almost always true. The vault branch skips the cursor, since a user whose tab
 moved is not watching that note.
 
-An Editor does not name the file it shows, so the comparison cannot ask it. It
-asks the locator instead: WorkspaceNoteLocator.locate(path) returns the editor
-of the leaf showing that path now, and the branch takes the editor when that is
-the same handle the turn holds. A different handle, or none, means the tab moved
-and the write takes the vault.
+An Editor does not name the file it shows, so the comparison asks the locator:
+WorkspaceNoteLocator.locate(path) returns the editor of the leaf showing that
+path now, and the branch takes the editor when that is the handle the turn
+holds. A different handle, or none, means the tab moved.
 
 ## Where A Read Comes From
 
 NoteReader keeps reading files and gains no collaborator. The branch belongs
 where the read is dispatched, since that is what holds the turn.
 
-HarnessToolsService.readNote takes the turn state already. It asks the turn for
-its note, and where the path matches, answers from that editor rather than
-calling NoteReader at all.
+HarnessToolsService.readNote takes a TurnState already, but that interface
+carries three repositories and no target note, so it widens by one readonly
+field: the turn has the note, only the shape the tools see of it lacks one.
+readNote then answers from that editor where the path matches, and calls
+NoteReader otherwise.
 
 ```text
 read_note for path P
