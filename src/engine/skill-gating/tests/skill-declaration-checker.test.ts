@@ -50,7 +50,7 @@ describe('SkillDeclarationChecker', () => {
 
     it('names the skill to load when nothing has read it', () => {
       expect(outcomeOf({ applicable_skills: ['journal'] }).refusalOrNull()).toBe(
-        'load journal, then call this again declaring it',
+        'call load_skill for journal now, then call this again declaring it. Do not retry this call first',
       )
     })
 
@@ -58,20 +58,22 @@ describe('SkillDeclarationChecker', () => {
     // whether any was read.
     it('names the unread skill when a different one was read', () => {
       expect(outcomeOf({ applicable_skills: ['shopping'] }, ['journal']).refusalOrNull()).toBe(
-        'load shopping, then call this again declaring it',
+        'call load_skill for shopping now, then call this again declaring it. Do not retry this call first',
       )
     })
 
     it('names every unread skill when several are declared', () => {
       expect(outcomeOf({ applicable_skills: ['journal', 'shopping'] }).refusalOrNull()).toBe(
-        'load journal, shopping, then call this again declaring it',
+        'call load_skill for journal, shopping now, then call this again declaring it. Do not retry this call first',
       )
     })
 
     it('names only the unread one when the others are read', () => {
       expect(
         outcomeOf({ applicable_skills: ['journal', 'shopping'] }, ['journal']).refusalOrNull(),
-      ).toBe('load shopping, then call this again declaring it')
+      ).toBe(
+        'call load_skill for shopping now, then call this again declaring it. Do not retry this call first',
+      )
     })
   })
 

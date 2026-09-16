@@ -347,7 +347,8 @@ describe('EditEngine', () => {
         await engineWithTodoSkill().processUtterance('add a line')
 
         expect(resultOf(1)).toMatchObject({
-          content: 'load todo, then call this again declaring it',
+          content:
+            'call load_skill for todo now, then call this again declaring it. Do not retry this call first',
         })
       })
 
@@ -409,7 +410,8 @@ describe('EditEngine', () => {
         await withSkills.processUtterance('add milk')
 
         expect(resultOf(1)).toMatchObject({
-          content: 'load shopping, then call this again declaring it',
+          content:
+            'call load_skill for shopping now, then call this again declaring it. Do not retry this call first',
         })
       })
 
@@ -478,7 +480,8 @@ describe('EditEngine', () => {
         await engineWithTodoSkill().processUtterance('find my note')
 
         expect(resultOf(1)).toMatchObject({
-          content: 'load todo, then call this again declaring it',
+          content:
+            'call load_skill for todo now, then call this again declaring it. Do not retry this call first',
         })
       })
 
