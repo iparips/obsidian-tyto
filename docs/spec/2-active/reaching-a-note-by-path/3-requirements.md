@@ -91,7 +91,7 @@ than the one the tool opened.
 - [src/engine/note-binding/workspace-note-locator.ts](../../../../src/engine/note-binding/workspace-note-locator.ts) - findEditor, which reads the leaf showing a path rather than the file
 - [src/engine/note-editing/note-editor.ts](../../../../src/engine/note-editing/note-editor.ts) - the four editor calls a write makes, two of them cosmetic
 - [src/search/note-grep.ts](../../../../src/search/note-grep.ts) - the second reader, so a fix has two call sites rather than one
-- [7-transcript.md](7-transcript.md) - the reported session, where the two answers sit in one request
+- [9-transcript.md](9-transcript.md) - the reported session, where the two answers sit in one request
 
 ### Project
 
