@@ -29,14 +29,11 @@ interface SessionChannels {
   notices: TurnNotices
 }
 
-// What the plugin cannot answer for itself: whether the panel is on screen, how
-// to put it there when the user asks, and when Obsidian goes to the background,
-// which is what ends a recording in progress.
-export interface PanelPresence {
+// Whether the session's leaf is on screen, and how to put it there. Only the
+// plugin can answer either, and only the user's own click may open it (FR27).
+export interface LeafPresence {
   isVisible(): boolean
   reveal(): void
-  onObsidianBackgrounded(listener: () => void): () => void
-  startNewSession(): void
 }
 
 // Assembles one session's panel props. Every collaborator is explicit, and this
@@ -46,7 +43,7 @@ export class SessionPanelPropsBuilder {
     private settings: TytoSettings,
     private engineFactory: EngineFactory,
     private followEngine: (engine: EditEngine) => void,
-    // Asked at assemble time rather than handed a note, so a session built and
+    // Asked at build time rather than handed a note, so a session built and
     // a session restored reach the same answer.
     private activeNote: ActiveNote,
     // Where the record goes. Built by the plugin, which is the only place that
@@ -57,9 +54,15 @@ export class SessionPanelPropsBuilder {
     private pluginVersion = 'unknown',
   ) {}
 
-  build(presence: PanelPresence): SessionPanelProps {
-    return this.assemble(
-      presence,
+  buildFromLeafPresence(
+    leaf: LeafPresence,
+    startNewSessionFn: () => void,
+    onObsidianBackgroundedFn: (listenerFn: () => void) => () => void,
+  ): SessionPanelProps {
+    return this.build(
+      leaf,
+      startNewSessionFn,
+      onObsidianBackgroundedFn,
       [],
       new SessionRepository(null),
       // Nothing preceded the first step of a session built from scratch, so the
@@ -71,17 +74,24 @@ export class SessionPanelPropsBuilder {
   // From a record rather than from nothing: what the record supplies is the
   // conversation and the entries. The note comes from the workspace, like every
   // other session's.
-  restore(stored: SessionSnapshot, presence: PanelPresence): SessionPanelProps {
+  buildFromSessionSnapshot(
+    stored: SessionSnapshot,
+    leaf: LeafPresence,
+    startNewSessionFn: () => void,
+    onObsidianBackgroundedFn: (listenerFn: () => void) => () => void,
+  ): SessionPanelProps {
     const messages = stored.messages.map((message) => StoredMessages.toMessage(message))
-    return this.assemble(
-      presence,
+    return this.build(
+      leaf,
+      startNewSessionFn,
+      onObsidianBackgroundedFn,
       // Last, so the restored line marks where the restored turns stop and the
       // transcript starts explaining itself again.
       [
         ...stored.entries,
         { kind: 'restored', text: RestoredText.of(SessionPanelPropsBuilder.writtenAt(stored)) },
       ],
-      // No target from the record: assemble reads the workspace for it. The
+      // No target from the record: build reads the workspace for it. The
       // record names the note a session was on, not the note it comes back on.
       SessionRepository.restored(null, messages),
       new TranscriptRepository(messages.length),
@@ -89,8 +99,10 @@ export class SessionPanelPropsBuilder {
   }
 
   // Everything the two share, which is everything after the starting point.
-  private assemble(
-    presence: PanelPresence,
+  private build(
+    leaf: LeafPresence,
+    startNewSessionFn: () => void,
+    onObsidianBackgroundedFn: (listenerFn: () => void) => () => void,
     entries: PanelEntry[],
     sessions: SessionRepository,
     // Built here rather than in EngineFactory, which returns only an EditEngine:
@@ -103,7 +115,7 @@ export class SessionPanelPropsBuilder {
     const path = this.activeNote.path()
     sessions.bindTo(path)
     const modelProvider = new MistralProvider(this.settings.mistralApiKey, this.settings.editModel)
-    const channels = this.channelsFor(presence)
+    const channels = this.channelsFor(leaf)
     const engine = this.engineFor(modelProvider, channels, transcript, sessions)
     const recorder = new SessionRecorder(sessions, this.store)
     return {
@@ -112,8 +124,8 @@ export class SessionPanelPropsBuilder {
       entries,
       recorder: new Recorder(),
       transcribe: (blob, mimeType) => modelProvider.transcribe(blob, mimeType),
-      startNewSession: () => presence.startNewSession(),
-      onObsidianBackgrounded: (listener) => presence.onObsidianBackgrounded(listener),
+      startNewSession: () => startNewSessionFn(),
+      onObsidianBackgrounded: (listenerFn) => onObsidianBackgroundedFn(listenerFn),
       settings: this.settings,
       transcriptOf: (entries) => this.transcriptBuilder(sessions, transcript).build(entries),
       recordHistory: (entries) => recorder.record(entries),
@@ -158,10 +170,10 @@ export class SessionPanelPropsBuilder {
     }
   }
 
-  private channelsFor(presence: PanelPresence): SessionChannels {
+  private channelsFor(leaf: LeafPresence): SessionChannels {
     const notices = new TurnNotices(
-      () => presence.isVisible(),
-      () => presence.reveal(),
+      () => leaf.isVisible(),
+      () => leaf.reveal(),
     )
     return {
       listeners: new InstructionListeners(),
