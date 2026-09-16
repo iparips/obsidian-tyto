@@ -41,7 +41,7 @@ export interface PanelPresence {
 
 // Assembles one session's panel props. Every collaborator is explicit, and this
 // is the only place that knows how a panel, an engine and a notice fit together.
-export class SessionBuilder {
+export class SessionPanelPropsBuilder {
   constructor(
     private settings: TytoSettings,
     private engineFactory: EngineFactory,
@@ -79,7 +79,7 @@ export class SessionBuilder {
       // transcript starts explaining itself again.
       [
         ...stored.entries,
-        { kind: 'restored', text: RestoredText.of(SessionBuilder.writtenAt(stored)) },
+        { kind: 'restored', text: RestoredText.of(SessionPanelPropsBuilder.writtenAt(stored)) },
       ],
       // No target from the record: assemble reads the workspace for it. The
       // record names the note a session was on, not the note it comes back on.
@@ -117,7 +117,7 @@ export class SessionBuilder {
       settings: this.settings,
       transcriptOf: (entries) => this.transcriptBuilder(sessions, transcript).build(entries),
       recordHistory: (entries) => recorder.record(entries),
-      ...SessionBuilder.enginePanelProps(engine, channels),
+      ...SessionPanelPropsBuilder.enginePanelProps(engine, channels),
     }
   }
 

@@ -6,7 +6,7 @@ import { SessionPanelProps } from '../session/views/SessionPanel'
 import { SessionView } from '../session/views/obsidian/session-view'
 import { EngineFactory } from './engine-factory'
 import { PluginScope } from './plugin-scope'
-import { PanelPresence, SessionBuilder } from './session-builder'
+import { PanelPresence, SessionPanelPropsBuilder } from './session-panel-props-builder'
 import { SessionLeaf } from './session-leaf'
 
 // Owns a session once the leaf exists: assembling its panel props, restoring
@@ -19,7 +19,7 @@ export class SessionController {
   constructor(
     private scope: PluginScope,
     private leaf: SessionLeaf,
-    private store: SessionFileStore,
+    private sessionFileStore: SessionFileStore,
     // The two registrations only the plugin can make, since both register
     // against its lifetime and are unregistered when it unloads. The file is
     // every file, not only notes: Obsidian announces canvases, PDFs and Bases
@@ -48,25 +48,25 @@ export class SessionController {
   // Asked by the view as it opens, which is where a leaf Obsidian reopened on
   // restart gets its session back without the user invoking Tyto again.
   async storedPanelProps(view: SessionView): Promise<SessionPanelProps | null> {
-    const stored = await this.store.read()
-    return stored ? this.restoredPanelProps(stored, view) : null
+    const sessionSnapshot = await this.sessionFileStore.read()
+    return sessionSnapshot ? this.buildSessionPanelProps(sessionSnapshot, view) : null
   }
 
   private buildPanelProps(view: SessionView): SessionPanelProps {
-    return this.sessionBuilder().build(this.panelPresence(view))
+    return this.panelPropsBuilder().build(this.panelPresence(view))
   }
 
-  private restoredPanelProps(stored: SessionSnapshot, view: SessionView): SessionPanelProps {
-    return this.sessionBuilder().restore(stored, this.panelPresence(view))
+  private buildSessionPanelProps(stored: SessionSnapshot, view: SessionView): SessionPanelProps {
+    return this.panelPropsBuilder().restore(stored, this.panelPresence(view))
   }
 
-  private sessionBuilder(): SessionBuilder {
-    return new SessionBuilder(
+  private panelPropsBuilder(): SessionPanelPropsBuilder {
+    return new SessionPanelPropsBuilder(
       this.scope.settings,
       new EngineFactory(this.scope),
       (engine) => this.followActiveNoteWith(engine),
       this.scope.activeNote(),
-      this.store,
+      this.sessionFileStore,
       this.pluginVersion,
     )
   }
@@ -89,7 +89,7 @@ export class SessionController {
   // The stored session goes with the live one, so the session the user replaced
   // does not come back on the next load (FR8).
   private startNewSession(view: SessionView): void {
-    void this.store.discard()
+    void this.sessionFileStore.discard()
     view.bindSession(this.buildPanelProps(view))
   }
 

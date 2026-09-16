@@ -150,11 +150,11 @@ it in the root, so skills keeps skill.ts beside skill-repository.ts.
 Wiring holds the three scopes, each of which lives for as long as the one above
 it and builds the one below.
 
-| Scope   | Class          | Lives for         | Holds                                                          |
-| ------- | -------------- | ----------------- | -------------------------------------------------------------- |
-| Plugin  | PluginScope    | The loaded plugin | app, settings, SkillRepository, AgentsMdRepository, ActiveNote |
-| Session | EngineFactory  | One bound note    | SessionRepository, TranscriptRepository, the EditEngine        |
-| Panel   | SessionBuilder | One visible panel | The listeners, the askers, the notices, the panel props        |
+| Scope   | Class                    | Lives for         | Holds                                                          |
+| ------- | ------------------------ | ----------------- | -------------------------------------------------------------- |
+| Plugin  | PluginScope              | The loaded plugin | app, settings, SkillRepository, AgentsMdRepository, ActiveNote |
+| Session | EngineFactory            | One bound note    | SessionRepository, TranscriptRepository, the EditEngine        |
+| Panel   | SessionPanelPropsBuilder | One visible panel | The listeners, the askers, the notices, the panel props        |
 
 PluginScope reads settings through a function rather than holding a value, since
 the settings tab replaces the object the plugin holds. A snapshot would freeze
@@ -163,7 +163,7 @@ the settings at plugin load.
 Two classes sit beside that chain rather than in it, since neither builds the
 scope below it. SessionController drives one session's life once the leaf
 exists: the panel props, the restore, and the engine following the user. It
-reaches the scopes through SessionBuilder rather than replacing them.
+reaches the scopes through SessionPanelPropsBuilder rather than replacing them.
 SessionLeaf is the workspace side of the panel, finding the leaf holding the
 session and putting it in front of the user.
 
