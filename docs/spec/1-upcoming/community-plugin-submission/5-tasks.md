@@ -80,7 +80,7 @@ picker still finds a command and adds it.
 - AgentsMdRepository and SkillRepository take Vault rather than DataAdapter.
 - Read with `cachedRead`, resolve with `getFileByPath` and `getFolderByPath`.
 - Wrap constructed paths in `normalizePath()`.
-- Leave SessionStore on the adapter, and add the line saying why.
+- Leave SessionFileStore on the adapter, and add the line saying why.
 - Move the skill and AGENTS.md fixtures in test-support from FakeAdapter onto
   FakeVault.
 

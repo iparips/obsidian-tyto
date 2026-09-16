@@ -6,7 +6,7 @@ const SESSION_FILE = 'session.json'
 // The one component that knows a session can outlive the app. Every failure
 // path returns nothing rather than throwing: a session that cannot be read is a
 // session that was not there, and the plugin must load either way (FR9, FR10).
-export class SessionStore {
+export class SessionFileStore {
   // Optional in the Obsidian typings, and an absent one means no session is
   // stored: the store reads and writes nothing rather than guessing a path.
   constructor(
