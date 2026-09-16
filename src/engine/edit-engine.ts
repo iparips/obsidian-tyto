@@ -26,7 +26,7 @@ export class EditEngine {
   async followActiveNote(path: string | null): Promise<void> {
     if (path === this.sessionRepository.targetNote()) return
     this.sessionRepository.bindTo(path)
-    this.turnProgressPublisher.retargetedFn(path)
+    this.turnProgressPublisher.retargetedFn(path, true)
     await this.retargetRunningTurn()
   }
 

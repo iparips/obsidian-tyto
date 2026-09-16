@@ -58,7 +58,7 @@ const aBoundSession = async (): Promise<{
 
   const props = await controller.readPanelPropsFromSessionStore(new SessionView({} as never))
   const retargets: (string | null)[] = []
-  props?.onTargetNoteChanged?.((path) => retargets.push(path))
+  props?.onTargetNoteChanged?.((report) => retargets.push(report.path))
   // The channel the header reads is what these scenarios assert on, so a props
   // object without it would leave every one of them passing on an empty list.
   expect(props?.onTargetNoteChanged).toBeDefined()

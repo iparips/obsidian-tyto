@@ -12,9 +12,16 @@ export interface AnswerReport {
 // publisher's one-way channels cannot do.
 export class SessionListeners {
   readonly answers = new Listeners<AnswerReport>()
-  readonly retargets = new Listeners<string | null>()
+  readonly retargets = new Listeners<RetargetReport>()
   readonly warnings = new Listeners<string>()
   readonly steps = new Listeners<StepReport>()
+}
+
+// The header follows every retarget, where the timeline only wants the ones the
+// user made: a tool that opened a note already said so in the steps.
+export interface RetargetReport {
+  path: string | null
+  byUser: boolean
 }
 
 export interface StepReport {
