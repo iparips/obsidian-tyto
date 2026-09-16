@@ -23,9 +23,9 @@ export class EditEngine {
   // opened, so the session follows rather than editing the note behind them.
   // A turn already running follows too, or the next edit lands on the note the
   // user just moved off.
-  async followActiveNote(path: string): Promise<void> {
+  async followActiveNote(path: string | null): Promise<void> {
     if (path === this.sessionRepository.targetNote()) return
-    this.sessionRepository.changeTargetNote(path)
+    this.sessionRepository.bindTo(path)
     this.turnProgressPublisher.retargetedFn(path)
     await this.retargetRunningTurn()
   }

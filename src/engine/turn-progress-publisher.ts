@@ -7,7 +7,7 @@ import { TurnStep } from './turn-step'
 export class TurnProgressPublisher {
   constructor(
     readonly publishModelAnswerFn: (text: string, sources: string[]) => void,
-    readonly retargetedFn: (path: string) => void,
+    readonly retargetedFn: (path: string | null) => void,
     readonly instructionsResolvedFn: (chain: AgentsMdChain) => void,
     readonly skillLoadedFn: (name: string) => void,
     // Said once, as the turn nears its cap, so a user watching a long turn can

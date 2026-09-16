@@ -250,7 +250,7 @@ export class ToolDispatcher {
   // the note it moved from is the one mobile just detached, so keeping it
   // strands the session on a note no retry can reach.
   private async moveSessionTargetNoteTo(path: string): Promise<boolean> {
-    this.sessionRepository.changeTargetNote(path)
+    this.sessionRepository.bindTo(path)
     const maybeNote = await this.targetNoteResolver.resolveOrNothing()
     if (maybeNote === null) {
       this.turnRepository.cannotWriteTo(path)
