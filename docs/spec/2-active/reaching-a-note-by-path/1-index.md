@@ -17,6 +17,10 @@ Neither was visible. The panel names the session's note and has no way to say
 what the running turn is writing to, so both faults were found by opening the
 file rather than by reading the panel.
 
+One rule holds the spec together: a target is set by the user before a turn, or
+by the model during one, and by nothing else. Every defect here is that rule
+failing.
+
 - [2-requirements.md](2-requirements.md) - the two sources, the handle that moves, and the note the panel cannot name
 - [3-decisions.md](3-decisions.md) - what an edit writes through, and where a read of the open note comes from
 - [3-decisions-showing.md](3-decisions-showing.md) - where the user learns which note a turn is writing to
