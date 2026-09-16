@@ -11,9 +11,9 @@ export interface RecordingStripProps {
 // and low enough that speech is plainly taller (FR: a dead mic looks dead).
 const FLOOR = 0.15
 
-// The one running phase the panel said nothing about. Sits above the input row
-// rather than in the history, which scrolls the meter out of sight once a
-// session has run a few turns.
+// The one running phase the panel said nothing about. Sits in the input row
+// rather than the history, which scrolls the trail out of sight once a session
+// has run a few turns.
 export const RecordingStrip = ({ phase, levels, elapsedSeconds }: RecordingStripProps) => {
   if (phase !== 'recording') return null
   return (

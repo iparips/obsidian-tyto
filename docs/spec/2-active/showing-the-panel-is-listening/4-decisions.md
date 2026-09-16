@@ -11,9 +11,9 @@ updated: 2026-09-16
 
 #### D4: Where does the strip sit? [resolved 2026-09-16]
 
-Between the history and the input row, with the instruction field hidden while it
-shows. Ilya reported the meter being invisible once the panel held a few turns,
-which it was: the history scrolls, and the strip was its last child.
+In the input row, taking the instruction field's place while recording. Ilya
+reported the meter being invisible once the panel held a few turns, which it was:
+the history scrolls, and the strip was its last child.
 
 The first answer put the strip in PendingEntry's slot, which read well as a
 design and failed in use. A meter answers whether the mic is hearing you now,
@@ -22,18 +22,22 @@ your eyes already are rather than at the end of a scrolling transcript.
 
 | Option                          | Cost                                                  |
 | ------------------------------- | ----------------------------------------------------- |
-| A row above the input           | Chosen                                                |
+| The instruction field's place   | Chosen                                                |
 | Scroll the history to the strip | Fights a user who scrolled up, and only usually works |
-| In the input row itself         | Crowds Stop and Cancel at phone width                 |
+| A row of its own above          | Adds a row, so both buttons move as it appears        |
 
 Scrolling was weighed first and dropped. Done properly it means tracking whether
 the user is pinned to the bottom, which is real state for a secondary benefit,
 and it leaves visibility conditional on scroll position.
 
-The instruction field hides because it is disabled while recording anyway, so it
-was width the meter needed and nobody could use. The clock moves left of the
-meter, where a fixed-width value anchors the row and the meter takes what is
-left.
+Taking the field's place rather than adding a row is Ilya's: the row keeps its
+shape, so Stop and Cancel stay where the thumb that reached for them expects,
+and only what sits between them changes. A row appearing above would move both
+buttons at the moment the user is aiming at one.
+
+The field is free to take because it is disabled while recording anyway, so it
+was width nobody could use. The clock sits left of the trail, where a
+fixed-width value anchors it and the bars take what is left.
 
 #### D5: A level meter or a trail of recent readings? [resolved 2026-09-16]
 

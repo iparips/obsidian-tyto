@@ -1,7 +1,11 @@
+import { ReactNode } from 'react'
 import { Phase } from '../models/panel-state'
 
 export interface InputRowProps {
   phase: Phase
+  // Takes the instruction field's place while recording, so the row keeps its
+  // shape and the buttons stay under the thumb that reached for them.
+  recordingStrip?: ReactNode
   draft: string
   onDraftChange(text: string): void
   onSend(): void
@@ -27,9 +31,9 @@ export const InputRow = (props: InputRowProps) => {
       >
         {recording ? 'Stop' : 'Mic'}
       </button>
-      {/* Gone while recording, where it is disabled anyway: the strip above
-          needs the width more than a field nobody can type into. */}
-      {recording ? null : (
+      {recording ? (
+        props.recordingStrip
+      ) : (
         <input
           aria-label="Instruction"
           value={props.draft}

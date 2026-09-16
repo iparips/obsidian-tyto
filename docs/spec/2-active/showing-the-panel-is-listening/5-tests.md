@@ -16,9 +16,9 @@ updated: 2026-09-16
 ```gherkin
 Given the panel is idle
 When  the user presses the record button
-Then  a strip above the input row holds a clock and a trail of bars
+Then  the instruction field is replaced by a clock and a trail of bars
 And   the record button reads Stop in the accent colour
-And   the instruction field is gone, leaving the trail the width
+And   the record and cancel buttons stay where they were
 ```
 
 ### The trail follows the voice

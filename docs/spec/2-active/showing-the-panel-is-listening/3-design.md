@@ -30,19 +30,19 @@ const PENDING_LINES: Partial<Record<Phase, string>> = {
 Recording is absent, so the component returns null and the history shows
 nothing. The strip originally filled that slot, taking PendingEntry's place in
 HistoryList. It moved out on 2026-09-16, per D4: a history of any length scrolls
-the meter out of sight, which is the whole of what it is for. It now sits
-between the history and the input row, and the text input hides while it shows.
+the trail out of sight, which is the whole of what it is for. It now takes the
+instruction field's place in the input row, so the buttons either side stay put.
 
 ## What Changes
 
-| Concern              | Today                    | New                                  |
-| -------------------- | ------------------------ | ------------------------------------ |
-| Strip placement      | Nothing                  | A row between the history and input  |
-| History, other waits | The pending line         | Unchanged                            |
-| Record button        | Reads Stop               | Reads Stop in the accent colour      |
-| Instruction field    | Disabled while recording | Hidden while recording               |
-| Audio context        | None                     | One, open only while the stream is   |
-| PanelState           | No recording entry       | Unchanged, the strip is presentation |
+| Concern              | Today                    | New                                      |
+| -------------------- | ------------------------ | ---------------------------------------- |
+| Strip placement      | Nothing                  | The instruction field's place in the row |
+| History, other waits | The pending line         | Unchanged                                |
+| Record button        | Reads Stop               | Reads Stop in the accent colour          |
+| Instruction field    | Disabled while recording | Hidden while recording                   |
+| Audio context        | None                     | One, open only while the stream is       |
+| PanelState           | No recording entry       | Unchanged, the strip is presentation     |
 
 ## Sharing The Stream
 
