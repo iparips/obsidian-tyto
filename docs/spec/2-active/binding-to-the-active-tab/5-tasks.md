@@ -35,7 +35,7 @@ Nothing produces a null yet, so the suite is green on the widening alone.
 Landed ahead of both specs, since recording-a-retarget needs the same widening.
 The remaining work here is commit 2 alone.
 
-## Commit 2: an empty tab unbinds
+## Commit 2: an empty tab unbinds [done]
 
 SessionController.retargetActiveEngine stops dropping the event:
 
