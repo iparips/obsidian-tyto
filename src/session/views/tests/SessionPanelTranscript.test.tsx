@@ -16,7 +16,12 @@ describe('SessionPanel transcript copy', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-    recorder = { start: vi.fn(), stop: vi.fn(), cancel: vi.fn() }
+    recorder = {
+      start: vi.fn(),
+      stop: vi.fn(),
+      cancel: vi.fn(),
+      stream: vi.fn().mockReturnValue(null),
+    }
     transcribe = vi.fn()
     processUtterance = vi.fn().mockResolvedValue(Outcomes.success('made the edit'))
     writeText = vi.fn().mockResolvedValue(undefined)
