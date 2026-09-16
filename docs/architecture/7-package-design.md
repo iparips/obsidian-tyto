@@ -170,8 +170,9 @@ session and putting it in front of the user.
 The split between them is what each needs from Obsidian. SessionLeaf reads
 app.workspace and nothing else, so it tests against a workspace fake.
 SessionController needs two things only the plugin can do, registering a
-file-open listener and one for Obsidian going to the background, and takes them
-as a PluginRegistrations pair rather than taking the plugin. That keeps Obsidian's
+a listener for the file Obsidian opened and one for Obsidian going to the
+background, and takes them as a PluginRegistrations pair rather than taking the
+plugin. That keeps Obsidian's
 lifecycle class out of wiring, and left main.ts at 83 lines holding
 registration, settings persistence and delegation.
 
