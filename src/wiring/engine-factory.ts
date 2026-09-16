@@ -1,5 +1,6 @@
 import { TFile } from 'obsidian'
 import { EditEngine } from '../engine/edit-engine'
+import { ToolNoteOpening } from '../session/tool-note-opening'
 import { TurnEndingService } from '../engine/turn-ending-service'
 import { NoteEditor } from '../engine/note-editing/note-editor'
 import { HarnessToolsService } from '../engine/tools/harness-tools-service'
@@ -59,7 +60,11 @@ export class EngineFactory {
       this.scope.agentsMdRepository(),
       progress,
     )
-    const harnessToolsService = this.buildHarnessTools()
+    // One window shared by every path that opens a note and by the engine that
+    // reads the event, or the engine cannot tell a command's open from the
+    // user's.
+    const toolNoteOpening = new ToolNoteOpening()
+    const harnessToolsService = this.buildHarnessTools(toolNoteOpening)
     return new EditEngine(
       sessions,
       this.buildTurnFactory(
@@ -70,9 +75,11 @@ export class EngineFactory {
         askers,
         modelProvider,
         transcript,
+        toolNoteOpening,
       ),
       progress,
       targetNote,
+      toolNoteOpening,
     )
   }
 
@@ -84,6 +91,7 @@ export class EngineFactory {
     askers: EngineAskers,
     modelProvider: ChatProvider,
     transcript: TranscriptRepository,
+    toolNoteOpening: ToolNoteOpening,
   ): TurnRunnerFactory {
     return new TurnRunnerFactory(
       sessions,
@@ -94,7 +102,10 @@ export class EngineFactory {
       progress,
       modelProvider,
       new TurnEndingService(sessions, new NoteEditor()),
-      new NoteOpener(this.scope.app, new OpenedNoteWait(this.scope.app)),
+      new NoteOpener(
+        this.scope.app,
+        new OpenedNoteWait(this.scope.app, undefined, toolNoteOpening),
+      ),
       askers.noteChoiceService ??
         ((_cancellationController, notesChosenByUser) =>
           NoteChoiceService.unasked(notesChosenByUser)),
@@ -103,7 +114,7 @@ export class EngineFactory {
     )
   }
 
-  private buildHarnessTools(): HarnessToolsService {
+  private buildHarnessTools(toolNoteOpening: ToolNoteOpening): HarnessToolsService {
     const registry = new ObsidianCommandRegistry(this.scope.app)
     const catalogue = new ObsidianCommandCatalogue(
       registry,
@@ -113,7 +124,7 @@ export class EngineFactory {
       new ObsidianCommandRunner(
         this.scope.app,
         catalogue,
-        new OpenedNoteWait(this.scope.app),
+        new OpenedNoteWait(this.scope.app, undefined, toolNoteOpening),
         registry,
       ),
       new NoteReader(this.scope.app.vault),

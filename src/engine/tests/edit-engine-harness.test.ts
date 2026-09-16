@@ -11,6 +11,7 @@ import { ObsidianCommandCatalogue } from '../../commands/obsidian-command-catalo
 import { ObsidianCommandRegistry } from '../../commands/obsidian-command-registry'
 import { ObsidianCommandRunner } from '../../commands/obsidian-command-runner'
 import { OpenedNoteWait } from '../../commands/opened-note-wait'
+import { ToolNoteOpening } from '../../session/tool-note-opening'
 import { NoteGlob } from '../../search/note-glob'
 import { NoteGrep } from '../../search/note-grep'
 import { SearchToolsService } from '../tools/search-tools-service'
@@ -49,7 +50,8 @@ describe('EditEngine', () => {
   let sessions: SessionRepository
   let steps: string[]
   let answers: { text: string; sources: string[] }[]
-  let retargets: (string | null)[]
+  let retargets: { path: string | null; byUser: boolean }[]
+  let toolNoteOpening: ToolNoteOpening
 
   beforeEach(() => {
     vi.clearAllMocks()
@@ -63,6 +65,7 @@ describe('EditEngine', () => {
     steps = []
     answers = []
     retargets = []
+    toolNoteOpening = new ToolNoteOpening()
     sessions = aSession()
     noteLocator = new FakeNoteLocator()
       .withOpenNote('note.md', editor)
@@ -85,7 +88,12 @@ describe('EditEngine', () => {
     const commandRegistry = new ObsidianCommandRegistry(app)
     const catalogue = new ObsidianCommandCatalogue(commandRegistry, new AllowList(allowed))
     return new HarnessToolsService(
-      new ObsidianCommandRunner(app, catalogue, new OpenedNoteWait(app, 30), commandRegistry),
+      new ObsidianCommandRunner(
+        app,
+        catalogue,
+        new OpenedNoteWait(app, 30, toolNoteOpening),
+        commandRegistry,
+      ),
       new NoteReader(vault.asVault()),
       catalogue,
       searchEnabled,
@@ -102,9 +110,10 @@ describe('EditEngine', () => {
         noteLocator,
         agentsMdRepository: new AgentsMdRepository(adapter.asAdapter()),
         harnessToolsService: harnessOf(allowed, searchEnabled),
+        toolNoteOpening,
         progress: new TurnProgressPublisher(
           (text, sources) => answers.push({ text, sources }),
-          (path) => retargets.push(path),
+          (path, byUser) => retargets.push({ path, byUser }),
           () => undefined,
           (name) => steps.push(`Loaded skill: ${name}`),
           () => undefined,
@@ -141,7 +150,7 @@ describe('EditEngine', () => {
 
       await engine.processUtterance('open my daily note')
 
-      expect(retargets).toEqual([DAILY])
+      expect(retargets).toEqual([{ path: DAILY, byUser: false }])
     })
 
     it('applies the following edit to the opened note when a command retargets', async () => {
@@ -441,10 +450,10 @@ describe('EditEngine', () => {
       expect(sessions.targetNote()).toBe(DAILY)
     })
 
-    it('reports the move when the user opens a different note', () => {
+    it('reports the move as the users own when no tool is opening a note', () => {
       engineOf().followActiveNote(DAILY)
 
-      expect(retargets).toEqual([DAILY])
+      expect(retargets).toEqual([{ path: DAILY, byUser: true }])
     })
 
     it('keeps the target when the user opens the note already targeted', () => {

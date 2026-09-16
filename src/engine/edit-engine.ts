@@ -6,6 +6,7 @@ import { TargetNoteResolver } from './note-binding/target-note-resolver'
 import { TurnProgressPublisher } from './turn-progress-publisher'
 import { UtteranceQueue } from './utterance-queue'
 import { ChatMessage } from '../model/providers/types'
+import { ToolNoteOpening } from '../session/tool-note-opening'
 
 export class EditEngine {
   // Null between turns, so a cancel arriving after one finished reaches nothing.
@@ -17,6 +18,9 @@ export class EditEngine {
     private currentTurnRunnerFactory: TurnRunnerFactory,
     private turnProgressPublisher: TurnProgressPublisher,
     private targetNoteResolver: TargetNoteResolver,
+    // Read to tell a command's open from the user's: both arrive as the same
+    // workspace event, and only the user's belongs on the timeline.
+    private toolNoteOpening: ToolNoteOpening = new ToolNoteOpening(),
   ) {}
 
   // A note the user opened themselves is as much a retarget as one a command
@@ -26,7 +30,7 @@ export class EditEngine {
   async followActiveNote(path: string | null): Promise<void> {
     if (path === this.sessionRepository.targetNote()) return
     this.sessionRepository.bindTo(path)
-    this.turnProgressPublisher.retargetedFn(path, true)
+    this.turnProgressPublisher.retargetedFn(path, !this.toolNoteOpening.isOpening())
     await this.retargetRunningTurn()
   }
 
