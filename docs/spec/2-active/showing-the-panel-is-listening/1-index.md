@@ -29,7 +29,7 @@ from the other side: that spec stopped the words being thrown away, and this one
 shows they are being captured while they are spoken.
 
 The strip is also where streaming capture's live partials land, so
-[desktop-v1](../desktop-v1/3-streaming-capture.md) inherits the row rather than
+[desktop-v1](../../1-upcoming/desktop-v1/3-streaming-capture.md) inherits the row rather than
 inventing one.
 
 One open question changes the design: whether the meter shares the recorder's
