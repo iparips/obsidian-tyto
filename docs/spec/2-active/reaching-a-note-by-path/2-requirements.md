@@ -18,32 +18,39 @@ disagree.
 
 ## The Rule
 
-A target note is set twice and by two parties.
+Once a turn is running, the user cannot change its target. Only the model can,
+by calling a tool that opens a note.
 
-| Who       | When          | How                                       |
-| --------- | ------------- | ----------------------------------------- |
-| The user  | Before a turn | Opening a note, which the session follows |
-| The model | During a turn | A tool call that opens one                |
+| Who       | Between turns              | While a turn runs                 |
+| --------- | -------------------------- | --------------------------------- |
+| The user  | Sets it, by opening a note | Cannot change it                  |
+| The model | Has no turn to act in      | Sets it, by a tool that opens one |
 
-Nothing else moves it. The user opening a note while a turn runs sets the target
-for the next turn, not the running one, which is D1 of
-[following-the-user-mid-turn](../following-the-user-mid-turn/1-index.md). The
-four places that write a target today are these two cases and no others:
+The user opening a note mid-turn is not ignored: it sets the target for the next
+turn, per D1 of
+[following-the-user-mid-turn](../following-the-user-mid-turn/1-index.md). What
+it must not do is move the note the running turn writes to.
+
+That is what makes a turn's target knowable: one note, fixed when the turn
+starts unless the model moves it, so a user clicking elsewhere cannot make an
+utterance land where they did not ask.
+
+The four places that write a target are these cases and no others:
 SessionPanelPropsBuilder reads the open note at session start, EditEngine
 follows a tab change, and ToolDispatcher moves it when a tool opens a note.
 
 Each defect below is that rule failing. A handle that follows the tab lets the
-user move a target mid-turn without meaning to, and a panel naming the session's
-note cannot say which of the two set the one a turn is using.
+user move a running turn's target without meaning to, and a panel naming the
+session's note cannot say what the turn is actually writing to.
 
 ## In Scope
 
 ### The reading tools read the file, the note context reads the editor
 
-NoteReader.read calls vault.cachedRead, which returns what is on disk.
-NoteContextMessage builds from editor.getValue, which returns what the editor
-shows. Obsidian writes an editor to disk on its own schedule, so the two differ
-for as long as an edit is unsaved.
+NoteReader.read calls vault.cachedRead and NoteContextMessage builds from
+editor.getValue, so one returns the file and the other the editor. Obsidian
+writes an editor to disk on its own schedule, so they differ while an edit is
+unsaved.
 
 | Source       | Reads            | Sees an unsaved edit |
 | ------------ | ---------------- | -------------------- |
@@ -51,9 +58,14 @@ for as long as an edit is unsaved.
 | read_note    | vault.cachedRead | No                   |
 | grep_notes   | vault.cachedRead | No                   |
 
-A model given both in one request has no way to tell which is current. The note
-context asserts it supersedes every earlier copy, which is true of the
-conversation and says nothing about a tool result arriving beside it.
+A model given both in one request cannot tell which is current. The note context
+asserts it supersedes every earlier copy, which is true of the conversation and
+says nothing about a tool result arriving beside it.
+
+The turn's note is the case that matters. Every other note has no editor, so the
+file is all there is, where this one has contents an anchor is matched against.
+A read of it that returns the file can hand the model an anchor that no longer
+exists, or hide one that does.
 
 ### An edit writes through a handle that can move
 
@@ -67,16 +79,6 @@ after the resolve was corrected, so the handle is what remains. Its own comment
 anticipated half of this, saying an editor handle would go stale when the tab
 closed. It goes wrong when the tab merely changes, and wrongly rather than
 loudly.
-
-### The open note is the one case where the editor is authoritative
-
-Every other note the tools read has no editor, so the file is all there is. The
-note the session is bound to is different: it has an editor, that editor is what
-the edit tools write through, and its contents are what an anchor is matched
-against.
-
-So a read of the open note that returns the file can hand the model an anchor
-that no longer exists, or hide one that does.
 
 ### The panel shows the session's note, never the turn's
 
