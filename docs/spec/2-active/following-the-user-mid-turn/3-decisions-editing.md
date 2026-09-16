@@ -32,7 +32,7 @@ computed from the same snapshot and the note moves underneath them as the batch
 applies. The model is never shown the note between its own calls.
 
 | Option                                      | Catches                          | Cost                                              |
-|---------------------------------------------|----------------------------------|---------------------------------------------------|
+| ------------------------------------------- | -------------------------------- | ------------------------------------------------- |
 | Stop the batch at the first refusal         | Damage after the first miss      | Taken as D3, and it contains rather than prevents |
 | Send the note again after each applied edit | The model's picture drifting     | A note-sized message per call in a batch          |
 | Refuse a batch whose anchors overlap        | The drift before any of it lands | A rule for overlapping, computed against the note |
@@ -73,7 +73,7 @@ Raised by D3's first option. A whole-note tool is the largest change this spec
 could make, and it is the one that removes the defect rather than containing it.
 
 | Concern                        | An anchored edit                      | A whole-note write                         |
-|--------------------------------|---------------------------------------|--------------------------------------------|
+| ------------------------------ | ------------------------------------- | ------------------------------------------ |
 | Content the model did not read | Untouched, since the anchor misses it | Lost, unless the write carries it back     |
 | A stale picture of the note    | Refused, loudly                       | Applied, silently overwriting what changed |
 | Cost of a wrong call           | One failed anchor                     | The note                                   |
@@ -102,7 +102,7 @@ make the tool worth having and not enough to ship it unguarded.
 The guard options, cheapest first:
 
 | Guard                                 | Catches                              | Cost                                      |
-|---------------------------------------|--------------------------------------|-------------------------------------------|
+| ------------------------------------- | ------------------------------------ | ----------------------------------------- |
 | Refuse unless read_note ran this turn | A model writing from an earlier turn | One flag on the turn repository           |
 | The write carries the content it read | The note changing under the model    | The full note in the tool call, both ways |
 | The user confirms, as an open does    | Everything, at the cost of a prompt  | A wait on every scattered edit            |
@@ -121,12 +121,11 @@ Yes. Ilya approved stopping at the first refusal. It is small, sits in the
 executor loop, and bounds the damage while a batch is still what the model
 sends, whichever way D5 lands.
 
-
 Archived spec 33 raised this as D4 and left it open, calling the case narrower
 than the one reported. The reported session is that case.
 
 | Option                                 | Cost                                                              |
-|----------------------------------------|-------------------------------------------------------------------|
+| -------------------------------------- | ----------------------------------------------------------------- |
 | A whole-note write for scattered edits | A new tool, and it reverses a standing rule in the system prompt  |
 | Stop the batch at the first refusal    | A batch of independent edits loses the ones after the failure     |
 | Apply all, report each                 | What happens today, and what duplicated the user's content        |

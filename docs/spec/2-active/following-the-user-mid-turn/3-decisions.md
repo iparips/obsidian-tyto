@@ -23,7 +23,7 @@ the rule and this spec does not reopen it; what the running turn does about it i
 what was unsettled.
 
 | Option                           | The archive turn would have                     | Cost                                                        |
-|----------------------------------|-------------------------------------------------|-------------------------------------------------------------|
+| -------------------------------- | ----------------------------------------------- | ----------------------------------------------------------- |
 | Continue, and tell the model     | Carried on, told the note changed               | The model may still finish an instruction on the wrong note |
 | Finish on the note it started    | Completed the archive, bound the new note after | Chosen                                                      |
 | End the turn, saying what it did | Stopped, named the edits already applied        | An instruction half-applied, which is the state to avoid    |
