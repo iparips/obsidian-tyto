@@ -35,6 +35,12 @@ export class Recorder {
     })
   }
 
+  // Null between recordings, which is what a meter reads to know there is
+  // nothing to attach to.
+  stream(): MediaStream | null {
+    return this.recorder?.stream ?? null
+  }
+
   cancel(): void {
     const recorder = this.recorder
     if (!recorder) return
