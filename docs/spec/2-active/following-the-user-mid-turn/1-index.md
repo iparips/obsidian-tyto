@@ -17,13 +17,17 @@ whole-note write makes that affordable, and a batch stops at its first refusal.
 - [2-requirements.md](2-requirements.md) - the four changes: the turn keeps its note, one edit per step, a whole-note write, a batch backstop
 - [3-decisions.md](3-decisions.md) - the turn the user moved under, and why the model needs no telling
 - [3-decisions-editing.md](3-decisions-editing.md) - the whole-note write, one edit per step, and the guards each carries
+- [4-acceptance-criteria.md](4-acceptance-criteria.md) - four checks, and the one that says whether the model picks the right tool
+- [5-design.md](5-design.md) - what goes, what the boundary costs, and the three guards in order
+- [6-unit-tests.md](6-unit-tests.md) - the unit tests each changed method needs
 - [7-analysis.md](7-analysis.md) - how the session reached the state it did, and the table of drifting anchors
 - [8-transcripts.md](8-transcripts.md) - the reported session, where note context v4 is the retarget
+- [9-tasks.md](9-tasks.md) - four commits, the middle two landing together
 
 A running turn now finishes on the note it started, so the session follows the
 user while the turn carries out the utterance it was given.
 
-Every decision is settled, so the design can be written. One edit per step is
+Every decision is settled and the design is written. One edit per step is
 enforced, so an anchor is always computed from the read that preceded it, which
 is the pairing a batch quietly broke. A whole-note write is what makes that
 affordable: a scattered edit costs one call rather than twelve steps, and it
