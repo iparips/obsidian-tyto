@@ -1,12 +1,11 @@
 import { TFile } from 'obsidian'
 import { EditEngine } from '../engine/edit-engine'
-import { SessionSnapshot } from '../session/models/session-snapshot'
 import { SessionFileStore } from '../session/session-file-store'
 import { SessionPanelProps } from '../session/views/SessionPanel'
 import { SessionView } from '../session/views/obsidian/session-view'
 import { EngineFactory } from './engine-factory'
 import { PluginScope } from './plugin-scope'
-import { PanelPresence, SessionPanelPropsBuilder } from './session-panel-props-builder'
+import { SessionPanelPropsBuilder } from './session-panel-props-builder'
 import { SessionLeaf } from './session-leaf'
 
 // Owns a session once the leaf exists: assembling its panel props, restoring
@@ -49,15 +48,21 @@ export class SessionController {
   // restart gets its session back without the user invoking Tyto again.
   async storedPanelProps(view: SessionView): Promise<SessionPanelProps | null> {
     const sessionSnapshot = await this.sessionFileStore.read()
-    return sessionSnapshot ? this.buildSessionPanelProps(sessionSnapshot, view) : null
+    if (!sessionSnapshot) return null
+    return this.panelPropsBuilder().buildFromSessionSnapshot(
+      sessionSnapshot,
+      this.leaf,
+      () => this.startNewSession(view),
+      this.onObsidianBackgroundedFn,
+    )
   }
 
   private buildPanelProps(view: SessionView): SessionPanelProps {
-    return this.panelPropsBuilder().build(this.panelPresence(view))
-  }
-
-  private buildSessionPanelProps(stored: SessionSnapshot, view: SessionView): SessionPanelProps {
-    return this.panelPropsBuilder().restore(stored, this.panelPresence(view))
+    return this.panelPropsBuilder().buildFromLeafPresence(
+      this.leaf,
+      () => this.startNewSession(view),
+      this.onObsidianBackgroundedFn,
+    )
   }
 
   private panelPropsBuilder(): SessionPanelPropsBuilder {
@@ -69,17 +74,6 @@ export class SessionController {
       this.sessionFileStore,
       this.pluginVersion,
     )
-  }
-
-  // What only the plugin can answer: whether the leaf is showing, and how to
-  // reveal it when the user acts on a notice (FR24, FR27).
-  private panelPresence(view: SessionView): PanelPresence {
-    return {
-      isVisible: () => this.leaf.isVisible(),
-      reveal: () => void this.leaf.reveal(),
-      onObsidianBackgrounded: (listenerFn) => this.onObsidianBackgroundedFn(listenerFn),
-      startNewSession: () => this.startNewSession(view),
-    }
   }
 
   // Rebuilds the props, so the model's history and the panel's entries both go.
