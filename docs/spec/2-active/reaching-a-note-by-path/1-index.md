@@ -23,7 +23,7 @@ failing.
 
 - [2-requirements.md](2-requirements.md) - the two sources, the handle that moves, and the note the panel cannot name
 - [3-decisions.md](3-decisions.md) - what an edit writes through, and where a read of the turn's note comes from
-- [3-decisions-showing.md](3-decisions-showing.md) - where the user learns which note a turn is writing to
+- [3-decisions-showing.md](3-decisions-showing.md) - the note leaving the header, and whether a turn becomes a container
 - [7-transcript.md](7-transcript.md) - the two answers, in one request
 
 A write goes through the editor where it still shows the path the tool named,
@@ -34,9 +34,13 @@ wrong today.
 A read of the turn's note comes from the editor it holds, every other note from
 the file, which is D1 and the same principle as D3 from the reading side.
 
-No design or tasks file yet. D4 is the last blocking one: whether the header
-keeps a note at all, or a target becomes a per-turn fact. Its answer is chosen
-and what remains is whether losing the before-you-speak answer costs anything. One fact is still outstanding:
+The note leaves the header, and a turn becomes a real container holding its
+target, its steps and its reply. That makes the grouping a fact rather than
+something scanned back to, which is what put a retarget in the wrong turn once
+already.
+
+No design or tasks file yet, and nothing blocking. D5 and D2 are open and can be
+answered while the design is written. One fact is still outstanding:
 whether a vault write lands in the editor's undo stack when the note is open.
 That decides how loudly the fallback should announce itself, not which option
 to take.
