@@ -28,9 +28,15 @@ export class TargetNoteResolver {
   async resolve(): Promise<TargetResolution> {
     const targetPath = this.sessionRepository.targetNote()
     if (targetPath === null) return new NoNoteBound()
-    const openNoteOutcome = this.noteLocator.locate(targetPath)
-    if (openNoteOutcome.hasFailed())
-      return new ResolutionFailed(targetPath, openNoteOutcome.message)
+    return this.resolveFor(targetPath)
+  }
+
+  // Resolves the path it is given rather than reading the session back. A tool
+  // that opened a note names it, and the user moving tabs between the open and
+  // this call would otherwise hand the turn an editor showing another note.
+  async resolveFor(path: string): Promise<TargetResolution> {
+    const openNoteOutcome = this.noteLocator.locate(path)
+    if (openNoteOutcome.hasFailed()) return new ResolutionFailed(path, openNoteOutcome.message)
     const openNote = openNoteOutcome.value
     return new TargetResolved(
       new ResolvedNote(openNote, await this.collectAgentMdInstructions(openNote)),
@@ -41,8 +47,8 @@ export class TargetNoteResolver {
   // that will not resolve leaves the turn where it was, which is where an
   // unbound session leaves it too. Only opening a turn tells them apart, since
   // only there does an unreachable note have a message to fail with.
-  async resolveOrNothing(): Promise<ResolvedNote | null> {
-    return (await this.resolve()).noteOrNull()
+  async resolveOrNothing(path: string): Promise<ResolvedNote | null> {
+    return (await this.resolveFor(path)).noteOrNull()
   }
 
   // Resolved from the note this turn writes to, not from the session, and
