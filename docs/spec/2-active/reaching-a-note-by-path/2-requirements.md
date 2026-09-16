@@ -69,9 +69,10 @@ Nothing says so. Both reported sessions were found by opening the file, not by
 reading the panel, and in the second every step named todo.md while the write
 landed in shopping-list.md.
 
-The header is the right place, since it is what a user checks before speaking.
-What it cannot do today is say two things at once: where the next utterance will
-go, and where the one now running is writing.
+The header is one note with no turn attached to it, so it cannot say which
+utterance that note belongs to. A target is a fact about a turn: the turn
+determined it, the turn writes through it, and it stops meaning anything when
+the turn ends.
 
 ## Steps to Replicate
 
