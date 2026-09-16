@@ -18,7 +18,7 @@ import { PanelEntry } from '../session/models/panel-state'
 import { RestoredText } from '../session/models/restored-text'
 import { StoredMessages, SessionSnapshot } from '../session/models/session-snapshot'
 import { SessionRecorder } from '../session/session-recorder'
-import { SessionStore } from '../session/session-store'
+import { SessionFileStore } from '../session/session-file-store'
 
 // Everything one session publishes on and parks on, built together so the panel
 // and the engine reach the same set.
@@ -51,7 +51,7 @@ export class SessionBuilder {
     private activeNote: ActiveNote,
     // Where the record goes. Built by the plugin, which is the only place that
     // knows the vault adapter and the folder the plugin was installed into.
-    private store: SessionStore,
+    private store: SessionFileStore,
     // From the manifest, so a transcript read months later says which build of
     // the plugin produced it.
     private pluginVersion = 'unknown',

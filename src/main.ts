@@ -7,7 +7,7 @@ import { PluginScope } from './wiring/plugin-scope'
 import { SessionController } from './wiring/session-controller'
 import { SessionLeaf } from './wiring/session-leaf'
 import { SettingsPanelBuilder } from './wiring/settings-panel-builder'
-import { SessionStore } from './session/session-store'
+import { SessionFileStore } from './session/session-file-store'
 
 export default class TytoPlugin extends Plugin {
   settings: TytoSettings = DEFAULT_SETTINGS
@@ -58,7 +58,7 @@ export default class TytoPlugin extends Plugin {
     return new SessionController(
       this.pluginScope,
       new SessionLeaf(this.app),
-      new SessionStore(this.app.vault.adapter, this.manifest.dir),
+      new SessionFileStore(this.app.vault.adapter, this.manifest.dir),
       (listenerFn) => this.onObsidianFileOpened(listenerFn),
       (listenerFn) => this.onObsidianBackgrounded(listenerFn),
       this.manifest.version,

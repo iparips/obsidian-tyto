@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { SessionController } from '../session-controller'
 import { SessionLeaf } from '../session-leaf'
 import { PluginScope } from '../plugin-scope'
-import { SessionStore } from '../../session/session-store'
+import { SessionFileStore } from '../../session/session-file-store'
 import { SessionView } from '../../session/views/obsidian/session-view'
 import { DEFAULT_SETTINGS } from '../../settings/settings'
 import { FakeAdapter } from '../../test-support/fake-adapter'
@@ -12,7 +12,7 @@ const controllerOver = (workspace: FakeSessionWorkspace, adapter: FakeAdapter): 
   new SessionController(
     new PluginScope(workspace.asApp(), () => DEFAULT_SETTINGS),
     new SessionLeaf(workspace.asApp()),
-    new SessionStore(adapter.asAdapter(), 'plugins/tyto'),
+    new SessionFileStore(adapter.asAdapter(), 'plugins/tyto'),
     // Never fired by a controller built in a test, which reads the props rather
     // than the events.
     () => {},

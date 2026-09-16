@@ -13,7 +13,7 @@ Every `console.debug` is removed rather than gated behind a setting. A debug
 flag is a feature, and these calls are developer aids rather than something a
 user would switch on.
 
-Two of them sit on a failure path and become silent. SessionStore already
+Two of them sit on a failure path and become silent. SessionFileStore already
 treats a failed write as a session that was not recorded, and the catch block
 keeps that behaviour with the log gone.
 
@@ -29,12 +29,12 @@ AgentsMdRepository and SkillRepository move from DataAdapter to Vault.
 | ------------------ | -------------------------- | ----------------------------------------------------- |
 | AgentsMdRepository | adapter.read               | vault.getFileByPath then vault.cachedRead             |
 | SkillRepository    | adapter.list, adapter.read | vault.getFolderByPath then children, vault.cachedRead |
-| SessionStore       | adapter.write and read     | unchanged, see below                                  |
+| SessionFileStore   | adapter.write and read     | unchanged, see below                                  |
 
 `cachedRead` rather than `read`, because both collaborators read files for
 their content and never write them back. That is the case the cache exists for.
 
-SessionStore stays on the adapter. It writes into the plugin's config folder,
+SessionFileStore stays on the adapter. It writes into the plugin's config folder,
 which is outside the vault's file tree, so the Vault API cannot address it. A
 comment already explains the path; it gains a line saying why the adapter is
 correct here, so the next audit does not flag it.

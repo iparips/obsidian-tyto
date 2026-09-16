@@ -1,7 +1,7 @@
 import { TFile } from 'obsidian'
 import { EditEngine } from '../engine/edit-engine'
 import { SessionSnapshot } from '../session/models/session-snapshot'
-import { SessionStore } from '../session/session-store'
+import { SessionFileStore } from '../session/session-file-store'
 import { SessionPanelProps } from '../session/views/SessionPanel'
 import { SessionView } from '../session/views/obsidian/session-view'
 import { EngineFactory } from './engine-factory'
@@ -19,7 +19,7 @@ export class SessionController {
   constructor(
     private scope: PluginScope,
     private leaf: SessionLeaf,
-    private store: SessionStore,
+    private store: SessionFileStore,
     // The two registrations only the plugin can make, since both register
     // against its lifetime and are unregistered when it unloads. The file is
     // every file, not only notes: Obsidian announces canvases, PDFs and Bases

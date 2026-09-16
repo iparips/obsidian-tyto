@@ -34,7 +34,7 @@ iteration. The console should carry errors only.
 - Evidence: src/capture/recorder.ts lines 48 and 66;
   src/skills/skill-repository.ts lines 32 and 35;
   src/engine/turn/model-service.ts line 74; src/session/session-progress.ts
-  line 62; src/session/session-store.ts lines 34 and 61.
+  line 62; src/session/session-file-store.ts lines 34 and 61.
 
 ## 7. Vault reads go through the adapter
 
@@ -46,7 +46,7 @@ API, losing the cache and the serialised writes the guidelines cite.
 - Evidence: SkillRepository and AgentsMdRepository take an adapter (src/main.ts
   lines 184 and 188); AgentsMdRepository reads with `adapter.read`
   (src/agents/agents-md-repository.ts line 55).
-- Caveat: SessionStore writes into `this.manifest.dir`, the plugin's own config
+- Caveat: SessionFileStore writes into `this.manifest.dir`, the plugin's own config
   folder, which the Vault API does not address. That one must stay on the
   adapter and is the accepted use of it.
 
