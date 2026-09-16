@@ -31,12 +31,23 @@ export class NoteEditTool {
   private callToolOnNote(call: ToolCall, note: OpenNote): ToolCallOutcome {
     const parsed = NoteOperationParser.parse(call)
     if (parsed.hasFailed()) return ToolCallOutcome.of(`invalid arguments: ${parsed.message}`)
-    return this.applyOperation(parsed.value, note)
+    return this.applyOperation(call.name, parsed.value, note)
   }
 
-  private applyOperation(op: EditOperation, note: OpenNote): ToolCallOutcome {
+  // The bare string `applied` carried no tense and no target, so a batch gave
+  // the model two identical results and it read one as an earlier edit.
+  //
+  // The content is not echoed: the model sent it one message earlier, and a
+  // dictated paragraph makes that cost unbounded. The path and the line are
+  // short and fixed-cost, and are what the model cannot infer.
+  private applyOperation(tool: string, op: EditOperation, note: OpenNote): ToolCallOutcome {
     const result = this.noteEditor.apply(note.editor, note.details(), op)
-    if (result.applied) return ToolCallOutcome.edited('applied', result.endedAt)
+    if (result.applied)
+      return ToolCallOutcome.edited(
+        `${tool} applied to ${note.path}, ending at line ${result.endedAt.line + 1}`,
+        result.endedAt,
+        'applied',
+      )
     if (result.reason === 'noMatch') return ToolCallOutcome.of('anchor not found in note')
     return ToolCallOutcome.of('anchor matches multiple places; use a longer anchor')
   }

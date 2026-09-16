@@ -1,5 +1,7 @@
 import { ChatMessage } from '../../model/providers/types'
+import { PanelEntry } from '../models/panel-state'
 import { LoadedSkills } from './loaded-skills'
+import { TranscriptEntryLines } from './transcript-entry-lines'
 import { TranscriptSource } from './models/transcript-source'
 import { TranscriptTurn } from './models/transcript-turn'
 import { TranscriptAppendix } from './transcript-appendix'
@@ -22,12 +24,22 @@ export class TranscriptDocument {
       '',
       ...TranscriptMetadata.write(source),
       '',
+      ...TranscriptDocument.writeBeforeFirstTurn(source.entries),
       ...TranscriptTurn.split(source.entries).flatMap((turn) => sections.write(turn)),
       ...TranscriptAppendix.write(source.parts, skills),
     ]
       .join('\n')
       .replace(/\n{3,}/g, '\n\n')
       .concat('\n')
+  }
+
+  // A session restored, or retargeted before the user spoke, shows entries no
+  // turn owns. They open the document rather than being dropped, since the
+  // panel shows them and the transcript is what the panel showed.
+  private static writeBeforeFirstTurn(entries: readonly PanelEntry[]): string[] {
+    const before = TranscriptTurn.before(entries)
+    if (before.length === 0) return []
+    return ['## Before the first turn', '', ...before.flatMap(TranscriptEntryLines.of), '']
   }
 
   // Walked once over the whole history rather than per turn: a skill loaded in
