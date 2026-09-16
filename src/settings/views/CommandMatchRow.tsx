@@ -1,4 +1,4 @@
-import { ObsidianCommandMatch } from '../commands/models/obsidian-command-match'
+import { ObsidianCommandMatch } from '../../commands/models/obsidian-command-match'
 
 export interface CommandMatchRowProps {
   match: ObsidianCommandMatch

@@ -1,5 +1,5 @@
-import { ObsidianCommandSearch } from '../commands/obsidian-command-search'
-import { AllowedObsidianCommand } from '../commands/models/allowed-obsidian-command'
+import { ObsidianCommandSearch } from '../../commands/obsidian-command-search'
+import { AllowedObsidianCommand } from '../../commands/models/allowed-obsidian-command'
 import { AllowedEntries } from './AllowedEntries'
 import { CommandPicker } from './CommandPicker'
 import { ResolvedCommands } from './ResolvedCommands'

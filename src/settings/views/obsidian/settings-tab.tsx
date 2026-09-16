@@ -1,11 +1,11 @@
 import { App, PluginSettingTab } from 'obsidian'
 import { createRoot, Root } from 'react-dom/client'
-import { SettingsPanel } from './SettingsPanel'
-import { TytoSettings } from './settings'
-import { AllowList } from '../commands/allow-list'
-import { ObsidianCommandRegistry } from '../commands/obsidian-command-registry'
-import { ObsidianCommandCatalogue } from '../commands/obsidian-command-catalogue'
-import { ObsidianCommandSearch } from '../commands/obsidian-command-search'
+import { SettingsPanel } from '../SettingsPanel'
+import { TytoSettings } from '../../settings'
+import { AllowList } from '../../../commands/allow-list'
+import { ObsidianCommandRegistry } from '../../../commands/obsidian-command-registry'
+import { ObsidianCommandCatalogue } from '../../../commands/obsidian-command-catalogue'
+import { ObsidianCommandSearch } from '../../../commands/obsidian-command-search'
 
 export interface SettingsHost {
   settings: TytoSettings
