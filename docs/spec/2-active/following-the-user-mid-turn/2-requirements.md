@@ -57,6 +57,10 @@ Archived spec 33 raised this as D4 and left it open, on the grounds that the
 case was narrower than the one reported. This session is that case, and it cost
 the user's todo file.
 
+An edit scattered across a note, which archiving is, may be the wrong shape for
+anchored edits altogether: one rewrite has no siblings to go stale against. That
+is D3's first option, and D5 costs out the guard it would need.
+
 ## Steps to Replicate
 
 The retarget. Start a turn that edits one note, open a different note while it
