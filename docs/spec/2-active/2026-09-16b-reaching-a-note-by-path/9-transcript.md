@@ -36,7 +36,7 @@ Note content:
 
 One path, two contents. The second is a daily note, which the session had
 resolved an editor for while naming the shopping list. That resolve is fixed by
-[following-the-user-mid-turn](../following-the-user-mid-turn/1-index.md).
+[following-the-user-mid-turn](../2026-09-16a-following-the-user-mid-turn/1-index.md).
 
 ## What The Model Did With It
 

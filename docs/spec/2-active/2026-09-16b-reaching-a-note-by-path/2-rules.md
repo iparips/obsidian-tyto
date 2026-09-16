@@ -21,7 +21,7 @@ by calling a tool that opens a note.
 
 The user opening a note mid-turn is not ignored: it sets the target for the next
 turn, per D1 of
-[following-the-user-mid-turn](../following-the-user-mid-turn/1-index.md). What
+[following-the-user-mid-turn](../2026-09-16a-following-the-user-mid-turn/1-index.md). What
 it must not do is move the note the running turn writes to.
 
 That is what makes a turn's target knowable: one note, fixed when the turn

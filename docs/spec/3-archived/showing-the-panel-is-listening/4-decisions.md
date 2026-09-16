@@ -107,7 +107,7 @@ rather than the system's.
   Chrome's. If it suspends, the meter needs an explicit resume() on the same
   gesture, which is a small change but only findable on a device.
 - AnalyserNode reads a MediaStream the same way on all three platforms.
-  Archived spec [2-mobile-mvp](../../3-archived/2-mobile-mvp/1-index.md) records
+  Archived spec [2-mobile-mvp](../2-mobile-mvp/1-index.md) records
   that capture already differs by platform, iOS producing mp4 and Android webm,
   but that difference is in the recorded blob rather than in the live stream the
   analyser reads. If the meter is dead on one platform and not another, this

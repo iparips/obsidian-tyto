@@ -91,7 +91,8 @@ that is silently wrong today.
 
 Vault.process reads, modifies and saves one file atomically, addressed by TFile,
 so the fallback cannot go astray. It also removes the not-editable-yet failure,
-since a note needs no editor to be written.
+since a note needs no editor to be written. It is async and its callback is
+synchronous, so the anchor is matched against the text process just read.
 
 Two things the fallback costs, and both are confined to it.
 
@@ -99,14 +100,14 @@ Two things the fallback costs, and both are confined to it.
   is skipped on the vault path. A user whose tab has moved was not watching that
   note anyway.
 - Undo. D5 of
-  [following-the-user-mid-turn](../following-the-user-mid-turn/3-decisions-editing.md)
-  weighed the whole-note write partly on Ctrl-Z reversing a model edit, and said
+  [following-the-user-mid-turn](../2026-09-16a-following-the-user-mid-turn/3-decisions-editing.md)
+  weighed the whole-note write partly on editor undo reversing a model edit, and said
   so because every edit goes through the editor and nothing writes to the vault
   directly. A vault fallback makes that untrue for the writes that take it.
 
-Whether undo survives a Vault.process write to an open note is unknown, and the
-API does not say. It is five minutes in a real vault: write that way to an open
-note and press Ctrl-Z.
+Whether undo survives a Vault.process write to an open note is unknown, and
+neither the API nor the typings say. It needs a keystroke in a running Obsidian:
+write that way to an open note and undo in the editor.
 
 The answer no longer decides the option, which is what makes this better than
 writing through the vault always. It decides only how loud the fallback should

@@ -8,7 +8,7 @@ updated: 2026-09-16
 Paste the block below into a fresh session to build this spec.
 
 ```text
-Build the spec in docs/spec/2-active/reaching-a-note-by-path. The plugin reaches
+Build the spec in docs/spec/2-active/2026-09-16b-reaching-a-note-by-path. The plugin reaches
 a note through an editor, and an editor belongs to a tab rather than a file, so
 a write follows the tab and lands in a note nobody named. Four commits.
 
@@ -31,7 +31,7 @@ the shape change safe to ship.
 
 One thing the spec cannot tell you, and it is worth five minutes before commit
 1: whether a Vault.process write lands in the editor's undo stack when the note
-is open. Write that way to an open note and press Ctrl-Z. The answer does not
+is open. Write that way to an open note and undo in the editor. The answer does not
 change what to build, only whether the vault branch is worth announcing in the
 panel. Say what you found.
 

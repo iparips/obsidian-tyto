@@ -25,16 +25,16 @@ panel is repainting, not that the microphone is hearing anything, so the bars
 follow the stream's own amplitude and sit at a visible floor in silence.
 
 Presentation only, as
-[6-tidy-up-chat-panel](../../3-archived/6-tidy-up-chat-panel/1-index.md) was.
+[6-tidy-up-chat-panel](../6-tidy-up-chat-panel/1-index.md) was.
 The recording phase already exists, and no publisher or entry kind changes.
 
 Answers the dictation lost in
-[28-not-losing-a-recording](../../3-archived/28-not-losing-a-recording/1-index.md)
+[28-not-losing-a-recording](../28-not-losing-a-recording/1-index.md)
 from the other side: that spec stopped the words being thrown away, and this one
 shows they are being captured while they are spoken.
 
 The strip is also where streaming capture's live partials land, so
-[desktop-v1](../../1-upcoming/desktop-v1/3-streaming-capture.md) inherits the row rather than
+[desktop-v1](../../1-upcoming/2026-09-14b-desktop-v1/3-streaming-capture.md) inherits the row rather than
 inventing one.
 
 The meter shares the recorder's MediaStream rather than opening its own, so

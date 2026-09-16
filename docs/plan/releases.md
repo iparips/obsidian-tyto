@@ -126,6 +126,6 @@ Goal: lift the single-note limit, so the vault skills that route between files b
 - The FR37 refusal narrows to whatever remains unsupported, rather than covering every cross-file skill.
 - Each write resolves its own target's AGENTS.md chain, per release 3.
 
-Detailed design: [cross-file-skills/index.md](../spec/1-upcoming/cross-file-skills/1-index.md).
+Detailed design: [cross-file-skills/index.md](../spec/1-upcoming/2026-09-14a-cross-file-skills/1-index.md).
 
 Exit test: with the vault's todo skill present, an instruction to archive done items follows the skill's steps rather than improvising, and the journal skill files an entry at the right computed path.

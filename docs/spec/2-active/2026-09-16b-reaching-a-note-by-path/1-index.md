@@ -50,11 +50,12 @@ session's note and shows it, which is what a user relies on when an utterance
 names no note at all, and a tool call moving it is the change worth seeing.
 
 The first two commits are the fault and ship without the rest, which matters
-because the wrong-note write is live. One fact is still outstanding:
-whether a vault write lands in the editor's undo stack when the note is open.
-That decides how loudly the fallback should announce itself, not which option
-to take.
+because the wrong-note write is live. One fact is still outstanding: whether a
+vault write lands in the editor's undo stack when the note is open. Neither the
+API nor the typings say, so it needs a keystroke in a running Obsidian. That
+decides how loudly the fallback should announce itself, not which option to
+take.
 
 Downstream of
-[following-the-user-mid-turn](../following-the-user-mid-turn/1-index.md), which
+[following-the-user-mid-turn](../2026-09-16a-following-the-user-mid-turn/1-index.md), which
 fixed the resolve and left this.
