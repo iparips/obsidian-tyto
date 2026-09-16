@@ -14,18 +14,60 @@ updated: 2026-09-16
 Archived spec 33 raised this as D4 and left it open, calling the case narrower
 than the one reported. The reported session is that case.
 
-| Option                                | Cost                                                              |
-|---------------------------------------|-------------------------------------------------------------------|
-| Stop the batch at the first refusal   | A batch of independent edits loses the ones after the failure     |
-| Apply all, report each                | What happens today, and what duplicated the user's content        |
-| Refuse the batch when anchors overlap | Needs a rule for what overlapping means, computed before applying |
+| Option                                   | Cost                                                                  |
+|------------------------------------------|-----------------------------------------------------------------------|
+| A whole-note write for scattered edits   | A new tool, and it reverses a standing rule in the system prompt      |
+| Stop the batch at the first refusal      | A batch of independent edits loses the ones after the failure         |
+| Apply all, report each                   | What happens today, and what duplicated the user's content            |
+| Refuse the batch when anchors overlap    | Needs a rule for what overlapping means, computed before applying     |
 
-Blocking: it decides whether the fix is in the executor loop or in the anchor
-check, and the second is a larger change.
+Blocking: it decides whether the fix is a new tool, a change to the executor
+loop, or an anchor check, and those are three different sizes of work.
 
-Stopping at the first refusal is the recommendation. An anchor that missed is
-evidence the model's picture of the note is stale, and every later anchor in
-that batch was computed from the same picture.
+The first is Ilya's: an edit scattered across a note, such as archiving a todo
+list, is better expressed as one rewrite than as a line-by-line batch. It is the
+only option that removes the stale-anchor problem rather than detecting it,
+because a single write has no siblings to go stale against.
+
+Two things stand in its way, neither fatal. There is no whole-note tool: the
+three edit tools are replace_text, insert_text and insert_at, all anchored. And
+ModelsRole says "Never rewrite the whole note; make the smallest targeted edits
+that satisfy the instruction", so the rule needs narrowing rather than a tool
+added beside it.
+
+The rule exists for a reason worth keeping: a model rewriting a note it has only
+partly read loses whatever it did not echo back. Archiving is safe from that
+only because the todo skill has it read the file first. The narrowing is
+therefore not "rewrite when you like" but closer to "rewrite only what you read
+in full this turn", which D5 costs out.
+
+Stopping at the first refusal stays worth doing whichever way this lands: it is
+small, it sits in the executor loop, and it bounds the damage while a batch is
+still what the model sends.
+
+#### D5: What does a whole-note write cost, and what guards it? [open, blocking]
+
+Raised by D3's first option. A whole-note tool is the largest change this spec
+could make, and it is the one that removes the defect rather than containing it.
+
+| Concern                        | An anchored edit                     | A whole-note write                          |
+|--------------------------------|--------------------------------------|---------------------------------------------|
+| Content the model did not read | Untouched, since the anchor misses it | Lost, unless the write carries it back      |
+| A stale picture of the note    | Refused, loudly                      | Applied, silently overwriting what changed  |
+| Cost of a wrong call           | One failed anchor                    | The note                                    |
+
+The second row is the sharp one. An anchored edit fails safe on a stale picture,
+which is why the reported session cost three duplicated blocks rather than the
+file. A whole-note write applies whatever it was given.
+
+So the guard decides this, not the tool. Candidates, cheapest first: the write
+carries what the model last read and is refused when the note has changed since;
+the tool is offered only after a read_note this turn; the write takes the same
+confirmation an open does.
+
+Blocking, and the real question behind D3. A whole-note tool with no staleness
+guard trades a loud failure for a silent one, which is worse than what this spec
+set out to fix.
 
 #### D4: Is the model told its anchors go stale within a batch? [open]
 
@@ -52,29 +94,24 @@ what was unsettled.
 | Finish on the note it started    | Completed the archive, bound the new note after | Chosen                                                      |
 | End the turn, saying what it did | Stopped, named the edits already applied        | An instruction half-applied, which is the state to avoid    |
 
-An utterance is the unit the user asked for, so half-applying one is the state
-worth avoiding. Ending the turn avoids it by leaving the instruction incomplete,
-which is the same harm in a different place. Finishing the instruction and then
-following is the only option that leaves neither the note nor the utterance in a
-partial state.
+An utterance is the unit the user asked for, so half-applying one is what to
+avoid. Ending the turn leaves the instruction incomplete instead, which is the
+same harm moved. Finishing and then following leaves neither partial.
 
-The session binds to the new note the moment the event fires, as it does today.
-What defers is the running turn's own target, so the turn writes where it began
-and the next turn starts where the user is.
+The session still binds to the new note when the event fires. What defers is the
+running turn's own target, so the turn writes where it began and the next starts
+where the user is.
 
-A command opening a note mid-turn is untouched. ToolDispatcher reaches the turn
-repository directly, where the user's retarget arrives through the runner, so
-deferring one leaves the other as archived specs 31 and 32 left it.
+A command opening a note mid-turn is untouched: ToolDispatcher reaches the turn
+repository directly, where the user's retarget arrives through the runner.
 
 #### D2: Does the model need telling at all? [resolved 2026-09-16]
 
-No, and D1 is what settles it. A turn that finishes on the note it started never
-sees the new one, so there is nothing to tell it. The next turn reads the new
-note in its own note context, which is what every retarget between turns already
-relies on.
+No, and D1 settles it. A turn finishing on the note it started never sees the
+new one, so there is nothing to tell it, and the next turn reads the change in
+its own note context as every between-turn retarget already does.
 
-Archived spec 33's removal of the history message therefore stands unamended,
-rather than needing the narrower version this spec was opened to consider.
+Archived spec 33's removal of the history message therefore stands unamended.
 
 ### Assumptions
 

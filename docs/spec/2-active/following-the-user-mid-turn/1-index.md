@@ -22,8 +22,10 @@ user and the turn carries out the utterance it was given. Nothing needs telling
 the model, which leaves archived spec 33's removal of the history message
 standing.
 
-No design or tasks file yet. D3 is blocking: it decides whether the batch fix
-sits in the executor loop or in the anchor check.
+No design or tasks file yet. D3 and D5 are blocking, and they are one question:
+whether a scattered edit should be one whole-note write rather than a batch of
+anchored ones, and what guard a whole-note write would need to fail as loudly as
+an anchor does.
 
 Downstream of
 [33-reporting-what-a-turn-did](../../3-archived/33-reporting-what-a-turn-did/1-index.md),
