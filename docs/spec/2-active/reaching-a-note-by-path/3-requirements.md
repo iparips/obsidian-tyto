@@ -16,33 +16,6 @@ The immediate cause was a resolve reading the session back, fixed separately.
 What remains is that the two answers come from different places and can still
 disagree.
 
-## The Rule
-
-Once a turn is running, the user cannot change its target. Only the model can,
-by calling a tool that opens a note.
-
-| Who       | Between turns              | While a turn runs                 |
-| --------- | -------------------------- | --------------------------------- |
-| The user  | Sets it, by opening a note | Cannot change it                  |
-| The model | Has no turn to act in      | Sets it, by a tool that opens one |
-
-The user opening a note mid-turn is not ignored: it sets the target for the next
-turn, per D1 of
-[following-the-user-mid-turn](../following-the-user-mid-turn/1-index.md). What
-it must not do is move the note the running turn writes to.
-
-That is what makes a turn's target knowable: one note, fixed when the turn
-starts unless the model moves it, so a user clicking elsewhere cannot make an
-utterance land where they did not ask.
-
-The four places that write a target are these cases and no others:
-SessionPanelPropsBuilder reads the open note at session start, EditEngine
-follows a tab change, and ToolDispatcher moves it when a tool opens a note.
-
-Each defect below is that rule failing. A handle that follows the tab lets the
-user move a running turn's target without meaning to, and a panel naming the
-session's note cannot say what the turn is actually writing to.
-
 ## In Scope
 
 ### The reading tools read the file, the note context reads the editor
@@ -62,10 +35,9 @@ A model given both in one request cannot tell which is current. The note context
 asserts it supersedes every earlier copy, which is true of the conversation and
 says nothing about a tool result arriving beside it.
 
-The turn's note is the case that matters. Every other note has no editor, so the
-file is all there is, where this one has contents an anchor is matched against.
-A read of it that returns the file can hand the model an anchor that no longer
-exists, or hide one that does.
+The turn's note is where this bites, per the second rule: a read of it that
+returns the file can hand the model an anchor that no longer exists, or hide one
+that does.
 
 ### An edit writes through a handle that can move
 

@@ -6,26 +6,30 @@ updated: 2026-09-16
 # Decisions: Reaching The Note
 
 How a read and a write find the note they were asked for. What the panel says
-about it is in [3-decisions-showing.md](3-decisions-showing.md).
+about it is in [4-decisions-showing.md](4-decisions-showing.md).
 
 ## Requirements
 
 ### Decisions
 
-#### D2: Does grep read the editor too? [open]
+#### D2: Does grep read the editor too? [resolved 2026-09-16]
 
-grep_notes reads every note in the vault with cachedRead, and the turn's note is
-one of them, so a grep can return a line the editor no longer holds.
+No. Ilya: the editor is authoritative for the note you are editing, the vault is
+authoritative for finding notes.
 
-Not blocking, and narrower than D1: a grep answers a question about the vault
-where a read informs an edit. D1 gives it the shape if it is wanted, since the
-turn's note is one path among many a grep walks and the same comparison applies
-to it.
+grep_notes reads every note with cachedRead, so it can miss a line the turn's
+editor holds and has not saved. That is all reading the editor would fix, and it
+is not worth the cost.
 
-What argues against is that a grep is a search. A hit whose text came from an
-unsaved editor is a hit no other reader of the vault would find, and a search
-that answers differently from the file is harder to reason about than one that
-is merely stale.
+- It answers a different question. A read of the turn's note informs an edit, so
+  it must match what the write goes through. A grep asks which notes contain
+  something, which belongs to the vault rather than to whichever tabs are open.
+- It would be inconsistent rather than more correct. One note in the result set
+  would come from unsaved text and the rest from disk, so a hit could be one no
+  other reader of the vault would find.
+- The failures are not comparable. A grep that misses an unsaved line costs one
+  result. A read that returns the wrong text costs a failed edit or a write to
+  the wrong place.
 
 #### D1: Where does a read of the turn's note come from? [resolved 2026-09-16]
 
