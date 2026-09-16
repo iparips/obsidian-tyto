@@ -14,7 +14,8 @@ Following the user is the rule and stays. What a running turn does about it, and
 what a batch does when one of its anchors goes stale, are what this settles.
 
 - [2-requirements.md](2-requirements.md) - the two defects, and the batch table showing how the anchors drifted
-- [3-decisions.md](3-decisions.md) - a turn finishing what it started, and whether a batch stops at the first refusal
+- [3-decisions.md](3-decisions.md) - what is still open: how an anchored edit avoids going stale
+- [3-decisions-settled.md](3-decisions-settled.md) - a turn finishing what it started, a batch stopping at its first refusal, and the whole-note guards
 - [8-transcripts.md](8-transcripts.md) - the reported session, where note context v4 is the retarget
 
 A running turn now finishes on the note it started, so the session follows the
@@ -22,15 +23,14 @@ user and the turn carries out the utterance it was given. Nothing needs telling
 the model, which leaves archived spec 33's removal of the history message
 standing.
 
-No design or tasks file yet. D5 is the last blocking decision: a whole-note write
-needs a guard, because an anchored edit fails loudly on a stale picture where a
-rewrite applies whatever it was given. Obsidian's own undo reverses a model edit,
-which lowers the cost of that without removing the need for the guard.
+No design or tasks file yet. D6 is the last blocking decision, and it is the
+prevention the rest of the spec only contains: the note context is rebuilt per
+turn step rather than per tool call, so every anchor in one batch is computed
+from the same snapshot and the note moves underneath them.
 
-3-decisions.md runs over the file limit at five decisions. It shrinks when D5
-and D4 resolve, so it is left whole rather than split into files too small to
-be worth opening.
+A whole-note write takes all three guards from D5, which is what makes the
+scattered-edit case safe. D6 asks what the anchored tools do once it lands.
 
 Downstream of
 [33-reporting-what-a-turn-did](../../3-archived/33-reporting-what-a-turn-did/1-index.md),
-which left the batch question open as D4.
+which left the batch question open and is where this spec picks it up.
