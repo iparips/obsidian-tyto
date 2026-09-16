@@ -74,11 +74,11 @@ evidence of an earlier edit and replied that the edit was already applied.
 
 Two writes fall out of it, in that order of importance.
 
-- A name that is not an offered tool is refused as unknown, before the
-  dispatcher routes it anywhere. ToolCatalogue.forCapabilities already builds
-  the offered set for the turn, so the check is against a list that exists. The
-  refusal names the tools the model may call rather than echoing the name back,
-  which the failing session repeated three times in one history.
+- A name no tool carries is refused as unknown, before the dispatcher routes it
+  anywhere. TOOL_SCHEMAS already names every tool, so the check is against a
+  list that exists. The refusal names the tools the model may call rather than
+  echoing the name back, which the failing session repeated three times in one
+  history.
 - An applied edit names the operation and the note it reached, so two results in
   one batch are told apart. NoteEditTool answers the bare string `applied`,
   which carries no tense and no target.
@@ -108,7 +108,7 @@ utterance. It joins the steps entry at index 1, above the restored marker.
 
 - [src/engine/edit-engine.ts](../../../../src/engine/edit-engine.ts) - open first: followActiveNote appends the system message that splits the pair
 - [src/engine/tool-dispatcher.ts](../../../../src/engine/tool-dispatcher.ts) - the fall-through to NoteEditTool, and where the unknown-name refusal goes instead
-- [src/engine/tools/tool-schemas.ts](../../../../src/engine/tools/tool-schemas.ts) - ToolCatalogue.forCapabilities, the offered set a name is checked against
+- [src/engine/tools/tool-schemas.ts](../../../../src/engine/tools/tool-schemas.ts) - TOOL_SCHEMAS, the defined names a call is checked against, and ToolCatalogue.forCapabilities, the narrower set the refusal lists
 - [src/session/models/panel-state.ts](../../../../src/session/models/panel-state.ts) - the entry union holding the restored kind, and openStepsAt scoping to the last user entry
 - [src/session/models/restored-text.ts](../../../../src/session/models/restored-text.ts) - the session event a retarget would copy, and why it exists at all
 - [8-transcripts.md](8-transcripts.md) - the two reported sessions, kept whole because the tool results are the evidence
