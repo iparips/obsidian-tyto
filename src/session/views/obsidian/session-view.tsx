@@ -7,8 +7,7 @@ export const VIEW_TYPE_SESSION = 'tyto-session'
 
 // What the view cannot answer for itself: whether a session was left behind,
 // and what its props are. Only the plugin reaches the store. It takes the view
-// back because a session's props hold a PanelPresence, which is built around
-// the leaf this view owns.
+// back because a session's props carry the action that rebinds this view.
 export type RestoreSession = (view: SessionView) => Promise<SessionPanelProps | null>
 
 export class SessionView extends ItemView {

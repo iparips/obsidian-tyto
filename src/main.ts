@@ -24,7 +24,10 @@ export default class TytoPlugin extends Plugin {
     this.settings = { ...DEFAULT_SETTINGS, ...(await this.loadData()) }
     this.registerView(
       VIEW_TYPE_SESSION,
-      (leaf) => new SessionView(leaf, (view) => this.sessionController().storedPanelProps(view)),
+      (leaf) =>
+        new SessionView(leaf, (view) =>
+          this.sessionController().readPanelPropsFromSessionStore(view),
+        ),
     )
     this.addRibbonIcon(TYTO_ICON, 'Start Tyto session', () => this.openSession())
     this.addCommand({
