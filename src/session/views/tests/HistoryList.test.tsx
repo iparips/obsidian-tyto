@@ -29,4 +29,22 @@ describe('HistoryList', () => {
       expect(screen.queryByLabelText('Turn in progress')).toBeNull()
     })
   })
+
+  describe('when a recording is running', () => {
+    it('renders the recording strip after the entries', () => {
+      const { container } = render(
+        <HistoryList entries={entries} phase="recording" level={0.4} elapsedSeconds={12} />,
+      )
+
+      const rendered = container.querySelectorAll('.tyto-entry, .tyto-recording-strip')
+
+      expect(rendered[rendered.length - 1].className).toBe('tyto-recording-strip')
+    })
+
+    it('renders the elapsed clock it was handed', () => {
+      render(<HistoryList entries={entries} phase="recording" level={0} elapsedSeconds={12} />)
+
+      expect(screen.getByText('0:12')).toBeDefined()
+    })
+  })
 })

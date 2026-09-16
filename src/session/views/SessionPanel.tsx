@@ -10,6 +10,7 @@ import {
   useParkedAnswers,
 } from './hooks/useParkedAnswers'
 import { RecorderPort, RecordingPorts, useRecording } from './hooks/useRecording'
+import { useRecordingLevel } from './hooks/useRecordingLevel'
 import { EngineEventPorts, useEngineEvents } from './hooks/useEngineEvents'
 import { RecordedHistoryPorts, useRecordedHistory } from './hooks/useRecordedHistory'
 import { TargetNotePorts, useTargetNote } from './hooks/useTargetNote'
@@ -76,6 +77,14 @@ export const SessionPanel = (props: SessionPanelProps) => {
   }
 
   const recorded = useRecording(props, state.phase, dispatch, runTurn)
+  const recordingLevel = useRecordingLevel(() => props.recorder.stream())
+
+  // Opened here rather than inside the hook's own effect, so the audio context
+  // is built in the gesture WebKit requires it to be built in.
+  const record = async () => {
+    recordingLevel.begin()
+    await recorded.start()
+  }
 
   // One control for both, because cancel means the same either way: stop, and
   // keep nothing.
@@ -129,6 +138,8 @@ export const SessionPanel = (props: SessionPanelProps) => {
       <HistoryList
         entries={state.entries}
         phase={state.phase}
+        level={recordingLevel.level}
+        elapsedSeconds={recordingLevel.elapsedSeconds}
         onChooseNote={settleChoice}
         onPickSuggestion={pickSuggestion}
         onRetry={recorded.retry}
@@ -139,7 +150,7 @@ export const SessionPanel = (props: SessionPanelProps) => {
         onDraftChange={setDraft}
         onSend={sendDraft}
         onCancel={cancel}
-        onRecord={recorded.start}
+        onRecord={record}
         onStopRecording={recorded.stop}
       />
     </div>
