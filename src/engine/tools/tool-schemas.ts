@@ -14,6 +14,7 @@ import {
   REPLACE_TEXT,
   RESOLVE_DATE,
   RUN_COMMAND,
+  WRITE_NOTE,
 } from '../../model/providers/models/tool-call'
 
 const ANCHOR_DESCRIPTION =
@@ -56,6 +57,23 @@ export const TOOL_SCHEMAS: ToolSchema[] = [
         content: { type: 'string' },
       },
       required: ['location', 'content'],
+    },
+  },
+  {
+    name: WRITE_NOTE,
+    description:
+      'Replace the whole note with content. Use this for an edit touching several places at once, such as archiving a list, where anchored edits would need one call per place. Requires read_note on this note earlier in this turn, and the user confirms before it lands.',
+    parameters: {
+      type: 'object',
+      properties: {
+        content: { type: 'string', description: 'The complete new text of the note.' },
+        read_content: {
+          type: 'string',
+          description:
+            'The note exactly as read_note returned it this turn. The write is refused if the note has changed since, so the user typing into it is never overwritten.',
+        },
+      },
+      required: ['content', 'read_content'],
     },
   },
   {
@@ -294,7 +312,7 @@ export class ToolCatalogue {
 // glob, so a vault with search off has no use for it and release 3's tool list
 // is unchanged.
 // The calls the skill gate holds: the four that open vault access, and the
-// three that write. It mirrors ToolCall.requiresApplicableSkillsAttribute,
+// four that write. It mirrors ToolCall.requiresApplicableSkillsAttribute,
 // which is what decides the same set at the gate.
 const GUARDED_TOOLS: string[] = [
   RUN_COMMAND,
@@ -304,6 +322,7 @@ const GUARDED_TOOLS: string[] = [
   REPLACE_TEXT,
   INSERT_TEXT,
   INSERT_AT,
+  WRITE_NOTE,
 ]
 
 const APPLICABLE_SKILLS_PROPERTY = {

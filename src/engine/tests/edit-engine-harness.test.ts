@@ -367,7 +367,9 @@ describe('EditEngine', () => {
   })
 
   describe('when the vault allows no commands and disables search', () => {
-    it('offers only the release 3 tools when neither flow is available', async () => {
+    // NFR8: no command or search tool leaks into a vault that disabled both.
+    // The edit tools are not frozen by it, and write_note joins them.
+    it('offers the edit tools alone when neither flow is available', async () => {
       respondsWith()
 
       await engineOf([], false).processUtterance('edit')
@@ -376,6 +378,7 @@ describe('EditEngine', () => {
         'replace_text',
         'insert_text',
         'insert_at',
+        'write_note',
         'load_skill',
       ])
     })
@@ -469,8 +472,8 @@ describe('EditEngine', () => {
     })
   })
 
-  // The user switching tabs mid-turn is a retarget like any other, so the turn
-  // running behind it edits the note now in front of them.
+  // The utterance was given about the note the turn began on, so it is carried
+  // out there. The session binds to the new note for the next turn to resolve.
   describe('when the user opens a note while a turn is running', () => {
     const editsNoteEnd = () =>
       aToolTurn(aToolCall('insert_at', { location: 'note_end', content: '- plates\n' }))
@@ -485,13 +488,31 @@ describe('EditEngine', () => {
       complete.mockResolvedValue(Outcomes.success(aTextTurn('done')))
     }
 
-    it('edits the note the user opened mid-turn, since the running turn followed it', async () => {
+    it('edits the note the turn started on, not the one the user opened', async () => {
       const engine = engineOf()
       opensMidTurn(engine, DAILY)
 
       await engine.processUtterance('add plates to the list')
 
-      expect(dailyEditor.content).toBe('# Today\n\n## Meetings\n- plates\n')
+      expect(editor.content).toBe('# Budget\n\nbody- plates\n')
+    })
+
+    it('leaves the note the user opened untouched while the turn runs', async () => {
+      const engine = engineOf()
+      opensMidTurn(engine, DAILY)
+
+      await engine.processUtterance('add plates to the list')
+
+      expect(dailyEditor.content).toBe('# Today\n\n## Meetings\n')
+    })
+
+    it('binds the session to the note the user opened, for the next turn to resolve', async () => {
+      const engine = engineOf()
+      opensMidTurn(engine, DAILY)
+
+      await engine.processUtterance('add plates to the list')
+
+      expect(sessions.targetNote()).toBe(DAILY)
     })
 
     // The regression test for the 400. A command that opens a note fires
@@ -506,15 +527,6 @@ describe('EditEngine', () => {
 
       const sent = complete.mock.calls[1][0] as ChatMessage[]
       expect(systemMessagesSplittingToolPairsIn(sent)).toEqual([])
-    })
-
-    it('leaves the turn on its note when a mid-turn open will not resolve', async () => {
-      const engine = engineOf()
-      opensMidTurn(engine, 'Journal/never-opened.md')
-
-      await engine.processUtterance('add plates to the list')
-
-      expect(editor.content).toBe('# Budget\n\nbody- plates\n')
     })
   })
 

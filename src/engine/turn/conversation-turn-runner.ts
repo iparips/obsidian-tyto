@@ -1,5 +1,4 @@
 import { Outcome } from '../../shared/models/outcome'
-import { ResolvedNote } from '../note-binding/resolved-note'
 import { ToolCall } from '../../model/providers/types'
 import { TurnCancellationController } from './turn-cancellation-controller'
 import { TurnEndingService } from '../turn-ending-service'
@@ -27,12 +26,6 @@ export class ConversationTurnRunner {
 
   cancel(): void {
     this.cancellationController.cancel()
-  }
-
-  // The turn owns what it writes to, so a note opened behind it arrives here
-  // rather than through the repository it holds.
-  retargetTo(resolved: ResolvedNote): void {
-    this.repository.retargetTo(resolved)
   }
 
   async run(): Promise<Outcome<string>> {
