@@ -88,9 +88,13 @@ useRecordingLevel(streamFn) -> level 0 to 1, elapsed seconds, begin()
 - Reduced motion stops the loop and holds the bars at rest (NFR4). The clock
   carries liveness on its own
 
-The bars render from that one number. A meter, not a waveform: the question is
-whether sound is arriving now, and history needs a canvas and a buffer to answer
-a question nobody asked.
+The bars rendered from that one number until 2026-09-16, when D5 replaced the
+meter with a trail: the hook keeps the recent readings and the strip draws one
+bar each. A level meter cannot tell a dead microphone from a quiet room, since
+bars at the floor look the same either way, where a flat trail is unmistakable.
+
+No canvas was needed. The bars were already one element per reading, so the
+trail is a longer array and a ring buffer in the hook.
 
 ## The Clock
 
