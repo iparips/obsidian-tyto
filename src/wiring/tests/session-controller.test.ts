@@ -25,7 +25,7 @@ describe('SessionController', () => {
     it('restores no props, so the view opens empty', async () => {
       const controller = controllerOver(new FakeSessionWorkspace(), new FakeAdapter())
 
-      const props = await controller.storedPanelProps(new SessionView({} as never))
+      const props = await controller.readPanelPropsFromSessionStore(new SessionView({} as never))
 
       expect(props).toBeNull()
     })
