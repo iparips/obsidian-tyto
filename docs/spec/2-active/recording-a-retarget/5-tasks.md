@@ -42,19 +42,18 @@ A retarget appends a message to the chat history.
   which it already carries
 
 The history is the right home for the model (D2 in
-[4-decisions.md](4-decisions.md)), but the transcript does not read all of it.
-It slices chatHistory by a step's recorded range, and tail() takes everything
-after the last step. A message appended after the final turn is therefore
-rendered; one appended between two turns falls into the next turn's leading gap,
-which nothing slices.
+[4-decisions.md](4-decisions.md)), and the transcript does slice all of it:
+recordCall opens each step's range where the one before it closed, so no message
+is skipped by index. The gap is in rendering, not slicing.
 
-Closing that gap is the work in this commit: the turn section needs to render
-what precedes its first step, or the message needs a step range of its own.
-Check which is smaller against transcript-turn-section.ts:85 before choosing.
+A retarget inside a turn or between two turns reaches a Request block, where
+requestLines filed it as the user. One appended after the last turn reaches only
+the tail, which the Response block drops. Both are fixed in this commit, and
+[3-design.md](3-design.md) holds the three positions and what each needed.
 
 Tests: the engine appends the message whether or not a turn is running, and the
 prompt carries it ahead of the note context. The transcript renders a retarget
-that happened between turns, at the point it happened.
+at the point it happened, once, and never as the user.
 
 ## Verifying
 
