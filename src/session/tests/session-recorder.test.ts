@@ -3,7 +3,7 @@ import { FakeAdapter } from '../../test-support/fake-adapter'
 import { ChatMessage } from '../../model/providers/models/chat-message'
 import { SessionRecorder } from '../session-recorder'
 import { SessionRepository } from '../session-repository'
-import { SessionStore } from '../session-store'
+import { SessionFileStore } from '../session-file-store'
 
 const PLUGIN_FOLDER = '.obsidian/plugins/tyto'
 const SESSION_PATH = `${PLUGIN_FOLDER}/session.json`
@@ -19,7 +19,10 @@ describe('SessionRecorder', () => {
     const sessions = SessionRepository.restored('Journal/day.md', [
       ChatMessage.user('add a heading'),
     ])
-    recorder = new SessionRecorder(sessions, new SessionStore(adapter.asAdapter(), PLUGIN_FOLDER))
+    recorder = new SessionRecorder(
+      sessions,
+      new SessionFileStore(adapter.asAdapter(), PLUGIN_FOLDER),
+    )
   })
 
   describe('when the history is recorded', () => {

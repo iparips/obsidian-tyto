@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { FakeAdapter } from '../../test-support/fake-adapter'
 import { SESSION_SNAPSHOT_VERSION, SessionSnapshot } from '../models/session-snapshot'
-import { SessionStore } from '../session-store'
+import { SessionFileStore } from '../session-file-store'
 
 const PLUGIN_FOLDER = '.obsidian/plugins/tyto'
 const SESSION_PATH = `${PLUGIN_FOLDER}/session.json`
@@ -13,13 +13,13 @@ const aSnapshot = (version = SESSION_SNAPSHOT_VERSION): SessionSnapshot => ({
   entries: [{ kind: 'user', text: 'add a heading' }],
 })
 
-describe('SessionStore', () => {
+describe('SessionFileStore', () => {
   let adapter: FakeAdapter
-  let store: SessionStore
+  let store: SessionFileStore
 
   beforeEach(() => {
     adapter = new FakeAdapter()
-    store = new SessionStore(adapter.asAdapter(), PLUGIN_FOLDER)
+    store = new SessionFileStore(adapter.asAdapter(), PLUGIN_FOLDER)
   })
 
   describe('when a turn ends', () => {
@@ -38,7 +38,7 @@ describe('SessionStore', () => {
 
   describe('when the plugin folder is unknown', () => {
     beforeEach(() => {
-      store = new SessionStore(adapter.asAdapter(), undefined)
+      store = new SessionFileStore(adapter.asAdapter(), undefined)
     })
 
     it('reads nothing when the manifest names no folder', async () => {

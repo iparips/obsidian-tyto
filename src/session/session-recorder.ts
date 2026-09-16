@@ -1,7 +1,7 @@
 import { PanelEntry } from './models/panel-state'
 import { SessionRepository } from './session-repository'
 import { SessionSnapshotFactory } from './session-snapshot-factory'
-import { SessionStore } from './session-store'
+import { SessionFileStore } from './session-file-store'
 
 // Writes the record whenever the panel's history changes, so what was shown is
 // what is on disk. Session-scoped and outside React, which is the whole point:
@@ -10,7 +10,7 @@ import { SessionStore } from './session-store'
 export class SessionRecorder {
   constructor(
     private readonly sessions: SessionRepository,
-    private readonly store: SessionStore,
+    private readonly store: SessionFileStore,
   ) {}
 
   // The entries as they now stand rather than the newest one: a later action

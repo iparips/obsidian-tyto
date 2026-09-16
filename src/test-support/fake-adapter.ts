@@ -2,7 +2,7 @@ import { DataAdapter, ListedFiles } from 'obsidian'
 
 // Mirrors the adapter contract SkillRepository relies on: list() throws on a
 // missing directory, read() throws on a missing file. remove() throws on a
-// missing file too, which is what SessionStore swallows.
+// missing file too, which is what SessionFileStore swallows.
 export class FakeAdapter {
   readonly listed: string[] = []
   readonly reads: string[] = []

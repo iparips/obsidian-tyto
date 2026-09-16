@@ -7,7 +7,7 @@ import { FakeWorkspace } from '../../test-support/fake-workspace'
 import { DEFAULT_SETTINGS } from '../../settings/settings'
 import { ChatMessage } from '../../model/providers/models/chat-message'
 import { PanelPresence, SessionBuilder } from '../session-builder'
-import { SessionStore } from '../../session/session-store'
+import { SessionFileStore } from '../../session/session-file-store'
 import { SessionPanelProps } from '../../session/views/SessionPanel'
 import { PanelEntry } from '../../session/models/panel-state'
 import {
@@ -51,7 +51,7 @@ describe('SessionBuilder', () => {
       new EngineFactory(scope),
       vi.fn(),
       scope.activeNote(),
-      new SessionStore(adapter.asAdapter(), PLUGIN_FOLDER),
+      new SessionFileStore(adapter.asAdapter(), PLUGIN_FOLDER),
     )
   }
 
