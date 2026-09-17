@@ -38,22 +38,29 @@ This updates package.json, manifest.json, and versions.json, then commits and ta
 git push origin main --tags
 ```
 
-## 5. Let the Workflow Cut the Release
+## 5. Draft the Release
 
-Pushing the tag triggers .github/workflows/release.yml, which rebuilds from a
-clean checkout, attaches main.js, manifest.json and styles.css, and attests
-them with GitHub's build provenance. Nothing is uploaded by hand.
+Go to Releases, then "Draft a new release". Select the new tag, title it
+`v0.2.0`, and write what changed. Publish.
 
-It fails the run if manifest.json disagrees with the tag, since a release the
+Creating it triggers .github/workflows/build.yml, which rebuilds from a clean
+checkout and attaches main.js, manifest.json and styles.css, attested with
+GitHub's build provenance. Nothing is uploaded by hand.
+
+```bash
+gh release create 0.2.0 --title "v0.2.0" --generate-notes
+```
+
+The run fails if manifest.json disagrees with the tag, since a release the
 directory cannot resolve is worse than no release.
 
-Check the attestations landed:
+## 6. Check the Assets Landed
 
 ```bash
 gh attestation verify main.js --repo <owner>/<repo>
 ```
 
-Then edit the generated notes if they need more than the commit list.
+Three assets on the release, each attested.
 
 ## Version History
 
