@@ -14,7 +14,8 @@ import { AllowedObsidianCommand } from '../../../commands/models/allowed-obsidia
 // or search sees is deliberate rather than drift. Release 4 moved none of it;
 // release 5 adds the heading rule and re-records this. The whole-note write and
 // the one-edit-per-step rule re-record it again, and so does the rule against
-// ending a turn on a statement of intent.
+// ending a turn on a statement of intent, and the rule against repeating a
+// refused call.
 import RELEASE_3_PROMPT from './fixtures/release-3-prompt.txt?raw'
 
 const aNote = (): NoteDetails => new NoteDetails('note.md', '# Budget\n\nbody', { line: 2, ch: 0 })
@@ -341,6 +342,18 @@ describe('the prompt messages', () => {
       expect(prompt).toContain('prefer a listed command that opens it')
     })
 
+    it('tells the model to edit the note it is on rather than navigate to it', () => {
+      const prompt = systemPromptText(new AgentsMdChain(), catalogue)
+
+      expect(prompt).toContain('when it is the destination, edit it and')
+    })
+
+    it('tells the model a command opening another day is not the way to reach today', () => {
+      const prompt = systemPromptText(new AgentsMdChain(), catalogue)
+
+      expect(prompt).toContain('A command that opens a different day is not the way to reach today')
+    })
+
     it('tells the model a command only opens the note, so a matched skill still leads', () => {
       const prompt = systemPromptText(new AgentsMdChain(), catalogue)
 
@@ -448,6 +461,12 @@ describe('the prompt messages', () => {
       const prompt = systemPromptText()
 
       expect(prompt).toContain('never end a turn having only said what you intend to do next')
+    })
+
+    it('tells the model a repeated call ends the turn with nothing written', () => {
+      const prompt = systemPromptText()
+
+      expect(prompt).toContain('Repeating a call that was just refused ends the')
     })
 
     it('produces the release 3 prompt when commands and search are absent', () => {
