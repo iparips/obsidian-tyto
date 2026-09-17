@@ -10,6 +10,7 @@ import { aSession, aTextTurn, aToolCall, aToolTurn, anEngine } from '../../test-
 import { FakeEditor } from '../../test-support/fake-editor'
 import { FakeNoteLocator } from '../../test-support/fake-note-locator'
 import { FakeVault } from '../../test-support/fake-vault'
+import { FakeWorkspace } from '../../test-support/fake-workspace'
 import { SessionRepository } from '../../session/session-repository'
 
 describe('EditEngine', () => {
@@ -227,7 +228,36 @@ describe('EditEngine', () => {
       expect(complete).toHaveBeenCalledTimes(3)
     })
 
+    // Only the note in front is scrolled, so the workspace has to say the user
+    // is on it; the default engine leaves them on the panel.
     it('focuses the last edit when the turn concludes', async () => {
+      const watched = anEngine(chat, {
+        sessions,
+        noteLocator,
+        vault,
+        agentsMdRepository: noInstructions(),
+        workspace: new FakeWorkspace()
+          .withEditor('note.md', editor.asEditor())
+          .isLookingAt('note.md'),
+      })
+      complete
+        .mockResolvedValueOnce(
+          Outcomes.success(
+            aToolTurn(
+              aToolCall('replace_text', { anchor_text: '# Budget', replacement: '# Costs' }),
+            ),
+          ),
+        )
+        .mockResolvedValueOnce(Outcomes.success(aTextTurn('done')))
+
+      await watched.processUtterance('rename it')
+
+      expect(editor.scrolledTo).toEqual({ line: 0, ch: 7 })
+    })
+
+    // Mobile, where the panel always holds the screen. The edit lands and
+    // nothing moves, which is the jerk D6 removes.
+    it('leaves the note unscrolled when the user is on the panel', async () => {
       complete
         .mockResolvedValueOnce(
           Outcomes.success(
@@ -240,7 +270,8 @@ describe('EditEngine', () => {
 
       await engine.processUtterance('rename it')
 
-      expect(editor.scrolledTo).toEqual({ line: 0, ch: 7 })
+      expect(editor.content).toBe('# Costs\n\nbody')
+      expect(editor.scrolledTo).toBeNull()
     })
 
     it('leaves the note unscrolled when the turn fails at the iteration cap', async () => {

@@ -21,6 +21,7 @@ import { TargetNoteResolver } from '../engine/note-binding/target-note-resolver'
 import { TurnProgressPublisher } from '../engine/turn-progress-publisher'
 import { TurnRunnerFactory } from '../engine/turn/turn-runner-factory'
 import { FakeNoteLocator } from './fake-note-locator'
+import { FakeWorkspace } from './fake-workspace'
 import { TFile } from 'obsidian'
 import { SessionRepository } from '../session/session-repository'
 import { TranscriptRepository } from '../session/transcript/transcript-repository'
@@ -67,6 +68,10 @@ export interface EnginePartsOptions {
   // file. Every open note is mirrored into it, so a test that says nothing
   // about the vault gets a view that finished loading (D1).
   vault?: FakeVault
+  // Which note the user has in front of them, which is what decides whether a
+  // turn's last edit is scrolled into view. Absent, none is, so a test that
+  // says nothing about focus gets no scroll.
+  workspace?: FakeWorkspace
 }
 
 // The resolver and dispatcher a test needs beside an engine, wired the way
@@ -80,6 +85,7 @@ export const anEngine = (modelProvider: ChatProvider, options: EnginePartsOption
     new NoteEditor(),
     options.noteLocator,
     vault.asVault(),
+    (options.workspace ?? new FakeWorkspace()).asWorkspace(),
   )
   const targetNote = new TargetNoteResolver(
     options.sessions,

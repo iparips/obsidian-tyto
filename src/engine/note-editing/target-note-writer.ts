@@ -1,4 +1,4 @@
-import { EditorPosition, TAbstractFile, TFile, Vault } from 'obsidian'
+import { EditorPosition, TAbstractFile, TFile, Vault, Workspace } from 'obsidian'
 import { EditOperation, NoteEditor, PlannedWrite } from './note-editor'
 import { NoteDetails } from './note-details'
 import { OpenNote } from './open-note'
@@ -23,6 +23,7 @@ export class TargetNoteWriter {
     private noteEditor: NoteEditor,
     private noteLocator: WorkspaceNoteLocator,
     private vault: Vault,
+    private workspace: Workspace,
   ) {}
 
   // wroteThroughEditor is the turn's own record for this path, which says
@@ -33,11 +34,15 @@ export class TargetNoteWriter {
     return this.writeThroughVault(note, op)
   }
 
-  // Scrolling asks the cheaper question. A tab that moved must not be scrolled;
-  // a tab still loading is about to show this note anyway, so a scroll into it
-  // is at worst early.
+  // Only the note the user is looking at. Scrolling one behind the panel moves
+  // a screen nobody asked to move, which on mobile is every turn, since the
+  // panel always holds the screen there.
   focusEdit(note: OpenNote, position: EditorPosition): void {
-    if (this.tabShowsPath(note)) this.noteEditor.focusEdit(note.editor, position)
+    if (this.userIsLookingAt(note)) this.noteEditor.focusEdit(note.editor, position)
+  }
+
+  private userIsLookingAt(note: OpenNote): boolean {
+    return note.editor === this.workspace.activeEditor?.editor
   }
 
   // The note as the model is shown it. Built here rather than on OpenNote so
