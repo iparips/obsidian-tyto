@@ -10,12 +10,13 @@ Other voice plugins transcribe what you say into the note. Tyto treats what you 
 
 1. [Why Tyto](#why-tyto)
 2. [What it does not do](#what-it-does-not-do)
-3. [Install for Development](#install-for-development)
-4. [Test It Out](#test-it-out)
-5. [Commands and Search](#commands-and-search)
-6. [On Mobile](#on-mobile)
-7. [Troubleshooting](#troubleshooting)
-8. [Releasing](#releasing)
+3. [What Leaves Your Vault](#what-leaves-your-vault)
+4. [Install for Development](#install-for-development)
+5. [Test It Out](#test-it-out)
+6. [Commands and Search](#commands-and-search)
+7. [On Mobile](#on-mobile)
+8. [Troubleshooting](#troubleshooting)
+9. [Releasing](#releasing)
 
 ## Why Tyto
 
@@ -49,6 +50,40 @@ Small and legible
 Specs live in docs/spec, in three buckets: [1-upcoming](docs/spec/1-upcoming) is
 designed but unbuilt, [2-active](docs/spec/2-active) is in flight, and
 [3-archived](docs/spec/3-archived) is what shipped.
+
+## What Leaves Your Vault
+
+Tyto sends note content to a remote service. This section says what, when, and to whom.
+
+The service
+
+- Mistral, at api.mistral.ai. Nothing is sent anywhere else.
+
+What is sent
+
+- Your spoken audio, so it can be transcribed.
+- The instruction, the text of the note the session is on, any skill the turn matched, any AGENTS.md or CLAUDE.md in that note's folder chain, and search excerpts when vault search is on.
+
+When
+
+- Only during a turn you start, by recording or by typing an instruction. Nothing is sent in the background, and nothing is sent while the panel sits idle.
+
+Why
+
+- Tyto is an instruction parser, and the parsing is the model's. Turning free speech into a structural edit is what the model does, and no local model does it.
+
+The account
+
+- A Mistral API key is required. Without one Tyto does nothing.
+- The key is stored in the plugin's folder inside your vault, and is sent only to Mistral.
+
+The clipboard
+
+- Off by default. Turning the transcript on adds a copy button, which puts the turn's text on your clipboard. That text includes note content and any vault instructions the turn read.
+
+What never leaves
+
+- No telemetry, no analytics, and no host other than Mistral.
 
 ## Install for Development
 
