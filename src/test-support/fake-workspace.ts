@@ -19,6 +19,12 @@ export class FakeWorkspace {
     return this.leaves.loaded
   }
 
+  // How many times the view under a path was flushed, which is what says a save
+  // reached the leaf rather than silently finding nothing.
+  savesOf(path: string): number {
+    return this.leaves.savesOf(path)
+  }
+
   // Obsidian fires file-open once a note is actually showing, which is what a
   // command's after-read has to wait for.
   on(name: string, callback: (file: TFile | null) => void): unknown {

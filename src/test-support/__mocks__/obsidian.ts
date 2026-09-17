@@ -67,12 +67,8 @@ export class Setting {
 export class MarkdownView {
   file: TFile | null = null
   editor!: Editor
-  // TextFileView's flush. A fake records it rather than writing, since what a
-  // test asserts is that the save reached the view at all.
-  saved = 0
-  async save(): Promise<void> {
-    this.saved += 1
-  }
+  // TextFileView's flush, which the locator calls on the view it found.
+  async save(): Promise<void> {}
 }
 
 export type Editor = {

@@ -1,4 +1,5 @@
 import { Editor } from 'obsidian'
+import { FakeEditor } from './fake-editor'
 import { FakeMarkdownLeaf } from './fake-markdown-leaf'
 
 // The markdown tabs a fake workspace holds: which paths are open, which are
@@ -35,12 +36,18 @@ export class FakeMarkdownLeaves {
     return this.paths.map((path) => this.leafOf(path))
   }
 
+  // How many times the view under a path was flushed, which is what says a save
+  // reached the leaf rather than silently finding nothing.
+  savesOf(path: string): number {
+    return this.leaves.get(path)?.saves ?? 0
+  }
+
   // An editor per path, made on first ask, so two leaves never share one handle
   // and a guard comparing handles means something.
   editorOf(path: string): Editor {
     const editor = this.editors.get(path)
     if (editor) return editor
-    const fresh = {} as Editor
+    const fresh = new FakeEditor('').asEditor()
     this.editors.set(path, fresh)
     return fresh
   }
