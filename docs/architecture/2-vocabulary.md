@@ -1,12 +1,11 @@
-# The Panel's Vocabulary
+# Vocabulary
 
-What each word means when the panel, the transcript and the engine use it.
-Cross-cutting, like [7-package-design.md](7-package-design.md), so it names the
+What each word means when the panel, the transcript and the engine use it. The
+words are the codebase's rather than the panel's, so this file names the
 package beside each class.
 
 One concept takes one word across the codebase. Three levels nest, and the
-middle one never reaches the screen, which is what made the outer two easy to
-confuse.
+middle one never reaches the screen.
 
 ## The three levels
 
@@ -16,7 +15,24 @@ confuse.
 | Turn step     | One model call and the tool calls it returned | Many per turn      | No               |
 | Progress line | One thing the turn did, in the user's terms   | Many per turn      | Yes, in the list |
 
-A turn step is not a progress line, and the two are not one-to-one.
+```mermaid
+flowchart LR
+    Turn["Turn [Session Models]<br/>Responsibility: holds one utterance and everything that followed it"]
+    Step["Turn step [Engine Turn]<br/>Responsibility: holds one model call and the tool calls it returned"]
+    Line["Progress line [Engine]<br/>Responsibility: says one thing the turn did, in the user's terms"]
+    Screen["The panel [Session Views]<br/>Responsibility: shows the turn as a block and the lines as a list"]
+
+    Turn --> Step
+    Step --> Line
+    Turn --> Line
+    Turn --> Screen
+    Line --> Screen
+```
+
+Arrows: uses-relationship (client to supplier).
+
+That invisible middle is what made the outer two easy to confuse. A turn step
+is not a progress line, and the two are not one-to-one.
 
 - One model call can publish several lines. A batch of three edits refuses the
   second and third, which is two lines from one call.
@@ -43,9 +59,9 @@ the next turn, never for the running one.
 
 ## The entry kinds
 
-Eleven kinds a turn can hold, grouped by what each is worth on screen
-(EntryWeights [Session Models]). Six read as replies and five as context, so
-the panel reads as a conversation rather than as eleven kinds of box.
+Each kind a turn can hold is grouped by what it is worth on screen
+(EntryWeights [Session Models]). Some read as replies and some as context, so
+the panel reads as a conversation rather than as a row of unlike boxes.
 
 | Weight    | Kind         | Is                                            |
 | --------- | ------------ | --------------------------------------------- |
@@ -117,6 +133,5 @@ user's way out of both is the same.
 
 ## References
 
-- [9-an-utterance-and-its-answer.md](9-an-utterance-and-its-answer.md) - how the utterance reaches the engine and the ending comes back
-- [11-the-two-records.md](11-the-two-records.md) - the two lists a turn writes itself into
-- [8-parking-a-turn.md](8-parking-a-turn.md) - the choice and the question, and how a parked turn settles
+- [4-the-turn.md](4-the-turn.md) - how the utterance reaches the engine, how a turn ends, and how a parked turn settles
+- [7-the-panel.md](7-the-panel.md) - the two lists a turn writes itself into
