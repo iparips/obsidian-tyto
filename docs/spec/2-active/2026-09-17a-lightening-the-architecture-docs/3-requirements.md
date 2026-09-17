@@ -51,8 +51,12 @@ sampled counts are wrong, and its closing claim is now false:
 | session/models      | 8          | 10       |
 | session/views       | 10         | 12       |
 | engine/note-editing | 5          | 7        |
+| session root        | 10         | 11       |
+| engine/turn         | 9          | 10       |
 
-The table closes with "every folder is within the limit", against a limit of 10. Views is at 12.
+The table closes with "every folder is within the limit", against a limit of 10.
+Two folders are over it: session/views at 12 and the session root at 11.
+A third, engine/turn, has reached it.
 
 ## Out Of Scope
 
@@ -65,10 +69,10 @@ The table closes with "every folder is within the limit", against a limit of 10.
 
 ### Task
 
-- [docs/architecture/0-index.md](../../../architecture/0-index.md) - open first: the 13 files, and which are cross-cutting
-- [docs/architecture/7-package-design.md](../../../architecture/7-package-design.md) - the most-cited file, holding the package table, the layout rules, the stale size table and one open question
-- [docs/architecture/12-the-panel-vocabulary.md](../../../architecture/12-the-panel-vocabulary.md) - the newest file, already subsystem-shaped rather than release-shaped
-- [docs/architecture/1-desktop-mvp.md](../../../architecture/1-desktop-mvp.md) - the head of the delta chain, and the only one of the six that is not a delta
+- [docs/architecture/1-overview.md](../../../architecture/1-overview.md) - open first: the 13 files, and which are cross-cutting
+- [docs/architecture/1-overview.md](../../../architecture/1-overview.md) - the most-cited file, holding the package table, the layout rules, the stale size table and one open question
+- [docs/architecture/2-vocabulary.md](../../../architecture/2-vocabulary.md) - the newest file, already subsystem-shaped rather than release-shaped
+- [docs/architecture/1-overview.md](../../../architecture/1-overview.md) - the head of the delta chain, and the only one of the six that is not a delta
 
 ### Project
 
