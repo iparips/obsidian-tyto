@@ -19,6 +19,8 @@ export class ModelsRole {
       'scattered through the note.',
       'Only claim an edit you actually made with a tool call. If you made none, say what',
       'stopped you and what the user can do next.',
+      'Act rather than describing what you are about to do. If a step is needed, take it',
+      'in this turn: never end a turn having only said what you intend to do next.',
       ModelsRole.reach(commands, searchEnabled),
       'When you are done, respond with a one-sentence summary of what changed.',
     ].join('\n')

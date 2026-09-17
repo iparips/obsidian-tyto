@@ -13,7 +13,8 @@ import { AllowedObsidianCommand } from '../../../commands/models/allowed-obsidia
 // Stored rather than rebuilt, so a change to the prompt a vault without commands
 // or search sees is deliberate rather than drift. Release 4 moved none of it;
 // release 5 adds the heading rule and re-records this. The whole-note write and
-// the one-edit-per-step rule re-record it again.
+// the one-edit-per-step rule re-record it again, and so does the rule against
+// ending a turn on a statement of intent.
 import RELEASE_3_PROMPT from './fixtures/release-3-prompt.txt?raw'
 
 const aNote = (): NoteDetails => new NoteDetails('note.md', '# Budget\n\nbody', { line: 2, ch: 0 })
@@ -439,6 +440,14 @@ describe('the prompt messages', () => {
       const prompt = systemPromptText()
 
       expect(prompt).toContain('the note is read at the start of each')
+    })
+
+    // The reported defect: the model named the skill it needed and said it would
+    // load it, which ended the turn on an intention and left the work undone.
+    it('tells the model to act rather than describe what it will do', () => {
+      const prompt = systemPromptText()
+
+      expect(prompt).toContain('never end a turn having only said what you intend to do next')
     })
 
     it('produces the release 3 prompt when commands and search are absent', () => {
