@@ -67,6 +67,8 @@ export class Setting {
 export class MarkdownView {
   file: TFile | null = null
   editor!: Editor
+  // TextFileView's flush, which the locator calls on the view it found.
+  async save(): Promise<void> {}
 }
 
 export type Editor = {
@@ -96,9 +98,14 @@ export interface Command {
   checkCallback?(checking: boolean): boolean | void
 }
 
+export interface MarkdownFileInfo {
+  editor?: Editor
+}
+
 export interface Workspace {
   getActiveFile(): TFile | null
   getLeavesOfType(type: string): unknown[]
+  activeEditor: MarkdownFileInfo | null
 }
 
 export interface Vault {

@@ -1,4 +1,4 @@
-import { EditorPosition, TAbstractFile, TFile, Vault } from 'obsidian'
+import { Editor, EditorPosition, TAbstractFile, TFile, Vault, Workspace } from 'obsidian'
 import { EditOperation, NoteEditor, PlannedWrite } from './note-editor'
 import { NoteDetails } from './note-details'
 import { OpenNote } from './open-note'
@@ -23,21 +23,30 @@ export class TargetNoteWriter {
     private noteEditor: NoteEditor,
     private noteLocator: WorkspaceNoteLocator,
     private vault: Vault,
+    private workspace: Workspace,
   ) {}
 
   // wroteThroughEditor is the turn's own record for this path, which says
   // whether the view may be flushed before the comparison.
   async write(note: OpenNote, op: EditOperation, wroteThroughEditor = false): Promise<ApplyResult> {
-    if (await this.editorHoldsTheNote(note, wroteThroughEditor))
-      return this.writeThroughEditor(note, op)
+    const held = await this.editorHoldingTheNote(note, wroteThroughEditor)
+    if (held) return this.writeThroughEditor(held, note, op)
     return this.writeThroughVault(note, op)
   }
 
-  // Scrolling asks the cheaper question. A tab that moved must not be scrolled;
-  // a tab still loading is about to show this note anyway, so a scroll into it
-  // is at worst early.
+  // Only the note the user is looking at. Scrolling one behind the panel moves
+  // a screen nobody asked to move, which on mobile is every turn, since the
+  // panel always holds the screen there.
   focusEdit(note: OpenNote, position: EditorPosition): void {
-    if (this.tabShowsPath(note)) this.noteEditor.focusEdit(note.editor, position)
+    const watched = this.editorInFront(note)
+    if (watched) this.noteEditor.focusEdit(watched, position)
+  }
+
+  // A note with no leaf is null on both sides, so the editor is required as
+  // well as matched: the user cannot be looking at a tab that is not there.
+  private editorInFront(note: OpenNote): Editor | null {
+    if (!note.hasEditor()) return null
+    return note.editor === this.workspace.activeEditor?.editor ? note.editor : null
   }
 
   // The note as the model is shown it. Built here rather than on OpenNote so
@@ -49,27 +58,38 @@ export class TargetNoteWriter {
   // What the note holds now, from wherever the next write to it would go, so a
   // guard comparing against it cannot be reading a note the tab moved to.
   async read(note: OpenNote, wroteThroughEditor = false): Promise<string> {
-    if (await this.editorHoldsTheNote(note, wroteThroughEditor)) return note.editor.getValue()
+    const held = await this.editorHoldingTheNote(note, wroteThroughEditor)
+    if (held) return held.getValue()
     return this.readFile(note.path)
   }
 
   // A tab that moved answers with another handle. A tab that has not finished
   // loading answers with this one and holds the previous note's text, so the
-  // handle is trusted only where the two agree.
-  private async editorHoldsTheNote(note: OpenNote, wroteThroughEditor: boolean): Promise<boolean> {
-    if (!this.tabShowsPath(note)) return false
+  // handle is trusted only where the two agree. Answers the editor rather than
+  // a boolean, so a caller past the guard reaches it without a null check the
+  // guard already made.
+  private async editorHoldingTheNote(
+    note: OpenNote,
+    wroteThroughEditor: boolean,
+  ): Promise<Editor | null> {
+    if (!note.hasEditor()) return null
+    if (!(await this.tabShowsPath(note))) return null
     // Only a view this turn already wrote through: it passed this test to earn
     // that write, so flushing it writes back what it was trusted with. A save
     // writes the editor over the file, so flushing a half-opened one would put
     // the note it still shows under the target's path.
     if (wroteThroughEditor) await this.noteLocator.saveOpenNote(note.path)
-    return note.editor.getValue() === (await this.readFile(note.path))
+    if (note.editor.getValue() !== (await this.readFile(note.path))) return null
+    return note.editor
   }
 
   // The same handle the locator answers with means the tab has not moved, so
-  // the write goes through the editor and keeps undo and the cursor.
-  private tabShowsPath(note: OpenNote): boolean {
-    const located = this.noteLocator.locate(note.path)
+  // the write goes through the editor and keeps undo and the cursor. A note
+  // with no leaf is null on both sides, so the handle is required as well as
+  // matched: two nothings are not the same tab.
+  private async tabShowsPath(note: OpenNote): Promise<boolean> {
+    if (!note.hasEditor()) return false
+    const located = await this.noteLocator.locate(note.path)
     return located.succeeded() && located.value.editor === note.editor
   }
 
@@ -79,10 +99,10 @@ export class TargetNoteWriter {
     return this.vault.cachedRead(file)
   }
 
-  private writeThroughEditor(note: OpenNote, op: EditOperation): ApplyResult {
-    const planned = this.noteEditor.plan(note.editor.getValue(), note.cursorAtStart, op)
+  private writeThroughEditor(editor: Editor, note: OpenNote, op: EditOperation): ApplyResult {
+    const planned = this.noteEditor.plan(editor.getValue(), note.cursorAtStart, op)
     if (!planned.applied) return planned
-    note.editor.replaceRange(planned.write.replacement, planned.write.from, planned.write.to)
+    editor.replaceRange(planned.write.replacement, planned.write.from, planned.write.to)
     return { applied: true, endedAt: planned.write.endedAt, wroteThrough: 'editor' }
   }
 

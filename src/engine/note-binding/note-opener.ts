@@ -1,4 +1,4 @@
-import { App, TAbstractFile, TFile } from 'obsidian'
+import { App, MarkdownView, TAbstractFile, TFile } from 'obsidian'
 import { OpenedNoteWait } from '../../commands/opened-note-wait'
 
 // Opens a note the model chose, the way a command opens its own. open_note
@@ -34,9 +34,14 @@ export class NoteOpener {
     return this.app.workspace.getLeaf(false).openFile(file)
   }
 
+  // instanceof rather than a cast, so a deferred leaf reads as absent. That
+  // costs one redundant open and never a stranded turn: reveal opens into the
+  // active leaf, which loads the view anyway.
   private hasEditor(path: string): boolean {
     return this.app.workspace
       .getLeavesOfType('markdown')
-      .some((leaf) => (leaf.view as { file?: TFile }).file?.path === path)
+      .map((leaf) => leaf.view)
+      .filter((view): view is MarkdownView => view instanceof MarkdownView)
+      .some((view) => view.file?.path === path)
   }
 }

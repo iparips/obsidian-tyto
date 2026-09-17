@@ -10,6 +10,7 @@ import { aSession, aTextTurn, aToolCall, aToolTurn, anEngine } from '../../test-
 import { FakeEditor } from '../../test-support/fake-editor'
 import { FakeNoteLocator } from '../../test-support/fake-note-locator'
 import { FakeVault } from '../../test-support/fake-vault'
+import { FakeWorkspace } from '../../test-support/fake-workspace'
 import { SessionRepository } from '../../session/session-repository'
 
 describe('EditEngine', () => {
@@ -227,7 +228,36 @@ describe('EditEngine', () => {
       expect(complete).toHaveBeenCalledTimes(3)
     })
 
+    // Only the note in front is scrolled, so the workspace has to say the user
+    // is on it; the default engine leaves them on the panel.
     it('focuses the last edit when the turn concludes', async () => {
+      const watched = anEngine(chat, {
+        sessions,
+        noteLocator,
+        vault,
+        agentsMdRepository: noInstructions(),
+        workspace: new FakeWorkspace()
+          .withEditor('note.md', editor.asEditor())
+          .isLookingAt('note.md'),
+      })
+      complete
+        .mockResolvedValueOnce(
+          Outcomes.success(
+            aToolTurn(
+              aToolCall('replace_text', { anchor_text: '# Budget', replacement: '# Costs' }),
+            ),
+          ),
+        )
+        .mockResolvedValueOnce(Outcomes.success(aTextTurn('done')))
+
+      await watched.processUtterance('rename it')
+
+      expect(editor.scrolledTo).toEqual({ line: 0, ch: 7 })
+    })
+
+    // Mobile, where the panel always holds the screen. The edit lands and
+    // nothing moves, which is the jerk D6 removes.
+    it('leaves the note unscrolled when the user is on the panel', async () => {
       complete
         .mockResolvedValueOnce(
           Outcomes.success(
@@ -240,7 +270,8 @@ describe('EditEngine', () => {
 
       await engine.processUtterance('rename it')
 
-      expect(editor.scrolledTo).toEqual({ line: 0, ch: 7 })
+      expect(editor.content).toBe('# Costs\n\nbody')
+      expect(editor.scrolledTo).toBeNull()
     })
 
     it('leaves the note unscrolled when the turn fails at the iteration cap', async () => {
@@ -331,29 +362,75 @@ describe('EditEngine', () => {
   // A turn bound to a file with no editor fails before the loop runs. The
   // utterance was once appended inside that loop, so a failed turn left nothing
   // in the history and a following "retry" retried the instruction before it.
-  describe('when the turn cannot open', () => {
-    it('records the utterance when the turn fails to open, so a retry has it', async () => {
-      const stranded = anEngine(chat, {
+  // The reported failure, at the level the user feels it. Obsidian defers a
+  // background tab's view, and the session refused its second utterance saying
+  // the note was not open while the user was looking at it.
+  describe('when the bound note has no editor', () => {
+    const withNoEditor = (vault: FakeVault) =>
+      anEngine(chat, {
         sessions,
+        noteLocator: new FakeNoteLocator(),
+        vault,
+        agentsMdRepository: noInstructions(),
+      })
+
+    const aNote = () => new FakeVault().withNote('note.md', '# Budget\n\nbody')
+
+    it('opens the turn rather than refusing it', async () => {
+      complete.mockResolvedValue(Outcomes.success(aTextTurn('done')))
+
+      const outcome = await withNoEditor(aNote()).processUtterance('add ilya under the heading')
+
+      expect(outcome).toEqual(Outcomes.success('done'))
+    })
+
+    // Undo is what the vault path costs, and the panel already says so.
+    it('writes the edit through the vault', async () => {
+      const vault = aNote()
+      const stranded = withNoEditor(vault)
+      complete
+        .mockResolvedValueOnce(
+          Outcomes.success(
+            aToolTurn(
+              aToolCall('replace_text', { anchor_text: '# Budget', replacement: '# Costs' }),
+            ),
+          ),
+        )
+        .mockResolvedValueOnce(Outcomes.success(aTextTurn('done')))
+
+      await stranded.processUtterance('rename it')
+
+      expect(vault.contentOf('note.md')).toBe('# Costs\n\nbody')
+    })
+  })
+
+  // Kept: vault-writing a canvas would rewrite its JSON as markdown, which is
+  // worse than refusing the turn (D7).
+  describe('when the bound path is not a markdown note', () => {
+    const boundToACanvas = () =>
+      anEngine(chat, {
+        sessions: aSession('board.canvas'),
+        noteLocator: new FakeNoteLocator(),
+        agentsMdRepository: noInstructions(),
+      })
+
+    it('records the utterance when the turn fails to open, so a retry has it', async () => {
+      const session = aSession('board.canvas')
+      const stranded = anEngine(chat, {
+        sessions: session,
         noteLocator: new FakeNoteLocator(),
         agentsMdRepository: noInstructions(),
       })
 
       await stranded.processUtterance('add ilya under the heading')
 
-      expect(sessions.chatHistory().at(-1)).toMatchObject({
+      expect(session.chatHistory().at(-1)).toMatchObject({
         content: 'add ilya under the heading',
       })
     })
 
     it('still reports the failure when the turn cannot open', async () => {
-      const stranded = anEngine(chat, {
-        sessions,
-        noteLocator: new FakeNoteLocator(),
-        agentsMdRepository: noInstructions(),
-      })
-
-      const outcome = await stranded.processUtterance('add ilya under the heading')
+      const outcome = await boundToACanvas().processUtterance('add ilya under the heading')
 
       expect(outcome.hasFailed()).toBe(true)
     })

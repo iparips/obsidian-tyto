@@ -41,4 +41,27 @@ describe('OpenedNoteWait', () => {
       await expect(opened).resolves.toBeNull()
     })
   })
+
+  // Deliberately not a load: the wait is polling a leaf Obsidian is mounting,
+  // and loading one would race that mount. A deferred leaf is simply not the
+  // leaf being waited for.
+  describe('when a leaf holding the path is deferred', () => {
+    it('reports the editor absent rather than throwing on the missing file', async () => {
+      const opened = waitOf().forOpen(() => {
+        workspace.announcesOpenWithoutEditor(DAILY)
+        workspace.defers(DAILY)
+      })
+
+      await expect(opened).resolves.toBeNull()
+    })
+
+    it('loads nothing while it polls', async () => {
+      await waitOf().forOpen(() => {
+        workspace.announcesOpenWithoutEditor(DAILY)
+        workspace.defers(DAILY)
+      })
+
+      expect(workspace.loadedLeaves).toEqual([])
+    })
+  })
 })
