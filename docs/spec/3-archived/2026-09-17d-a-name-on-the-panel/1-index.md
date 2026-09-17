@@ -28,5 +28,5 @@ views/, and tyto-icon.ts imports it back to register with Obsidian, which is
 what keeps the ribbon, the tab and the header drawing one mark.
 
 Downstream of
-[tidy-up-chat-panel](../../3-archived/6-tidy-up-chat-panel/1-index.md),
+[tidy-up-chat-panel](../../3-archived/2026-09-03c-tidy-up-chat-panel/1-index.md),
 which took the note name out of this header and left it a toolbar.

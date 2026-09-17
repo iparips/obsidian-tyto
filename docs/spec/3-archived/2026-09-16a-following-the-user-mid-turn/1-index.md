@@ -34,5 +34,5 @@ affordable: a scattered edit costs one call rather than twelve steps, and it
 carries all three guards D5 named.
 
 Downstream of
-[33-reporting-what-a-turn-did](../../3-archived/33-reporting-what-a-turn-did/1-index.md),
+[reporting-what-a-turn-did](../../3-archived/2026-09-16e-reporting-what-a-turn-did/1-index.md),
 which left the batch question open and is where this spec picks it up.

@@ -80,7 +80,7 @@ A note is named by its whole path rather than its basename. Weekly notes repeat
 their names, so shopping-list says nothing about which week was edited. The
 turn's own label shows the name as a heading with the path small beneath it,
 which supersedes NFR10 of
-[9-model-chosen-targets](../../3-archived/9-model-chosen-targets/2-requirements.md):
+[model-chosen-targets](../../3-archived/2026-09-03f-model-chosen-targets/2-requirements.md):
 that rule truncated a long path to keep the header on one line, and the header
 it governed no longer exists.
 

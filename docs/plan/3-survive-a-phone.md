@@ -6,7 +6,7 @@ the least evidence behind it. Every scenario in
 and most were found on the desktop.
 
 Session persistence is built. It shipped as
-[22-session-persistence](../spec/3-archived/22-session-persistence/1-index.md),
+[session-persistence](../spec/3-archived/2026-09-07c-session-persistence/1-index.md),
 with three follow-ups on what a restored session binds to. What is untested is
 whether the rest of the plugin holds up on a phone.
 

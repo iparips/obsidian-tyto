@@ -53,9 +53,9 @@ carry most of what survives. The release files mostly fail it.
 | Today                         | Lines | Lands in                      | What survives                                  |
 | ----------------------------- | ----- | ----------------------------- | ---------------------------------------------- |
 | 0-index                       | 31    | 1-overview                    | The reading order, rewritten for seven files   |
-| 1-desktop-mvp                 | 205   | 3-capture, 6-reaching-a-note  | The service and value rule, anchor uniqueness  |
-| 2-mobile-mvp                  | 52    | 3-capture                     | The container differs by platform, and why     |
-| 3-agents-md-loading           | 75    | 5-asking-the-model            | Write target picks the chain, nearest wins     |
+| 2026-08-28a-desktop-mvp                 | 205   | 3-capture, 6-reaching-a-note  | The service and value rule, anchor uniqueness  |
+| 2026-08-28b-mobile-mvp                  | 52    | 3-capture                     | The container differs by platform, and why     |
+| 2026-09-02-agents-md-loading           | 75    | 5-asking-the-model            | Write target picks the chain, nearest wins     |
 | 4-obsidian-agent-harness      | 39    | 6-reaching-a-note             | The model never chooses a write path           |
 | 5-desktop-v1                  | 68    | nothing                       | Unbuilt; it lives in 1-upcoming                |
 | 6-mobile-v1                   | 49    | nothing                       | Unbuilt; it lives in 1-upcoming                |
@@ -107,7 +107,7 @@ platform and why no transcoding happens, and the skills folder being a normal
 vault folder because Obsidian Sync copies no dot-folder to a phone. That last
 is a real constraint with a non-obvious cause, and it is in no other file.
 
-Diagram: the capture decision flowchart from 2-mobile-mvp, redrawn.
+Diagram: the capture decision flowchart from 2026-08-28b-mobile-mvp, redrawn.
 
 ### 4-the-turn
 
@@ -130,7 +130,7 @@ Model minus providers: prompt assembly, message order, and where skills and
 AGENTS.md enter.
 
 10-asking-the-model condensed, keeping its sequence diagram, plus the two
-boundaries from 3-agents-md-loading that are not requirement restatements: the
+boundaries from 2026-09-02-agents-md-loading that are not requirement restatements: the
 write target picks the chain, and nearest-last is the override mechanism.
 
 Message order is the load-bearing part. The date and the note sit after the
@@ -148,8 +148,8 @@ and writing to it.
 
 From 4-obsidian-agent-harness: the model never chooses a write path,
 destinations come from commands, and the allow-list is the user's. From
-1-desktop-mvp: anchor uniqueness, and offsets recomputed after each operation.
-From 1-desktop-mvp's skill scope section: the tool list is the real boundary,
+2026-08-28a-desktop-mvp: anchor uniqueness, and offsets recomputed after each operation.
+From 2026-08-28a-desktop-mvp's skill scope section: the tool list is the real boundary,
 so a skill reaching for a cross-file tool finds nothing to call. Restated
 against the tools that now exist, since write_note and open_note postdate that
 file and neither widens the bound.
@@ -177,14 +177,14 @@ added.
 | Diagram                     | From               | Goes to            | Change                        |
 | --------------------------- | ------------------ | ------------------ | ----------------------------- |
 | Package dependencies        | 7-package-design   | 1-overview         | Add the four missing packages |
-| Capture by platform         | 2-mobile-mvp       | 3-capture          | Redrawn as-is                 |
+| Capture by platform         | 2026-08-28b-mobile-mvp       | 3-capture          | Redrawn as-is                 |
 | One choice, to settled      | 8-parking-a-turn   | 4-the-turn         | Redrawn as-is                 |
 | The same turn, cancelled    | 8-parking-a-turn   | 4-the-turn         | Redrawn as-is                 |
 | One ask, end to end         | 10-asking          | 5-asking-the-model | Redrawn as-is                 |
 | Both lists through one turn | 11-the-two-records | 7-the-panel        | Redrawn as-is                 |
 | Utterance to note           | new                | 6-reaching-a-note  | Invented                      |
 
-Dropped: the four diagrams in 1-desktop-mvp, 5-desktop-v1 and 6-mobile-v1. The
+Dropped: the four diagrams in 2026-08-28a-desktop-mvp, 5-desktop-v1 and 6-mobile-v1. The
 MVP module map and utterance flow name SessionView, AgentSession and an
 EditEngine that runs the loop, none of which the code still has. The two V1
 diagrams describe unbuilt code.
@@ -213,12 +213,12 @@ Inbound links are repointed at the file that took the content:
 | 7-package-design.md        | 1-overview.md                          |
 | 12-the-panel-vocabulary.md | 2-vocabulary.md                        |
 | 0-index.md                 | 1-overview.md                          |
-| 1-desktop-mvp.md           | 1-overview.md                          |
+| 2026-08-28a-desktop-mvp.md           | 1-overview.md                          |
 | 8, 9                       | 4-the-turn.md                          |
-| 10, 3-agents-md-loading    | 5-asking-the-model.md                  |
+| 10, 2026-09-02-agents-md-loading    | 5-asking-the-model.md                  |
 | 4-obsidian-agent-harness   | 6-reaching-a-note.md                   |
 | 11-the-two-records.md      | 7-the-panel.md                         |
-| 2-mobile-mvp.md            | 3-capture.md                           |
+| 2026-08-28b-mobile-mvp.md            | 3-capture.md                           |
 | 5, 6                       | the matching spec folder in 1-upcoming |
 
 An archived spec keeps its prose. Only the link target changes, because a
