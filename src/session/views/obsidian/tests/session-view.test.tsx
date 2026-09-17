@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { WorkspaceLeaf } from 'obsidian'
 import { SessionView } from '../session-view'
 import { SessionPanelProps } from '../../SessionPanel'
@@ -21,6 +21,13 @@ describe('SessionView', () => {
 
   beforeEach(() => {
     restored = aPanelProps({ entries: [{ kind: 'user', text: 'add a heading' }] })
+  })
+
+  // onOpen mounts a React root, and every test here opens a view. Left mounted,
+  // the scheduler flushes the commit through setImmediate after the environment
+  // is torn down, and React reaches a window that is gone.
+  afterEach(async () => {
+    await view?.onClose()
   })
 
   describe('when the leaf reopens with a session left behind', () => {
