@@ -50,6 +50,11 @@ export class MistralProvider implements TranscriptionProvider, ChatProvider {
     return Outcomes.success(MistralMapper.toChatTurn(data.choices?.[0]?.message ?? {}))
   }
 
+  // fetch rather than Obsidian's requestUrl, which the guidelines otherwise
+  // prefer. requestUrl takes no AbortSignal, and the signal below is what makes
+  // a cancelled turn stop the request rather than wait for the model. The CORS
+  // that requestUrl exists to bypass is not in play: api.mistral.ai allows any
+  // origin. The override in eslint.config.mjs records the same reasoning.
   private async request(
     step: FailureStep,
     path: string,
