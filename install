@@ -2,8 +2,9 @@
 #
 # Installs this repo into an Obsidian vault's plugins directory.
 #
-# Builds first, so an install is never a stale bundle. --skip-tests builds
-# without the test suite, for a faster loop while debugging on a device.
+# Builds first, so an install is never a stale bundle. The default runs verify,
+# which typechecks, tests, lints and formats before bundling. --skip-tests runs
+# build alone, for a faster loop while debugging on a device.
 #
 # Default mode copies the built files as a real directory, because Obsidian
 # Sync does not follow symlinks and so never reaches mobile. --link symlinks
@@ -242,19 +243,19 @@ usage() {
 		"Usage:" \
 		"  ./install               copy the built files, so Sync reaches mobile" \
 		"  ./install --link        symlink the repo, for desktop development" \
-		"  ./install --skip-tests  build without running the test suite" \
+		"  ./install --skip-tests  bundle only, skipping the checks" \
 		"" \
 		"--link and --skip-tests can be combined."
 }
 
 main() {
 	local mode="copy"
-	local script="build"
+	local script="verify"
 
 	for arg in "$@"; do
 		case "$arg" in
 		--link) mode="link" ;;
-		--skip-tests) script="build:no-tests" ;;
+		--skip-tests) script="build" ;;
 		*) usage "$arg" ;;
 		esac
 	done

@@ -8,13 +8,17 @@ Always release from `main`, after merging the feature PR. Tags must point at com
 git checkout main && git pull
 ```
 
-## 2. Build the Plugin
+## 2. Verify and Build
 
 ```bash
-bun run build
+bun run verify
 ```
 
-This runs tests, lint, format, and bundles main.js.
+This typechecks, runs the suite, lints, formats, then bundles main.js.
+
+`bun run build` is the bundle alone. The community directory's scan calls it to
+rebuild from source and compare against the released main.js, so it must stay
+the bundle and nothing else.
 
 ## 3. Bump the Version
 

@@ -61,7 +61,9 @@ describe('TranscriptDocument', () => {
 
   describe('the metadata table', () => {
     it('names the note, the model and the search setting', () => {
-      const document = documentOf({ settings: { editModel: 'mistral-medium-latest' } })
+      const document = documentOf({
+        settings: { editModel: 'mistral-medium-latest', searchEnabled: true },
+      })
 
       expect(document).toContain('| Note | Journal/09-09-Wed.md |')
       expect(document).toContain('| Model | mistral-medium-latest |')
