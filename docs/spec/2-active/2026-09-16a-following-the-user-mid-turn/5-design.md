@@ -130,7 +130,7 @@ Three lines in ModelsRole, which is where the batch is asked for today.
 The todo skill's archive workflow says it is a whole-note operation in its own
 steps, rather than leaving the model to infer it from a prompt line.
 
-Each is a prompt change, which docs/AGENTS.md treats as a behaviour change
+Each is a prompt change, which AGENTS.md treats as a behaviour change
 needing a real vault to judge. 4-acceptance-criteria.md carries those checks.
 
 ## Unit Tests

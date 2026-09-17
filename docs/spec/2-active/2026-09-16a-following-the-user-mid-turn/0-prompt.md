@@ -17,7 +17,7 @@ Read 1-index.md, 2-requirements.md and both decisions files first, then
 commit 1. 7-analysis.md and 8-transcripts.md are evidence: read them only if a
 defect stops making sense. 4-acceptance-criteria.md holds the checks afterwards.
 
-Repo conventions are in docs/AGENTS.md, including the rule that a prompt change
+Repo conventions are in AGENTS.md, including the rule that a prompt change
 is a behaviour change. Commit 4 is one, so it cannot be judged from the tests.
 
 Verify three claims before trusting them. ConversationTurnRunner.retargetTo is

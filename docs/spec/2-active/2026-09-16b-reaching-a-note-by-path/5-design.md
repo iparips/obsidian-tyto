@@ -1,6 +1,6 @@
 ---
 created: 2026-09-16
-updated: 2026-09-16
+updated: 2026-09-17
 ---
 
 # Design
@@ -64,7 +64,16 @@ content under it, so a moved tab showed the model another note's content labelle
 as the target, and the model said the open note was not the one it had asked for.
 ModelRequest holds the note as NoteDetails read through the writer rather than an
 OpenNote whose editor it reaches through, so PromptFactory cannot read a stale
-handle even by accident.
+handle even by accident. TargetNoteWriter.getDetails builds it, and
+OpenNote.details goes, so nothing else can pair a path with content from
+somewhere else.
+
+The message said the note was re-read from the editor, which the vault branch
+makes untrue. It now says re-read for this message, which is the claim that
+earns the supersedes line either way.
+
+ModelService.requestForModel becomes async, since the read is. It takes the
+writer TurnRunnerFactory already holds rather than building a second one.
 
 An Editor does not name the file it shows, so the comparison asks the locator:
 WorkspaceNoteLocator.locate(path) returns the editor of the leaf showing that

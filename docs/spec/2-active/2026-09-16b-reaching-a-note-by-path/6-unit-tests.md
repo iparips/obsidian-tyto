@@ -1,6 +1,6 @@
 ---
 created: 2026-09-16
-updated: 2026-09-16
+updated: 2026-09-17
 ---
 
 # Unit Tests
@@ -8,24 +8,11 @@ updated: 2026-09-16
 One entry per production method the design changes. The checks a person runs by
 hand are in [7-acceptance-criteria.md](7-acceptance-criteria.md).
 
-<<<<<<< Updated upstream
-## NoteEditor.apply
-=======
 ## TargetNoteWriter.write
->>>>>>> Stashed changes
 
 ```text
 the editor still shows the target path
   writes through the editor, as today
-<<<<<<< Updated upstream
-  focuses the edit
-the tab has moved to another note
-  writes through the vault, not the editor
-  leaves the note the tab now shows untouched
-  does not focus, since the note is not on screen
-the target has no editor at all
-  writes through the vault
-=======
   reports where the edit ended, so the turn can focus it
   refuses an anchor the note does not hold
 the tab has moved to another note
@@ -36,28 +23,30 @@ the tab has moved to another note
 the target has no editor at all
   writes through the vault
   refuses when the vault has no note at the path
->>>>>>> Stashed changes
 ```
 
 The second case is the reported defect. It fails today by writing into the note
 the tab moved to, which is the one thing the rules forbid.
 
-<<<<<<< Updated upstream
-=======
-## TargetNoteWriter.read and focusEdit
+## TargetNoteWriter.read, getDetails and focusEdit
 
-The same comparison, serving the two other reads of the held editor.
+The same comparison, serving the three other reads of the held editor.
 
 ```text
 reading the target
   reads the editor while the tab still shows it
   reads the file once the tab has moved
+describing the target for the model
+  describes the editor while the tab still shows it
+  describes the file once the tab has moved
 focusing the edit at the end of a turn
   moves the cursor while the tab still shows the target
   leaves the cursor alone once the tab has moved
 ```
 
->>>>>>> Stashed changes
+getDetails is what the note context message carries, so the path and the
+content it pairs come from the same note.
+
 ## HarnessToolsService.readNote
 
 ```text
@@ -73,25 +62,29 @@ the path is another note
 The second leaf is stale rather than wrong, which is the trade D1 named: the
 turn's writes take the vault branch there anyway.
 
+## The note context message
+
+Through the engine rather than on ModelService, since what matters is the
+message the provider was handed.
+
+```text
+the tab still shows the target
+  shows the model what the editor holds, unsaved text and all
+the tab moves to another note mid-turn
+  shows the model the target, from the file the tab left behind
+  never shows the model the content of the note the tab moved to
+  keeps the target path on the message, so the content still names it
+```
+
+The path was always right, which is what made the defect silent: the model was
+shown another note's content under the target's name.
+
 ## PanelReducer.reduce
 
 ```text
 an utterance arrives
   opens a turn holding it
   the turn takes the session's note as its target
-<<<<<<< Updated upstream
-a step is published
-  joins the open turn without scanning back for a user entry
-a tool moves the target
-  the open turn names the new note
-  an earlier turn keeps the note it had
-a retarget the user made
-  stays a sibling, since it belongs to no turn
-a restored session then takes a step
-  the step joins the new turn, not the one above the restore marker
-```
-
-=======
   carries no target when the session is on no note
 a step is published
   joins the open turn without scanning back for a user entry
@@ -106,19 +99,10 @@ a restored session then takes a step
 A tool moving the target is asserted through the panel, where the turn is
 rendered, rather than on the reducer alone.
 
->>>>>>> Stashed changes
 The last case is the defect archived spec 33 fixed by offsetting counters. A
 container fixes it by construction, so the test moves here and the offsets can
 go.
 
-<<<<<<< Updated upstream
-## TranscriptTurn.split
-
-```text
-entries holding turns
-  reads each turn rather than grouping by user entry
-  keeps what precedes the first turn as siblings
-=======
 ## TranscriptTurn.split and before
 
 ```text
@@ -130,7 +114,6 @@ splitting the entries the panel holds
 reading what precedes the first turn
   keeps the entries shown before any turn opened
   keeps nothing when the session opens on a turn
->>>>>>> Stashed changes
 ```
 
 ## PanelHeader
@@ -140,8 +123,6 @@ the header
   offers Copy and Reset
   names no note
 ```
-<<<<<<< Updated upstream
-=======
 
 ## SessionPanel
 
@@ -155,4 +136,3 @@ a turn names the note it is writing to
   names the new note once a tool opens one mid-turn
   leaves an earlier turn naming the note it wrote to
 ```
->>>>>>> Stashed changes
