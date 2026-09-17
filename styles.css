@@ -147,6 +147,28 @@
   white-space: pre-wrap;
 }
 
+/* Rendered markdown brings its own block elements, and pre-wrap would keep the
+   renderer's newlines on top of them. The blocks carry the line breaks here. */
+.tyto-entry-text:has(> *) {
+  white-space: normal;
+}
+
+/* An entry is one line in a list, not a document: Obsidian's paragraph margins
+   would space the history out as though each reply were a section. */
+.tyto-entry-text > p {
+  margin: 0;
+}
+
+.tyto-entry-text > p + p {
+  margin-top: var(--size-4-2);
+}
+
+.tyto-entry-text > ul,
+.tyto-entry-text > ol {
+  margin: 0;
+  padding-left: var(--size-4-4);
+}
+
 .tyto-entry-copy {
   flex: 0 0 auto;
   padding: 0 var(--size-4-1);

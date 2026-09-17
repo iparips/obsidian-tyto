@@ -4,6 +4,8 @@ import { EntryWeights } from '../models/entry-weight'
 import { EntrySources } from './EntrySources'
 import { EntryChoice } from './EntryChoice'
 import { EntrySuggestions } from './EntrySuggestions'
+import { EntryText } from './EntryText'
+import { MarkdownRenderFn } from './markdown-render'
 
 const ENTRY_CLASSES = {
   user: 'tyto-entry-user',
@@ -33,6 +35,7 @@ export interface HistoryEntryProps {
   onChooseNote?: (chosen: string | null) => void
   onPickSuggestion?: (suggestion: string) => void
   onRetry?: () => void
+  renderMarkdownFn?: MarkdownRenderFn
 }
 
 export const HistoryEntry = ({
@@ -40,6 +43,7 @@ export const HistoryEntry = ({
   onChooseNote,
   onPickSuggestion,
   onRetry,
+  renderMarkdownFn,
 }: HistoryEntryProps) => {
   const [copied, setCopied] = useState(false)
   const text = entryText(entry)
@@ -60,7 +64,7 @@ export const HistoryEntry = ({
   return (
     <div className={`tyto-entry tyto-entry-${weight} ${ENTRY_CLASSES[entry.kind]}`}>
       <div className="tyto-entry-body">
-        <div className="tyto-entry-text">{text}</div>
+        <EntryText text={text} renderMarkdownFn={renderMarkdownFn} />
         {entry.kind === 'answer' && <EntrySources sources={entry.sources} />}
         {entry.kind === 'choice' && entry.pending && onChooseNote && (
           <EntryChoice candidates={entry.candidates} onChoose={onChooseNote} />

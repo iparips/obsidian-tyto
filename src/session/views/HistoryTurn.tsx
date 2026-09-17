@@ -3,12 +3,14 @@ import { HistoryEntry } from './HistoryEntry'
 import { EntryProgress } from './EntryProgress'
 import { PanelTurn, ProgressLine } from '../models/panel-state'
 import { NoteName } from '../models/note-name'
+import { MarkdownRenderFn } from './markdown-render'
 
 export interface HistoryTurnProps {
   turn: PanelTurn
   onChooseNote?: (chosen: string | null) => void
   onPickSuggestion?: (suggestion: string) => void
   onRetry?: () => void
+  renderMarkdownFn?: MarkdownRenderFn
 }
 
 // The target under the utterance rather than above it, since a turn resolves
@@ -20,6 +22,7 @@ export const HistoryTurn = ({
   onChooseNote,
   onPickSuggestion,
   onRetry,
+  renderMarkdownFn,
 }: HistoryTurnProps) => (
   <div className="tyto-turn">
     {turn.entries.map((entry, index) => (
@@ -32,6 +35,7 @@ export const HistoryTurn = ({
             onChooseNote={onChooseNote}
             onPickSuggestion={onPickSuggestion}
             onRetry={onRetry}
+            renderMarkdownFn={renderMarkdownFn}
           />
         )}
         {entry.kind === 'user' && <TurnTarget target={turn.target} />}

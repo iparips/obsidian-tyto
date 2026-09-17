@@ -19,6 +19,7 @@ import { RecordingStrip } from './RecordingStrip'
 import { TytoSettings } from '../../settings/settings'
 import { TranscriptSource } from '../transcript/models/transcript-source'
 import { TranscriptDocument } from '../transcript/transcript-document'
+import { MarkdownRenderFn } from './markdown-render'
 
 export type { ChoiceRequest, QuestionRequest, RecorderPort }
 
@@ -49,6 +50,9 @@ export interface SessionPanelProps
   // What the panel cannot see: the chat history the recorded steps index into,
   // and what each of those steps was sent. Absent until the setting is on.
   transcriptOf?: (entries: readonly PanelItem[]) => TranscriptSource
+  // Absent without a vault to render against, which leaves the panel printing
+  // the model's markdown as it wrote it.
+  renderMarkdownFn?: MarkdownRenderFn
 }
 
 export const SessionPanel = (props: SessionPanelProps) => {
@@ -149,6 +153,7 @@ export const SessionPanel = (props: SessionPanelProps) => {
         onChooseNote={settleChoice}
         onPickSuggestion={fireAndForget(pickSuggestion)}
         onRetry={fireAndForget(recorded.retry)}
+        renderMarkdownFn={props.renderMarkdownFn}
       />
       <InputRow
         phase={state.phase}
