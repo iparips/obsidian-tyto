@@ -87,12 +87,7 @@ export class SessionPanelPropsBuilder {
       leaf,
       startNewSessionFn,
       onObsidianBackgroundedFn,
-      // Last, so the restored line marks where the restored turns stop and the
-      // transcript starts explaining itself again.
-      [
-        ...stored.entries,
-        { kind: 'restored', text: RestoredText.of(SessionPanelPropsBuilder.writtenAt(stored)) },
-      ],
+      SessionPanelPropsBuilder.entriesIn(stored),
       // No target from the record: build reads the workspace for it. The
       // record names the note a session was on, not the note it comes back on.
       SessionRepository.restored(null, messages),
@@ -133,6 +128,18 @@ export class SessionPanelPropsBuilder {
       recordHistory: (entries) => recorder.record(entries),
       ...SessionPanelPropsBuilder.enginePanelProps(engine, channels),
     }
+  }
+
+  // The line goes last, so it marks where the restored turns stop and the
+  // transcript starts explaining itself again. A record holding nothing gets
+  // none: it comes back indistinguishable from a fresh session, so saying it was
+  // restored describes a difference the user cannot see.
+  private static entriesIn(stored: SessionSnapshot): PanelItem[] {
+    if (stored.entries.length === 0) return []
+    return [
+      ...stored.entries,
+      { kind: 'restored', text: RestoredText.of(SessionPanelPropsBuilder.writtenAt(stored)) },
+    ]
   }
 
   // The restored entries carry the previous session's progress lines and turns, so
