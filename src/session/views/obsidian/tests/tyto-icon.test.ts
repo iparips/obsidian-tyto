@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { REGISTERED_ICONS } from '../../../../test-support/__mocks__/obsidian'
+import { TYTO_OWL_PATHS } from '../../TytoOwl'
 import { registerTytoIcon, TYTO_ICON } from '../tyto-icon'
 
 // The glyph itself is checked by eye in the ribbon, which is the only place it
@@ -27,5 +28,9 @@ describe('registerTytoIcon', () => {
 
   it('carries no svg wrapper, since Obsidian supplies one and its viewBox', () => {
     expect(markup).not.toMatch(/<svg|viewBox/)
+  })
+
+  it('registers the shared paths, so the ribbon and the header draw one mark', () => {
+    expect(markup).toBe(TYTO_OWL_PATHS)
   })
 })
