@@ -16,11 +16,12 @@ Verdict per rule, with the evidence in the repo.
 - [5-passes.md](5-passes.md) - every rule checked and clean, plus two findings
   that are not guidelines
 - [6-the-new-process.md](6-the-new-process.md) - what follows from submission
-  moving to a dashboard and an automated scan, plus one defect found on the way
+  moving to a dashboard and an automated scan, plus two defects found on the way
 
-Nineteen findings. One blocker, three disclosure gaps, six review comments, two
+Twenty findings. One blocker, three disclosure gaps, six review comments, two
 things that should not go out with a public repository, six that only the new
-process raises, and one wrong example in the docs.
+process raises, one wrong example in the docs, and one defect in this spec's own
+build order.
 
 Findings 1 to 12 were checked by hand against the documentation. Finding 13 is
 that the repo does not run the linter which checks most of them, so the hand
