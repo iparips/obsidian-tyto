@@ -92,4 +92,18 @@ export default [
       'no-unsanitized/method': 'off',
     },
   },
+  {
+    // requestUrl exists to bypass CORS, and RequestUrlParam carries no signal.
+    // Cancelling a turn aborts the request in flight, which is what makes a
+    // cancel immediate rather than a wait for the model to finish, so moving
+    // to requestUrl would trade a user-visible behaviour for a rule.
+    //
+    // The CORS the rule protects against is not in play: api.mistral.ai
+    // answers a preflight with access-control-allow-origin *, so fetch reaches
+    // it from desktop and mobile alike.
+    files: ['src/model/providers/mistral-provider.ts'],
+    rules: {
+      'no-restricted-globals': 'off',
+    },
+  },
 ]

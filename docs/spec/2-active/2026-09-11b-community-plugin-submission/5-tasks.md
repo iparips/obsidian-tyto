@@ -66,12 +66,15 @@ The third was fixed in commit 2 rather than deferred:
 - Two clipboard handlers dropped a rejection and claimed "Copied" when nothing
   was copied.
 
-The fourth is open, and belongs in its own spec:
+The fourth is answered rather than fixed:
 
 - `no-restricted-globals` wants requestUrl rather than fetch for network calls,
-  which the Mistral provider uses. Swapping them changes how the request
-  streams and how errors surface, so it is a behaviour change rather than a
-  rename, and too large to carry here.
+  which the Mistral provider uses. RequestUrlParam carries no AbortSignal, and
+  the signal is what makes cancelling a turn stop the request rather than wait
+  for the model to finish. requestUrl exists to bypass CORS, and api.mistral.ai
+  answers a preflight with `access-control-allow-origin: *`, so there is no
+  CORS to bypass. The rule is switched off for that one file, with the
+  reasoning in eslint.config.mjs and beside the call.
 
 ## 3. Migrate Settings Across the Id Change
 
