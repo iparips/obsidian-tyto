@@ -20,7 +20,10 @@ export const DEFAULT_SETTINGS: TytoSettings = {
   mistralApiKey: '',
   editModel: 'mistral-medium-latest',
   skillsPath: '0 - Meta/Skills',
-  commandAllowList: [],
+  // Opening the daily note creates or reveals one note and destroys nothing,
+  // so it is the one command worth shipping allowed. No colon: Obsidian's core
+  // commands are not namespaced, and daily-notes:* would match none of them.
+  commandAllowList: ['daily-notes'],
   searchEnabled: false,
   openMode: 'confirm',
   transcriptCopyEnabled: false,
