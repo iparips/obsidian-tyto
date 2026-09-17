@@ -19,7 +19,7 @@ user cannot undo.
 | The retargeted entry kind      | Eleven kinds, one of them this        | Gone, leaving ten                    |
 | A progress line's note         | Baked into the detail text, or absent | A field, shown only where it differs |
 | A write through the editor     | An edit line                          | Unchanged                            |
-| A write through the vault      | The same edit line                    | The edit line, and a warning         |
+| A write through the vault      | The same edit line                    | The edit line, marked and named      |
 
 ## What A Progress Line Names
 
@@ -89,6 +89,6 @@ limit.
 
 ## References
 
-- [4-decisions.md](4-decisions.md) - D1 on what stops showing, D2 on which lines name a note, D3 on the warning
+- [4-decisions.md](4-decisions.md) - D1 on what stops showing, D2 on which lines name a note, D3 on the direct write
 - [architecture/2-vocabulary.md](../../../architecture/2-vocabulary.md) - the entry kinds this removes one of
 - [3-requirements.md](3-requirements.md) - the files each change starts in, with a brief each

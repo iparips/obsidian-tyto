@@ -11,17 +11,28 @@ updated: 2026-09-17
 
 #### D3: How loudly does the panel announce a vault write? [resolved 2026-09-17]
 
-As a warning. Ilya chose it.
+On the edit line itself, marked as a warning. Ilya chose it after seeing the
+warning entry in a real vault.
+
+A warning entry sat below the list, so two edits produced two identical
+sentences naming neither the edit they belonged to nor, since D2 hides a note
+matching the target, anything the list had not already said. The line that made
+the edit is where the news belongs: it sits in order, and it names the note.
+
+The note rule bends for this one case. A direct write names its note whatever
+the turn's target is, because that edit is the one the user may have to undo by
+hand.
 
 A write that falls back to the vault costs the cursor, and may cost undo. The
 user cannot take back an edit they were not told about, so the line has to carry
 more weight than the ordinary progress line the edit already publishes.
 
-| Option                          | Says the edit may not be undoable | Cost                                      |
-| ------------------------------- | --------------------------------- | ----------------------------------------- |
-| A warning entry beside the turn | Yes                               | Chosen                                    |
-| A refused-style progress line   | Yes                               | Reads as a failure where the write worked |
-| An ordinary progress line       | No                                | A user who cannot undo is not told        |
+| Option                          | Says the edit may not be undoable | Cost                                             |
+| ------------------------------- | --------------------------------- | ------------------------------------------------ |
+| The edit line, marked           | Yes                               | Chosen                                           |
+| A warning entry beside the turn | Yes                               | Names neither the edit nor the note, and repeats |
+| A refused-style progress line   | Yes                               | Reads as a failure where the write worked        |
+| An ordinary progress line       | No                                | A user who cannot undo is not told               |
 
 A warning rather than a refusal because the write worked: the note holds what
 the user asked for, and only the way back is in doubt. Marking it refused would
@@ -62,7 +73,26 @@ changed, because that is the target the next turn opens with.
 
 #### D2: Which progress lines name their target? [resolved 2026-09-17]
 
-Only a line whose note differs from the turn's target. Ilya chose it.
+Only a line whose note differs from the turn's target, and every line that wrote
+straight to the file. Ilya chose it.
+
+A note is named by its whole path rather than its basename. Weekly notes repeat
+their names, so shopping-list says nothing about which week was edited. The
+turn's own label shows the name as a heading with the path small beneath it,
+which supersedes NFR10 of
+[9-model-chosen-targets](../../3-archived/9-model-chosen-targets/2-requirements.md):
+that rule truncated a long path to keep the header on one line, and the header
+it governed no longer exists.
+
+A path in the steps list sits on its own line under the step it belongs to. A
+path wrapping mid-token beside the text runs into it and reads as one blur.
+
+The label sits under the utterance rather than above it, which narrows D4 of
+[reaching-a-note-by-path](../../3-archived/2026-09-16b-reaching-a-note-by-path/4-decisions-showing.md).
+D4 asked for the target to be the most prominent thing a turn says about
+itself, and put it first to get that. A turn resolves its target from what the
+user said, so showing it first claims the note was settled before they spoke.
+It keeps the prominence and loses the false chronology.
 
 | Option                                | Cost                                          |
 | ------------------------------------- | --------------------------------------------- |

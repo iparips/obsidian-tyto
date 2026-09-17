@@ -74,6 +74,7 @@ describe('HarnessToolsService', () => {
         detail: 'last Friday — 2026-09-04',
         refused: false,
         note: null,
+        wroteDirect: false,
       })
     })
   })

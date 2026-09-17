@@ -14,6 +14,10 @@ export class ProgressLine {
     // The note the line acted on, where it acted on one. Null for a line that
     // touched none: a glob asks about names and a date resolve about a calendar.
     readonly note: string | null = null,
+    // An edit that went to the file rather than through the editor, which costs
+    // the cursor and may cost undo. Never set on a refusal: a call that wrote
+    // nothing took no path.
+    readonly wroteDirect: boolean = false,
   ) {}
 
   static searched(query: string, hits: number): ProgressLine {
@@ -71,8 +75,12 @@ export class ProgressLine {
   // The note is a field rather than part of the summary, so the panel can say
   // an edit reached a note other than the turn's target rather than leaving a
   // reader to compare two pieces of free text.
-  static edited(summary: string, path: string | null): ProgressLine {
-    return new ProgressLine('Edit', summary, false, path)
+  //
+  // A write that fell back to the vault marks the line rather than publishing a
+  // warning beside the list: the line sits where the edit happened and names the
+  // note itself, where a warning below the list named neither.
+  static edited(summary: string, path: string | null, wroteDirect = false): ProgressLine {
+    return new ProgressLine('Edit', summary, false, path, wroteDirect)
   }
 
   // A refusal is a step too: it spent an iteration, and it is usually the thing
@@ -92,7 +100,7 @@ export class ProgressLine {
   }
 
   byTool(tool: string): ProgressLine {
-    return new ProgressLine(`Refused ${tool}`, this.detail, true, this.note)
+    return new ProgressLine(`Refused ${tool}`, this.detail, true, this.note, this.wroteDirect)
   }
 
   private static hitCount(hits: number): string {

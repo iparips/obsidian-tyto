@@ -53,10 +53,10 @@ Tests: the ProgressLine and EntryProgress cases.
 - ToolCallOutcome.edited takes it, so the factory still sets the paired fields
   together rather than leaving a call site to set one without the other
 - NoteEditTool passes what the writer returned into that factory
-- recordEdit publishes a warning beside the edit line where the path was the
-  vault, through the channel the step budget already uses
-- runningLowFn becomes warnedFn, since it now has two callers and was named for
-  the first
+- recordEdit marks the edit line where the path was the vault, rather than
+  publishing a second line beside it
+- ProgressLine gains wroteDirect, and the view names the note on such a line
+  whatever the turn's target is
 
 This is the one that matters to a user: an edit their editor cannot undo, which
 they were never told about.

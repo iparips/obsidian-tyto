@@ -1,5 +1,4 @@
 import { ProgressLine } from '../models/panel-state'
-import { NoteName } from '../models/note-name'
 
 // Collapsed by default, like the resolved commands in settings: the reply is
 // what the user reads, and how the turn got there is a check they open when a
@@ -21,15 +20,26 @@ export const EntryProgress = ({
   </details>
 )
 
-// The note only where it differs from the turn's target: the turn names its
-// target at the top, so repeating it down the list buries the line worth
-// reading (D2).
+// A direct write says so on the line that made it, where a warning below the
+// list named neither the edit it belonged to nor the note it reached.
+//
+// The note shows only where it differs from the turn's target, since the turn
+// names its target at the top (D2). A direct write always names it: that edit
+// is the one the user may need to undo by hand.
 const ProgressRow = ({ line, target }: { line: ProgressLine; target: string | null }) => (
   <li className={line.refused ? 'tyto-progress-refused' : undefined}>
     <span className="tyto-progress-label">{line.label}</span>
     <span className="tyto-progress-detail">{line.detail}</span>
-    {line.note !== null && line.note !== target && (
-      <span className="tyto-progress-note">{NoteName.of(line.note)}</span>
+    {line.wroteDirect && (
+      <>
+        <span className="tyto-progress-detail tyto-progress-directly">directly.</span>
+        <span className="tyto-progress-direct">
+          Undo not available - because editor moved to another note
+        </span>
+      </>
+    )}
+    {line.note !== null && (line.wroteDirect || line.note !== target) && (
+      <div className="tyto-progress-note">{line.note}</div>
     )}
   </li>
 )

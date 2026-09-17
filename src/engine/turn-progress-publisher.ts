@@ -13,10 +13,9 @@ export class TurnProgressPublisher {
     readonly retargetedFn: (path: string | null, byUser: boolean) => void,
     readonly instructionsResolvedFn: (chain: AgentsMdChain) => void,
     readonly skillLoadedFn: (name: string) => void,
-    // News about a turn that is otherwise fine: the step budget running low, and
-    // a write that took the vault path. Both land inside the open turn, which is
-    // what the user is reading.
-    readonly warnedFn: (text: string) => void = () => undefined,
+    // Said once, as the turn nears its cap, so a user watching a long turn can
+    // stop it rather than waiting for it to fail.
+    readonly runningLowFn: (text: string) => void = () => undefined,
     // Every step a turn takes, collapsed in the panel: the entries say what the
     // turn produced, and this says what it did to get there.
     readonly publishProgressLineFn: (step: ProgressLine) => void = () => undefined,

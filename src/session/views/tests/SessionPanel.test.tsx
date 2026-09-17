@@ -436,7 +436,31 @@ describe('SessionPanel', () => {
 
       await speak()
 
-      expect(screen.getByText('todo')).toBeTruthy()
+      expect(screen.getByText('Edit target: todo')).toBeTruthy()
+      expect(screen.getByText('Lists/todo.md')).toBeTruthy()
+    })
+
+    // A turn resolves its target from what the user said, so showing it above
+    // the utterance claims the note was settled before they spoke.
+    it('shows the target below the utterance rather than above it', async () => {
+      processUtterance.mockReturnValue(new Promise(() => undefined))
+      const { container } = renderPanel({ notePath: 'Lists/todo.md' })
+
+      await speak()
+
+      const text = container.textContent ?? ''
+      expect(text.indexOf('add milk')).toBeLessThan(text.indexOf('Edit target: todo'))
+    })
+
+    // A weekly note's name repeats every week, so the name alone does not say
+    // which note a turn edited. The path under it does.
+    it('shows the whole path under the name', async () => {
+      processUtterance.mockReturnValue(new Promise(() => undefined))
+      renderPanel({ notePath: '1 - Journal/Weekly/Week-38/shopping-list.md' })
+
+      await speak()
+
+      expect(screen.getByText('1 - Journal/Weekly/Week-38/shopping-list.md')).toBeTruthy()
     })
 
     it('names no note when the session is on none', async () => {
@@ -445,7 +469,7 @@ describe('SessionPanel', () => {
 
       await speak()
 
-      expect(screen.getByText('No note')).toBeTruthy()
+      expect(screen.getByText('Edit target: no note')).toBeTruthy()
     })
 
     it('names the new note once a tool opens one mid-turn', async () => {
@@ -455,7 +479,8 @@ describe('SessionPanel', () => {
 
       retargetTo('Lists/shopping.md')
 
-      expect(screen.getByText('shopping')).toBeTruthy()
+      expect(screen.getByText('Edit target: shopping')).toBeTruthy()
+      expect(screen.getByText('Lists/shopping.md')).toBeTruthy()
     })
 
     it('leaves an earlier turn naming the note it wrote to', async () => {
@@ -465,8 +490,8 @@ describe('SessionPanel', () => {
       retargetTo('Lists/shopping.md', true)
       await speak()
 
-      expect(screen.getAllByText('todo')).toHaveLength(1)
-      expect(screen.getAllByText('shopping')).toHaveLength(1)
+      expect(screen.getAllByText('Edit target: todo')).toHaveLength(1)
+      expect(screen.getAllByText('Edit target: shopping')).toHaveLength(1)
     })
   })
 

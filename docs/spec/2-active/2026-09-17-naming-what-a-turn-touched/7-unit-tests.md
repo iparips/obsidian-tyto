@@ -73,11 +73,12 @@ The writes themselves are unchanged and already covered by that spec's tests.
 
 ```text
 an edit that went through the editor
-  publishes the edit line
-  publishes no warning
+  publishes the edit line naming the note
+  leaves the line unmarked
 an edit that fell back to the vault
-  publishes the edit line, as the editor path does
-  publishes a warning naming the note
+  publishes the edit line naming the note, as the editor path does
+  marks the line as written straight to the file
+  publishes no warning beside the list
 an edit that applied nothing
   publishes a refusal, and no warning
 ```

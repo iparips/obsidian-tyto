@@ -25,7 +25,13 @@ describe('SessionProgress', () => {
       publisherOf().skillLoadedFn('shopping-list')
 
       expect(steps).toEqual([
-        { label: 'Loaded skill', detail: 'shopping-list', refused: false, note: null },
+        {
+          label: 'Loaded skill',
+          detail: 'shopping-list',
+          refused: false,
+          note: null,
+          wroteDirect: false,
+        },
       ])
     })
 

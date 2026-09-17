@@ -32,11 +32,12 @@ A progress line names its note only where that note differs from the turn's
 target. The turn names its target at the top, so repeating it down the list
 buries the one line worth reading.
 
-A vault write announces itself as a warning, in the channel the step budget
-already uses: the write worked, and only the way back is in doubt. It is worded
-for undo being lost, which is the safer way to be wrong. Whether undo actually
-survives a Vault.process write is still unknown and no longer blocks anything;
-it decides the wording, not the design.
+A vault write marks the edit line that made it, rather than announcing itself
+beside the list: the line sits where the edit happened and names the note, which
+a warning below the list did neither of. It is worded for undo being lost, which
+is the safer way to be wrong. Whether undo actually survives a Vault.process
+write is still unknown and no longer blocks anything; it decides the wording,
+not the design.
 
 Every decision is settled and the design is written.
 
