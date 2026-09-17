@@ -1,8 +1,10 @@
 import { useState } from 'react'
+import { TytoOwl } from './TytoOwl'
 
 // The note left with the turns, since a target belongs to the turn that chose
 // it and a header naming one cannot say which utterance it belongs to (D4).
-// What is left is a toolbar, and reads as one.
+// What names the panel is the title, which says the same thing in every state
+// and so takes no props.
 export interface PanelHeaderProps {
   running: boolean
   onReset?(): void
@@ -26,26 +28,32 @@ export const PanelHeader = ({ running, onReset, onCopy, hasEntries }: PanelHeade
 
   return (
     <div className="tyto-header">
-      {onCopy && (
-        <button
-          className="tyto-copy-transcript"
-          aria-label={copied ? 'Copied' : 'Copy transcript'}
-          disabled={running || !hasEntries}
-          onClick={copy}
-        >
-          {copied ? 'Copied' : 'Copy'}
-        </button>
-      )}
-      {onReset && (
-        <button
-          className="tyto-new-session"
-          aria-label="Reset session"
-          disabled={running}
-          onClick={onReset}
-        >
-          Reset
-        </button>
-      )}
+      <span className="tyto-header-title">
+        <TytoOwl />
+        Tyto session
+      </span>
+      <span className="tyto-header-actions">
+        {onCopy && (
+          <button
+            className="tyto-copy-transcript"
+            aria-label={copied ? 'Copied' : 'Copy transcript'}
+            disabled={running || !hasEntries}
+            onClick={copy}
+          >
+            {copied ? 'Copied' : 'Copy'}
+          </button>
+        )}
+        {onReset && (
+          <button
+            className="tyto-new-session"
+            aria-label="Reset session"
+            disabled={running}
+            onClick={onReset}
+          >
+            Reset
+          </button>
+        )}
+      </span>
     </div>
   )
 }
