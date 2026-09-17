@@ -14,7 +14,7 @@ Read 1-index.md, then 2-requirements.md, then 4-tasks.md. Read 3-design.md
 immediately before commit 1: it holds the glyph markup and the registration
 shape, and both are what you write first.
 
-Repo conventions are in docs/AGENTS.md, and build commands in
+Repo conventions are in AGENTS.md, and build commands in
 docs/CONTRIBUTING.md. Read the first before writing any source file.
 
 Verify before trusting:

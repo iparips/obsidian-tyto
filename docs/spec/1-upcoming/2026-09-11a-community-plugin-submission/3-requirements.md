@@ -120,5 +120,5 @@ And   an error is printed only where a step failed
 
 ### Architecture
 
-- [../../../AGENTS.md](../../../AGENTS.md) - open when placing new code; owns package
+- [../../../AGENTS.md](../../../../AGENTS.md) - open when placing new code; owns package
   layout and the rule that prompt changes are behaviour changes

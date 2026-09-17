@@ -9,14 +9,14 @@ Paste the block below into a fresh session.
 
 ```text
 Show that the panel is listening, specified in
-docs/spec/2-active/showing-the-panel-is-listening.
+docs/spec/3-archived/2026-09-14-showing-the-panel-is-listening.
 
 Read 1-index.md, 2-requirements.md and 6-tasks.md, then 3-design.md before the
 first commit. 5-tests.md holds the checks a person runs afterwards. 4-decisions.md
 carries the iOS assumption that shapes commit 2; read it before writing the hook.
 
 Load the code-generation and code-unit-tests skills first. Repo conventions are
-in docs/AGENTS.md.
+in AGENTS.md.
 
 All three commits are in scope.
 

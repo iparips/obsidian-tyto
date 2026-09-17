@@ -16,7 +16,7 @@ Read 1-index.md, 2-requirements.md and 3-design.md before starting. 4-tasks.md
 gives the build order in five commits; read each commit's section as you reach
 it. The suite must stay green at every commit.
 
-Repo conventions are in docs/AGENTS.md, and the package rule it points at is the
+Repo conventions are in AGENTS.md, and the package rule it points at is the
 code-generation skill's: group by subdomain, and give a subdomain kind folders
 only once it outgrows the limit as one thing. Three of these four splits find a
 concept; only views splits by kind.

@@ -227,7 +227,7 @@ Then  the edit lands on it rather than on the first turn's note
 This one is judgement, not logic, so it is verified against a real vault rather
 than in the suite. Prompt changes are behaviour changes and the unit tests
 cannot catch a regression in judgement, per
-[docs/AGENTS.md](../../../AGENTS.md).
+[AGENTS.md](../../../../AGENTS.md).
 
 ### An edit reaches an editor
 

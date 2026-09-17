@@ -141,6 +141,11 @@ The root holds only what spans the folders. The placement test for tools/ is
 written down: a tool takes a ToolCall and returns a result, so NoteEditor,
 which takes an EditOperation, is not one.
 
+Model splits the same way. PromptFactory is prompt/'s entry point and the one
+class that turns a request into messages; under it sits one class per message,
+and system-prompt-sections/ holds one per section of the system prompt, each
+owning its own text and deciding whether it appears.
+
 Smaller packages keep three subfolders, each added only when there is enough to
 fill it: models for value objects, views for anything that renders, and tests
 for the package's test files. Vitest matches on filename, not directory, so the

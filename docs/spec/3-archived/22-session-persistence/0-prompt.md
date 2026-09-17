@@ -18,7 +18,7 @@ is the build order: two commits, each leaving the suite green. Read
 the restore wiring is specified there rather than in the build order. Read
 4-testing-strategy.md before writing tests for either commit.
 
-Repo conventions are in docs/AGENTS.md, and the branching rules in CLAUDE.md.
+Repo conventions are in AGENTS.md, and the branching rules in CLAUDE.md.
 
 Three claims are about code that may have moved since the spec was written.
 Check each rather than trusting it:

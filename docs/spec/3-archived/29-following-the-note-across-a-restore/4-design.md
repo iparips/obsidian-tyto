@@ -230,7 +230,7 @@ target. Bind correctly and it names the shopping list, which is the cheapest
 test of whether the replayed worked example still pulls the model back.
 
 That test is by hand against a real vault, because a prompt change cannot be
-unit tested (docs/AGENTS.md). If it fails, CommandSection is the next lever, and
+unit tested (AGENTS.md). If it fails, CommandSection is the next lever, and
 it is a separate change.
 
 ## What does not change

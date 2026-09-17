@@ -16,7 +16,7 @@ first commit. 5-tests.md holds the checks a person runs afterwards, and
 4-decisions.md why this is not a queued turn.
 
 Load the code-generation and code-unit-tests skills first. Repo conventions are
-in docs/AGENTS.md, including the rule that a prompt change is a behaviour
+in AGENTS.md, including the rule that a prompt change is a behaviour
 change.
 
 EditEngine.followActiveNote already takes string or null, so both commits can

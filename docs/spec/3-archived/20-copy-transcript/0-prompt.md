@@ -18,7 +18,7 @@ build order: four commits, each standing alone with its tests green. Read
 3a-document-shape.md before commit 1, 3b-wiring.md before commit 2, and
 4-sample-output.md before commit 3, which is the format you are building.
 
-Repo conventions are in docs/AGENTS.md, and the branching rules in CLAUDE.md.
+Repo conventions are in AGENTS.md, and the branching rules in CLAUDE.md.
 
 Two claims in the spec are about code that may have moved since it was written.
 Check both rather than trusting them:

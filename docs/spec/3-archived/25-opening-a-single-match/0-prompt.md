@@ -15,7 +15,7 @@ Confirm mode does not change.
 Read 1-index.md, 2-requirements.md and 3-design.md before starting. 4-tasks.md
 gives the build order in two commits. The suite must stay green at each.
 
-Repo conventions are in docs/AGENTS.md: package layout, test placement, and the
+Repo conventions are in AGENTS.md: package layout, test placement, and the
 repository-scope rule. Read it first.
 
 Verify before trusting, since the spec was written over several sessions:

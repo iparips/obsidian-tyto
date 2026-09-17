@@ -8,7 +8,7 @@ updated: 2026-09-14
 Five commits. The suite stays green at each, and no commit changes behaviour.
 
 Prettier reformats unrelated files on a build. Per
-[AGENTS.md](../../../AGENTS.md), keep that reformatting and commit it separately as
+[AGENTS.md](../../../../AGENTS.md), keep that reformatting and commit it separately as
 a whitespace commit rather than reverting it.
 
 ## Commit 1: wiring takes the two composition roots

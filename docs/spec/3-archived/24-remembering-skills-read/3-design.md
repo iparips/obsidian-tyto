@@ -211,7 +211,7 @@ The line gains a clause: say what the user can do next. It is general rather
 than about this refusal, so it covers every turn that ends without an edit.
 
 It sits in the release 3 fixture, which pins prompt text. Re-recording it is the
-deliberate act docs/AGENTS.md describes, not a workaround: the model is being
+deliberate act AGENTS.md describes, not a workaround: the model is being
 told something new, so the fixture is the thing to update rather than route
 around.
 

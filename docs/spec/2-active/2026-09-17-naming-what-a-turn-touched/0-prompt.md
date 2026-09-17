@@ -17,7 +17,7 @@ Read 6-design.md and 7-unit-tests.md before commit 1, and
 6-design-the-warning.md before commit 3. 5-acceptance-criteria.md holds the
 checks afterwards.
 
-Repo conventions are in docs/AGENTS.md. Read
+Repo conventions are in AGENTS.md. Read
 docs/architecture/12-the-panel-vocabulary.md before naming anything: it defines
 the three levels this spec talks about.
 

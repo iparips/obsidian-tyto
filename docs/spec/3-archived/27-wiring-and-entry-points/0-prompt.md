@@ -19,7 +19,7 @@ it. The suite must stay green at every commit.
 Read 7-plugin-scope before commit 2 and 8-value-types before commit 4. 4-survey
 is evidence, 6-cycles is background describing work this spec does not do.
 
-Repo conventions are in docs/AGENTS.md, and the package rule it points at is the
+Repo conventions are in AGENTS.md, and the package rule it points at is the
 code-generation skill's. The ten-file limit from spec 26 still holds, so recount
 any folder you feed.
 
@@ -45,7 +45,7 @@ for nothing. That claim is wrong today, and leaving it is the one thing that
 makes the work invisible.
 
 Prettier reformats unrelated files on a build. Keep that reformatting and commit
-it separately as a whitespace commit, per docs/AGENTS.md.
+it separately as a whitespace commit, per AGENTS.md.
 
 If a spec claim turns out wrong, fix the spec and say so rather than building
 around it.

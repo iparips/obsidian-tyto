@@ -17,7 +17,7 @@ three assumptions; read that if a choice looks arbitrary. 3-design.md describes
 commit 1, which is already landed.
 
 Load the code-generation and code-unit-tests skills before the first commit.
-Repo conventions are in docs/AGENTS.md. Read it before the first commit.
+Repo conventions are in AGENTS.md. Read it before the first commit.
 
 Commit 1 is already landed: the signatures are widened and bindTo has replaced
 changeTargetNote. Start at commit 2.

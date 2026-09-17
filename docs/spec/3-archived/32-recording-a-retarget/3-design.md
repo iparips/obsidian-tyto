@@ -207,7 +207,7 @@ directive.
 A past-tense event in the history is a different shape, and the message above
 names no note for that reason. Whether that holds is a judgement the unit tests
 cannot make, so test a real vault before calling it done, the way
-[AGENTS.md](../../../AGENTS.md) asks for any prompt change.
+[AGENTS.md](../../../../AGENTS.md) asks for any prompt change.
 
 ## References
 
