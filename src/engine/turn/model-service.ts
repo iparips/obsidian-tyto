@@ -24,10 +24,7 @@ export class ModelService {
     private targetNoteWriter: TargetNoteWriter,
   ) {}
 
-  // Logged around the call rather than after it, since a turn that feels slow is
-  // one model call taking its time rather than the loop doing work between them.
-  async askModel(step: number): Promise<Outcome<ChatTurn>> {
-    const askedAt = Date.now()
+  async askModel(): Promise<Outcome<ChatTurn>> {
     const request = await this.requestForModel()
     const parts = PromptFactory.build(request)
     // Recorded before the call rather than after it, so a step the provider
@@ -40,7 +37,6 @@ export class ModelService {
       this.turnCancellationController.signal(),
     )
 
-    if (answer.succeeded()) this.logStep(step, answer.value, Date.now() - askedAt)
     return answer
   }
 
@@ -77,13 +73,5 @@ export class ModelService {
       ]),
       historyLength,
     )
-  }
-
-  // The only record of why a turn spent its iterations: the panel shows commands
-  // and answers, but not the edits the model retried or the note it aimed at.
-  private logStep(step: number, turn: ChatTurn, waitedMs: number): void {
-    const calls = turn.isText() ? 'text' : turn.calls.map((call) => call.name).join(', ')
-    const path = this.turnRepository.targetNote()?.path ?? 'no note'
-    console.debug(`[tyto] iteration ${step + 1} on ${path}: ${calls} (${waitedMs}ms)`)
   }
 }
