@@ -53,9 +53,9 @@ carry most of what survives. The release files mostly fail it.
 | Today                         | Lines | Lands in                      | What survives                                  |
 | ----------------------------- | ----- | ----------------------------- | ---------------------------------------------- |
 | 0-index                       | 31    | 1-overview                    | The reading order, rewritten for seven files   |
-| 2026-08-28a-desktop-mvp                 | 205   | 3-capture, 6-reaching-a-note  | The service and value rule, anchor uniqueness  |
-| 2026-08-28b-mobile-mvp                  | 52    | 3-capture                     | The container differs by platform, and why     |
-| 2026-09-02-agents-md-loading           | 75    | 5-asking-the-model            | Write target picks the chain, nearest wins     |
+| 2026-08-28a-desktop-mvp       | 205   | 3-capture, 6-reaching-a-note  | The service and value rule, anchor uniqueness  |
+| 2026-08-28b-mobile-mvp        | 52    | 3-capture                     | The container differs by platform, and why     |
+| 2026-09-02-agents-md-loading  | 75    | 5-asking-the-model            | Write target picks the chain, nearest wins     |
 | 4-obsidian-agent-harness      | 39    | 6-reaching-a-note             | The model never chooses a write path           |
 | 5-desktop-v1                  | 68    | nothing                       | Unbuilt; it lives in 1-upcoming                |
 | 6-mobile-v1                   | 49    | nothing                       | Unbuilt; it lives in 1-upcoming                |
@@ -174,15 +174,15 @@ the note that PluginScope reads settings through a function.
 Six exist and all six are kept, redrawn against current class names. One is
 added.
 
-| Diagram                     | From               | Goes to            | Change                        |
-| --------------------------- | ------------------ | ------------------ | ----------------------------- |
-| Package dependencies        | 7-package-design   | 1-overview         | Add the four missing packages |
-| Capture by platform         | 2026-08-28b-mobile-mvp       | 3-capture          | Redrawn as-is                 |
-| One choice, to settled      | 8-parking-a-turn   | 4-the-turn         | Redrawn as-is                 |
-| The same turn, cancelled    | 8-parking-a-turn   | 4-the-turn         | Redrawn as-is                 |
-| One ask, end to end         | 10-asking          | 5-asking-the-model | Redrawn as-is                 |
-| Both lists through one turn | 11-the-two-records | 7-the-panel        | Redrawn as-is                 |
-| Utterance to note           | new                | 6-reaching-a-note  | Invented                      |
+| Diagram                     | From                   | Goes to            | Change                        |
+| --------------------------- | ---------------------- | ------------------ | ----------------------------- |
+| Package dependencies        | 7-package-design       | 1-overview         | Add the four missing packages |
+| Capture by platform         | 2026-08-28b-mobile-mvp | 3-capture          | Redrawn as-is                 |
+| One choice, to settled      | 8-parking-a-turn       | 4-the-turn         | Redrawn as-is                 |
+| The same turn, cancelled    | 8-parking-a-turn       | 4-the-turn         | Redrawn as-is                 |
+| One ask, end to end         | 10-asking              | 5-asking-the-model | Redrawn as-is                 |
+| Both lists through one turn | 11-the-two-records     | 7-the-panel        | Redrawn as-is                 |
+| Utterance to note           | new                    | 6-reaching-a-note  | Invented                      |
 
 Dropped: the four diagrams in 2026-08-28a-desktop-mvp, 5-desktop-v1 and 6-mobile-v1. The
 MVP module map and utterance flow name SessionView, AgentSession and an
@@ -208,18 +208,18 @@ resolve. Seventeen name 7-package-design, which no longer exists.
 
 Inbound links are repointed at the file that took the content:
 
-| Old target                 | New target                             |
-| -------------------------- | -------------------------------------- |
-| 7-package-design.md        | 1-overview.md                          |
-| 12-the-panel-vocabulary.md | 2-vocabulary.md                        |
-| 0-index.md                 | 1-overview.md                          |
-| 2026-08-28a-desktop-mvp.md           | 1-overview.md                          |
-| 8, 9                       | 4-the-turn.md                          |
-| 10, 2026-09-02-agents-md-loading    | 5-asking-the-model.md                  |
-| 4-obsidian-agent-harness   | 6-reaching-a-note.md                   |
-| 11-the-two-records.md      | 7-the-panel.md                         |
-| 2026-08-28b-mobile-mvp.md            | 3-capture.md                           |
-| 5, 6                       | the matching spec folder in 1-upcoming |
+| Old target                       | New target                             |
+| -------------------------------- | -------------------------------------- |
+| 7-package-design.md              | 1-overview.md                          |
+| 12-the-panel-vocabulary.md       | 2-vocabulary.md                        |
+| 0-index.md                       | 1-overview.md                          |
+| 2026-08-28a-desktop-mvp.md       | 1-overview.md                          |
+| 8, 9                             | 4-the-turn.md                          |
+| 10, 2026-09-02-agents-md-loading | 5-asking-the-model.md                  |
+| 4-obsidian-agent-harness         | 6-reaching-a-note.md                   |
+| 11-the-two-records.md            | 7-the-panel.md                         |
+| 2026-08-28b-mobile-mvp.md        | 3-capture.md                           |
+| 5, 6                             | the matching spec folder in 1-upcoming |
 
 An archived spec keeps its prose. Only the link target changes, because a
 reference to a file that does not exist is a broken link whatever it says.
