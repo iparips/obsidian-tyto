@@ -37,8 +37,8 @@ Five groups, in the order they should land.
 
 1. The rename, in two commits: the mechanical sweep, then the settings
    migration that carries an existing install across the new id.
-2. The linter the scan runs, which the repo does not have. It re-audits
-   everything and turns this spec from a reading of the docs into a gate.
+2. The linter the scan runs, now adopted. It re-audited everything and turned
+   this spec from a reading of the docs into a gate.
 3. The disclosures, because the network use and the API key are what a reader
    opens the README for.
 4. The settings tab, which today renders raw React inputs rather than

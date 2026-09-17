@@ -20,25 +20,39 @@ recommendation or a pass.
 ## Run the Linter Before Submitting
 
 eslint-plugin-obsidianmd is the guidelines encoded as rules, and it is what the
-source-code section runs. The repo does not have it: .eslintrc is a legacy
-config carrying TypeScript rules and nothing of Obsidian's.
+source-code section runs. It is now a dev dependency, ESLint is 9, and
+eslint.config.mjs replaces the legacy .eslintrc. This turned the audit from a
+reading of the docs into something the build checks, and it keeps checking
+after the submission lands.
 
-Installing it turns the audit from a reading of the docs into something the
-build checks, which keeps checking after the submission lands.
+`bun run lint` reports no errors. Two warnings remain: the settings-tab rule,
+which the settings work clears, and fetch in the Mistral provider, which no
+commit here owns.
 
-- Install eslint-plugin-obsidianmd as a dev dependency, and raise ESLint from 8
-  to 9. The recommended preset ships as flat config, which 8 does not read.
-- Replace .eslintrc with eslint.config.mjs.
-- Fix what it reports, and keep `bun run lint` as the gate.
+Two warnings the linter raised first are already gone, and they are worth
+recording because this design first read them as a settings-search concern.
+The plugin called two APIs newer than the 1.5.0 it declared, and one of them
+crashed.
 
-Two rules will disagree with the repo, both correctly. `no-unsupported-api`
-reads manifest.json's minAppVersion, which says 1.5.0 while the obsidian
-devDependency resolves to 1.13.1; the settings work raises it to 1.13.0 anyway.
-The settings-tab rules are the other, and they go quiet when that work lands.
+Notice.messageEl arrived in 1.8.7, replacing noticeEl. Below that version the
+property is undefined, so every notice the plugin shows throws a TypeError.
+
+revealLeaf is milder. It predates 1.7.2, which added the promise that makes
+awaiting it guarantee an undeferred view. Below that the await resolves
+immediately, and the leaf's view may not be the session's yet.
+
+minAppVersion is now 1.13.0, which clears both. It landed on main rather than
+in the settings work, because the deferred-views spec needs the same floor.
+Nothing has shipped, so no install was on an affected version.
 
 Rules worth naming, each mapping to a finding this spec carries:
 `settings-tab/prefer-setting-definitions`, `validate-license`,
 `validate-manifest`, `vault/iterate` and `ui/sentence-case`.
+
+The preset also enables type-aware TypeScript rules the repo had not run. The
+config keeps them, switching off in test code the handful that only describe
+test doubles: `vi.fn()` is `any` by construction, and a parked promise left
+unsettled is often the case under test.
 
 ## Build Verification Runs `build`
 

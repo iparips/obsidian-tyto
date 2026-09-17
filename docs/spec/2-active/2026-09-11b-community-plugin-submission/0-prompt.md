@@ -16,7 +16,8 @@ Read first, in this order:
 - 4-design/6-the-automated-review.md, because the scanner is the reviewer and
   two other design files changed to suit what it runs.
 - 3-requirements.md, for scope and the three settled decisions.
-- 5-tasks.md, which is the build order. Commit 1 has shipped; start at commit 2.
+- 5-tasks.md, which is the build order. Commits 1 and 2 have shipped; start at
+  commit 3.
 
 Read the matching design file immediately before the commit that needs it, not
 up front. 4-design/1-index.md maps commit to file.
@@ -30,8 +31,9 @@ Verify before trusting, because the spec was written across several sessions:
   counts, which are the thing most likely to have moved.
 - That SkillRepository and AgentsMdRepository are still constructed in
   PluginScope with this.app.vault.adapter, since commit 7 changes that seam.
-- That eslint-plugin-obsidianmd's recommended preset is flat-config only, before
-  deleting .eslintrc.
+- That `bun run lint` still reports no errors. Commit 2 left four warnings, all
+  owned by commit 6; anything else is new and worth reading before you build on
+  it.
 
 Already verified, so take these as given: the installed obsidian typings are
 1.13.1 and carry getSettingDefinitions with every control type the design names;
@@ -44,6 +46,7 @@ with a silent console. Then open the settings tab beside a core plugin's and
 confirm it looks native and appears in 1.13's settings search.
 
 If the spec is wrong, say so and fix the spec, rather than building around it.
-Commit 2 exists to find exactly that: anything its linter raises that the
-audit missed belongs in 2-audit/ before the code changes.
+Commit 2 recorded two findings the audit missed, in 5-tasks.md. Anything the
+linter raises that is still unrecorded belongs in 2-audit/ before the code
+changes.
 ```

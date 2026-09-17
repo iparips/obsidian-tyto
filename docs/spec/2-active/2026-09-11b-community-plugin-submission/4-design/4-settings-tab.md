@@ -14,9 +14,9 @@ This is what the scanner checks, through
 `settings-tab/prefer-setting-definitions`, so the imperative builder chain is a
 rewrite that lands already flagged.
 
-## minAppVersion Moves to 1.13.0
+## minAppVersion Is 1.13.0
 
-The API needs 1.13.0, and the manifest says 1.5.0. Two ways to satisfy the
+The API needs 1.13.0, and the manifest said 1.5.0. Two ways to satisfy the
 rule, and this spec takes the first.
 
 | Path           | Cost                                                         |
@@ -29,7 +29,9 @@ been listed, so there is no user on 1.5 to strand. Carrying two renderers to
 serve nobody is the worse trade, and the scanner's
 `settings-tab/require-display` rule only demands `display()` below 1.13.0.
 
-`minAppVersion` becomes `1.13.0`, and versions.json maps 0.1.0 to it.
+`minAppVersion` is `1.13.0` and versions.json maps 0.1.0 to it. Both landed on
+main ahead of this work, because the deferred-views spec needs the same floor
+and two parallel sessions editing manifest.json would conflict.
 
 ## Shape After the Change
 

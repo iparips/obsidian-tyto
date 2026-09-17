@@ -24,9 +24,8 @@ The repo's conventions are in CLAUDE.md, and docs/architecture/6-reaching-a-note
 owns note-binding. Read it before moving anything there.
 
 Verify these before trusting them. All were read on 2026-09-17.
-- manifest.json still says minAppVersion 1.5.0 and versions.json still maps
-  0.1.0 to 1.5.0, so this build owns both edits. If community-plugin-submission
-  has landed them first, skip rollout step 2 rather than re-applying it.
+- manifest.json now says minAppVersion 1.13.0 and versions.json maps 0.1.0 to
+  it. Both landed on main ahead of this work, so rollout step 2 is already done.
 - WorkspaceNoteLocator.locate has exactly two production callers,
   target-note-resolver.ts:38 and target-note-writer.ts:72. A third would change
   what D3 weighed.

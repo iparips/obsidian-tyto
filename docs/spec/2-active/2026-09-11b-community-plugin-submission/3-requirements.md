@@ -21,10 +21,9 @@ round trips.
 The manifest fix forces a rename, and a rename is cheaper before a public
 listing than after one. So the plugin becomes Tyto in the same change.
 
-The scan runs Obsidian's own ESLint plugin, which the repo does not have. That
-is the item worth doing first: it turns the rest of this list from a reading of
-the documentation into something the build checks, and it keeps checking after
-the listing lands.
+The scan runs Obsidian's own ESLint plugin. Adopting it was the first item, and
+it turned the rest of this list from a reading of the documentation into
+something the build checks, which keeps checking after the listing lands.
 
 ## In Scope
 
@@ -35,7 +34,7 @@ the listing lands.
   the README.
 - Adopt eslint-plugin-obsidianmd, and fix what it reports.
 - Rebuild the settings tab on the declarative settings API, with sentence-case
-  names and grouped sections, raising minAppVersion to 1.13.0.
+  names and grouped sections. The minAppVersion it needs is already 1.13.0.
 - Silence debug logging in normal use.
 - Move vault reads off the adapter, except the plugin-config write that has no
   Vault API equivalent, and normalise constructed paths.
@@ -81,7 +80,8 @@ And   the id matches the plugin folder name in the vault
 ```gherkin
 Given eslint-plugin-obsidianmd is installed with its recommended config
 When  the lint script runs over src
-Then  no error and no warning is reported
+Then  no error is reported
+And   the only warnings name the settings tab or the provider's use of fetch
 ```
 
 ### Build verification reproduces the shipped bundle
