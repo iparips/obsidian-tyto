@@ -212,6 +212,30 @@ copy_plugin() {
 	echo "Obsidian Sync can now carry the plugin to mobile."
 }
 
+# The plugin was renamed from obsidian-owl to tyto, and Obsidian names the
+# folder after the id, so an existing install leaves a stale folder beside the
+# new one. Obsidian lists both, the old one now broken.
+LEGACY_PLUGIN_ID="obsidian-owl"
+
+# Only once the new id has a data.json of its own, which is the plugin's
+# migration having run and saved. The installer always runs before the next
+# load, so removing it any earlier deletes the only copy of the API key.
+remove_legacy_plugin() {
+	local plugins="$OBSIDIAN_VAULT_PATH/.obsidian/plugins"
+	local legacy="$plugins/$LEGACY_PLUGIN_ID"
+
+	[[ -d "$legacy" ]] || return 0
+
+	if [[ ! -f "$plugins/$(plugin_id)/data.json" ]]; then
+		echo "Leaving $LEGACY_PLUGIN_ID in place until Tyto has loaded once and"
+		echo "migrated its settings. Run ./install again afterwards to remove it."
+		return 0
+	fi
+
+	rm -rf "$legacy"
+	echo "Removed the stale $LEGACY_PLUGIN_ID plugin folder."
+}
+
 usage() {
 	fail "Unknown option: $1" \
 		"" \
@@ -247,6 +271,8 @@ main() {
 	else
 		copy_plugin "$target"
 	fi
+
+	remove_legacy_plugin
 }
 
 main "$@"

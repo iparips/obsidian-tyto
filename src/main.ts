@@ -2,6 +2,7 @@ import { Plugin, TFile } from 'obsidian'
 import { SessionView, VIEW_TYPE_SESSION } from './session/views/obsidian/session-view'
 import { registerTytoIcon, TYTO_ICON } from './session/views/obsidian/tyto-icon'
 import { DEFAULT_SETTINGS, TytoSettings } from './settings/settings'
+import { LegacySettingsMigration } from './settings/legacy-settings-migration'
 import { TytoSettingsTab } from './settings/views/obsidian/settings-tab'
 import { PluginScope } from './wiring/plugin-scope'
 import { SessionController } from './wiring/session-controller'
@@ -21,10 +22,7 @@ export default class TytoPlugin extends Plugin {
 
   async onload(): Promise<void> {
     registerTytoIcon()
-    this.settings = {
-      ...DEFAULT_SETTINGS,
-      ...((await this.loadData()) as Partial<TytoSettings> | null),
-    }
+    this.settings = await this.legacySettingsMigration().migrateSettings()
     this.registerView(
       VIEW_TYPE_SESSION,
       (leaf) =>
@@ -68,6 +66,14 @@ export default class TytoPlugin extends Plugin {
       (listenerFn) => this.onObsidianFileOpened(listenerFn),
       (listenerFn) => this.onObsidianBackgrounded(listenerFn),
       this.manifest.version,
+    )
+  }
+
+  private legacySettingsMigration(): LegacySettingsMigration {
+    return new LegacySettingsMigration(
+      this.app.vault,
+      () => this.loadData(),
+      (settings) => this.saveData(settings),
     )
   }
 

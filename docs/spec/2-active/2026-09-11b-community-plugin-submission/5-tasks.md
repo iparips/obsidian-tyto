@@ -83,11 +83,14 @@ The blocker's real cost, and the only task that touches a user's stored data.
 - Add LegacySettingsMigration (Tyto, new) under settings/, reading the legacy
   path through the adapter and writing through the plugin's saveData.
 - Call it from `onload`, in place of the current `loadData` spread.
-- Teach the installer to remove a stale `obsidian-owl` folder.
+- Teach the installer to remove a stale `obsidian-owl` folder, but only once the
+  new id holds a data.json. Finding 20: the installer runs before the plugin's
+  next load, so an unconditional removal deletes what the migration reads.
 
 Exit test: install over a vault holding an Owl-era config, confirm the API key
-and allow list survive, and that the old plugin folder is gone. Then install
-into a clean vault and confirm the defaults load with nothing logged.
+and allow list survive, and that a second install removes the old plugin folder.
+Then install into a clean vault and confirm the defaults load with nothing
+logged.
 
 ## 4. Disclose Network Use in the README
 
