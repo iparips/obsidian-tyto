@@ -122,7 +122,7 @@ describe('ObsidianCommandRunner', () => {
     it('reports the opened path when the open lands late', async () => {
       registry.executeCommandById = (id: string) => {
         registry.executed.push(id)
-        setTimeout(() => workspace.finishesOpening('Journal/2026-09-02.md'), 20)
+        window.setTimeout(() => workspace.finishesOpening('Journal/2026-09-02.md'), 20)
         return true
       }
 

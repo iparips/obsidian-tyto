@@ -7,11 +7,11 @@ export interface InputRowProps {
   // shape and the buttons stay under the thumb that reached for them.
   recordingStrip?: ReactNode
   draft: string
-  onDraftChange(text: string): void
-  onSend(): void
-  onCancel(): void
-  onRecord(): void
-  onStopRecording(): void
+  onDraftChange: (text: string) => void
+  onSend: () => void
+  onCancel: () => void
+  onRecord: () => void
+  onStopRecording: () => void
 }
 
 // The row stays live while asking, unlike every other running phase: the user

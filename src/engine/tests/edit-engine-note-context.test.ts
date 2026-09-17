@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, Mock, vi } from 'vitest'
 import { SessionRepository } from '../../session/session-repository'
 import { Outcomes } from '../../shared/models/outcome'
-import { ChatMessage, ChatProvider } from '../../model/providers/types'
+import { ChatProvider } from '../../model/providers/types'
 import { AgentsMdRepository } from '../../agents/agents-md-repository'
 import { FakeAdapter } from '../../test-support/fake-adapter'
 import { FakeEditor } from '../../test-support/fake-editor'
@@ -46,7 +46,7 @@ describe('EditEngine', () => {
 
   // The last message of a call is the note context, per ModelRequestParts.
   const noteContextOfCall = (call: number): string => {
-    const messages = complete.mock.calls[call][0] as ChatMessage[]
+    const messages = complete.mock.calls[call][0]
     return messages[messages.length - 1].content
   }
 

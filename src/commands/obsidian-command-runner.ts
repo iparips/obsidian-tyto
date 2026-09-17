@@ -1,4 +1,4 @@
-import { App, Workspace } from 'obsidian'
+import { App } from 'obsidian'
 import { ObsidianCommandCatalogue } from './obsidian-command-catalogue'
 import { ObsidianCommandRegistry } from './obsidian-command-registry'
 import { OpenedNoteWait } from './opened-note-wait'
@@ -57,7 +57,7 @@ export class ObsidianCommandRunner {
   }
 
   private activePath(): string | null {
-    const workspace = this.app.workspace as Workspace
+    const workspace = this.app.workspace
     return workspace.getActiveFile()?.path ?? null
   }
 }

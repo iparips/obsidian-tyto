@@ -7,10 +7,10 @@ import { TytoOwl } from './TytoOwl'
 // and so takes no props.
 export interface PanelHeaderProps {
   running: boolean
-  onReset?(): void
+  onReset?: () => void
   // Absent unless the setting is on, the way Reset is absent without onReset: a
   // greyed control with nothing naming the setting reads as broken.
-  onCopy?(): string
+  onCopy?: () => string
   // False before the first entry lands, so a session with nothing to copy does
   // not offer to.
   hasEntries?: boolean
@@ -19,11 +19,17 @@ export interface PanelHeaderProps {
 export const PanelHeader = ({ running, onReset, onCopy, hasEntries }: PanelHeaderProps) => {
   const [copied, setCopied] = useState(false)
 
-  const copy = async () => {
+  // A clipboard the vault has not granted rejects, and the label stays put:
+  // saying Copied when nothing was copied is the one wrong answer here.
+  const copy = () => {
     if (!onCopy) return
-    await navigator.clipboard.writeText(onCopy())
-    setCopied(true)
-    setTimeout(() => setCopied(false), 1500)
+    navigator.clipboard.writeText(onCopy()).then(
+      () => {
+        setCopied(true)
+        window.setTimeout(() => setCopied(false), 1500)
+      },
+      () => {},
+    )
   }
 
   return (

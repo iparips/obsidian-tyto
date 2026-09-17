@@ -74,7 +74,9 @@ describe('SessionView', () => {
       view = new SessionView(
         {} as WorkspaceLeaf,
         () =>
-          new Promise<SessionPanelProps | null>((resolve) => setTimeout(() => resolve(restored))),
+          new Promise<SessionPanelProps | null>((resolve) =>
+            window.setTimeout(() => resolve(restored)),
+          ),
       )
 
       void view.onOpen()

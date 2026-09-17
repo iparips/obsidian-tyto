@@ -8,7 +8,7 @@ export interface AllowListEditorProps {
   entries: string[]
   search: ObsidianCommandSearch
   resolved: readonly AllowedObsidianCommand[]
-  onChange(entries: string[]): void
+  onChange: (entries: string[]) => void
 }
 
 // The picker finds a command to allow; the list holds what is allowed; the

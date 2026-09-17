@@ -10,7 +10,7 @@ export interface RecordingLevel {
   elapsedSeconds: number
   // Called from the record gesture itself: WebKit suspends a context built
   // outside a user gesture, and Obsidian on iOS is a WKWebView.
-  begin(): void
+  begin: () => void
 }
 
 const AT_REST = 0
@@ -91,7 +91,7 @@ export const useRecordingLevel = (
   // A frame loop rather than a timer, so it stops when the panel is
   // backgrounded. It runs without a graph too, since the clock needs no audio.
   const scheduleFrame = () => {
-    frame.current = requestAnimationFrame(() => {
+    frame.current = window.requestAnimationFrame(() => {
       readFrame.current()
       if (running.current) scheduleFrame()
     })

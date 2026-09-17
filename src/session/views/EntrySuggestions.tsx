@@ -5,7 +5,7 @@ export const EntrySuggestions = ({
   onPick,
 }: {
   suggestions: string[]
-  onPick(suggestion: string): void
+  onPick: (suggestion: string) => void
 }) => (
   <div className="tyto-entry-suggestions" aria-label="Suggested answers">
     {suggestions.map((suggestion) => (

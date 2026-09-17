@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, Mock, vi } from 'vitest'
 import { Outcomes } from '../../shared/models/outcome'
-import { ChatProvider, ChatMessage } from '../../model/providers/types'
+import { ChatProvider } from '../../model/providers/types'
 import { AgentsMdChain } from '../../agents/agents-md-chain'
 import { AgentsMdRepository } from '../../agents/agents-md-repository'
 import { FakeAdapter } from '../../test-support/fake-adapter'
@@ -41,7 +41,7 @@ describe('EditEngine', () => {
       },
     )
 
-  const systemPrompt = (call = 0) => (complete.mock.calls[call][0] as ChatMessage[])[0].content
+  const systemPrompt = (call = 0) => complete.mock.calls[call][0][0].content
 
   describe('when the target folder holds instructions', () => {
     beforeEach(() => {

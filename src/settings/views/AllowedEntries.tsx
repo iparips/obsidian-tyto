@@ -3,7 +3,7 @@ import { AllowList } from '../../commands/allow-list'
 
 export interface AllowedEntriesProps {
   entries: readonly string[]
-  onChange(entries: string[]): void
+  onChange: (entries: string[]) => void
 }
 
 // One entry per line. A textarea adds, edits, removes and reorders with no
