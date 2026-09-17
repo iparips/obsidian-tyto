@@ -24,10 +24,6 @@ export type PanelEntry =
   // restored panel is otherwise identical to one that never went away, so
   // without this a restore is invisible (FR7b).
   | { kind: 'restored'; text: string }
-  // Where the session moved to a different note. A session event rather than a
-  // step: it belongs to the moment it happened, so no turn has to own it and
-  // nothing is appended to the chat history to carry it.
-  | { kind: 'retargeted'; text: string }
   // pending while the rows are live; the outcome replaces them, because a row
   // that no longer does anything is worse than a line saying what happened.
   // The candidates stay once settled, so a turn that went nowhere still records
@@ -50,13 +46,16 @@ export type PanelTurn = {
 }
 
 // What the panel holds at the top level: turns, and the entries belonging to no
-// turn, which is a restore marker or a retarget the user made (spec 32).
+// turn, which is a restore marker.
 export type PanelItem = PanelTurn | PanelEntry
 
 export interface ProgressLine {
   label: string
   detail: string
   refused: boolean
+  // The note the line acted on, null where it acted on none. Stored rather than
+  // compared here, so a restored session shows what it showed.
+  note: string | null
 }
 
 export class PanelState {
@@ -70,8 +69,7 @@ export class PanelState {
   }
 
   // Into the open turn, which is where everything a turn produces belongs. Only
-  // a restore marker and the user's own retarget go beside one, through
-  // withItem.
+  // a restore marker goes beside one, through withItem.
   withEntry(phase: Phase, entry: PanelEntry): PanelState {
     const open = this.openTurnAt()
     if (open === -1) return this.withItem(phase, entry)

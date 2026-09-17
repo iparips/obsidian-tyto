@@ -33,9 +33,9 @@ export class TranscriptDocument {
       .concat('\n')
   }
 
-  // A session restored, or retargeted before the user spoke, shows entries no
-  // turn owns. They open the document rather than being dropped, since the
-  // panel shows them and the transcript is what the panel showed.
+  // A session restored before the user spoke shows entries no turn owns. They
+  // open the document rather than being dropped, since the panel shows them and
+  // the transcript is what the panel showed.
   private static writeBeforeFirstTurn(entries: readonly PanelItem[]): string[] {
     const before = TranscriptTurn.before(entries)
     if (before.length === 0) return []

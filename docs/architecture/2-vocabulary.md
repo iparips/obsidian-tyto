@@ -63,20 +63,19 @@ Each kind a turn can hold is grouped by what it is worth on screen
 (EntryWeights [Session Models]). Some read as replies and some as context, so
 the panel reads as a conversation rather than as a row of unlike boxes.
 
-| Weight    | Kind         | Is                                            |
-| --------- | ------------ | --------------------------------------------- |
-| utterance | user         | What the user said                            |
-| reply     | assistant    | The model's closing summary                   |
-| reply     | answer       | An answer drawn from search, with its sources |
-| reply     | error        | The turn failed                               |
-| reply     | cancelled    | The user stopped the turn                     |
-| reply     | choice       | The notes offered, and which was picked       |
-| reply     | question     | The one question asked, and its suggestions   |
-| context   | progress     | The collapsed list of progress lines          |
-| context   | instructions | The AGENTS.md chain that applied              |
-| context   | warning      | The turn nearing its step budget              |
-| context   | restored     | Where a restored session picks up             |
-| context   | retargeted   | The session moved to another note             |
+| Weight    | Kind         | Is                                               |
+| --------- | ------------ | ------------------------------------------------ |
+| utterance | user         | What the user said                               |
+| reply     | assistant    | The model's closing summary                      |
+| reply     | answer       | An answer drawn from search, with its sources    |
+| reply     | error        | The turn failed                                  |
+| reply     | cancelled    | The user stopped the turn                        |
+| reply     | choice       | The notes offered, and which was picked          |
+| reply     | question     | The one question asked, and its suggestions      |
+| context   | progress     | The collapsed list of progress lines             |
+| context   | instructions | The AGENTS.md chain that applied                 |
+| context   | warning      | The turn is fine, and something is worth knowing |
+| context   | restored     | Where a restored session picks up                |
 
 An assistant entry and an answer entry are both the model talking, and differ in
 three ways. The assistant entry is the turn's ending, is appended to the chat
@@ -98,11 +97,12 @@ a record of what was asked.
 ## Retarget, which belongs to no turn
 
 A retarget is the session moving to another note. It is a session event rather
-than a turn event: it belongs to the moment it happened, so no turn owns it and
-nothing is appended to the chat history to carry it.
+than a turn event, so no turn owns it and nothing is appended to the chat
+history to carry it.
 
-Only the user's own moves reach the timeline. A tool that opened a note said so
-in its progress line already, and moves the open turn's target instead.
+Neither kind of move reaches the timeline. A tool's move sets the open turn's
+target, which the turn names already. The user's sets where the next turn
+starts, and the turn it opens names that.
 
 ## How a turn ends
 

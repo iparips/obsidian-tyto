@@ -26,7 +26,7 @@ describe('TranscriptTurn', () => {
 
     it('leaves an entry belonging to no turn out of every turn', () => {
       const turns = TranscriptTurn.split([
-        { kind: 'retargeted', text: 'Now editing todo.' },
+        { kind: 'restored', text: 'Session restored.' },
         aTurn('add milk'),
       ])
 
@@ -44,11 +44,11 @@ describe('TranscriptTurn', () => {
   describe('when reading what precedes the first turn', () => {
     it('keeps the entries shown before any turn opened', () => {
       const before = TranscriptTurn.before([
-        { kind: 'retargeted', text: 'Now editing todo.' },
+        { kind: 'restored', text: 'Session restored.' },
         aTurn('add milk'),
       ])
 
-      expect(before).toEqual([{ kind: 'retargeted', text: 'Now editing todo.' }])
+      expect(before).toEqual([{ kind: 'restored', text: 'Session restored.' }])
     })
 
     it('keeps nothing when the session opens on a turn', () => {

@@ -24,7 +24,9 @@ describe('SessionProgress', () => {
     it('reports the skill as a step, so it is numbered with the rest', () => {
       publisherOf().skillLoadedFn('shopping-list')
 
-      expect(steps).toEqual([{ label: 'Loaded skill', detail: 'shopping-list', refused: false }])
+      expect(steps).toEqual([
+        { label: 'Loaded skill', detail: 'shopping-list', refused: false, note: null },
+      ])
     })
 
     it('keeps a skill in the order it was loaded, before a later edit', () => {
@@ -47,9 +49,9 @@ describe('SessionProgress', () => {
       expect(retargets).toEqual([{ path: 'Lists/todo.md', byUser: true }])
     })
 
-    // The header follows either way; the timeline reads byUser to drop the ones
-    // a tool made, which published their own step already.
-    it('says who moved it, so a tool retarget reaches the header alone', () => {
+    // The header follows either way. byUser is read by nothing now the timeline
+    // shows neither, and stays because the engine has two callers to tell apart.
+    it('says who moved it, so the two callers stay apart', () => {
       const retargets: RetargetReport[] = []
       listeners.retargets.subscribe((report) => retargets.push(report))
 
@@ -58,9 +60,8 @@ describe('SessionProgress', () => {
       expect(retargets).toEqual([{ path: 'Lists/todo.md', byUser: false }])
     })
 
-    // Not a step: a retarget belongs to the moment it happened, and the panel
-    // dispatches its own entry off the header's subscription. As a step it
-    // joined the turn above a restore marker, which is the defect this retires.
+    // Not a step: a retarget belongs to the moment it happened, and the note it
+    // moved to is what the next turn names as its target.
     it('publishes no step, since a retarget belongs to no turn', () => {
       publisherOf().retargetedFn('Lists/todo.md', true)
 

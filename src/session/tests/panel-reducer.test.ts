@@ -12,8 +12,12 @@ const offering = (
   purpose = 'add toilet paper',
 ): PanelAction => ({ type: 'choiceRequested', candidates, purpose })
 
-const aProgressLine = (label: string, detail: string, refused = false) =>
-  ({ type: 'progressLine', label, detail, refused }) as const
+const aProgressLine = (
+  label: string,
+  detail: string,
+  refused = false,
+  note: string | null = null,
+) => ({ type: 'progressLine', label, detail, refused, note }) as const
 
 describe('PanelReducer', () => {
   let thinking: PanelState
@@ -319,7 +323,18 @@ describe('PanelReducer', () => {
 
       expect(state.flattened().at(-1)).toEqual({
         kind: 'progress',
-        lines: [{ label: 'Searched', detail: 'milk — 3 matches', refused: false }],
+        lines: [{ label: 'Searched', detail: 'milk — 3 matches', refused: false, note: null }],
+      })
+    })
+
+    // Stored rather than compared here: the comparison against the turn's
+    // target is the view's, so a restored session shows what it showed.
+    it('keeps the note a line acted on', () => {
+      const state = PanelReducer.reduce(thinking, aProgressLine('Read', '', false, 'Lists/todo.md'))
+
+      expect(state.flattened().at(-1)).toEqual({
+        kind: 'progress',
+        lines: [{ label: 'Read', detail: '', refused: false, note: 'Lists/todo.md' }],
       })
     })
 
@@ -395,58 +410,31 @@ describe('PanelReducer', () => {
     })
   })
 
-  // A session event rather than a step. As a step it needed a turn to own it,
-  // and a restored panel leaves the entry withStep scans for above the restore
-  // marker, so a retarget before the first new utterance joined the turn there.
-  describe('when the session retargets', () => {
-    const retargeted = (path: string | null = 'Lists/todo.md') =>
-      ({ type: 'retargeted', path }) as const
-
-    it('appends its own entry rather than joining the open steps entry', () => {
-      const running = PanelReducer.reduce(thinking, {
-        type: 'progressLine',
-        label: 'Searched',
-        detail: 'milk — 3 matches',
-        refused: false,
+  // Only a tool's move reaches the reducer. The user's own is dropped before
+  // the dispatch, since the turn's target says what the removed entry used to.
+  describe('when a tool moves the turn to another note', () => {
+    it('names the new note on the open turn', () => {
+      const state = PanelReducer.reduce(thinking, {
+        type: 'targetMoved',
+        path: 'Lists/shopping.md',
       })
 
-      const state = PanelReducer.reduce(running, retargeted())
-
-      expect(state.flattened().at(-1)).toEqual({ kind: 'retargeted', text: 'Now editing todo.' })
-    })
-
-    it('leaves the phase unchanged, since a retarget stops no turn', () => {
-      const state = PanelReducer.reduce(thinking, retargeted())
-
-      expect(state.phase).toBe('thinking')
-    })
-
-    it('says the binding went when the session moved to a tab holding no note', () => {
-      const state = PanelReducer.reduce(thinking, retargeted(null))
-
-      expect(state.flattened().at(-1)).toEqual({
-        kind: 'retargeted',
-        text: 'No note is bound to this session.',
+      expect(state.entries.at(-1)).toMatchObject({
+        kind: 'turn',
+        target: 'Lists/shopping.md',
       })
     })
 
-    it('appends below the restored marker when the session came back', () => {
-      const restored = new PanelState('idle', [
-        { kind: 'user', text: 'do it' },
-        { kind: 'progress', lines: [{ label: 'Edit', detail: 'applied', refused: false }] },
-        { kind: 'assistant', text: 'done' },
-        { kind: 'restored', text: 'Session restored.' },
-      ])
+    it('leaves the open turn holding only what it produced', () => {
+      const state = PanelReducer.reduce(thinking, {
+        type: 'targetMoved',
+        path: 'Lists/shopping.md',
+      })
 
-      const state = PanelReducer.reduce(restored, retargeted())
-
-      expect(state.flattened().at(-1)).toEqual({ kind: 'retargeted', text: 'Now editing todo.' })
-    })
-
-    it('appends without a user entry above it when no turn has run', () => {
-      const state = PanelReducer.reduce(INITIAL_PANEL_STATE, retargeted())
-
-      expect(state.entries).toEqual([{ kind: 'retargeted', text: 'Now editing todo.' }])
+      expect(state.entries.at(-1)).toMatchObject({
+        kind: 'turn',
+        entries: [{ kind: 'user', text: 'do it' }],
+      })
     })
   })
 
@@ -541,23 +529,6 @@ describe('PanelReducer', () => {
           { kind: 'user', text: 'do it' },
           { kind: 'progress', lines: [{ label: 'Searched' }] },
         ],
-      })
-    })
-  })
-
-  describe('when the user retargets the session', () => {
-    it('stays a sibling, since a retarget belongs to no turn', () => {
-      const state = PanelReducer.reduce(thinking, { type: 'retargeted', path: 'Lists/shopping.md' })
-
-      expect(state.entries.at(-1)).toMatchObject({ kind: 'retargeted' })
-    })
-
-    it('leaves the open turn holding only what it produced', () => {
-      const state = PanelReducer.reduce(thinking, { type: 'retargeted', path: 'Lists/shopping.md' })
-
-      expect(state.entries.at(0)).toMatchObject({
-        kind: 'turn',
-        entries: [{ kind: 'user', text: 'do it' }],
       })
     })
   })

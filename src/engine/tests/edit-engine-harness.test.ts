@@ -23,7 +23,14 @@ import { FakeVault } from '../../test-support/fake-vault'
 import { FakeCommandRegistry } from '../../test-support/fake-command-registry'
 import { FakeWorkspace } from '../../test-support/fake-workspace'
 import { FakeNoteLocator } from '../../test-support/fake-note-locator'
-import { aSession, aTextTurn, aToolCall, aToolTurn, anEngine } from '../../test-support/builders'
+import {
+  aSession,
+  aTextTurn,
+  aToolCall,
+  aToolTurn,
+  anEngine,
+  stepTextOf,
+} from '../../test-support/builders'
 import { EditEngine } from '../edit-engine'
 
 const DAILY = 'Journal/2026-09-02.md'
@@ -117,7 +124,7 @@ describe('EditEngine', () => {
           () => undefined,
           (name) => steps.push(`Loaded skill: ${name}`),
           () => undefined,
-          (step) => steps.push(`${step.label}: ${step.detail}`),
+          (step) => steps.push(stepTextOf(step)),
         ),
       },
     )

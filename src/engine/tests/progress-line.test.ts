@@ -49,8 +49,16 @@ describe('ProgressLine', () => {
   })
 
   describe('when a note is reached', () => {
-    it('names the path when a note is read', () => {
-      expect(ProgressLine.read('Lists/todo.md').detail).toBe('Lists/todo.md')
+    it('holds the note apart from the detail when a note is read', () => {
+      expect(ProgressLine.read('Lists/todo.md').note).toBe('Lists/todo.md')
+    })
+
+    it('leaves the path out of the detail text, since the note is a field now', () => {
+      expect(ProgressLine.read('Lists/todo.md').detail).toBe('')
+    })
+
+    it('holds the note when a note is opened', () => {
+      expect(ProgressLine.opened('Lists/todo.md').note).toBe('Lists/todo.md')
     })
 
     it('names the path when a note is opened', () => {
@@ -58,13 +66,23 @@ describe('ProgressLine', () => {
     })
   })
 
+  describe('when a line touched no note', () => {
+    it('holds no note, so nothing can differ from the target', () => {
+      expect(ProgressLine.globbed('Lists/*', 2).note).toBeNull()
+    })
+  })
+
   describe('when an edit lands', () => {
-    it('names the note the edit reached alongside the result', () => {
-      expect(ProgressLine.edited('applied', 'Lists/todo.md').detail).toBe('applied — Lists/todo.md')
+    it('holds the note the edit reached apart from the result', () => {
+      expect(ProgressLine.edited('applied', 'Lists/todo.md').note).toBe('Lists/todo.md')
     })
 
-    it('gives the result alone when the turn has no target to name', () => {
-      expect(ProgressLine.edited('applied', null).detail).toBe('applied')
+    it('leaves the path out of the detail text, since the note is a field now', () => {
+      expect(ProgressLine.edited('applied', 'Lists/todo.md').detail).toBe('applied')
+    })
+
+    it('holds no note when the turn has no target to name', () => {
+      expect(ProgressLine.edited('applied', null).note).toBeNull()
     })
 
     it('labels it as an edit', () => {

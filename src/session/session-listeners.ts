@@ -28,6 +28,9 @@ export interface ProgressLineReport {
   label: string
   detail: string
   refused: boolean
+  // The note the line acted on, null where it acted on none. The panel names it
+  // only where it differs from the turn's target.
+  note: string | null
 }
 
 // One asker per session, held so the plugin can hand the engine a question

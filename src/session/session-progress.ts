@@ -45,6 +45,7 @@ export class SessionProgress {
       label: step.label,
       detail: step.detail,
       refused: step.refused,
+      note: step.note,
     })
   }
 

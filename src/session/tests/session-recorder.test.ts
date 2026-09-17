@@ -48,18 +48,18 @@ describe('SessionRecorder', () => {
     })
 
     // A restore adds a fresh marker each time, so storing one stacks a second
-    // on the next restore. A retarget happened once, and dropping it loses the
-    // record of which note the turns below it were about.
-    it('drops the restored marker and keeps a retarget', async () => {
+    // on the next restore. Everything else happened once, and dropping it loses
+    // the record of what the session did.
+    it('drops the restored marker and keeps what the session said', async () => {
       recorder.record([
         { kind: 'restored', text: 'Session restored.' },
-        { kind: 'retargeted', text: 'Now editing todo.' },
+        { kind: 'assistant', text: 'added it' },
       ])
 
       await vi.runAllTimersAsync()
 
       expect(JSON.parse(adapter.contentsOf(SESSION_PATH) ?? 'null').entries).toEqual([
-        { kind: 'retargeted', text: 'Now editing todo.' },
+        { kind: 'assistant', text: 'added it' },
       ])
     })
   })

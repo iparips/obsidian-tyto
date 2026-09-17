@@ -113,13 +113,15 @@ describe('SessionSnapshot', () => {
         { kind: 'error', step: 'chat', text: 'the provider failed' },
         { kind: 'instructions', text: 'loaded the journal skill' },
         { kind: 'warning', text: 'the note moved' },
-        { kind: 'progress', lines: [{ label: 'read_note', detail: 'day.md', refused: false }] },
+        {
+          kind: 'progress',
+          lines: [{ label: 'read_note', detail: 'day.md', refused: false, note: null }],
+        },
         { kind: 'answer', text: 'three notes', sources: ['day.md'] },
         { kind: 'cancelled', text: 'Stopped. Nothing was changed.' },
         { kind: 'choice', candidates: ['a.md', 'b.md'], pending: true, text: 'which note' },
         { kind: 'question', pending: true, suggestions: ['yes'], text: 'go ahead?' },
         { kind: 'restored', text: 'Session restored.' },
-        { kind: 'retargeted', text: 'Now editing todo.' },
       ]
 
       expect(roundTripped(sessionHoldingEntries(entries)).entries).toEqual(entries)

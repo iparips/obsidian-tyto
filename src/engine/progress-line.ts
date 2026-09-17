@@ -11,6 +11,9 @@ export class ProgressLine {
     readonly label: string,
     readonly detail: string,
     readonly refused: boolean = false,
+    // The note the line acted on, where it acted on one. Null for a line that
+    // touched none: a glob asks about names and a date resolve about a calendar.
+    readonly note: string | null = null,
   ) {}
 
   static searched(query: string, hits: number): ProgressLine {
@@ -28,11 +31,11 @@ export class ProgressLine {
   }
 
   static read(path: string): ProgressLine {
-    return new ProgressLine('Read', path)
+    return new ProgressLine('Read', '', false, path)
   }
 
   static opened(path: string): ProgressLine {
-    return new ProgressLine('Opened', path)
+    return new ProgressLine('Opened', '', false, path)
   }
 
   // The count rather than the paths: the panel entry lists them, and a steps
@@ -65,11 +68,11 @@ export class ProgressLine {
     return new ProgressLine('Asked', question)
   }
 
-  // Named, because the note an edit reached is the one thing the panel could
-  // not show: a choice of one note followed by an edit to another reads as an
-  // open the model never ran.
+  // The note is a field rather than part of the summary, so the panel can say
+  // an edit reached a note other than the turn's target rather than leaving a
+  // reader to compare two pieces of free text.
   static edited(summary: string, path: string | null): ProgressLine {
-    return new ProgressLine('Edit', path === null ? summary : `${summary} — ${path}`)
+    return new ProgressLine('Edit', summary, false, path)
   }
 
   // A refusal is a step too: it spent an iteration, and it is usually the thing
@@ -89,7 +92,7 @@ export class ProgressLine {
   }
 
   byTool(tool: string): ProgressLine {
-    return new ProgressLine(`Refused ${tool}`, this.detail, true)
+    return new ProgressLine(`Refused ${tool}`, this.detail, true, this.note)
   }
 
   private static hitCount(hits: number): string {

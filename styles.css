@@ -512,12 +512,6 @@
   font-style: italic;
 }
 
-/* Narration rather than a boundary: the session moved note, which is worth
-   saying on the timeline without the rule a restore draws across it. */
-.tyto-entry-retargeted {
-  font-style: italic;
-}
-
 /* Collapsed by default, like the resolved commands in settings. The summary
    carries the context weight; the open list indents under it. */
 .tyto-entry-progress summary {
@@ -541,6 +535,13 @@
 .tyto-progress-label {
   font-weight: var(--font-semibold);
   margin-right: var(--size-4-1);
+}
+
+/* Shown only where the line acted on a note other than the turn's target, so it
+   is the one thing on the row worth picking out of the list. */
+.tyto-progress-note {
+  margin-left: var(--size-4-1);
+  color: var(--text-accent);
 }
 
 /* A refusal is why the list gets opened, so it is the one row that stands out

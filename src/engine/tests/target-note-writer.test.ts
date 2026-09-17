@@ -40,7 +40,7 @@ describe('TargetNoteWriter', () => {
         content: '\n- eggs',
       })
 
-      expect(result).toEqual({ applied: true, endedAt: { line: 1, ch: 6 } })
+      expect(result).toEqual({ applied: true, endedAt: { line: 1, ch: 6 }, wroteThrough: 'editor' })
     })
 
     it('refuses an anchor the note does not hold', async () => {
@@ -88,6 +88,20 @@ describe('TargetNoteWriter', () => {
       expect(nowShown.content).toBe('# Todo')
     })
 
+    // What the panel warns on: this is the path that costs the cursor.
+    it('reports the write went through the vault', async () => {
+      const { target, nowShown, vault } = movedTab()
+      const writer = aWriter(new FakeNoteLocator().withOpenNote('todo.md', nowShown), vault)
+
+      const result = await writer.write(target, {
+        kind: 'insertAt',
+        location: 'noteEnd',
+        content: '\n- eggs',
+      })
+
+      expect(result).toMatchObject({ applied: true, wroteThrough: 'vault' })
+    })
+
     it('does not move the cursor, since the target is not on screen', async () => {
       const { target, nowShown, vault } = movedTab()
       const writer = aWriter(new FakeNoteLocator().withOpenNote('todo.md', nowShown), vault)
@@ -129,6 +143,20 @@ describe('TargetNoteWriter', () => {
       await writer.write(target, { kind: 'insertAt', location: 'noteEnd', content: '\n- eggs' })
 
       expect(vault.contentOf(TARGET)).toBe('- milk\n- eggs')
+    })
+
+    it('reports the write went through the vault', async () => {
+      const target = aTarget(new FakeEditor('- milk'))
+      const vault = new FakeVault().withNote(TARGET, '- milk')
+      const writer = aWriter(new FakeNoteLocator(), vault)
+
+      const result = await writer.write(target, {
+        kind: 'insertAt',
+        location: 'noteEnd',
+        content: '\n- eggs',
+      })
+
+      expect(result).toMatchObject({ applied: true, wroteThrough: 'vault' })
     })
 
     it('refuses when the vault has no note at the path', async () => {
