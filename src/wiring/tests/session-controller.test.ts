@@ -13,10 +13,16 @@ import { FakeSessionWorkspace } from '../../test-support/fake-session-workspace'
 const PLUGIN_FOLDER = 'plugins/tyto'
 const BOUND_NOTE = 'Journal/day.md'
 
-const controllerOver = (workspace: FakeSessionWorkspace, adapter: FakeAdapter): SessionController =>
-  new SessionController(
-    new PluginScope(workspace.asApp(), () => DEFAULT_SETTINGS),
-    new SessionLeaf(workspace.asApp()),
+const controllerOver = (
+  workspace: FakeSessionWorkspace,
+  adapter: FakeAdapter,
+): SessionController => {
+  // The vault is reached once props are built, which an empty store now does
+  // too: a fresh session is what a leaf with nothing stored opens with.
+  const app = { workspace, vault: { adapter: adapter.asAdapter() } } as unknown as App
+  return new SessionController(
+    new PluginScope(app, () => DEFAULT_SETTINGS),
+    new SessionLeaf(app),
     new SessionFileStore(adapter.asAdapter(), 'plugins/tyto'),
     // Never fired by a controller built in a test, which reads the props rather
     // than the events.
@@ -24,6 +30,7 @@ const controllerOver = (workspace: FakeSessionWorkspace, adapter: FakeAdapter): 
     () => () => {},
     '1.0.0',
   )
+}
 
 // A file as the file-open event carries it. Only the extension and the path are
 // read on the way to the engine.
@@ -70,13 +77,39 @@ const aBoundSession = async (): Promise<{
 }
 
 describe('SessionController', () => {
+  // The panel renders only once it holds props, so answering with nothing left
+  // a sidebar Obsidian reopened blank until the user clicked the ribbon.
   describe('when nothing was left behind', () => {
-    it('restores no props, so the view opens empty', async () => {
+    it('builds a fresh session, so a reopened leaf opens with a panel', async () => {
       const controller = controllerOver(new FakeSessionWorkspace(), new FakeAdapter())
 
       const props = await controller.readPanelPropsFromSessionStore(new SessionView({} as never))
 
-      expect(props).toBeNull()
+      expect(props.noteName).toBeNull()
+    })
+
+    it('carries the channels a session needs, rather than a bare object', async () => {
+      const controller = controllerOver(new FakeSessionWorkspace(), new FakeAdapter())
+
+      const props = await controller.readPanelPropsFromSessionStore(new SessionView({} as never))
+
+      expect(props.onTargetNoteChanged).toBeDefined()
+    })
+  })
+
+  // The reported defect, end to end: Obsidian reopens the leaf itself on restart
+  // and calls onOpen, which is the only path that runs. Nothing there built a
+  // session, so the sidebar read empty until the user clicked the ribbon.
+  describe('when Obsidian reopens the leaf with nothing stored', () => {
+    it('opens holding a session, so the panel is not blank until the ribbon is clicked', async () => {
+      const controller = controllerOver(new FakeSessionWorkspace(), new FakeAdapter())
+      const view = new SessionView({} as never, (opening) =>
+        controller.readPanelPropsFromSessionStore(opening),
+      )
+
+      await view.onOpen()
+
+      expect(view.hasSession()).toBe(true)
     })
   })
 
