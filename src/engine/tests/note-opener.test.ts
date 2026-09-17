@@ -37,6 +37,18 @@ describe('NoteOpener', () => {
 
       expect(workspace.opened).toEqual([TODO])
     })
+
+    // Asserts the choice rather than a fix: reveal opens into the active leaf,
+    // which loads the view anyway, so treating a deferred leaf as absent costs
+    // one redundant open and never a stranded turn.
+    it('opens the note when a leaf holding it is deferred', async () => {
+      const opener = openerOf()
+      workspace.defers(TODO)
+
+      await opener.open(TODO)
+
+      expect(workspace.opened).toEqual([TODO])
+    })
   })
 
   describe('when the note is already open in an editor', () => {
