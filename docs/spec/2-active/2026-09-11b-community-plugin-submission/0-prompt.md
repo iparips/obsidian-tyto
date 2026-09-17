@@ -49,4 +49,18 @@ If the spec is wrong, say so and fix the spec, rather than building around it.
 Commit 2 recorded two findings the audit missed, in 5-tasks.md. Anything the
 linter raises that is still unrecorded belongs in 2-audit/ before the code
 changes.
+
+You are in a worktree at obsidian-tyto-worktrees/submission, on the branch
+community-plugin-submission. The deferred-views spec is being built in parallel
+in a sibling worktree, so stay on your own branch and do not touch main.
+
+This overrides the repo's usual rule of committing to main. Commit to the
+branch as you go, one commit per numbered task. When the work is done, run the
+full build, push with `git push -u origin community-plugin-submission`, and
+open a PR against main with `gh pr create`. Describe what shipped and what the
+spec deferred.
+
+The other session owns src/test-support/builders.ts and src/wiring/plugin-scope.ts
+for its own changes. Commit 7 touches both. Expect a conflict there at merge and
+keep that commit small, rather than trying to avoid the overlap.
 ```

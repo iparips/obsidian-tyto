@@ -43,4 +43,19 @@ most, because the panel holds the screen there.
 
 If the spec is wrong, say so and fix it rather than building around it. D7
 already corrects D5 that way, so the folder has the shape for it.
+
+You are in a worktree at obsidian-tyto-worktrees/deferred-views, on the branch
+deferred-views-strand-a-session. The community-plugin-submission spec is being
+built in parallel in a sibling worktree, so stay on your own branch and do not
+touch main.
+
+This overrides the repo's usual rule of committing to main. Commit to the
+branch as you go, following the design's Rollout as the commit order. When the
+work is done, run the full build, push with
+`git push -u origin deferred-views-strand-a-session`, and open a PR against
+main with `gh pr create`. Describe what shipped and what the spec deferred.
+
+The other session changes src/test-support/builders.ts and
+src/wiring/plugin-scope.ts too, in its own commit 7. Expect a conflict there at
+merge rather than trying to avoid the overlap.
 ```
