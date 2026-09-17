@@ -21,6 +21,9 @@ back to the vault where they do not.
 | Wait longer before capturing        | Fixes the capture, not a handle that goes stale later     |
 | Always read the body from the vault | Loses unsaved text the editor holds and the file does not |
 
+The chosen check loses unsaved text too, until Obsidian's save closes the gap.
+The difference is the two seconds: reading the vault always loses it for good.
+
 A guard where the handle is used, not a longer wait before it is captured. The
 reported session lost the race at capture, but a handle can go stale later too,
 and only a check at the point of use catches both.
@@ -66,3 +69,7 @@ writes `written directly, undo not available`, which names no cause.
   state and never that Obsidian reaches it. A probe settles the second. Stubbing
   such a check to return true left all 1319 tests green, which is why the tests
   assert what the writer returned rather than the predicate.
+- A note open in an editor also exists in the vault holding the same text. The
+  suite did not assume it before, because the vault was reached only once a tab
+  had moved. Every engine test now needs it, so anEngine mirrors each open note
+  into the vault and a test states only the disagreement it wants.

@@ -18,9 +18,16 @@ The fix. src/engine/note-editing/target-note-writer.ts.
   comparison after the handle-identity test.
 - Add tabShowsPath, the identity test alone, and point focusEdit at it.
 - Await the new predicate in write and in read.
+- Flush the view first where this turn already wrote through it, per
+  [design/5-the-dirty-editor.md](design/5-the-dirty-editor.md). That reaches
+  the locator, TurnRepository, TurnState and the three reading callers.
 
 Tests: read, getDetails, write and focusEdit, per 8-unit-tests.md. Build the
 half-opened view as the design shows; no fake changes.
+
+The fakes do change, though not to build that view. A note open in an editor now
+has to exist in the vault holding the same text, so anEngine mirrors the open
+notes in and FakeNoteLocator gains a save.
 
 Done when a half-opened view reads from the vault and writes to it, and the
 moved-tab cases already in target-note-writer.test.ts still pass unedited.
