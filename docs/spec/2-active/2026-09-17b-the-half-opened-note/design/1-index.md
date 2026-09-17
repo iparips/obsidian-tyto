@@ -12,16 +12,18 @@ and the read falls back to the vault where it does not (D1).
 - [2-the-check.md](2-the-check.md) - where the comparison sits, and why focus asks a cheaper question
 - [3-testing-it.md](3-testing-it.md) - how a test reaches a half-opened view, and what no test can prove
 - [4-rollout.md](4-rollout.md) - out of scope, the order it lands in, and every site it touches
+- [5-the-dirty-editor.md](5-the-dirty-editor.md) - the flush the comparison needs, and the one view it must never flush
 
 ## What the Code Says
 
 Three claims the spec makes, checked against the tree today.
 
-| Claim                                              | Holds | What the design does with it                     |
-| -------------------------------------------------- | ----- | ------------------------------------------------- |
-| write, read and focusEdit all consult tabStillShows | Yes   | One place to change, at target-note-writer.ts:56  |
-| ProgressLine carries wroteDirect                    | Yes   | Reuse it; only the panel wording names a cause    |
-| OpenedNoteWait.hasEditor settles on path + editor   | Yes   | Left alone: D1 guards the use, not the capture    |
+| Claim                                               | Holds | What the design does with it                     |
+| --------------------------------------------------- | ----- | ------------------------------------------------ |
+| write, read and focusEdit all consult tabStillShows | Yes   | One place to change, at target-note-writer.ts:56 |
+| ProgressLine carries wroteDirect                    | Yes   | Reuse it; only the panel wording names a cause   |
+| OpenedNoteWait.hasEditor settles on path + editor   | Yes   | Left alone: D1 guards the use, not the capture   |
+| TargetNoteWriter is stateless and session-scoped    | Yes   | The flush condition travels as data, not state   |
 
 Two refinements the spec does not record.
 
@@ -30,18 +32,23 @@ Two refinements the spec does not record.
   moved tab, so D2 costs one line of JSX rather than two wordings.
 - focusEdit (TargetNoteWriter) is synchronous, and a text comparison is not.
   [2-the-check.md](2-the-check.md) settles that.
+- A write through the editor leaves text the file will not hold for two
+  seconds, so the turn's next step compares against a file missing its own last
+  edit. [5-the-dirty-editor.md](5-the-dirty-editor.md) holds the flush that
+  answers it, and why only some views may be flushed.
 
 ## Behaviour Change
 
-| Concern                             | Today                                   | After                                                    |
-| ----------------------------------- | --------------------------------------- | -------------------------------------------------------- |
-| Trust test                          | Handle identity against the locator     | Handle identity, then editor text against the file       |
-| Read of a half-opened view          | Returns the previous note's body        | Returns the file at the path                             |
-| Write to a half-opened view         | Overwrites the previous note through it | Goes to the vault, marked wroteDirect                    |
-| Read of an editor with unsaved text | Returns the typed text                  | Returns the typed text, until the two-second save window |
-| Read of an empty note               | Returns the empty editor                | Returns the vault, same empty string                     |
-| Vault reads per turn step           | One, only after a tab moved             | One per trust test, on every read and write              |
-| Panel wording on a direct write     | Names a moved tab as the cause          | Names no cause (D2)                                      |
+| Concern                                       | Today                                   | After                                                  |
+| --------------------------------------------- | --------------------------------------- | ------------------------------------------------------ |
+| Trust test                                    | Handle identity against the locator     | Handle identity, then editor text against the file     |
+| Read of a half-opened view                    | Returns the previous note's body        | Returns the file at the path                           |
+| Write to a half-opened view                   | Overwrites the previous note through it | Goes to the vault, marked wroteDirect                  |
+| Read of an editor with unsaved text           | Returns the typed text                  | Returns the file, until Obsidian's save closes the gap |
+| Read after this turn wrote through the editor | Returns the typed text                  | Flushes the view, then returns the typed text          |
+| Read of an empty note                         | Returns the empty editor                | Returns the vault, same empty string                   |
+| Vault reads per turn step                     | One, only after a tab moved             | One per trust test, on every read and write            |
+| Panel wording on a direct write               | Names a moved tab as the cause          | Names no cause (D2)                                    |
 
 The cost of the two states the check cannot separate is in
 [6-what-obsidian-tells-us.md](../6-what-obsidian-tells-us.md): both reach the
@@ -69,6 +76,9 @@ sequenceDiagram
         Note over TargetNoteWriter: the tab moved, as today
         TargetNoteWriter->>Vault: process(file, op)
     else same handle
+        opt this turn already wrote through this editor
+            TargetNoteWriter->>Editor: save, so the file catches up
+        end
         TargetNoteWriter->>Editor: getValue()
         TargetNoteWriter->>Vault: cachedRead(file)
         alt texts agree

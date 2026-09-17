@@ -35,11 +35,19 @@ At today's lines.
 - src/engine/note-editing/target-note-writer.ts:35 - focusEdit, keeping the identity test
 - src/session/views/EntryProgress.tsx:37 - the panel wording that names a cause (D2)
 
+The flush in [5-the-dirty-editor.md](5-the-dirty-editor.md) adds four more.
+
+- src/engine/note-binding/workspace-note-locator.ts - saveOpenNote, the flush itself
+- src/engine/turn/turn-repository.ts - the paths this turn wrote through the editor
+- src/engine/tools/harness-result.ts - TurnState, carrying that record to the tools
+- src/engine/tools/note-edit-tool.ts - where the record is written and read
+- src/engine/turn/model-service.ts:64 - the note context, now given the record
+- src/engine/tools/harness-tools-service.ts:117 - read_note, now given the record
+
 ## Sites It Reads But Leaves Alone
 
 - src/commands/opened-note-wait.ts - hasEditor, the gap the handle is captured in
 - src/engine/tools/note-edit-tool.ts:67 - the read-before-rewrite check, which inherits the fix
-- src/engine/turn/model-service.ts:64 - the note context the model is shown
 - src/session/transcript/transcript-entry-lines.ts:41 - the transcript line, which names no cause already
 
 ## Related Specs

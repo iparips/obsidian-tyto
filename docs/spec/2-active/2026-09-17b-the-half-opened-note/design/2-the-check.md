@@ -12,9 +12,9 @@ name stops describing it, so it is renamed to editorHoldsTheNote.
 // A tab that moved answers with another handle. A tab that has not finished
 // loading answers with this one and holds the previous note's text, so the
 // handle is trusted only where the two agree.
-private async editorHoldsTheNote(note: OpenNote): Promise<boolean> {
-  const located = this.noteLocator.locate(note.path)
-  if (!located.succeeded() || located.value.editor !== note.editor) return false
+private async editorHoldsTheNote(note: OpenNote, wroteThroughEditor: boolean): Promise<boolean> {
+  if (!this.tabShowsPath(note)) return false
+  if (wroteThroughEditor) await this.noteLocator.saveOpenNote(note.path)
   return note.editor.getValue() === (await this.readFile(note.path))
 }
 ```
@@ -25,7 +25,11 @@ returns the empty string where the path is not a note, which is what read
 returns today.
 
 Both write and read then await it, and their bodies are otherwise unchanged.
-getDetails already awaits read, so it needs no edit.
+getDetails passes the flag through to read.
+
+wroteThroughEditor is the turn's own record for this path. It decides whether
+the view may be flushed before the comparison, which
+[5-the-dirty-editor.md](5-the-dirty-editor.md) owns.
 
 ## Focus Cannot Await
 

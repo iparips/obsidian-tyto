@@ -34,7 +34,9 @@ located handle is the one held
 ```
 
 The third condition is the new one. It reads as the half-opened view and as an
-editor with unsaved text alike, which is the design's accepted cost.
+editor with unsaved text alike, which is the design's accepted cost. Two tests
+asserting that unsaved text reaches the model say the opposite now, one in
+edit-engine-note-context.test.ts and one in harness-tools-read.test.ts.
 
 ### getDetails
 
@@ -65,6 +67,19 @@ editor text equals the file
 The second condition is new, and mirrors the moved-tab cases already in
 target-note-writer.test.ts. The stale-text leaf is what stops the write reaching
 the note the editor is still showing.
+
+## The Turn's Second Edit
+
+Already covered by edit-engine.test.ts, which fails without the flush in
+[design/5-the-dirty-editor.md](design/5-the-dirty-editor.md).
+
+```text
+a turn edits the same note twice
+  the second edit reaches the note the first one left
+```
+
+No new test: the case was there before this spec and is what caught the
+regression. It is listed because it is the only assertion the flush is for.
 
 ### focusEdit
 
