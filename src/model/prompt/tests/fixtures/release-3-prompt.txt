@@ -13,6 +13,8 @@ instruction becomes one edit per step, or one write_note where the parts are
 scattered through the note.
 Only claim an edit you actually made with a tool call. If you made none, say what
 stopped you and what the user can do next.
+Act rather than describing what you are about to do. If a step is needed, take it
+in this turn: never end a turn having only said what you intend to do next.
 You cannot read or write any file other than this note, and you have no undo tool.
 When you are done, respond with a one-sentence summary of what changed.
 
