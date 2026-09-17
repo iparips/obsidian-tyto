@@ -1,4 +1,5 @@
 import { EditorPosition } from 'obsidian'
+import { WritePath } from './note-editing/target-note-writer'
 
 // What one tool call did, as the loop needs to see it: the text the model
 // reads, plus the two facts the loop acts on. Built through the factories, so
@@ -16,6 +17,9 @@ export class ToolCallOutcome {
     // edit names its operation and note for the model, which the step would
     // then say a second time beside the path it already carries.
     private panelSummary?: string,
+    // Which of the two paths the write took, so the panel can warn about the
+    // one the editor cannot undo. Absent where the call wrote nothing.
+    readonly wroteThrough?: WritePath,
   ) {}
 
   descriptionForUser(): string {
@@ -34,9 +38,10 @@ export class ToolCallOutcome {
   static edited(
     result: string,
     editEndPosition: EditorPosition,
+    wroteThrough: WritePath,
     panelSummary?: string,
   ): ToolCallOutcome {
-    return new ToolCallOutcome(result, editEndPosition, undefined, panelSummary)
+    return new ToolCallOutcome(result, editEndPosition, undefined, panelSummary, wroteThrough)
   }
 
   // An edit tool that changed nothing was refused, whatever it said: the reason

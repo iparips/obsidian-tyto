@@ -128,18 +128,26 @@ export class ToolDispatcher {
   // show them or a loop of failed anchors reads as a turn doing nothing.
   private recordEdit(call: ToolCall, outcome: ToolCallOutcome): ToolCallOutcome {
     if (outcome.editEndPosition) {
+      const path = this.turnRepository.targetNote()?.path ?? null
       this.turnProgressPublisher.publishProgressLineFn(
-        ProgressLine.edited(
-          outcome.descriptionForUser(),
-          this.turnRepository.targetNote()?.path ?? null,
-        ),
+        ProgressLine.edited(outcome.descriptionForUser(), path),
       )
+      if (outcome.wroteThrough === 'vault') this.warnVaultWrite(path)
       return outcome
     }
     this.turnProgressPublisher.publishProgressLineFn(
       ProgressLine.refused(call.name, outcome.result),
     )
     return outcome.asRefusal()
+  }
+
+  // A warning rather than a refusal: the note holds what the user asked for,
+  // and only the way back is in doubt (D3). Worded for undo being lost, which
+  // is the safer way to be wrong about a question the API does not answer.
+  private warnVaultWrite(path: string | null): void {
+    this.turnProgressPublisher.warnedFn(
+      `Wrote ${path ?? 'the note'} directly, since its tab moved. Editor undo will not reverse this change.`,
+    )
   }
 
   // Published once the body is in hand, so the panel names a skill the turn

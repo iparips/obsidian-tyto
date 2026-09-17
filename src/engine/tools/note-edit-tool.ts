@@ -87,6 +87,7 @@ export class NoteEditTool {
       return ToolCallOutcome.edited(
         `${tool} applied to ${note.path}, ending at line ${result.endedAt.line + 1}`,
         result.endedAt,
+        result.wroteThrough,
         'applied',
       )
     if (result.reason === 'noMatch') return ToolCallOutcome.of('anchor not found in note')

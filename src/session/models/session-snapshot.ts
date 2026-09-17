@@ -6,7 +6,8 @@ import { PanelItem } from './panel-state'
 // discarded rather than migrated (FR9).
 // 2: entries nest inside a turn rather than sitting flat beside one, so a
 // record written by the flat shape is discarded (D6).
-export const SESSION_SNAPSHOT_VERSION = 2
+// 3: the retargeted entry kind is gone, so a record holding one is discarded.
+export const SESSION_SNAPSHOT_VERSION = 3
 
 // Plain data, because it crosses a file boundary: a class with methods would
 // need reviving, and every field here is already a string or a list of them.

@@ -4,7 +4,6 @@ import { EntryWeights } from '../models/entry-weight'
 import { EntrySources } from './EntrySources'
 import { EntryChoice } from './EntryChoice'
 import { EntrySuggestions } from './EntrySuggestions'
-import { EntryProgress } from './EntryProgress'
 
 const ENTRY_CLASSES = {
   user: 'tyto-entry-user',
@@ -18,9 +17,10 @@ const ENTRY_CLASSES = {
   warning: 'tyto-entry-warning',
   progress: 'tyto-entry-progress-line',
   restored: 'tyto-entry-restored',
-  retargeted: 'tyto-entry-retargeted',
 }
 
+// A progress entry is rendered by HistoryTurn, which holds the target its lines
+// are compared against, so it never reaches here and carries no text.
 const entryText = (entry: PanelEntry) => {
   if (entry.kind === 'error') return `${entry.step} failed: ${entry.text}`
   return entry.kind === 'progress' ? '' : entry.text
@@ -54,11 +54,7 @@ export const HistoryEntry = ({
   return (
     <div className={`tyto-entry tyto-entry-${weight} ${ENTRY_CLASSES[entry.kind]}`}>
       <div className="tyto-entry-body">
-        {entry.kind === 'progress' ? (
-          <EntryProgress lines={entry.lines} />
-        ) : (
-          <div className="tyto-entry-text">{text}</div>
-        )}
+        <div className="tyto-entry-text">{text}</div>
         {entry.kind === 'answer' && <EntrySources sources={entry.sources} />}
         {entry.kind === 'choice' && entry.pending && onChooseNote && (
           <EntryChoice candidates={entry.candidates} onChoose={onChooseNote} />

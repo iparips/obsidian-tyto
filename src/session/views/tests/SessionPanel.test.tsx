@@ -757,8 +757,8 @@ describe('SessionPanel', () => {
     })
   })
 
-  // The same channel the header reads, so the timeline says the session moved
-  // and the header says which note it is on now.
+  // The channel the header reads, so the header says which note the next turn
+  // opens on. The timeline says nothing: the turn's target already names it.
   describe('when the session moves to a different note', () => {
     const renderRetargeting = () => {
       let retarget: (report: RetargetReport) => void = () => undefined
@@ -771,26 +771,20 @@ describe('SessionPanel', () => {
       return (path: string | null, byUser = true) => act(() => retarget({ path, byUser }))
     }
 
-    it('renders an entry naming the note the user moved to', () => {
+    it('renders no entry when the user moved the note themselves', () => {
       const retarget = renderRetargeting()
 
       retarget('Lists/todo.md')
 
-      expect(screen.getByText('Now editing todo.')).toBeTruthy()
+      expect(screen.queryByText('Now editing todo.')).toBeNull()
     })
 
-    // A tool that opened a note published its own step saying so, so an entry
-    // here would say the same thing twice.
+    // A tool that opened a note published its own step saying so, and moves the
+    // open turn's target rather than leaving a line beside it.
     it('renders no entry when a tool moved the note, since its step said so', () => {
       const retarget = renderRetargeting()
 
       retarget('Lists/todo.md', false)
-
-      expect(screen.queryByText('Now editing todo.')).toBeNull()
-    })
-
-    it('renders nothing on the timeline until the session moves', () => {
-      renderRetargeting()
 
       expect(screen.queryByText('Now editing todo.')).toBeNull()
     })

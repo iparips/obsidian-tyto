@@ -1,7 +1,6 @@
 import { AskedEntries } from './asked-entries'
 import { PanelAction } from './panel-action'
 import { PanelState, ProgressLine } from './panel-state'
-import { RetargetedText } from './retargeted-text'
 
 export class PanelReducer {
   static reduce(state: PanelState, action: PanelAction): PanelState {
@@ -37,13 +36,6 @@ export class PanelReducer {
         return state.withEntry(state.phase, { kind: 'instructions', text: action.text })
       case 'warned':
         return state.withEntry(state.phase, { kind: 'warning', text: action.text })
-      // Beside the turns rather than inside one: a retarget the user made
-      // belongs to no turn, which is what spec 32 settled.
-      case 'retargeted':
-        return state.withItem(state.phase, {
-          kind: 'retargeted',
-          text: RetargetedText.of(action.path),
-        })
       // The change worth seeing: a turn starts on the session's note and only a
       // tool moves it, so the turn shows the note it is on now (D5).
       case 'targetMoved':
@@ -53,6 +45,7 @@ export class PanelReducer {
           label: action.label,
           detail: action.detail,
           refused: action.refused,
+          note: action.note,
         })
       case 'answer':
         return state.withEntry(state.phase, {

@@ -133,3 +133,16 @@ export const noHarness = (): HarnessToolsService =>
     ),
     new DateToolService(),
   )
+
+// A published line flattened to one string, so a test asserts what the turn
+// said in one value. The note is a field rather than part of the detail, so it
+// is joined back on here rather than dropped.
+export const stepTextOf = (step: {
+  label: string
+  detail: string
+  note: string | null
+}): string => {
+  if (step.note === null) return `${step.label}: ${step.detail}`
+  if (step.detail === '') return `${step.label}: ${step.note}`
+  return `${step.label}: ${step.detail} — ${step.note}`
+}

@@ -90,7 +90,10 @@ describe('TranscriptDocument', () => {
       const document = documentOf({
         entries: [
           { kind: 'user', text: 'rename it' },
-          { kind: 'progress', lines: [{ label: 'Globbed', detail: '**/*.md', refused: false }] },
+          {
+            kind: 'progress',
+            lines: [{ label: 'Globbed', detail: '**/*.md', refused: false, note: null }],
+          },
           { kind: 'error', step: 'chat', text: 'Tyto ran out of steps' },
         ],
         steps: [aStep(0, new StepRange(0, 0), new StepRange(0, 0))],
@@ -170,7 +173,9 @@ describe('TranscriptDocument', () => {
           { kind: 'user', text: 'open it' },
           {
             kind: 'progress',
-            lines: [{ label: 'Refused', detail: 'not chosen by the user', refused: true }],
+            lines: [
+              { label: 'Refused', detail: 'not chosen by the user', refused: true, note: null },
+            ],
           },
         ],
         steps: [aStep(0, new StepRange(0, 0), new StepRange(0, 0))],
@@ -187,8 +192,8 @@ describe('TranscriptDocument', () => {
         {
           kind: 'progress',
           lines: [
-            { label: 'Globbed', detail: '**/a.md - 1 note', refused: false },
-            { label: 'Globbed', detail: '**/b.md - nothing matched', refused: false },
+            { label: 'Globbed', detail: '**/a.md - 1 note', refused: false, note: null },
+            { label: 'Globbed', detail: '**/b.md - nothing matched', refused: false, note: null },
           ],
         },
       ] as PanelEntry[],
@@ -267,6 +272,24 @@ describe('TranscriptDocument', () => {
       ).toBe(true)
     })
 
+    // The document has no turn header beside the line to compare a note
+    // against, so a line names its note whatever the turn's target was.
+    it('writes the note a line acted on beside its label', () => {
+      const document = documentOf({
+        entries: [
+          { kind: 'user', text: 'read it' },
+          {
+            kind: 'progress',
+            lines: [{ label: 'Read', detail: '', refused: false, note: 'Lists/todo.md' }],
+          },
+        ],
+        steps: [aStep(0, new StepRange(0, 0), new StepRange(0, 0))],
+        endings: [new RecordedEnding(0, TurnEndingKind.Replied, 0)],
+      })
+
+      expect(document).toContain('- Read - Lists/todo.md')
+    })
+
     it('nests both progress lines of a turn step that returned two tool calls', () => {
       const document = documentOf({
         entries: [
@@ -274,8 +297,8 @@ describe('TranscriptDocument', () => {
           {
             kind: 'progress',
             lines: [
-              { label: 'Edit', detail: 'applied', refused: false },
-              { label: 'Edit', detail: 'applied again', refused: false },
+              { label: 'Edit', detail: 'applied', refused: false, note: null },
+              { label: 'Edit', detail: 'applied again', refused: false, note: null },
             ],
           },
         ],
@@ -316,8 +339,13 @@ describe('TranscriptDocument', () => {
           {
             kind: 'progress',
             lines: [
-              { label: 'Loaded agent instructions', detail: 'vault root', refused: false },
-              { label: 'Globbed', detail: '**/a.md', refused: false },
+              {
+                label: 'Loaded agent instructions',
+                detail: 'vault root',
+                refused: false,
+                note: null,
+              },
+              { label: 'Globbed', detail: '**/a.md', refused: false, note: null },
             ],
           },
         ],
@@ -483,72 +511,35 @@ describe('TranscriptDocument', () => {
     })
   })
 
-  // Recorded through the repository rather than from hand-built ranges, since
-  // where a retarget lands is decided by the ranges recordCall produces.
-  // A retarget is a panel entry now, not a system message in the history: as a
-  // message it could land between a tool call and its result, which the
-  // provider answers with a 400.
-  describe('a retarget the session recorded', () => {
-    it('writes the note it moved to, as the panel showed it', () => {
-      const document = documentOf({
-        entries: [
-          { kind: 'user', text: 'add milk' },
-          { kind: 'retargeted', text: 'Now editing todo.' },
-        ],
-      })
-
-      expect(document).toContain('- Now editing todo.')
-    })
-
-    it('never files it as the user, who typed none of it', () => {
-      const document = documentOf({
-        entries: [
-          { kind: 'user', text: 'add milk' },
-          { kind: 'retargeted', text: 'Now editing todo.' },
-        ],
-      })
-
-      expect(document).not.toContain('Utterance: Now editing todo.')
-    })
-  })
-
   // What precedes the first turn belongs to none and was once dropped. A
-  // session restored, or retargeted before the user spoke, is that case.
+  // session restored before the user spoke is that case.
   describe('the entries before the first turn', () => {
-    it('writes a retarget that arrived before the user spoke', () => {
+    it('writes a restore that arrived before the user spoke', () => {
       const document = documentOf({
         items: [
-          { kind: 'retargeted', text: 'Now editing todo.' },
+          { kind: 'restored', text: 'Session restored.' },
           ...turnOf([{ kind: 'user', text: 'add milk' }]),
         ],
       })
 
-      expect(document).toContain('- Now editing todo.')
+      expect(document).toContain('- Session restored.')
     })
 
     it('writes them above the turn that followed', () => {
       const document = documentOf({
         items: [
-          { kind: 'retargeted', text: 'Now editing todo.' },
+          { kind: 'restored', text: 'Session restored.' },
           ...turnOf([{ kind: 'user', text: 'add milk' }]),
         ],
       })
 
       expect(
         lineOrderIn(document, [
-          '- Now editing todo.',
+          '- Session restored.',
           '## Conversation turn 1',
           'Utterance: add milk',
         ]),
       ).toBe(true)
-    })
-
-    it('writes a restore marker that opens a session nobody has spoken in yet', () => {
-      const document = documentOf({
-        entries: [{ kind: 'restored', text: 'Session restored.' }],
-      })
-
-      expect(document).toContain('- Session restored.')
     })
 
     it('opens no such block when the session starts on an utterance', () => {

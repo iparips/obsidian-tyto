@@ -20,8 +20,6 @@ export class TranscriptEntryLines {
         return [`Cancelled: ${entry.text}`]
       case 'restored':
         return [`- ${entry.text}`]
-      case 'retargeted':
-        return [`- ${entry.text}`]
       case 'answer':
         return TranscriptEntryLines.answer(entry.text, entry.sources)
       case 'choice':
@@ -33,11 +31,13 @@ export class TranscriptEntryLines {
     }
   }
 
-  // The label and the detail as the panel's numbered list shows them, with a
-  // refusal marked: a refused line is what a turn that went nowhere is made of.
+  // The label, the detail and the note as the panel's numbered list shows them,
+  // with a refusal marked: a refused line is what a turn that went nowhere is
+  // made of. The note is written whatever the turn's target, since a reader of
+  // the document has no turn header beside the line to compare it against.
   static line(line: ProgressLine): string {
-    const written = `- ${line.label} - ${line.detail}`
-    return line.refused ? `${written} - refused` : written
+    const written = [line.label, line.detail, line.note].filter(Boolean).join(' - ')
+    return line.refused ? `- ${written} - refused` : `- ${written}`
   }
 
   private static answer(text: string, sources: readonly string[]): string[] {

@@ -28,7 +28,14 @@ import { FakeVault } from '../../test-support/fake-vault'
 import { FakeCommandRegistry } from '../../test-support/fake-command-registry'
 import { FakeWorkspace } from '../../test-support/fake-workspace'
 import { FakeNoteLocator } from '../../test-support/fake-note-locator'
-import { aSession, aTextTurn, aToolCall, aToolTurn, anEngine } from '../../test-support/builders'
+import {
+  aSession,
+  aTextTurn,
+  aToolCall,
+  aToolTurn,
+  anEngine,
+  stepTextOf,
+} from '../../test-support/builders'
 
 const TODO = 'Journal/Weekly/Week-36/todo.md'
 
@@ -105,7 +112,7 @@ describe('EditEngine', () => {
           () => undefined,
           () => undefined,
           () => undefined,
-          (step) => steps.push(`${step.label}: ${step.detail}`),
+          (step) => steps.push(stepTextOf(step)),
         ),
       },
     )

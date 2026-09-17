@@ -4,10 +4,15 @@ import { NoteDetails } from './note-details'
 import { OpenNote } from './open-note'
 import { WorkspaceNoteLocator } from '../note-binding/workspace-note-locator'
 
+// Which of the two paths a write took. The vault path costs the cursor, and the
+// panel warns about it, so the result says which rather than leaving the caller
+// to ask the workspace a question the write already answered.
+export type WritePath = 'editor' | 'vault'
+
 // endedAt is where the edit finished, so the caller can focus it later without
 // the editor remembering anything.
 export type ApplyResult =
-  | { applied: true; endedAt: EditorPosition }
+  | { applied: true; endedAt: EditorPosition; wroteThrough: WritePath }
   | { applied: false; reason: 'noMatch' | 'multipleMatches' }
 
 // Where an edit lands. An Editor belongs to a tab rather than to a file, so the
@@ -57,7 +62,7 @@ export class TargetNoteWriter {
     const planned = this.noteEditor.plan(note.editor.getValue(), note.cursorAtStart, op)
     if (!planned.applied) return planned
     note.editor.replaceRange(planned.write.replacement, planned.write.from, planned.write.to)
-    return { applied: true, endedAt: planned.write.endedAt }
+    return { applied: true, endedAt: planned.write.endedAt, wroteThrough: 'editor' }
   }
 
   private async writeThroughVault(note: OpenNote, op: EditOperation): Promise<ApplyResult> {
@@ -84,7 +89,7 @@ export class TargetNoteWriter {
 
   private static resultOf(planned: PlannedWrite): ApplyResult {
     if (!planned.applied) return planned
-    return { applied: true, endedAt: planned.write.endedAt }
+    return { applied: true, endedAt: planned.write.endedAt, wroteThrough: 'vault' }
   }
 
   private static isNote(file: TAbstractFile | null): file is TFile {

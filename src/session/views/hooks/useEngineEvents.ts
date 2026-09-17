@@ -16,8 +16,8 @@ export interface EngineEventPorts {
   // that goes nowhere can still be inspected.
   onProgressLine?(listener: (step: ProgressLineReport) => void): () => void
   onAnswer?(listener: (report: AnswerReport) => void): () => void
-  // Forwarded to the timeline two ways: the user's move is a session event and
-  // lands as its own entry, and a tool's moves the open turn's target.
+  // A tool's move sets the open turn's target. The user's own move belongs to
+  // no turn and the turn's target says what it used to, so nothing shows it.
   onTargetNoteChanged?(listener: (report: RetargetReport) => void): () => void
 }
 
@@ -43,6 +43,7 @@ export const useEngineEvents = (
           label: step.label,
           detail: step.detail,
           refused: step.refused,
+          note: step.note,
         }),
       ),
     [],
@@ -59,9 +60,9 @@ export const useEngineEvents = (
   useEffect(
     () =>
       ports.onTargetNoteChanged?.((report) => {
-        // The user's move belongs to no turn, so it lands beside them. A tool's
-        // moves the open turn's target instead, which is what the turn names.
-        if (report.byUser) return dispatchFn({ type: 'retargeted', path: report.path })
+        // The user's move sets where the next turn starts, which useTargetNote
+        // reads off the channel. Only a tool's move belongs to the open turn.
+        if (report.byUser) return
         dispatchFn({ type: 'targetMoved', path: report.path })
       }),
     [],

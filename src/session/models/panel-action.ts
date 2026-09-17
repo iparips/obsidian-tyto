@@ -15,14 +15,11 @@ export type PanelAction =
   | { type: 'failed'; step: FailureStep; message: string; retryable?: boolean }
   | { type: 'instructions'; text: string }
   | { type: 'warned'; text: string }
-  // The path the session moved to, or null when the last note closed. The
-  // user's own move, which belongs to no turn.
-  | { type: 'retargeted'; path: string | null }
   // A tool opened a note, so the running turn is writing somewhere new. Its own
   // action rather than the retargets channel, which carries the user's moves
-  // too (D4).
+  // too and those show nowhere (D4).
   | { type: 'targetMoved'; path: string | null }
-  | { type: 'progressLine'; label: string; detail: string; refused: boolean }
+  | { type: 'progressLine'; label: string; detail: string; refused: boolean; note: string | null }
   | { type: 'answer'; text: string; sources: string[] }
   | { type: 'cancelRequested' }
   | { type: 'turnCancelled'; notesWritten: readonly string[] }
