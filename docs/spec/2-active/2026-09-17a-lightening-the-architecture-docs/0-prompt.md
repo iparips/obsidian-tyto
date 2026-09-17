@@ -30,7 +30,7 @@ absent, which rule is positional. It does not hold what src says plainly. The
 test for a sentence is whether a reader with the code open still needs it.
 
 Verify two claims. Releases 1 to 4 are said to be shipped and 5 to 7 unbuilt:
-check docs/plan/releases.md against 1-upcoming. And 16 of the 30 references into
+check docs/plan/1-index.md against 1-upcoming. And 16 of the 30 references into
 the folder are said to point at 7-package-design.md, which is what makes its
 removal the risky one. Every one of those 30 must still resolve when you are
 done, so script that check rather than reading for it.

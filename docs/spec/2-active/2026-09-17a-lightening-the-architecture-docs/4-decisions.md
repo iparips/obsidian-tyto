@@ -55,12 +55,12 @@ unbuilt and already specified in 1-upcoming.
 | Keep them, add subsystem files beside   | Two descriptions of one system, which is today's problem |
 | Delete 5 and 6, fold 1 to 4 in          | Same loss as the first, for the shipped four             |
 
-What the loss actually is: docs/plan/releases.md already says what each release
+What the loss actually is: docs/plan/1-index.md already says what each release
 added, and each has a spec in 3-archived holding its requirements and design.
 The architecture file is a third copy.
 
 So this is a rewrite rather than an addition. Nothing is lost that is not
-recorded twice already: docs/plan/releases.md says what each release added, and
+recorded twice already: docs/plan/1-index.md says what each release added, and
 each shipped release has a spec in 3-archived holding its requirements and
 design.
 

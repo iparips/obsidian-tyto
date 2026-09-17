@@ -245,4 +245,4 @@ layout rules now sit in the file each governs.
 - [4-decisions.md](4-decisions.md) - D1 fixes the seven files, D2 the deletions, D3 the size table
 - [5-acceptance-criteria.md](5-acceptance-criteria.md) - the four checks, one scripted
 - docs/architecture/12-the-panel-vocabulary.md - the model for the other six
-- docs/plan/releases.md - what each release added, which is why the release files need not say it
+- docs/plan/1-index.md - what each release added, which is why the release files need not say it
