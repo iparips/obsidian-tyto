@@ -18,6 +18,7 @@ export class TurnRepository {
   private unwritablePath: string | null = null
   private refusedOpenPath: string | null = null
   private readonly written: string[] = []
+  private readonly writtenThroughEditor = new Set<string>()
 
   constructor(
     private resolvedNote: ResolvedNote | null,
@@ -132,6 +133,18 @@ export class TurnRepository {
   // left rather than the user reading the note to find out.
   notesWritten(): readonly string[] {
     return this.written
+  }
+
+  // A write through the editor leaves text the file will not hold for two
+  // seconds, so the trust test flushes before comparing. Only a view this turn
+  // already wrote through may be flushed: it passed the trust test to earn that
+  // write, where flushing a half-opened one writes the note it still shows.
+  recordWrittenThroughEditor(path: string): void {
+    this.writtenThroughEditor.add(path)
+  }
+
+  wasWrittenThroughEditor(path: string): boolean {
+    return this.writtenThroughEditor.has(path)
   }
 
   storeCursorPositionAndWrittenNote(editEndPosition: EditorPosition | undefined): void {

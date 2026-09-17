@@ -24,6 +24,9 @@ export interface TurnState {
   // Null while the session is unbound. A read of this note comes from the
   // editor it holds, which is where the turn's writes go.
   targetNote(): OpenNote | null
+  // Whether this turn already wrote to the path through its editor, which is
+  // what says the view may be flushed before a read compares it to the file.
+  wasWrittenThroughEditor(path: string): boolean
 }
 
 // Shared by every tool that can refuse, so a cap message and a bad argument

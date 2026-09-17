@@ -20,7 +20,7 @@ import { TargetNoteWriter } from '../engine/note-editing/target-note-writer'
 import { TargetNoteResolver } from '../engine/note-binding/target-note-resolver'
 import { TurnProgressPublisher } from '../engine/turn-progress-publisher'
 import { TurnRunnerFactory } from '../engine/turn/turn-runner-factory'
-import { WorkspaceNoteLocator } from '../engine/note-binding/workspace-note-locator'
+import { FakeNoteLocator } from './fake-note-locator'
 import { TFile } from 'obsidian'
 import { SessionRepository } from '../session/session-repository'
 import { TranscriptRepository } from '../session/transcript/transcript-repository'
@@ -50,7 +50,7 @@ export const aTextTurn = (content: string): ChatTurn => ChatTurn.ofText(content)
 
 export interface EnginePartsOptions {
   sessions: SessionRepository
-  noteLocator: WorkspaceNoteLocator
+  noteLocator: FakeNoteLocator
   agentsMdRepository: AgentsMdRepository
   skillRepository?: SkillRepository
   harnessToolsService?: HarnessToolsService
@@ -63,8 +63,9 @@ export interface EnginePartsOptions {
   userQuestionService?: (cancellationController: TurnCancellationController) => UserQuestionService
   transcript?: TranscriptRepository
   toolNoteOpening?: ToolNoteOpening
-  // Where a write lands once the tab has moved off the target, which is the
-  // only case that reaches it.
+  // Where a read and a write land when the editor's text does not match the
+  // file. Every open note is mirrored into it, so a test that says nothing
+  // about the vault gets a view that finished loading (D1).
   vault?: FakeVault
 }
 
@@ -74,10 +75,11 @@ export const anEngine = (modelProvider: ChatProvider, options: EnginePartsOption
   const skills = options.skillRepository ?? new SkillRepository(new FakeAdapter().asAdapter(), '')
   const harness = options.harnessToolsService ?? noHarness()
   const progress = options.progress ?? TurnProgressPublisher.silent()
+  const vault = (options.vault ?? new FakeVault()).withLoadedNotes(options.noteLocator)
   const targetNoteWriter = new TargetNoteWriter(
     new NoteEditor(),
     options.noteLocator,
-    (options.vault ?? new FakeVault()).asVault(),
+    vault.asVault(),
   )
   const targetNote = new TargetNoteResolver(
     options.sessions,
@@ -106,11 +108,15 @@ export const anEngine = (modelProvider: ChatProvider, options: EnginePartsOption
 
 // The narrow view a tool sees of its turn. Unbound by default, since only a
 // read of the turn's own note looks at the target.
-export const aTurnState = (targetNote: OpenNote | null = null): TurnState => ({
+export const aTurnState = (
+  targetNote: OpenNote | null = null,
+  wroteThroughEditor = false,
+): TurnState => ({
   notesOpenedCounter: new NotesOpenedCounter(),
   pathsReturnedByVault: new PathsReturnedByVaultRepository(),
   notesRead: new NotesReadRepository(),
   targetNote: () => targetNote,
+  wasWrittenThroughEditor: () => wroteThroughEditor,
 })
 
 export const aSession = (path = 'note.md'): SessionRepository =>

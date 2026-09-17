@@ -51,13 +51,24 @@ describe('EditEngine', () => {
   }
 
   describe('when the tab still shows the target', () => {
-    it('shows the model what the editor holds, unsaved text and all', async () => {
+    it('shows the model the editor when its text is the file the path names', async () => {
+      complete.mockResolvedValue(Outcomes.success(aTextTurn('done')))
+
+      await engineOf().processUtterance('what is on the list')
+
+      expect(noteContextOfCall(0)).toContain(SAVED)
+    })
+
+    // D1's accepted cost: unsaved text reads the same way a half-opened view
+    // does, so both take the vault. Obsidian saves two seconds out, so the
+    // disagreement closes on its own.
+    it('shows the model the file while the editor holds text it has not saved', async () => {
       editor.content = '- milk, unsaved'
       complete.mockResolvedValue(Outcomes.success(aTextTurn('done')))
 
       await engineOf().processUtterance('what is on the list')
 
-      expect(noteContextOfCall(0)).toContain('- milk, unsaved')
+      expect(noteContextOfCall(0)).not.toContain('- milk, unsaved')
     })
   })
 

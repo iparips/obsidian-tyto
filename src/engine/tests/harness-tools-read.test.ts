@@ -81,7 +81,21 @@ describe('HarnessToolsService', () => {
   // D1: a read of the note the turn writes to comes from the editor its writes
   // go through, so an anchor the model matches is one the write will find.
   describe('when the path is the target the turn holds', () => {
-    it('answers with the unsaved text the file does not have', async () => {
+    it('answers from the editor when its text is the file the path names', async () => {
+      const editor = new FakeEditor('- [ ] milk')
+      turn = aTurnState(new OpenNote(editor.asEditor(), TODO, editor.getCursor()))
+
+      const harnessResult = await readNote(
+        TODO,
+        aWriter(new FakeNoteLocator().withOpenNote(TODO, editor)),
+      )
+
+      expect(harnessResult.result).toBe('- [ ] milk')
+    })
+
+    // D1's accepted cost: an editor holding text the file lacks reads the same
+    // way a half-opened view does, so both take the vault.
+    it('answers from the file while the editor holds text it has not saved', async () => {
       const editor = new FakeEditor('- [ ] milk\n- [ ] eggs, unsaved')
       turn = aTurnState(new OpenNote(editor.asEditor(), TODO, editor.getCursor()))
 
@@ -90,7 +104,7 @@ describe('HarnessToolsService', () => {
         aWriter(new FakeNoteLocator().withOpenNote(TODO, editor)),
       )
 
-      expect(harnessResult.result).toBe('- [ ] milk\n- [ ] eggs, unsaved')
+      expect(harnessResult.result).toBe('- [ ] milk')
     })
 
     it('answers from the file once the tab has moved off it', async () => {
