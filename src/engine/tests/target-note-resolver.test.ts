@@ -41,10 +41,20 @@ describe('TargetNoteResolver', () => {
       expect(resolution.noteOrNull()?.note.path).toBe('Lists/todo.md')
     })
 
-    it('yields nothing when the note it was given has no editor', async () => {
+    // A note with no editor still resolves, so a tool that opened one binds the
+    // turn to it and the write goes through the vault (D5).
+    it('yields the note it was given even when it has no editor', async () => {
       const sessions = aSession('note.md')
 
-      expect(await resolverFor(sessions).resolveOrNothing('Lists/gone.md')).toBeNull()
+      const resolved = await resolverFor(sessions).resolveOrNothing('Lists/gone.md')
+
+      expect(resolved?.note.path).toBe('Lists/gone.md')
+    })
+
+    it('yields nothing when the note it was given is not a markdown note', async () => {
+      const sessions = aSession('note.md')
+
+      expect(await resolverFor(sessions).resolveOrNothing('Lists/board.canvas')).toBeNull()
     })
   })
 
@@ -82,31 +92,69 @@ describe('TargetNoteResolver', () => {
     })
   })
 
+  // The turn is not refused for a note with no editor: it resolves carrying a
+  // null one and the write goes through the vault, which costs undo and nothing
+  // else, where refusing cost the user the session (D5).
   describe('when the bound note is not open in an editor', () => {
-    it('fails to resolve when no editor is showing the note', async () => {
+    it('resolves rather than failing when no editor is showing the note', async () => {
       const resolution = await resolverFor(aSession('closed.md')).resolve()
+
+      expect(resolution).toBeInstanceOf(TargetResolved)
+    })
+
+    it('yields the note it is bound to, so an edit reaches its path', async () => {
+      const resolution = await resolverFor(aSession('closed.md')).resolve()
+
+      expect(resolution.noteOrNull()?.note.path).toBe('closed.md')
+    })
+
+    it('yields it with no editor, which is what routes the write to the vault', async () => {
+      const resolution = await resolverFor(aSession('closed.md')).resolve()
+
+      expect(resolution.noteOrNull()?.note.editor).toBeNull()
+    })
+
+    // The folders are the path's, not the editor's, so the chain is collected
+    // whether or not a tab is showing the note.
+    it('still collects the instruction chain', async () => {
+      await resolverFor(aSession('closed.md')).resolve()
+
+      expect(adapter.reads).not.toEqual([])
+    })
+  })
+
+  // Kept, and narrowed to the one case vault-writing would make worse: the
+  // writer guards only on the file having a stat, which a canvas, a PDF and a
+  // Bases file all satisfy, so the write would land and corrupt it (D7).
+  describe('when the bound path is not a markdown note', () => {
+    it('fails to resolve, since no amount of opening gains it an editor', async () => {
+      const resolution = await resolverFor(aSession('board.canvas')).resolve()
 
       expect(resolution).toBeInstanceOf(ResolutionFailed)
     })
 
-    it('names the note it could not reach, so the turn can say which one', async () => {
-      const resolution = await resolverFor(aSession('closed.md')).resolve()
+    it('names the path, so the turn can say which one', async () => {
+      const resolution = await resolverFor(aSession('board.canvas')).resolve()
 
-      expect(resolution instanceof ResolutionFailed && resolution.path).toBe('closed.md')
+      expect(resolution instanceof ResolutionFailed && resolution.path).toBe('board.canvas')
     })
 
-    it('carries the reason it could not reach the note', async () => {
-      const resolution = await resolverFor(aSession('closed.md')).resolve()
+    it('carries the reset message, since that is the only way out', async () => {
+      const resolution = await resolverFor(aSession('board.canvas')).resolve()
 
-      expect(resolution instanceof ResolutionFailed && resolution.reason).toBe(
-        'closed.md is not open in an editor',
-      )
+      expect(resolution instanceof ResolutionFailed && resolution.reason).toContain('press Reset')
     })
 
-    it('yields no note to write to when the note cannot be reached', async () => {
-      const resolution = await resolverFor(aSession('closed.md')).resolve()
+    it('yields no note to write to', async () => {
+      const resolution = await resolverFor(aSession('board.canvas')).resolve()
 
       expect(resolution.noteOrNull()).toBeNull()
+    })
+
+    it('collects no chain, since nothing resolved to read folders from', async () => {
+      await resolverFor(aSession('board.canvas')).resolve()
+
+      expect(adapter.reads).toEqual([])
     })
   })
 })

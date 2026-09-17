@@ -115,6 +115,7 @@ describe('EditEngine', () => {
       {
         sessions,
         noteLocator,
+        vault,
         agentsMdRepository: new AgentsMdRepository(adapter.asAdapter()),
         harnessToolsService: harnessOf(allowed, searchEnabled),
         toolNoteOpening,
@@ -431,20 +432,24 @@ describe('EditEngine', () => {
     })
   })
 
+  // A markdown note the command opened is writable whether or not its editor
+  // has mounted: the write goes through the vault (D5). The target still moves,
+  // which is what the retry needs.
   describe('when the opened note has no editor', () => {
     beforeEach(() => {
       opensDailyNote()
       noteLocator.closeNote(DAILY)
+      vault.withNote(DAILY, '- milk')
     })
 
-    it('tells the model the note is not editable when the opened note has no editor', async () => {
+    it('tells the model the session is now editing it', async () => {
       respondsWith(runCommand())
 
       await engineOf().processUtterance('open my daily note')
 
       const results = complete.mock.calls[1][0].filter((m: ChatMessage) => m.isToolResult())
       expect(results[0]).toMatchObject({
-        content: `ran Open today; ${DAILY} opened but is not editable yet, so no edit was made`,
+        content: `ran Open today; the session is now editing ${DAILY}`,
       })
     })
 
@@ -456,7 +461,7 @@ describe('EditEngine', () => {
       expect(sessions.targetNote()).toBe(DAILY)
     })
 
-    it('refuses a following edit when the opened note has no editor', async () => {
+    it('applies a following edit rather than refusing it', async () => {
       respondsWith(
         runCommand(),
         aToolTurn(aToolCall('insert_at', { location: 'note_end', content: '\n- plates' })),
@@ -465,14 +470,12 @@ describe('EditEngine', () => {
       await engineOf().processUtterance('open my daily note and add a line')
 
       const results = complete.mock.calls[2][0].filter((m: ChatMessage) => m.isToolResult())
-      expect(results[1]).toMatchObject({
-        content: `${DAILY} is not editable yet; stop and tell the user to open it`,
-      })
+      expect(results[1].content).toContain(`insert_at applied to ${DAILY}`)
     })
 
-    // The anchor matches the note the turn still holds, so an unguarded edit
-    // would land in it rather than being refused.
-    it('leaves the note the turn still holds untouched when an edit is refused', async () => {
+    // The anchor matches the note the turn opened away from, so an edit that
+    // followed the stale handle would land in it rather than in the target.
+    it('leaves the note the turn moved off untouched', async () => {
       respondsWith(
         runCommand(),
         aToolTurn(aToolCall('insert_at', { location: 'note_end', content: '\n- plates' })),

@@ -7,9 +7,13 @@ import { Attempt, Outcomes } from '../../shared/models/outcome'
 export class WorkspaceNoteLocator {
   constructor(private app: App) {}
 
+  // A note with no leaf still resolves, carrying a null editor: the write goes
+  // through the vault. Only a path no editor could ever show fails, and it
+  // fails before the search, so a session bound to a canvas costs no loads.
   async locate(path: string): Promise<Attempt<OpenNote>> {
+    if (!path.endsWith('.md')) return Outcomes.failure('apply', WorkspaceNoteLocator.notANote(path))
     const editor = await this.findEditor(path)
-    if (!editor) return Outcomes.failure('apply', WorkspaceNoteLocator.notOpenMessage(path))
+    if (!editor) return Outcomes.success(new OpenNote(null, path, { line: 0, ch: 0 }))
     return Outcomes.success(new OpenNote(editor, path, editor.getCursor()))
   }
 
@@ -22,9 +26,9 @@ export class WorkspaceNoteLocator {
 
   // A path that is not a note can never gain an editor, so the message says to
   // start again rather than to open it: a session bound to a canvas, a PDF or a
-  // Bases file is stuck until it is reset.
-  private static notOpenMessage(path: string): string {
-    if (path.endsWith('.md')) return `${path} is not open in an editor`
+  // Bases file is stuck until it is reset. Vault-writing one would rewrite its
+  // JSON as markdown, which is worse than refusing the turn.
+  private static notANote(path: string): string {
     return `${path} is not a markdown note, so it cannot be edited; press Reset to start a session on a note`
   }
 
