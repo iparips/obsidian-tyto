@@ -7,7 +7,9 @@ import { PanelItem } from './panel-state'
 // 2: entries nest inside a turn rather than sitting flat beside one, so a
 // record written by the flat shape is discarded (D6).
 // 3: the retargeted entry kind is gone, so a record holding one is discarded.
-export const SESSION_SNAPSHOT_VERSION = 3
+// 4: a progress line carries the note it acted on and whether the write went
+// straight to the file, so a line written without them is discarded.
+export const SESSION_SNAPSHOT_VERSION = 4
 
 // Plain data, because it crosses a file boundary: a class with methods would
 // need reviving, and every field here is already a string or a list of them.

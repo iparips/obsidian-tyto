@@ -102,9 +102,17 @@ export class TranscriptTurnSection {
     return this.source.chatHistory.slice(step.history.first, step.history.last + 1)
   }
 
-  // The last step has no step after it, so what it got back is whatever the
-  // turn appended to the history once the loop stopped.
+  // What a step got back when no step of its own turn follows it: the messages
+  // the turn appended once the loop stopped. Bounded by the next step of the
+  // session rather than running to the end of the history, since a turn that
+  // replied is followed by the next turn's work and that belongs to that turn.
   private tail(step: RecordedTurnStep): readonly ChatMessage[] {
-    return this.source.chatHistory.slice(step.history.last + 1)
+    return this.source.chatHistory.slice(step.history.last + 1, this.nextStepStartsAt(step))
+  }
+
+  // Undefined where nothing follows, which slices to the end of the history.
+  private nextStepStartsAt(step: RecordedTurnStep): number | undefined {
+    const at = this.source.steps.indexOf(step)
+    return this.source.steps[at + 1]?.history.first
   }
 }

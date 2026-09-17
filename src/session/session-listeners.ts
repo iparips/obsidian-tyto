@@ -29,8 +29,10 @@ export interface ProgressLineReport {
   detail: string
   refused: boolean
   // The note the line acted on, null where it acted on none. The panel names it
-  // only where it differs from the turn's target.
+  // only where it differs from the turn's target, or wherever the write went
+  // straight to the file.
   note: string | null
+  wroteDirect: boolean
 }
 
 // One asker per session, held so the plugin can hand the engine a question

@@ -1,3 +1,4 @@
+import { Fragment } from 'react'
 import { HistoryEntry } from './HistoryEntry'
 import { EntryProgress } from './EntryProgress'
 import { PanelTurn, ProgressLine } from '../models/panel-state'
@@ -10,8 +11,10 @@ export interface HistoryTurnProps {
   onRetry?(): void
 }
 
-// The target first, since it is the most prominent thing a turn says about
-// itself (D4): the note this turn is writing to, which a tool call can move.
+// The target under the utterance rather than above it, since a turn resolves
+// its target from what the user said: showing it first claims the note was
+// settled before they spoke. The utterance opens the turn, so it is the first
+// entry and the target follows it (D4).
 export const HistoryTurn = ({
   turn,
   onChooseNote,
@@ -19,24 +22,36 @@ export const HistoryTurn = ({
   onRetry,
 }: HistoryTurnProps) => (
   <div className="tyto-turn">
-    <div className="tyto-turn-target">
-      {turn.target === null ? 'No note' : NoteName.of(turn.target)}
-    </div>
-    {turn.entries.map((entry, index) =>
-      entry.kind === 'progress' ? (
-        <ProgressEntry key={index} lines={entry.lines} target={turn.target} />
-      ) : (
-        <HistoryEntry
-          key={index}
-          entry={entry}
-          onChooseNote={onChooseNote}
-          onPickSuggestion={onPickSuggestion}
-          onRetry={onRetry}
-        />
-      ),
-    )}
+    {turn.entries.map((entry, index) => (
+      <Fragment key={index}>
+        {entry.kind === 'progress' ? (
+          <ProgressEntry lines={entry.lines} target={turn.target} />
+        ) : (
+          <HistoryEntry
+            entry={entry}
+            onChooseNote={onChooseNote}
+            onPickSuggestion={onPickSuggestion}
+            onRetry={onRetry}
+          />
+        )}
+        {entry.kind === 'user' && <TurnTarget target={turn.target} />}
+      </Fragment>
+    ))}
   </div>
 )
+
+// The name reads as the turn's heading and the path sits under it: the name is
+// what a reader scans for, and the path is what says which of the weekly notes
+// sharing that name this turn actually edited.
+const TurnTarget = ({ target }: { target: string | null }) => {
+  if (target === null) return <div className="tyto-turn-target">Edit target: no note</div>
+  return (
+    <div className="tyto-turn-target">
+      <div className="tyto-turn-target-name">Edit target: {NoteName.of(target)}</div>
+      <div className="tyto-turn-target-path">{target}</div>
+    </div>
+  )
+}
 
 // Rendered here rather than through HistoryEntry, because only the turn holds
 // the target a line's note is compared against. Threading it through

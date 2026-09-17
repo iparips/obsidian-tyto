@@ -44,6 +44,7 @@ export const useEngineEvents = (
           detail: step.detail,
           refused: step.refused,
           note: step.note,
+          wroteDirect: step.wroteDirect,
         }),
       ),
     [],

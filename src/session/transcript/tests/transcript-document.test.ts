@@ -92,7 +92,15 @@ describe('TranscriptDocument', () => {
           { kind: 'user', text: 'rename it' },
           {
             kind: 'progress',
-            lines: [{ label: 'Globbed', detail: '**/*.md', refused: false, note: null }],
+            lines: [
+              {
+                label: 'Globbed',
+                detail: '**/*.md',
+                refused: false,
+                note: null,
+                wroteDirect: false,
+              },
+            ],
           },
           { kind: 'error', step: 'chat', text: 'Tyto ran out of steps' },
         ],
@@ -174,7 +182,13 @@ describe('TranscriptDocument', () => {
           {
             kind: 'progress',
             lines: [
-              { label: 'Refused', detail: 'not chosen by the user', refused: true, note: null },
+              {
+                label: 'Refused',
+                detail: 'not chosen by the user',
+                refused: true,
+                note: null,
+                wroteDirect: false,
+              },
             ],
           },
         ],
@@ -192,8 +206,20 @@ describe('TranscriptDocument', () => {
         {
           kind: 'progress',
           lines: [
-            { label: 'Globbed', detail: '**/a.md - 1 note', refused: false, note: null },
-            { label: 'Globbed', detail: '**/b.md - nothing matched', refused: false, note: null },
+            {
+              label: 'Globbed',
+              detail: '**/a.md - 1 note',
+              refused: false,
+              note: null,
+              wroteDirect: false,
+            },
+            {
+              label: 'Globbed',
+              detail: '**/b.md - nothing matched',
+              refused: false,
+              note: null,
+              wroteDirect: false,
+            },
           ],
         },
       ] as PanelEntry[],
@@ -280,7 +306,15 @@ describe('TranscriptDocument', () => {
           { kind: 'user', text: 'read it' },
           {
             kind: 'progress',
-            lines: [{ label: 'Read', detail: '', refused: false, note: 'Lists/todo.md' }],
+            lines: [
+              {
+                label: 'Read',
+                detail: '',
+                refused: false,
+                note: 'Lists/todo.md',
+                wroteDirect: false,
+              },
+            ],
           },
         ],
         steps: [aStep(0, new StepRange(0, 0), new StepRange(0, 0))],
@@ -290,6 +324,88 @@ describe('TranscriptDocument', () => {
       expect(document).toContain('- Read - Lists/todo.md')
     })
 
+    // The reported defect: a turn that replied has the next turn's work sitting
+    // after it in the history, and an unbounded tail swept it into this turn's
+    // step. The transcript then showed a stalled turn calling five tools.
+    it('leaves the next turns work out of a turn that ended on a reply', () => {
+      const document = documentOf({
+        items: [
+          { kind: 'turn', target: 'todo.md', entries: [{ kind: 'user', text: 'add milk' }] },
+          { kind: 'turn', target: 'todo.md', entries: [{ kind: 'user', text: 'ok' }] },
+        ],
+        history: [
+          ChatMessage.user('add milk'),
+          ChatMessage.model('I need to load the skill first.'),
+          ChatMessage.user('ok'),
+          ChatMessage.modelToolCalls([aGlob('**/todo.md')]),
+          ChatMessage.toolCallResult('c1', 'todo.md'),
+        ],
+        steps: [
+          new RecordedTurnStep(0, 0, aPart(1), new StepRange(0, 0), new StepRange(0, -1)),
+          new RecordedTurnStep(1, 0, aPart(1), new StepRange(2, 2), new StepRange(0, -1)),
+        ],
+        endings: [
+          new RecordedEnding(0, TurnEndingKind.Replied, 0),
+          new RecordedEnding(1, TurnEndingKind.Replied, 0),
+        ],
+      })
+
+      expect(turnSectionOf(document, 1)).not.toContain('glob_notes')
+    })
+
+    it('keeps the reply that did end the turn', () => {
+      const document = documentOf({
+        items: [
+          { kind: 'turn', target: 'todo.md', entries: [{ kind: 'user', text: 'add milk' }] },
+          { kind: 'turn', target: 'todo.md', entries: [{ kind: 'user', text: 'ok' }] },
+        ],
+        history: [
+          ChatMessage.user('add milk'),
+          ChatMessage.model('I need to load the skill first.'),
+          ChatMessage.user('ok'),
+          ChatMessage.modelToolCalls([aGlob('**/todo.md')]),
+        ],
+        steps: [
+          new RecordedTurnStep(0, 0, aPart(1), new StepRange(0, 0), new StepRange(0, -1)),
+          new RecordedTurnStep(1, 0, aPart(1), new StepRange(2, 2), new StepRange(0, -1)),
+        ],
+        endings: [
+          new RecordedEnding(0, TurnEndingKind.Replied, 0),
+          new RecordedEnding(1, TurnEndingKind.Replied, 0),
+        ],
+      })
+
+      expect(turnSectionOf(document, 1)).toContain('I need to load the skill first.')
+    })
+
+    // The document is read away from the panel, so the mark is words rather than
+    // a colour: an edit the editor cannot take back has to say so in the text.
+    it('marks an edit that went straight to the file', () => {
+      const document = documentOf({
+        entries: [
+          { kind: 'user', text: 'add milk' },
+          {
+            kind: 'progress',
+            lines: [
+              {
+                label: 'Edit',
+                detail: 'applied',
+                refused: false,
+                note: 'todo.md',
+                wroteDirect: true,
+              },
+            ],
+          },
+        ],
+        steps: [aStep(0, new StepRange(0, 0), new StepRange(0, 0))],
+        endings: [new RecordedEnding(0, TurnEndingKind.Replied, 0)],
+      })
+
+      expect(document).toContain(
+        '- Edit - applied - todo.md - written directly, undo not available',
+      )
+    })
+
     it('nests both progress lines of a turn step that returned two tool calls', () => {
       const document = documentOf({
         entries: [
@@ -297,8 +413,14 @@ describe('TranscriptDocument', () => {
           {
             kind: 'progress',
             lines: [
-              { label: 'Edit', detail: 'applied', refused: false, note: null },
-              { label: 'Edit', detail: 'applied again', refused: false, note: null },
+              { label: 'Edit', detail: 'applied', refused: false, note: null, wroteDirect: false },
+              {
+                label: 'Edit',
+                detail: 'applied again',
+                refused: false,
+                note: null,
+                wroteDirect: false,
+              },
             ],
           },
         ],
@@ -344,8 +466,15 @@ describe('TranscriptDocument', () => {
                 detail: 'vault root',
                 refused: false,
                 note: null,
+                wroteDirect: false,
               },
-              { label: 'Globbed', detail: '**/a.md', refused: false, note: null },
+              {
+                label: 'Globbed',
+                detail: '**/a.md',
+                refused: false,
+                note: null,
+                wroteDirect: false,
+              },
             ],
           },
         ],
@@ -559,6 +688,11 @@ describe('TranscriptDocument', () => {
     })
   })
 })
+
+// One turn's section alone, so a case about what a turn holds cannot pass on
+// text that belongs to the turn after it.
+const turnSectionOf = (document: string, turn: number): string =>
+  document.split('## Conversation turn ')[turn] ?? ''
 
 // Asserted as an order rather than as one string, so a case says what has to
 // come before what without freezing the blank lines between them.

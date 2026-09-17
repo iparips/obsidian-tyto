@@ -115,7 +115,15 @@ describe('SessionSnapshot', () => {
         { kind: 'warning', text: 'the note moved' },
         {
           kind: 'progress',
-          lines: [{ label: 'read_note', detail: 'day.md', refused: false, note: null }],
+          lines: [
+            {
+              label: 'read_note',
+              detail: 'day.md',
+              refused: false,
+              note: null,
+              wroteDirect: false,
+            },
+          ],
         },
         { kind: 'answer', text: 'three notes', sources: ['day.md'] },
         { kind: 'cancelled', text: 'Stopped. Nothing was changed.' },

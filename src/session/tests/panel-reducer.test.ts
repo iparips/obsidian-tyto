@@ -17,7 +17,8 @@ const aProgressLine = (
   detail: string,
   refused = false,
   note: string | null = null,
-) => ({ type: 'progressLine', label, detail, refused, note }) as const
+  wroteDirect = false,
+) => ({ type: 'progressLine', label, detail, refused, note, wroteDirect }) as const
 
 describe('PanelReducer', () => {
   let thinking: PanelState
@@ -323,7 +324,15 @@ describe('PanelReducer', () => {
 
       expect(state.flattened().at(-1)).toEqual({
         kind: 'progress',
-        lines: [{ label: 'Searched', detail: 'milk — 3 matches', refused: false, note: null }],
+        lines: [
+          {
+            label: 'Searched',
+            detail: 'milk — 3 matches',
+            refused: false,
+            note: null,
+            wroteDirect: false,
+          },
+        ],
       })
     })
 
@@ -334,7 +343,9 @@ describe('PanelReducer', () => {
 
       expect(state.flattened().at(-1)).toEqual({
         kind: 'progress',
-        lines: [{ label: 'Read', detail: '', refused: false, note: 'Lists/todo.md' }],
+        lines: [
+          { label: 'Read', detail: '', refused: false, note: 'Lists/todo.md', wroteDirect: false },
+        ],
       })
     })
 

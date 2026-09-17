@@ -39,16 +39,22 @@
   gap: var(--size-4-2);
 }
 
-/* The most prominent thing a turn says about itself, so it opens the turn
-   rather than sitting under it (D4). It truncates rather than wrapping, so a
-   turn stays readable in a narrow drawer (NFR10). */
+/* What the turn resolved the utterance to, so it sits under what the user said
+   rather than above it (D4). */
 .tyto-turn-target {
   font-size: var(--font-ui-smaller);
   font-weight: var(--font-semibold);
   color: var(--text-muted);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  overflow-wrap: anywhere;
+}
+
+/* The name is what a reader scans for, so it carries the weight. The path under
+   it wraps rather than truncating: weekly notes repeat their names, so the path
+   is what says which one this was, and an ellipsis eats the end that says it. */
+.tyto-turn-target-path {
+  font-size: var(--font-smallest);
+  font-weight: var(--font-normal);
+  opacity: 0.75;
 }
 
 .tyto-entry {
@@ -538,10 +544,27 @@
 }
 
 /* Shown only where the line acted on a note other than the turn's target, so it
-   is the one thing on the row worth picking out of the list. */
+   is the one thing on the row worth picking out of the list. The whole path,
+   since a weekly note's name is the same every week, and on its own line: a
+   path wrapping mid-token runs into the text beside it and reads as one blur. */
 .tyto-progress-note {
+  color: var(--text-muted);
+  overflow-wrap: anywhere;
+}
+
+/* An edit the editor cannot take back, which the user may have to undo by hand.
+   The only coloured thing on the row: the label, the detail and the path read
+   as they do on every other line, so the one part that needs attention is the
+   one part that gets it. */
+.tyto-progress-direct {
   margin-left: var(--size-4-1);
-  color: var(--text-accent);
+  color: var(--text-warning);
+}
+
+/* Spacing comes from margins rather than whitespace, since the spans abut in
+   the markup. */
+.tyto-progress-directly {
+  margin-left: var(--size-4-1);
 }
 
 /* A refusal is why the list gets opened, so it is the one row that stands out

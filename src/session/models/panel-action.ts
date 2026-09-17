@@ -19,7 +19,14 @@ export type PanelAction =
   // action rather than the retargets channel, which carries the user's moves
   // too and those show nowhere (D4).
   | { type: 'targetMoved'; path: string | null }
-  | { type: 'progressLine'; label: string; detail: string; refused: boolean; note: string | null }
+  | {
+      type: 'progressLine'
+      label: string
+      detail: string
+      refused: boolean
+      note: string | null
+      wroteDirect: boolean
+    }
   | { type: 'answer'; text: string; sources: string[] }
   | { type: 'cancelRequested' }
   | { type: 'turnCancelled'; notesWritten: readonly string[] }

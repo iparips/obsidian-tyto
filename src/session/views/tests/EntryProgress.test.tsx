@@ -8,11 +8,13 @@ const aStep = (
   detail: string,
   refused = false,
   note: string | null = null,
+  wroteDirect = false,
 ): ProgressLine => ({
   label,
   detail,
   refused,
   note,
+  wroteDirect,
 })
 
 describe('EntryProgress', () => {
@@ -99,7 +101,7 @@ describe('EntryProgress', () => {
         />,
       )
 
-      expect(noteIn(container)).toBe('todo')
+      expect(noteIn(container)).toBe('Lists/todo.md')
     })
 
     it('names none when the line touched no note at all', () => {
@@ -120,7 +122,69 @@ describe('EntryProgress', () => {
         <EntryProgress lines={[aStep('Read', '', false, 'Lists/todo.md')]} target={null} />,
       )
 
-      expect(noteIn(container)).toBe('todo')
+      expect(noteIn(container)).toBe('Lists/todo.md')
+    })
+  })
+
+  // A write that went to the file costs the cursor and may cost undo, and the
+  // user needs to know which edit and which note rather than reading a warning
+  // below the list that names neither.
+  describe('when an edit went straight to the file', () => {
+    const directEdit = () => aStep('Edit', 'applied', false, 'Lists/shopping.md', true)
+
+    it('says the write did not go through the editor', () => {
+      const { container } = render(
+        <EntryProgress lines={[directEdit()]} target="Lists/shopping.md" />,
+      )
+
+      expect(container.querySelector('.tyto-progress-direct')?.textContent?.trim()).toBe(
+        'Undo not available - because editor moved to another note',
+      )
+    })
+
+    // The rule that hides a matching note is overridden here: this is the edit
+    // the user may have to undo by hand, so it names where it landed.
+    it('names the note even where it matches the turns target', () => {
+      const { container } = render(
+        <EntryProgress lines={[directEdit()]} target="Lists/shopping.md" />,
+      )
+
+      expect(container.querySelector('.tyto-progress-note')?.textContent).toBe('Lists/shopping.md')
+    })
+
+    // The spans abut in the markup and are spaced by margins, so the assertion
+    // reads the parts rather than one string with whitespace it does not have.
+    it('reads as one sentence, with only the warning set apart', () => {
+      const { container } = render(
+        <EntryProgress lines={[directEdit()]} target="Lists/shopping.md" />,
+      )
+
+      expect(
+        [...(container.querySelector('li')?.children ?? [])].map((at) => at.textContent),
+      ).toEqual([
+        'Edit',
+        'applied',
+        'directly.',
+        'Undo not available - because editor moved to another note',
+        'Lists/shopping.md',
+      ])
+    })
+
+    it('leaves an edit through the editor unmarked', () => {
+      const { container } = render(
+        <EntryProgress
+          lines={[aStep('Edit', 'applied', false, 'Lists/shopping.md')]}
+          target="Lists/shopping.md"
+        />,
+      )
+
+      expect(container.querySelector('.tyto-progress-direct')).toBeNull()
+    })
+
+    it('counts no refusal for it, since the write worked', () => {
+      render(<EntryProgress lines={[directEdit()]} target="Lists/shopping.md" />)
+
+      expect(screen.getByText('1 step')).toBeTruthy()
     })
   })
 })

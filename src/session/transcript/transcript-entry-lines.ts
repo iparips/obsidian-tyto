@@ -37,7 +37,8 @@ export class TranscriptEntryLines {
   // the document has no turn header beside the line to compare it against.
   static line(line: ProgressLine): string {
     const written = [line.label, line.detail, line.note].filter(Boolean).join(' - ')
-    return line.refused ? `- ${written} - refused` : `- ${written}`
+    if (line.refused) return `- ${written} - refused`
+    return line.wroteDirect ? `- ${written} - written directly, undo not available` : `- ${written}`
   }
 
   private static answer(text: string, sources: readonly string[]): string[] {

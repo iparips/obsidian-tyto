@@ -46,6 +46,7 @@ export class PanelReducer {
           detail: action.detail,
           refused: action.refused,
           note: action.note,
+          wroteDirect: action.wroteDirect,
         })
       case 'answer':
         return state.withEntry(state.phase, {

@@ -56,6 +56,9 @@ export interface ProgressLine {
   // The note the line acted on, null where it acted on none. Stored rather than
   // compared here, so a restored session shows what it showed.
   note: string | null
+  // An edit that went straight to the file. The line says so and names the note,
+  // since the editor cannot take such an edit back.
+  wroteDirect: boolean
 }
 
 export class PanelState {
