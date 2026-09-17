@@ -21,6 +21,9 @@ export class ModelsRole {
       'stopped you and what the user can do next.',
       'Act rather than describing what you are about to do. If a step is needed, take it',
       'in this turn: never end a turn having only said what you intend to do next.',
+      'A refusal is not a retry prompt. Repeating a call that was just refused ends the',
+      'turn with nothing written, so read what the refusal asks for and do that instead;',
+      'where nothing you can do satisfies it, stop and say what you need.',
       ModelsRole.reach(commands, searchEnabled),
       'When you are done, respond with a one-sentence summary of what changed.',
     ].join('\n')

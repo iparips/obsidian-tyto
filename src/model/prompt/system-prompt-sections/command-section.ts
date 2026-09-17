@@ -20,6 +20,8 @@ export class CommandSection {
       'Decline a command whose effect you cannot determine from its name. Say which command',
       'you declined and why, and run nothing instead.',
       'When an utterance names a destination, prefer a listed command that opens it.',
+      'First check the note you are already editing: when it is the destination, edit it and',
+      'run no command. A command that opens a different day is not the way to reach today.',
       'A command only opens the note. When a skill above matches the utterance, load it',
       'first and let its steps say what to do once the note is open.',
       'Search for the note only when no listed command reaches it, then open what you found.',
