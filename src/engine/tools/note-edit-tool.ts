@@ -74,6 +74,12 @@ export class NoteEditTool {
   // The bare string `applied` carried no tense and no target, so a batch gave
   // the model two identical results and it read one as an earlier edit.
   //
+  // A failure names the path for the same reason, and needs it more: the model
+  // anchors against a note it opened several steps ago, while the target has
+  // since moved to whatever the last command opened. "Anchor not found" alone
+  // reads as a wrong anchor, so the model lengthens it and is refused again,
+  // where the anchor was right and the note underneath it was not.
+  //
   // The content is not echoed: the model sent it one message earlier, and a
   // dictated paragraph makes that cost unbounded. The path and the line are
   // short and fixed-cost, and are what the model cannot infer.
@@ -90,8 +96,24 @@ export class NoteEditTool {
         result.wroteThrough,
         'applied',
       )
-    if (result.reason === 'noMatch') return ToolCallOutcome.of('anchor not found in note')
-    return ToolCallOutcome.of('anchor matches multiple places; use a longer anchor')
+    const anchor = NoteEditTool.anchorOf(op)
+    if (result.reason === 'noMatch')
+      return ToolCallOutcome.of(
+        `anchor ${anchor} not found in ${note.path}, the note this edit reached`,
+      )
+    return ToolCallOutcome.of(
+      `anchor ${anchor} matches multiple places in ${note.path}; use a longer anchor`,
+    )
+  }
+
+  // A step carrying several edits refuses each the same way, so the anchor is
+  // what says which call failed. Only its first line is quoted: an anchor runs
+  // to several lines, and the whole of one would wrap the message and repeat
+  // what the model sent a message earlier.
+  private static anchorOf(op: EditOperation): string {
+    if (op.kind !== 'replace' && op.kind !== 'insert') return 'for this edit'
+    const [firstLine, ...rest] = op.anchor.split('\n')
+    return rest.length > 0 ? `"${firstLine}..."` : `"${firstLine}"`
   }
 
   // The record is what lets the next trust test flush this view before it
