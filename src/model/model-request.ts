@@ -1,6 +1,6 @@
 import { ChatMessage } from './providers/types'
 import { AllowedObsidianCommand } from '../commands/models/allowed-obsidian-command'
-import { OpenNote } from '../engine/note-editing/open-note'
+import { NoteDetails } from '../engine/note-editing/note-details'
 import { Skill } from '../skills/skill'
 import { AgentsMdChain } from '../agents/agents-md-chain'
 
@@ -10,7 +10,7 @@ import { AgentsMdChain } from '../agents/agents-md-chain'
 // provider call takes alongside the messages, not what the messages say.
 export class ModelRequest {
   constructor(
-    readonly note: OpenNote | null,
+    readonly note: NoteDetails | null,
     readonly skills: readonly Skill[],
     readonly agentsMdChain: AgentsMdChain,
     readonly chatHistory: readonly ChatMessage[],

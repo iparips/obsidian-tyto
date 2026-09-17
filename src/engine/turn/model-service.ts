@@ -8,6 +8,8 @@ import { SessionRepository } from '../../session/session-repository'
 import { TranscriptRepository } from '../../session/transcript/transcript-repository'
 import { TurnCancellationController } from './turn-cancellation-controller'
 import { TurnRepository } from './turn-repository'
+import { TargetNoteWriter } from '../note-editing/target-note-writer'
+import { NoteDetails } from '../note-editing/note-details'
 
 // One of the two outward calls a step makes. The loop that decides when to make
 // it is ConversationTurnRunner; what it calls back is ToolCallExecutor.
@@ -19,13 +21,14 @@ export class ModelService {
     private modelProvider: ChatProvider,
     private harnessToolsService: HarnessToolsService,
     private transcriptRepository: TranscriptRepository,
+    private targetNoteWriter: TargetNoteWriter,
   ) {}
 
   // Logged around the call rather than after it, since a turn that feels slow is
   // one model call taking its time rather than the loop doing work between them.
   async askModel(step: number): Promise<Outcome<ChatTurn>> {
     const askedAt = Date.now()
-    const request = this.requestForModel()
+    const request = await this.requestForModel()
     const parts = PromptFactory.build(request)
     // Recorded before the call rather than after it, so a step the provider
     // failed on still says what it was sent.
@@ -43,15 +46,22 @@ export class ModelService {
 
   // The reach is read here rather than deeper down, so every message the turn
   // sends states the same one.
-  private requestForModel(): ModelRequest {
+  private async requestForModel(): Promise<ModelRequest> {
     return new ModelRequest(
-      this.turnRepository.targetNote(),
+      await this.targetNoteDetails(),
       this.turnRepository.skills(),
       this.turnRepository.agentMdChain(),
       this.sessionRepository.chatHistory(),
       this.harnessToolsService.allowedCommands(),
       this.harnessToolsService.hasSearchEnabled(),
     )
+  }
+
+  // Through the writer rather than off the handle the turn holds: a tab that
+  // moved would put another note's content under the target's path.
+  private async targetNoteDetails(): Promise<NoteDetails | null> {
+    const target = this.turnRepository.targetNote()
+    return target ? this.targetNoteWriter.getDetails(target) : null
   }
 
   private recordCall(parts: ModelRequestParts, historyLength: number): void {

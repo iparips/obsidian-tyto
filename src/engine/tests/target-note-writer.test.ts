@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { NoteDetails } from '../note-editing/note-details'
 import { NoteEditor } from '../note-editing/note-editor'
 import { OpenNote } from '../note-editing/open-note'
 import { TargetNoteWriter } from '../note-editing/target-note-writer'
@@ -188,6 +189,35 @@ describe('TargetNoteWriter', () => {
       const writer = aWriter(new FakeNoteLocator().withOpenNote('todo.md', nowShown), vault)
 
       expect(await writer.read(target)).toBe('- milk')
+    })
+  })
+
+  // What the model is shown. The path and the content have to come from the
+  // same note, which is what a tab that moved broke.
+  describe('when describing the target for the model', () => {
+    it('describes the editor while the tab still shows it', async () => {
+      const editor = new FakeEditor('- milk, unsaved')
+      const writer = aWriter(
+        new FakeNoteLocator().withOpenNote(TARGET, editor),
+        new FakeVault().withNote(TARGET, '- milk'),
+      )
+
+      expect(await writer.getDetails(aTarget(editor))).toEqual(
+        new NoteDetails(TARGET, '- milk, unsaved', { line: 0, ch: 0 }),
+      )
+    })
+
+    it('describes the file once the tab has moved', async () => {
+      const target = aTarget(new FakeEditor('- milk'))
+      const nowShown = new FakeEditor('# Todo')
+      const writer = aWriter(
+        new FakeNoteLocator().withOpenNote('todo.md', nowShown),
+        new FakeVault().withNote(TARGET, '- milk, saved'),
+      )
+
+      expect(await writer.getDetails(target)).toEqual(
+        new NoteDetails(TARGET, '- milk, saved', { line: 0, ch: 0 }),
+      )
     })
   })
 })
