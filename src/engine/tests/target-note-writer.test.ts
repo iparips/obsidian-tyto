@@ -6,14 +6,19 @@ import { TargetNoteWriter } from '../note-editing/target-note-writer'
 import { FakeEditor } from '../../test-support/fake-editor'
 import { FakeNoteLocator } from '../../test-support/fake-note-locator'
 import { FakeVault } from '../../test-support/fake-vault'
+import { FakeWorkspace } from '../../test-support/fake-workspace'
 
 const TARGET = 'shopping-list.md'
 
 const aTarget = (editor: FakeEditor): OpenNote =>
   new OpenNote(editor.asEditor(), TARGET, editor.getCursor())
 
-const aWriter = (locator: FakeNoteLocator, vault: FakeVault): TargetNoteWriter =>
-  new TargetNoteWriter(new NoteEditor(), locator, vault.asVault())
+const aWriter = (
+  locator: FakeNoteLocator,
+  vault: FakeVault,
+  workspace = new FakeWorkspace(),
+): TargetNoteWriter =>
+  new TargetNoteWriter(new NoteEditor(), locator, vault.asVault(), workspace.asWorkspace())
 
 // A view that finished loading: the editor holds the target, and so does the
 // file. The text is the editor's, so a test that asserts on it still says it.
@@ -246,38 +251,47 @@ describe('TargetNoteWriter', () => {
     })
   })
 
+  // Only the note in front is scrolled, which is the whole of the guard: the
+  // note behind the panel and the note in a background tab are the same answer
+  // reached from the two platforms, mobile and desktop (D6).
   describe('when focusing the edit at the end of a turn', () => {
-    it('moves the cursor while the tab still shows the target', () => {
-      const editor = new FakeEditor('- milk\n- eggs')
-      const writer = aLoadedWriter(editor)
+    const aFocusWriter = (editor: FakeEditor, workspace: FakeWorkspace) =>
+      aWriter(
+        new FakeNoteLocator().withOpenNote(TARGET, editor),
+        new FakeVault().withNote(TARGET, editor.getValue()),
+        workspace,
+      )
 
-      writer.focusEdit(aTarget(editor), { line: 1, ch: 6 })
+    it('moves the cursor when the user is looking at the note', () => {
+      const editor = new FakeEditor('- milk\n- eggs')
+      const workspace = new FakeWorkspace()
+        .withEditor(TARGET, editor.asEditor())
+        .isLookingAt(TARGET)
+
+      aFocusWriter(editor, workspace).focusEdit(aTarget(editor), { line: 1, ch: 6 })
 
       expect(editor.cursor).toEqual({ line: 1, ch: 6 })
     })
 
-    // The deliberate asymmetry: focus keeps the identity test alone, so a view
-    // still loading is scrolled. Asserted so a later change cannot quietly make
-    // focusEdit async.
-    it('moves the cursor while the editor still holds another note', () => {
-      const { target, stale, vault } = halfOpened()
+    it('leaves the cursor alone when the note is open behind the panel', () => {
+      const editor = new FakeEditor('- milk\n- eggs')
+      const workspace = new FakeWorkspace().withEditor(TARGET, editor.asEditor()).isLookingAt(null)
 
-      aHalfOpenedWriter(stale, vault).focusEdit(target, { line: 1, ch: 6 })
+      aFocusWriter(editor, workspace).focusEdit(aTarget(editor), { line: 1, ch: 6 })
 
-      expect(stale.cursor).toEqual({ line: 1, ch: 6 })
+      expect(editor.cursor).toEqual({ line: 0, ch: 0 })
     })
 
-    it('leaves the cursor alone once the tab has moved', () => {
-      const target = aTarget(new FakeEditor('- milk'))
-      const nowShown = new FakeEditor('# Todo')
-      const writer = aWriter(
-        new FakeNoteLocator().withOpenNote('todo.md', nowShown),
-        new FakeVault(),
-      )
+    it('leaves the cursor alone when another note is in front', () => {
+      const editor = new FakeEditor('- milk\n- eggs')
+      const workspace = new FakeWorkspace()
+        .withEditor(TARGET, editor.asEditor())
+        .withEditor('todo.md', new FakeEditor('# Todo').asEditor())
+        .isLookingAt('todo.md')
 
-      writer.focusEdit(target, { line: 1, ch: 6 })
+      aFocusWriter(editor, workspace).focusEdit(aTarget(editor), { line: 1, ch: 6 })
 
-      expect(nowShown.cursor).toEqual({ line: 0, ch: 0 })
+      expect(editor.cursor).toEqual({ line: 0, ch: 0 })
     })
   })
 
