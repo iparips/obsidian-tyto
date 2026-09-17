@@ -2,7 +2,7 @@ import { ObsidianCommandMatch } from '../../commands/models/obsidian-command-mat
 
 export interface CommandMatchRowProps {
   match: ObsidianCommandMatch
-  onAdd(commandId: string): void
+  onAdd: (commandId: string) => void
 }
 
 // The row is the control: a whole row is a bigger tap target than a button in

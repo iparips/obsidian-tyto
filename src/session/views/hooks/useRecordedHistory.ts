@@ -8,7 +8,7 @@ import { PanelReducer } from '../../models/panel-reducer'
 // Optional because the panel renders without one, and a session built before
 // the recorder existed supplies none.
 export interface RecordedHistoryPorts {
-  recordHistory?(entries: readonly PanelItem[]): void
+  recordHistory?: (entries: readonly PanelItem[]) => void
 }
 
 // The stored phase is never read: the turn that set a running phase went with

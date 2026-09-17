@@ -6,9 +6,9 @@ import { NoteName } from '../models/note-name'
 
 export interface HistoryTurnProps {
   turn: PanelTurn
-  onChooseNote?(chosen: string | null): void
-  onPickSuggestion?(suggestion: string): void
-  onRetry?(): void
+  onChooseNote?: (chosen: string | null) => void
+  onPickSuggestion?: (suggestion: string) => void
+  onRetry?: () => void
 }
 
 // The target under the utterance rather than above it, since a turn resolves

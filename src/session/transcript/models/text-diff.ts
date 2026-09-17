@@ -16,7 +16,7 @@ const commonLines = (before: readonly string[], after: readonly string[]): [numb
 
 const lengthTable = (before: readonly string[], after: readonly string[]): number[][] => {
   const lengths = Array.from({ length: before.length + 1 }, () =>
-    new Array(after.length + 1).fill(0),
+    Array.from<number>({ length: after.length + 1 }).fill(0),
   )
   for (let row = before.length - 1; row >= 0; row--)
     for (let column = after.length - 1; column >= 0; column--)

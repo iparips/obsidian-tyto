@@ -32,12 +32,12 @@ export class OpenedNoteWait {
   private resolveOnOpen(resolve: (path: string | null) => void): void {
     let reference: EventRef | null = null
     let settled = false
-    const timer = setTimeout(() => finishFn(null), this.timeoutMs)
+    const timer = window.setTimeout(() => finishFn(null), this.timeoutMs)
 
     const finishFn = (path: string | null): void => {
       if (settled) return
       settled = true
-      clearTimeout(timer)
+      window.clearTimeout(timer)
       if (reference) this.app.workspace.offref(reference)
       resolve(path)
     }
@@ -58,7 +58,7 @@ export class OpenedNoteWait {
     if (hasSettledFn()) return
     if (path === null) return finishFn(null)
     if (this.hasEditor(path)) return finishFn(path)
-    setTimeout(() => this.awaitEditor(path, finishFn, hasSettledFn), EDITOR_POLL_MS)
+    window.setTimeout(() => this.awaitEditor(path, finishFn, hasSettledFn), EDITOR_POLL_MS)
   }
 
   private hasEditor(path: string): boolean {

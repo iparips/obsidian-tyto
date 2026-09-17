@@ -572,7 +572,7 @@ describe('EditEngine', () => {
 
       await engine.processUtterance('add plates to the list')
 
-      const sent = complete.mock.calls[1][0] as ChatMessage[]
+      const sent = complete.mock.calls[1][0]
       expect(systemMessagesSplittingToolPairsIn(sent)).toEqual([])
     })
   })

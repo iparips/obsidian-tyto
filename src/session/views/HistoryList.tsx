@@ -6,9 +6,9 @@ import { PanelItem, Phase } from '../models/panel-state'
 export interface HistoryListProps {
   entries: PanelItem[]
   phase: Phase
-  onChooseNote?(chosen: string | null): void
-  onPickSuggestion?(suggestion: string): void
-  onRetry?(): void
+  onChooseNote?: (chosen: string | null) => void
+  onPickSuggestion?: (suggestion: string) => void
+  onRetry?: () => void
 }
 
 export const HistoryList = ({

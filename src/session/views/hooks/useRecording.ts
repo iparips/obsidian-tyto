@@ -5,11 +5,11 @@ import { PanelAction } from '../../models/panel-action'
 import { Phase } from '../../models/panel-state'
 
 export interface RecorderPort {
-  start(): Promise<Outcome<void>>
-  stop(): Promise<Utterance>
-  cancel(): void
+  start: () => Promise<Outcome<void>>
+  stop: () => Promise<Utterance>
+  cancel: () => void
   // The live stream, so a meter shares it rather than opening a second one.
-  stream(): MediaStream | null
+  stream: () => MediaStream | null
 }
 
 export interface RecordingPorts {
@@ -17,17 +17,17 @@ export interface RecordingPorts {
   // An Attempt rather than an Outcome: cancelling a recording discards it here
   // rather than reaching the transcription, so this call never comes back
   // cancelled.
-  transcribe(blob: Blob, mimeType: string): Promise<Attempt<string>>
+  transcribe: (blob: Blob, mimeType: string) => Promise<Attempt<string>>
   // The plugin owns the listener so Obsidian detaches it on unload.
   onObsidianBackgrounded?(listener: () => void): () => void
 }
 
 export interface Recording {
-  start(): Promise<void>
-  stop(): Promise<void>
-  cancel(): void
-  retry(): Promise<void>
-  sendOnBackground(): void
+  start: () => Promise<void>
+  stop: () => Promise<void>
+  cancel: () => void
+  retry: () => Promise<void>
+  sendOnBackground: () => void
 }
 
 // Capturing an utterance and turning it into text, which is the half of the

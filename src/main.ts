@@ -21,7 +21,10 @@ export default class TytoPlugin extends Plugin {
 
   async onload(): Promise<void> {
     registerTytoIcon()
-    this.settings = { ...DEFAULT_SETTINGS, ...(await this.loadData()) }
+    this.settings = {
+      ...DEFAULT_SETTINGS,
+      ...((await this.loadData()) as Partial<TytoSettings> | null),
+    }
     this.registerView(
       VIEW_TYPE_SESSION,
       (leaf) =>

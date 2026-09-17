@@ -5,7 +5,7 @@ import { CommandMatchRow } from './CommandMatchRow'
 export interface CommandPickerProps {
   entries: readonly string[]
   search: ObsidianCommandSearch
-  onChange(entries: string[]): void
+  onChange: (entries: string[]) => void
 }
 
 // Nothing renders before a query is typed: a vault offers several hundred

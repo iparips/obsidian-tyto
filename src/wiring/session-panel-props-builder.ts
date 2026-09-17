@@ -34,8 +34,8 @@ interface SessionChannels {
 // Whether the session's leaf is on screen, and how to put it there. Only the
 // plugin can answer either, and only the user's own click may open it (FR27).
 export interface LeafPresence {
-  isVisible(): boolean
-  reveal(): void
+  isVisible: () => boolean
+  reveal: () => void
 }
 
 // Assembles one session's panel props. Every collaborator is explicit, and this

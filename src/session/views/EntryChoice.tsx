@@ -6,7 +6,7 @@ export const EntryChoice = ({
   onChoose,
 }: {
   candidates: readonly string[]
-  onChoose(chosen: string | null): void
+  onChoose: (chosen: string | null) => void
 }) => (
   <div className="tyto-entry-choice" aria-label="Choose the note">
     {candidates.map((path) => (

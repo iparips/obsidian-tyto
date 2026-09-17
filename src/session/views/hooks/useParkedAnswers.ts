@@ -19,8 +19,8 @@ export interface ParkedAnswerPorts {
 
 export interface ParkedAnswers {
   // A path when the user picked one, null when they declined every candidate.
-  settleChoice(chosen: string | null): void
-  settleQuestion(answer: string): void
+  settleChoice: (chosen: string | null) => void
+  settleQuestion: (answer: string) => void
 }
 
 // The two promises a parked turn is waiting on, held rather than dispatched

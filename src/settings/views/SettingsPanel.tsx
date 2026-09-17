@@ -5,7 +5,7 @@ import { AllowedObsidianCommand } from '../../commands/models/allowed-obsidian-c
 
 export interface SettingsPanelProps {
   settings: TytoSettings
-  onChange(update: Partial<TytoSettings>): void
+  onChange: (update: Partial<TytoSettings>) => void
   search: ObsidianCommandSearch
   resolvedCommands: readonly AllowedObsidianCommand[]
 }

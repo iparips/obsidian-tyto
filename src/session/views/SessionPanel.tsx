@@ -29,18 +29,18 @@ export interface SessionPanelProps
     EngineEventPorts,
     TargetNotePorts,
     RecordedHistoryPorts {
-  processUtterance(text: string): Promise<Outcome<string>>
+  processUtterance: (text: string) => Promise<Outcome<string>>
   // The engine owns the running turn's cancellation, so the panel asks rather
   // than holding it.
-  cancelTurn?(): void
-  startNewSession?(): void
+  cancelTurn?: () => void
+  startNewSession?: () => void
   // Notices rather than records: only the plugin knows whether the panel is on
   // screen, so it decides what a turn is worth telling the user (FR22, FR23).
   // Each carries what its notice says, and a cancel calls neither, because the
   // user stopped it and already knows. The record is the recorder's, and
   // follows the history rather than the turn's end.
-  notifySucceeded?(summary: string): void
-  notifyFailed?(message: string): void
+  notifySucceeded?: (summary: string) => void
+  notifyFailed?: (message: string) => void
   // What a restored session already holds, empty for a session that starts
   // fresh. Settled and set idle on the way in, since no turn is running after
   // a load (FR5, FR6).
@@ -48,7 +48,7 @@ export interface SessionPanelProps
   settings?: TytoSettings
   // What the panel cannot see: the chat history the recorded steps index into,
   // and what each of those steps was sent. Absent until the setting is on.
-  transcriptOf?(entries: readonly PanelItem[]): TranscriptSource
+  transcriptOf?: (entries: readonly PanelItem[]) => TranscriptSource
 }
 
 export const SessionPanel = (props: SessionPanelProps) => {
@@ -60,6 +60,15 @@ export const SessionPanel = (props: SessionPanelProps) => {
   // The engine asks through these and awaits the answer, so a parked turn is a
   // promise the panel settles rather than a channel the publisher lacks.
   const { settleChoice, settleQuestion } = useParkedAnswers(props, dispatch)
+
+  // A handler the panel starts and does not wait on. The work reports through
+  // dispatch and the notices, so there is no promise left for a caller to read;
+  // this says so once rather than at each attribute.
+  const fireAndForget =
+    <T extends unknown[]>(handler: (...args: T) => Promise<unknown>) =>
+    (...args: T) => {
+      void handler(...args)
+    }
 
   // A cancelled turn tells nobody: the user is the one who stopped it, so they
   // already know (FR28).
@@ -138,8 +147,8 @@ export const SessionPanel = (props: SessionPanelProps) => {
         entries={state.entries}
         phase={state.phase}
         onChooseNote={settleChoice}
-        onPickSuggestion={pickSuggestion}
-        onRetry={recorded.retry}
+        onPickSuggestion={fireAndForget(pickSuggestion)}
+        onRetry={fireAndForget(recorded.retry)}
       />
       <InputRow
         phase={state.phase}
@@ -152,10 +161,10 @@ export const SessionPanel = (props: SessionPanelProps) => {
         }
         draft={draft}
         onDraftChange={setDraft}
-        onSend={sendDraft}
+        onSend={fireAndForget(sendDraft)}
         onCancel={cancel}
-        onRecord={record}
-        onStopRecording={recorded.stop}
+        onRecord={fireAndForget(record)}
+        onStopRecording={fireAndForget(recorded.stop)}
       />
     </div>
   )

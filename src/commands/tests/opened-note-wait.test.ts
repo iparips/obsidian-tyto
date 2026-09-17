@@ -19,7 +19,7 @@ describe('OpenedNoteWait', () => {
     it('returns the path once the editor exists', async () => {
       const opened = waitOf().forOpen(() => {
         workspace.announcesOpenWithoutEditor(DAILY)
-        setTimeout(() => workspace.mountsEditor(DAILY), 20)
+        window.setTimeout(() => workspace.mountsEditor(DAILY), 20)
       })
 
       await expect(opened).resolves.toBe(DAILY)

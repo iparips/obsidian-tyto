@@ -5,7 +5,7 @@ import { TytoSettings } from '../../settings'
 
 export interface SettingsHost {
   settings: TytoSettings
-  updateSettings(update: Partial<TytoSettings>): Promise<void>
+  updateSettings: (update: Partial<TytoSettings>) => Promise<void>
 }
 
 // What the tab cannot answer for itself: what the panel's collaborators are.
@@ -39,7 +39,10 @@ export class TytoSettingsTab extends PluginSettingTab {
 
   private renderPanel(): void {
     this.root?.render(
-      <SettingsPanel {...this.buildPanelFn()} onChange={(update) => this.applyUpdate(update)} />,
+      <SettingsPanel
+        {...this.buildPanelFn()}
+        onChange={(update) => void this.applyUpdate(update)}
+      />,
     )
   }
 

@@ -32,11 +32,11 @@ import { PluginScope } from './plugin-scope'
 // How a session builds what a turn parks on. Both take the turn's cancellation,
 // so a parked question settles on a cancel rather than parking the loop.
 export interface EngineAskers {
-  noteChoiceService?(
+  noteChoiceService?: (
     cancellationController: TurnCancellationController,
     notesChosenByUser: NotesChosenByUserRepository,
-  ): NoteChoiceService
-  userQuestionService?(cancellationController: TurnCancellationController): UserQuestionService
+  ) => NoteChoiceService
+  userQuestionService?: (cancellationController: TurnCancellationController) => UserQuestionService
 }
 
 // Assembles one session's engine. Every collaborator is explicit, and this is

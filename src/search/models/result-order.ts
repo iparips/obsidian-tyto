@@ -2,9 +2,9 @@
 // declares no match count and a caller that omits a key the order asks for
 // falls back to path.
 export interface SortKeys<T> {
-  path(item: T): string
-  modified?(item: T): number
-  matches?(item: T): number
+  path: (item: T) => string
+  modified?: (item: T) => number
+  matches?: (item: T) => number
 }
 
 type SortField = 'path' | 'modified' | 'matches'
