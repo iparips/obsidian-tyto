@@ -4,41 +4,48 @@ Everything here exists because someone who is not the author will install this.
 A stranger has no API key, no allow-list, and no patience for an edit landing
 in the wrong note.
 
-C1 to C4 are the remaining commits of
-[community-plugin-submission/5-tasks.md](../spec/2-active/2026-09-11b-community-plugin-submission/5-tasks.md).
-Its commit 1, the rename from Owl to Tyto, is done: the manifest id is tyto and
-no Owl string survives in src or styles.css.
+C1 to C4 shipped in pull request 7, and their spec is archived at
+[community-plugin-submission/5-tasks.md](../spec/3-archived/2026-09-11b-community-plugin-submission/5-tasks.md).
+C5 onwards are still open.
 
-### C1. Migrate settings across the id change (2 h)
+### C1. Migrate settings across the id change (done)
 
 The blocker's real cost, and the only task that touches a user's stored data.
 
-- [ ] LegacySettingsMigration, reading the legacy path and writing through saveData
-- [ ] Call it from onload, in place of the loadData spread
-- [ ] Teach the installer to remove a stale obsidian-owl folder
-- [ ] Exit test: install over an Owl-era config, then into a clean vault
+- [x] LegacySettingsMigration, reading the legacy path and writing through saveData
+- [x] Call it from onload, in place of the loadData spread
+- [x] Teach the installer to remove a stale obsidian-owl folder, once the new id
+      holds a data.json of its own
+- [x] Exit test: install over an Owl-era config, then into a clean vault
 
-### C2. Disclose network use, and silence the console (2 h)
+### C2. Disclose network use, and silence the console (done)
 
-- [ ] README disclosure: the service, what is sent, when, why, and what never leaves
-- [ ] Remove the eight console.debug calls, keeping their catch blocks
-- [ ] Exit test: a full turn prints nothing at default log level
+- [x] README disclosure: the service, what is sent, when, why, and what never leaves
+- [x] Remove the eight console.debug calls, keeping their catch blocks
+- [x] Exit test: a full turn prints nothing at default log level
 
-### C3. Rebuild the settings tab (3 h)
+### C3. Rebuild the settings tab (done)
 
 The task a reviewer is most likely to comment on.
 
-- [ ] Setting builders in TytoSettingsTab, replacing SettingsPanel
-- [ ] Three headings: Skills, Commands, Vault
-- [ ] Keep the React command picker, mounted under Commands
-- [ ] Exit test: it looks native beside a core plugin, and the picker still works
+- [x] getSettingDefinitions in TytoSettingsTab, replacing SettingsPanel. The
+      declarative API rather than the builder chain, which is what the scanner
+      asks for
+- [x] Three groups: Skills, Commands, Vault
+- [x] Keep the React command picker, mounted under Commands
+- [ ] Exit test: it looks native beside a core plugin, and the picker still
+      works. Still to run by hand against a real vault
 
-### C4. Vault reads and release defaults (2 h)
+### C4. Vault reads and release defaults (done)
 
-- [ ] AgentsMdRepository and SkillRepository take Vault rather than DataAdapter
-- [ ] DEFAULT_SETTINGS ships an empty allow list and search off
-- [ ] A build:release script without sourcemaps
-- [ ] Exit test: a fresh vault runs no command until the boxes are ticked
+- [x] AgentsMdRepository and SkillRepository take Vault rather than DataAdapter
+- [x] DEFAULT_SETTINGS ships search off, and the allow list holding daily-notes,
+      which destroys nothing and so is safe to allow unasked
+- [x] `build` is the bundle alone, without sourcemaps. No build:release script:
+      the scanner calls the first script named build, so that is where the
+      release settings have to live
+- [x] Exit test: a fresh vault searches nothing, and reaches no command beyond
+      the daily note
 
 ### C5. First-run onboarding when no API key is set (3 h)
 
