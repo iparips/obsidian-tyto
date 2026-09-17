@@ -5,11 +5,12 @@ updated: 2026-09-17
 
 # Meta: Context Audit
 
-What this spec's requirements phase read, what each source decided, and where
-the tokens went. Measured from the session transcript, not recalled.
+What this spec's phases read, what each source decided, and where the tokens
+went. Measured from the session transcripts, not recalled.
 
 - [2-requirements-context.md](2-requirements-context.md) - the discovery path from the pasted transcript to the spec, and what each source decided
-- [4-context-budget.md](4-context-budget.md) - the token split by category and by impact, and what to change next time
+- [3-design-context.md](3-design-context.md) - the design phase, hubbed on the locator, and the four-hop chain that produced D7
+- [4-context-budget.md](4-context-budget.md) - both phases by category and by impact, and what to change next time
 
 Excluded from every count: the system prompt, tool schemas, the always-on
 instruction files, and this audit's own prose.
@@ -50,11 +51,25 @@ typings rather than anything in this repo's docs tree.
 
 ## Findings
 
-The phase was cheap and the reading was narrow, because the pasted transcript
-carried the error message verbatim. One grep on that message reached the failing
-line, and everything after it was confirmation.
+Single-phase observations sit in the phase files. These need both to see.
 
-Skills cost more than the code. Three skill bodies plus their format references
-came to 13,096 tokens against 9,975 for eighteen code reads. That is the shape
-of a small bug spec: the artefact rules are fixed-cost and the investigation is
-not.
+The requirements phase was cheap and narrow, because the pasted transcript
+carried the error message verbatim: one grep reached the failing line and
+everything after was confirmation. Skills cost more than the code there, 13,096
+tokens against 9,975 for eighteen reads.
+
+The design phase inverted that, 21,706 code against 10,934 skill, and the cause
+is not that it read more widely. It read the same subsystem in full rather than
+the one file the error named. A requirements phase can stop at the failing line;
+a design phase has to bound the change, and bounding it means opening every
+caller whether or not it turns out to move.
+
+Skills are fixed-cost across both, 24,030 of 64,822, or 37% of everything
+measured. That is the number to attack if either phase gets cheaper, and the two
+conventions recommendations in
+[4-context-budget.md](4-context-budget.md) are where it starts.
+
+The decisive read was neither phase's largest. D7, the one decision the design
+overturned, came from a 31-token grep for the markdown extension guard. The
+expensive reads confirmed what was already believed; the cheap one found what
+was not.

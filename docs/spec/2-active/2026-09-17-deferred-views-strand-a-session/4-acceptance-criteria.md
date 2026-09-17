@@ -8,6 +8,10 @@ updated: 2026-09-17
 Every check here needs a real workspace. A deferred view is Obsidian deciding a
 leaf is in the background, which no test double produces.
 
+Five checks. The transcript's setup block was a sixth until the design's plan
+covered it at TranscriptTurnSection.setup (session transcript), which needs no
+workspace at all.
+
 ## Setup
 
 - Obsidian 1.13.0 or later, which the manifest now requires. Views have been
@@ -95,14 +99,7 @@ Judgement rather than an assertion: read it off Obsidian's own tab rendering.
 Every tab loading means the fix swept the workspace instead of narrowing to the
 target.
 
-### A turn with no steps reports its own setup
-
-```gherkin
-Given a conversation whose second turn ended without a model call
-When  the transcript is copied
-Then  that turn's Setup block names only its own work
-And   the previous turn's command and edit stay in the previous turn
-```
-
-No turn is refused for an unresolvable note any more, so reach this by cancelling
-a turn before its first model call.
+A failure here that is not a sweep is the instanceof check: a leaf that loads
+into something other than a markdown view is skipped, and no test double can
+produce one, so a tab that stays deferred while the note resolves through the
+vault means the check is rejecting a view it should have taken.
