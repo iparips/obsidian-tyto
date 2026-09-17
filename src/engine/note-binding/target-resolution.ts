@@ -5,7 +5,8 @@ import { ResolvedNote } from './resolved-note'
 // facts about a session and only one of them names a note.
 export type TargetResolution = TargetResolved | NoNoteBound | ResolutionFailed
 
-// The session names a note and an editor is showing it.
+// The session names a markdown note. An editor is showing it, or none is and
+// the write goes through the vault.
 export class TargetResolved {
   constructor(readonly resolvedNote: ResolvedNote) {}
 
@@ -30,10 +31,13 @@ export class NoNoteBound {
   }
 }
 
-// The session names a note nothing can show: a tab that closed, a view mobile
-// detached, or a file that can never have a markdown editor. Carries the path,
-// since telling the user which note they lost is the whole point of failing
-// rather than opening an unbound turn.
+// The session names a path that can never have a markdown editor: a canvas, a
+// PDF, a Bases file. Carries the path, since telling the user which note they
+// lost is the whole point of failing rather than opening an unbound turn.
+//
+// A note with no editor is not this. It resolves and writes through the vault,
+// which costs undo; vault-writing one of these would rewrite its JSON as
+// markdown, which is worse than refusing the turn.
 export class ResolutionFailed {
   constructor(
     readonly path: string,

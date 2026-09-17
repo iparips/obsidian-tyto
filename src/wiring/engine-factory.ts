@@ -92,7 +92,12 @@ export class EngineFactory {
   // Stateless, like the locator it holds: it reads the workspace and the vault
   // on each call rather than remembering either.
   private buildTargetNoteWriter(): TargetNoteWriter {
-    return new TargetNoteWriter(new NoteEditor(), this.buildNoteLocator(), this.scope.app.vault)
+    return new TargetNoteWriter(
+      new NoteEditor(),
+      this.buildNoteLocator(),
+      this.scope.app.vault,
+      this.scope.app.workspace,
+    )
   }
 
   private buildTurnFactory(

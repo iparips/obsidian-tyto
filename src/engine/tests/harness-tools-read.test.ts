@@ -20,6 +20,7 @@ import { DateToolService } from '../tools/date-tool-service'
 import { NoteReader } from '../../search/note-reader'
 import { FakeVault } from '../../test-support/fake-vault'
 import { aToolCall } from '../../test-support/builders'
+import { FakeWorkspace } from '../../test-support/fake-workspace'
 
 const TODO = 'Journal/Weekly/Week-36/todo.md'
 const MISSING = 'Journal/Weekly/Week-99/todo.md'
@@ -59,7 +60,12 @@ describe('HarnessToolsService', () => {
     toolsOf(targetNoteWriter).execute(aToolCall('read_note', { path }), turn)
 
   const aWriter = (locator: FakeNoteLocator): TargetNoteWriter =>
-    new TargetNoteWriter(new NoteEditor(), locator, vault.asVault())
+    new TargetNoteWriter(
+      new NoteEditor(),
+      locator,
+      vault.asVault(),
+      new FakeWorkspace().asWorkspace(),
+    )
 
   // A skill names a path outright, so the model can read it without searching.
   // Without the read counting as having found it, the path can never be offered

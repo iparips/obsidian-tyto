@@ -69,9 +69,10 @@ export class TurnRunnerFactory {
   // cannot open still leaves the history holding what was said to it.
   async build(): Promise<Attempt<ConversationTurnRunner>> {
     const resolution = await this.targetNoteResolver.resolve()
-    // The one caller that tells the three states apart: a named note nothing
-    // can show refuses the turn so the message reaches the user, where an
-    // unbound session opens one that searches and answers without writing.
+    // The one caller that tells the three states apart: a path no editor could
+    // ever show refuses the turn so the message reaches the user, where an
+    // unbound session opens one that searches and answers without writing. A
+    // note with no editor is neither: it resolves and writes through the vault.
     if (resolution.hasFailed()) return Outcomes.failure('apply', resolution.reason)
     const skills = await this.skillRepository.listSkills()
     const turnRepository = new TurnRepository(
