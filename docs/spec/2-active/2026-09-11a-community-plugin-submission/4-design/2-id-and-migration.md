@@ -1,6 +1,6 @@
 ---
 created: 2026-09-11
-updated: 2026-09-11
+updated: 2026-09-17
 ---
 
 # The Rename to Tyto, and Its Migration
@@ -35,24 +35,19 @@ Five groups, in descending order of risk.
 | Identifiers          | 4     | None, mechanical                                            |
 | CSS classes          | 68    | None, mechanical, but src and styles.css must move together |
 
-User-visible strings, each of which becomes Tyto:
-
-- The ribbon tooltip, "Start Owl session" (src/main.ts line 26).
-- The view's display text, "Owl session" (src/session/views/session-view.tsx
-  line 34).
-- The transcript heading, "# Owl session transcript"
-  (src/session/transcript/transcript-document.ts line 21).
-- The background-recording notice (src/session/views/useRecording.ts line 49).
-- An aria-label in the settings panel, which the Setting API rewrite removes
-  anyway.
+The five user-visible strings were the ribbon tooltip, the view's display text,
+the transcript heading, the background-recording notice, and an aria-label in
+the settings panel that the settings rewrite removes anyway.
 
 Identifiers: OwlPlugin, OwlSettings, OwlSettingsTab and DEFAULT_SETTINGS' type
-become Tyto-prefixed. A find and replace over `Owl` catches all of them, and
-the compiler catches anything it misses.
+became Tyto-prefixed.
+
+This part has shipped. What remains of the rename is the settings migration
+below, and the prose sweep that commit 9 owns.
 
 The system prompt carries no occurrence of the name, so the prompt fixture at
-src/model/prompt/tests/fixtures/release-3-prompt.txt stays green. The rename
-cannot change what the model does.
+src/model/prompt/tests/fixtures/release-3-prompt.txt stayed green. The rename
+could not change what the model does.
 
 ## Two Stateful Renames
 

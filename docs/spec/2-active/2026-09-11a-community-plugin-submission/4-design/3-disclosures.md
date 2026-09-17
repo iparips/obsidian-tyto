@@ -1,6 +1,6 @@
 ---
 created: 2026-09-11
-updated: 2026-09-11
+updated: 2026-09-17
 ---
 
 # README Disclosures
@@ -34,10 +34,13 @@ The account
 - A Mistral API key is required; without one the plugin does nothing.
 - The key is stored in the vault's plugin folder and sent only to Mistral.
 
-The transcript
+The clipboard
 
-- Off by default. Turning it on adds a copy button that puts note text and
-  vault instructions on the clipboard.
+- Off by default. Turning the transcript on adds a copy button that puts note
+  text and vault instructions on the clipboard.
+- Say clipboard, not only transcript. Clipboard access is a capability the
+  scanner names and the dashboard asks about, so a reader searching for the
+  word needs to find it.
 
 What never leaves
 

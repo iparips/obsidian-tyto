@@ -17,7 +17,7 @@ do, which is a capability note rather than a disclosure.
 
 - Rule: "Network use. Clearly explain which remote services are used and why
   they're needed." (Developer policies, Disclosures)
-- Evidence: src/model/providers/mistral-provider.ts line 12 posts to
+- Evidence: MistralProvider (Tyto) holds the API base
   `https://api.mistral.ai/v1`, sending audio to `/audio/transcriptions` and
   note content to `/chat/completions`.
 - Fix: a named section in the README saying which service, which endpoints,
@@ -39,5 +39,6 @@ The copy-transcript feature puts note text and vault instructions on the
 clipboard. The settings note says so, the README does not. The feature is off
 by default, which is the right default and does not remove the need to say it.
 
-- Evidence: src/session/views/PanelHeader.tsx line 32 writes the transcript to
-  the clipboard; the transcript is built from the whole session.
+- Evidence: PanelHeader (Tyto) writes the transcript to the clipboard with
+  `navigator.clipboard.writeText`, and HistoryEntry (Tyto) does the same for one
+  entry. The transcript is built from the whole session.
