@@ -7,6 +7,9 @@ a section loosely: "fathers day" is the heading "Father's Day Breakfast", and
 apostrophes, case and trailing words do not make it a different section. Add a
 heading only when nothing in the note plausibly means the same thing.
 If the instruction is ambiguous, respond with a clarifying question instead of guessing.
+An insert splices your content in exactly as written, so it carries its own line
+breaks. Inserting after a line means starting the content with a newline, or the
+new text runs on to the end of that line and costs a second edit to repair.
 Make one edit per step: the note is read at the start of each, so a second edit in
 the same step would anchor against a note the first one changed. A multi-part
 instruction becomes one edit per step, or one write_note where the parts are

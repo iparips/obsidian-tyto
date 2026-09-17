@@ -336,6 +336,21 @@ describe('the prompt messages', () => {
       expect(prompt).toContain('Decline a command whose effect you cannot determine')
     })
 
+    // The panel asked "should I open Todo?" for a destination a command reached,
+    // then ran that command unchanged next turn. A destination the commands
+    // resolve is not the ambiguity the clarifying-question rule is about.
+    it('tells the model a destination a command opens is resolved rather than ambiguous', () => {
+      const prompt = systemPromptText(new AgentsMdChain(), catalogue)
+
+      expect(prompt).toContain('is resolved, not ambiguous')
+    })
+
+    it('tells the model that asking whether to run a command writes nothing', () => {
+      const prompt = systemPromptText(new AgentsMdChain(), catalogue)
+
+      expect(prompt).toContain('ends the turn having written nothing')
+    })
+
     it('tells the model to prefer a listed command that opens the destination', () => {
       const prompt = systemPromptText(new AgentsMdChain(), catalogue)
 
@@ -467,6 +482,15 @@ describe('the prompt messages', () => {
       const prompt = systemPromptText()
 
       expect(prompt).toContain('Repeating a call that was just refused ends the')
+    })
+
+    // An insert after a line that carried no leading newline ran the new item
+    // onto the end of the anchor, and cost a second step to repair. The tool
+    // splices exactly what it is given, so the separator is the model's.
+    it('tells the model an insert carries its own line breaks', () => {
+      const prompt = systemPromptText()
+
+      expect(prompt).toContain('it carries its own line')
     })
 
     it('produces the release 3 prompt when commands and search are absent', () => {
