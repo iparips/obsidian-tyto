@@ -112,6 +112,21 @@ describe('the prompt messages', () => {
       expect(prompt).toContain('retrying that call first is refused again')
     })
 
+    // A session loaded the skill, never remade the refused run_command, and
+    // edited the note it was already bound to. The write looked like a success
+    // and landed in the wrong note.
+    it('says the refused call must be remade before anything else', () => {
+      const prompt = systemPromptText(aChain(), [], catalogue)
+
+      expect(prompt).toContain('make it again')
+    })
+
+    it('names where an edit lands when the refused command opened no note', () => {
+      const prompt = systemPromptText(aChain(), [], catalogue)
+
+      expect(prompt).toContain('whatever note the session was already on')
+    })
+
     // The command sections already said to prefer a command, and a model
     // reasoning about which skill applied globbed a path a command reached.
     // This says it where that reasoning happens.
