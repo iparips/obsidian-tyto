@@ -138,8 +138,18 @@ describe('EntryProgress', () => {
       )
 
       expect(container.querySelector('.tyto-progress-direct')?.textContent?.trim()).toBe(
-        'Undo not available - because editor moved to another note',
+        'Undo not available',
       )
+    })
+
+    // D2: a mismatched file is not a moved tab, so the line covers both by
+    // naming neither. The consequence is what the reader can act on.
+    it('names no cause for the write having gone direct', () => {
+      const { container } = render(
+        <EntryProgress lines={[directEdit()]} target="Lists/shopping.md" />,
+      )
+
+      expect(container.querySelector('.tyto-progress-direct')?.textContent).not.toContain('because')
     })
 
     // The rule that hides a matching note is overridden here: this is the edit
@@ -165,7 +175,7 @@ describe('EntryProgress', () => {
         'Edit',
         'applied',
         'directly.',
-        'Undo not available - because editor moved to another note',
+        'Undo not available',
         'Lists/shopping.md',
       ])
     })
