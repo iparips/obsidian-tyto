@@ -62,7 +62,7 @@ export class TargetNoteWriter {
   // loading answers with this one and holds the previous note's text, so the
   // handle is trusted only where the two agree.
   private async editorHoldsTheNote(note: OpenNote, wroteThroughEditor: boolean): Promise<boolean> {
-    if (!this.tabShowsPath(note)) return false
+    if (!(await this.tabShowsPath(note))) return false
     // Only a view this turn already wrote through: it passed this test to earn
     // that write, so flushing it writes back what it was trusted with. A save
     // writes the editor over the file, so flushing a half-opened one would put
@@ -73,8 +73,8 @@ export class TargetNoteWriter {
 
   // The same handle the locator answers with means the tab has not moved, so
   // the write goes through the editor and keeps undo and the cursor.
-  private tabShowsPath(note: OpenNote): boolean {
-    const located = this.noteLocator.locate(note.path)
+  private async tabShowsPath(note: OpenNote): Promise<boolean> {
+    const located = await this.noteLocator.locate(note.path)
     return located.succeeded() && located.value.editor === note.editor
   }
 

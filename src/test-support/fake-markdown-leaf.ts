@@ -5,6 +5,9 @@ import { Editor, MarkdownView, TFile } from 'obsidian'
 // replaces that view in place rather than handing back a new leaf.
 export class FakeMarkdownLeaf {
   view: unknown
+  // TextFileView's flush, counted rather than performed: what a test asserts is
+  // that the save reached a view at all, which a deferred leaf denied it.
+  saves = 0
 
   constructor(
     readonly path: string,
@@ -12,7 +15,7 @@ export class FakeMarkdownLeaf {
     private deferred: boolean,
     private onLoadFn: (path: string) => void,
   ) {
-    this.view = deferred ? {} : FakeMarkdownLeaf.loadedView(path, editor)
+    this.view = deferred ? {} : this.loadedView()
   }
 
   get isDeferred(): boolean {
@@ -23,15 +26,18 @@ export class FakeMarkdownLeaf {
     this.onLoadFn(this.path)
     if (!this.deferred) return
     this.deferred = false
-    this.view = FakeMarkdownLeaf.loadedView(this.path, this.editor)
+    this.view = this.loadedView()
   }
 
   // A real MarkdownView, since the locator checks instanceof rather than
   // casting: a plain object would pass the fake and fail the plugin.
-  private static loadedView(path: string, editor: Editor): MarkdownView {
+  private loadedView(): MarkdownView {
     const view = new MarkdownView(null as never)
-    view.file = { path } as TFile
-    view.editor = editor
+    view.file = { path: this.path } as TFile
+    view.editor = this.editor
+    view.save = async () => {
+      this.saves += 1
+    }
     return view
   }
 }

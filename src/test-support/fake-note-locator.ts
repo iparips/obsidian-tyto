@@ -56,7 +56,7 @@ export class FakeNoteLocator extends WorkspaceNoteLocator {
     if (editor) this.saveFn?.(path, editor.getValue())
   }
 
-  locate(path: string): Attempt<OpenNote> {
+  async locate(path: string): Promise<Attempt<OpenNote>> {
     const editor = this.editors.get(path)
     if (!editor) return Outcomes.failure('apply', `${path} is not open in an editor`)
     return Outcomes.success(new OpenNote(editor.asEditor(), path, editor.getCursor()))

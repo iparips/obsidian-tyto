@@ -35,7 +35,7 @@ export class TargetNoteResolver {
   // that opened a note names it, and the user moving tabs between the open and
   // this call would otherwise hand the turn an editor showing another note.
   async resolveFor(path: string): Promise<TargetResolution> {
-    const openNoteOutcome = this.noteLocator.locate(path)
+    const openNoteOutcome = await this.noteLocator.locate(path)
     if (openNoteOutcome.hasFailed()) return new ResolutionFailed(path, openNoteOutcome.message)
     const openNote = openNoteOutcome.value
     return new TargetResolved(
