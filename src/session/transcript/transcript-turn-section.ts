@@ -29,7 +29,7 @@ export class TranscriptTurnSection {
       '',
       `Utterance: ${turn.utterance}`,
       '',
-      ...this.setup(steps),
+      ...this.setup(turn.index, steps),
       ...steps.flatMap((step, index) => [...this.step(step, steps, index), '']),
       ...turn.entriesBesideSteps().flatMap((entry) => [...TranscriptEntryLines.of(entry), '']),
     ]
@@ -38,13 +38,26 @@ export class TranscriptTurnSection {
   // TurnRunnerFactory resolves the note and collects its AGENTS.md chain before
   // the loop starts, so what it narrates belongs ahead of the first step rather
   // than inside a step no model call produced.
-  private setup(steps: readonly RecordedTurnStep[]): string[] {
+  // Bounded at both ends. A turn that spent no steps has no first step to slice
+  // to, so an unbounded start would reprint every line the session ever had.
+  private setup(turn: number, steps: readonly RecordedTurnStep[]): string[] {
     const before = this.progressLines.slice(
-      0,
+      this.previousTurnEndedAt(turn),
       steps[0]?.progressLines.first ?? this.progressLines.length,
     )
     if (before.length === 0) return []
     return ['### Setup', '', ...before.map(TranscriptEntryLines.line), '']
+  }
+
+  // The line after the last one any earlier turn claimed. A step that published
+  // nothing carries an empty range, so the search skips it rather than slicing
+  // from a last that sits below its first.
+  private previousTurnEndedAt(turn: number): number {
+    const earlier = this.source.steps.filter(
+      (step) => step.turn < turn && !step.progressLines.isEmpty(),
+    )
+    const last = earlier.at(-1)
+    return last ? last.progressLines.last + 1 : 0
   }
 
   // The step's own answer opens the next step's history slice, so a step is
