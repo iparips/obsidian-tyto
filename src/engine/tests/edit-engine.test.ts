@@ -4,7 +4,6 @@ import { Outcomes } from '../../shared/models/outcome'
 import { SkillRepository } from '../../skills/skill-repository'
 import { TurnProgressPublisher } from '../turn-progress-publisher'
 import { AgentsMdRepository } from '../../agents/agents-md-repository'
-import { FakeAdapter } from '../../test-support/fake-adapter'
 import { ChatProvider, ChatMessage } from '../../model/providers/types'
 import { aSession, aTextTurn, aToolCall, aToolTurn, anEngine } from '../../test-support/builders'
 import { FakeEditor } from '../../test-support/fake-editor'
@@ -38,7 +37,7 @@ describe('EditEngine', () => {
     })
   })
 
-  const noInstructions = () => new AgentsMdRepository(new FakeAdapter().asAdapter())
+  const noInstructions = () => new AgentsMdRepository(new FakeVault().asVault())
 
   const toolResults = () =>
     sessions.chatHistory().filter((message: ChatMessage) => message.isToolResult())
@@ -458,16 +457,16 @@ describe('EditEngine', () => {
     const SKILLS_PATH = '0 - Meta/Skills'
     const todoSource = '---\nname: todo\ndescription: Archives ticked items.\n---\n\n1. Split it.'
 
-    const engineReading = (adapter: FakeAdapter) =>
+    const engineReading = (skillVault: FakeVault) =>
       anEngine(chat, {
         sessions,
         noteLocator,
         agentsMdRepository: noInstructions(),
-        skillRepository: new SkillRepository(adapter.asAdapter(), SKILLS_PATH),
+        skillRepository: new SkillRepository(skillVault.asVault(), SKILLS_PATH),
       })
 
     const engineWithTodoSkill = () =>
-      engineReading(new FakeAdapter().withSkill(`${SKILLS_PATH}/todo`, todoSource))
+      engineReading(new FakeVault().withSkill(`${SKILLS_PATH}/todo`, todoSource))
 
     // The model's own judgement, held to itself: the harness never decides
     // which skill fits, only that the names the model declared are names it
@@ -547,13 +546,13 @@ describe('EditEngine', () => {
       // Reading one skill does not license writing under another: the gate asks
       // which skill, not merely whether any was read.
       it('refuses a skill unread even when a different one was read earlier', async () => {
-        const adapter = new FakeAdapter()
+        const skillVault = new FakeVault()
           .withSkill(`${SKILLS_PATH}/todo`, todoSource)
           .withSkill(
             `${SKILLS_PATH}/shopping`,
             '---\nname: shopping\ndescription: Keeps the list.\n---\n\n1. Add it.',
           )
-        const withSkills = engineReading(adapter)
+        const withSkills = engineReading(skillVault)
         complete
           .mockResolvedValueOnce(
             Outcomes.success(aToolTurn(aToolCall('load_skill', { name: 'todo' }))),
@@ -710,7 +709,7 @@ describe('EditEngine', () => {
         noteLocator,
         agentsMdRepository: noInstructions(),
         skillRepository: new SkillRepository(
-          new FakeAdapter().withSkill(`${SKILLS_PATH}/todo`, todoSource).asAdapter(),
+          new FakeVault().withSkill(`${SKILLS_PATH}/todo`, todoSource).asVault(),
           SKILLS_PATH,
         ),
         progress: new TurnProgressPublisher(
@@ -738,7 +737,7 @@ describe('EditEngine', () => {
         noteLocator,
         agentsMdRepository: noInstructions(),
         skillRepository: new SkillRepository(
-          new FakeAdapter().withSkill(`${SKILLS_PATH}/todo`, todoSource).asAdapter(),
+          new FakeVault().withSkill(`${SKILLS_PATH}/todo`, todoSource).asVault(),
           SKILLS_PATH,
         ),
         progress: new TurnProgressPublisher(
@@ -766,9 +765,7 @@ describe('EditEngine', () => {
         noteLocator,
         agentsMdRepository: noInstructions(),
         skillRepository: new SkillRepository(
-          new FakeAdapter()
-            .withSkillDeletedAfterListing(`${SKILLS_PATH}/todo`, todoSource)
-            .asAdapter(),
+          new FakeVault().withSkillDeletedAfterListing(`${SKILLS_PATH}/todo`, todoSource).asVault(),
           SKILLS_PATH,
         ),
         progress: new TurnProgressPublisher(
@@ -791,7 +788,7 @@ describe('EditEngine', () => {
 
     it('says so when the skill file cannot be read', async () => {
       const withSkills = engineReading(
-        new FakeAdapter().withSkillDeletedAfterListing(`${SKILLS_PATH}/todo`, todoSource),
+        new FakeVault().withSkillDeletedAfterListing(`${SKILLS_PATH}/todo`, todoSource),
       )
       complete
         .mockResolvedValueOnce(

@@ -16,6 +16,20 @@ export interface TFile extends TAbstractFile {
   stat: FileStats
 }
 
+// A class rather than an interface, because SkillRepository narrows a folder's
+// children with instanceof.
+export class TFolder implements TAbstractFile {
+  constructor(
+    public path: string,
+    public children: TAbstractFile[] = [],
+  ) {}
+}
+
+// Obsidian's collapses duplicate and trailing slashes and strips a leading one.
+export function normalizePath(path: string): string {
+  return path.replace(/\/+/g, '/').replace(/^\/+|\/+$/g, '')
+}
+
 export class Plugin {}
 
 export class ItemView {
@@ -112,6 +126,8 @@ export interface Vault {
   getMarkdownFiles(): TFile[]
   cachedRead(file: TFile): Promise<string>
   getAbstractFileByPath(path: string): TAbstractFile | null
+  getFileByPath(path: string): TFile | null
+  getFolderByPath(path: string): TFolder | null
 }
 
 // What a test reads back, since a registered icon has no other handle.

@@ -3,7 +3,7 @@ import { Outcomes } from '../../shared/models/outcome'
 import { ChatProvider } from '../../model/providers/types'
 import { AgentsMdChain } from '../../agents/agents-md-chain'
 import { AgentsMdRepository } from '../../agents/agents-md-repository'
-import { FakeAdapter } from '../../test-support/fake-adapter'
+import { FakeVault } from '../../test-support/fake-vault'
 import { FakeEditor } from '../../test-support/fake-editor'
 import { aSession, aTextTurn, anEngine } from '../../test-support/builders'
 import { FakeNoteLocator } from '../../test-support/fake-note-locator'
@@ -13,14 +13,14 @@ const NOTE = 'Journal/2026/today.md'
 
 describe('EditEngine', () => {
   let editor: FakeEditor
-  let adapter: FakeAdapter
+  let vault: FakeVault
   let complete: Mock<Parameters<ChatProvider['complete']>, ReturnType<ChatProvider['complete']>>
   let reported: AgentsMdChain[]
 
   beforeEach(() => {
     vi.clearAllMocks()
     editor = new FakeEditor('# Today\n\nbody')
-    adapter = new FakeAdapter()
+    vault = new FakeVault()
     complete = vi.fn().mockResolvedValue(Outcomes.success(aTextTurn('ok')))
     reported = []
   })
@@ -31,7 +31,7 @@ describe('EditEngine', () => {
       {
         sessions: aSession(notePath),
         noteLocator: new FakeNoteLocator().withOpenNote(notePath, editor),
-        agentsMdRepository: new AgentsMdRepository(adapter.asAdapter()),
+        agentsMdRepository: new AgentsMdRepository(vault.asVault()),
         progress: new TurnProgressPublisher(
           () => undefined,
           () => undefined,
@@ -45,7 +45,7 @@ describe('EditEngine', () => {
 
   describe('when the target folder holds instructions', () => {
     beforeEach(() => {
-      adapter.withFile('Journal/AGENTS.md', 'Write in second person.')
+      vault.withNote('Journal/AGENTS.md', 'Write in second person.')
     })
 
     it('puts the instructions in the system prompt when a turn runs', async () => {
@@ -63,9 +63,9 @@ describe('EditEngine', () => {
 
   describe('when the target sits in another folder', () => {
     it('resolves the new folder chain when the engine is rebound', async () => {
-      adapter
-        .withFile('Journal/AGENTS.md', 'Write in second person.')
-        .withFile('Clients/AGENTS.md', 'Never abbreviate a name.')
+      vault
+        .withNote('Journal/AGENTS.md', 'Write in second person.')
+        .withNote('Clients/AGENTS.md', 'Never abbreviate a name.')
 
       await engineFor('Clients/acme.md').processUtterance('add a line')
 
@@ -73,9 +73,9 @@ describe('EditEngine', () => {
     })
 
     it('leaves out the other folder instructions when the engine is rebound', async () => {
-      adapter
-        .withFile('Journal/AGENTS.md', 'Write in second person.')
-        .withFile('Clients/AGENTS.md', 'Never abbreviate a name.')
+      vault
+        .withNote('Journal/AGENTS.md', 'Write in second person.')
+        .withNote('Clients/AGENTS.md', 'Never abbreviate a name.')
 
       await engineFor('Clients/acme.md').processUtterance('add a line')
 

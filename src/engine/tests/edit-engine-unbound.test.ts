@@ -17,7 +17,6 @@ import { NoteGrep } from '../../search/note-grep'
 import { SearchToolsService } from '../tools/search-tools-service'
 import { DateToolService } from '../tools/date-tool-service'
 import { NoteReader } from '../../search/note-reader'
-import { FakeAdapter } from '../../test-support/fake-adapter'
 import { FakeEditor } from '../../test-support/fake-editor'
 import { FakeVault } from '../../test-support/fake-vault'
 import { FakeCommandRegistry } from '../../test-support/fake-command-registry'
@@ -34,7 +33,7 @@ describe('EditEngine', () => {
   let registry: FakeCommandRegistry
   let workspace: FakeWorkspace
   let vault: FakeVault
-  let adapter: FakeAdapter
+  let instructionVault: FakeVault
   let noteLocator: FakeNoteLocator
   let sessions: SessionRepository
   let skills: string[]
@@ -48,7 +47,7 @@ describe('EditEngine', () => {
     registry = new FakeCommandRegistry().withCommand('daily-notes:goto-today', 'Open today')
     workspace = new FakeWorkspace(null)
     vault = new FakeVault()
-    adapter = new FakeAdapter()
+    instructionVault = new FakeVault()
     skills = []
     answers = []
     retargets = []
@@ -87,8 +86,8 @@ describe('EditEngine', () => {
       {
         sessions,
         noteLocator,
-        agentsMdRepository: new AgentsMdRepository(adapter.asAdapter()),
-        skillRepository: new SkillRepository(adapter.asAdapter(), SKILLS_PATH),
+        agentsMdRepository: new AgentsMdRepository(instructionVault.asVault()),
+        skillRepository: new SkillRepository(instructionVault.asVault(), SKILLS_PATH),
         harnessToolsService: harnessOf(allowed),
         progress: new TurnProgressPublisher(
           (text, sources) => answers.push({ text, sources }),
@@ -176,7 +175,7 @@ describe('EditEngine', () => {
     })
 
     it('loads a skill when no note is open', async () => {
-      adapter.withSkill(
+      instructionVault.withSkill(
         `${SKILLS_PATH}/tidy-notes`,
         '---\nname: tidy-notes\ndescription: Tidies a note.\n---\n\nTidy it.',
       )

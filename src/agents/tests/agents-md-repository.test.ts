@@ -1,16 +1,16 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { AgentsMdRepository } from '../agents-md-repository'
-import { FakeAdapter } from '../../test-support/fake-adapter'
+import { FakeVault } from '../../test-support/fake-vault'
 
 const NOTE = 'Projects/Acme/meeting.md'
 
 describe('AgentsMdRepository', () => {
-  let adapter: FakeAdapter
+  let vault: FakeVault
   let repository: AgentsMdRepository
 
   beforeEach(() => {
-    adapter = new FakeAdapter()
-    repository = new AgentsMdRepository(adapter.asAdapter())
+    vault = new FakeVault()
+    repository = new AgentsMdRepository(vault.asVault())
   })
 
   const folders = async (notePath = NOTE) =>
@@ -26,7 +26,7 @@ describe('AgentsMdRepository', () => {
 
   describe('when only the vault root holds a file', () => {
     it('resolves the root file alone when no folder below has one', async () => {
-      adapter.withFile('AGENTS.md', 'Use full names.')
+      vault.withNote('AGENTS.md', 'Use full names.')
 
       expect(await folders()).toEqual([''])
     })
@@ -34,10 +34,10 @@ describe('AgentsMdRepository', () => {
 
   describe('when several folders hold a file', () => {
     beforeEach(() => {
-      adapter
-        .withFile('AGENTS.md', 'Use full names.')
-        .withFile('Projects/AGENTS.md', 'Lead with the outcome.')
-        .withFile('Projects/Acme/AGENTS.md', 'Never abbreviate the client.')
+      vault
+        .withNote('AGENTS.md', 'Use full names.')
+        .withNote('Projects/AGENTS.md', 'Lead with the outcome.')
+        .withNote('Projects/Acme/AGENTS.md', 'Never abbreviate the client.')
     })
 
     it('orders the chain root first when every level has a file', async () => {
@@ -57,7 +57,7 @@ describe('AgentsMdRepository', () => {
 
   describe('when a folder mid-chain has no file', () => {
     it('keeps the readable folders when a level between them has none', async () => {
-      adapter.withFile('AGENTS.md', 'Use full names.').withFile('Projects/Acme/AGENTS.md', 'Local.')
+      vault.withNote('AGENTS.md', 'Use full names.').withNote('Projects/Acme/AGENTS.md', 'Local.')
 
       expect(await folders()).toEqual(['', 'Projects/Acme'])
     })
@@ -65,9 +65,9 @@ describe('AgentsMdRepository', () => {
 
   describe('when the chain exceeds the cap', () => {
     beforeEach(() => {
-      adapter
-        .withFile('AGENTS.md', 'x'.repeat(30_000))
-        .withFile('Projects/Acme/AGENTS.md', 'y'.repeat(30_000))
+      vault
+        .withNote('AGENTS.md', 'x'.repeat(30_000))
+        .withNote('Projects/Acme/AGENTS.md', 'y'.repeat(30_000))
     })
 
     it('keeps the nearest folder when the cap cannot hold the whole chain', async () => {
