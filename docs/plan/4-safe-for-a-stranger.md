@@ -5,7 +5,7 @@ A stranger has no API key, no allow-list, and no patience for an edit landing
 in the wrong note.
 
 C1 to C4 are the remaining commits of
-[community-plugin-submission/5-tasks.md](../spec/1-upcoming/2026-09-11a-community-plugin-submission/5-tasks.md).
+[community-plugin-submission/5-tasks.md](../spec/2-active/2026-09-11a-community-plugin-submission/5-tasks.md).
 Its commit 1, the rename from Owl to Tyto, is done: the manifest id is tyto and
 no Owl string survives in src or styles.css.
 
