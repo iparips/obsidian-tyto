@@ -41,9 +41,13 @@ the first because it cannot know which stage a repo starts work in; here a spec
 is written because the work is starting, so 1-upcoming is for the ones Ilya
 parks there by asking. Put a spec in 1-upcoming only when he says so.
 
-The sdd skill owns how a spec folder is named. One thing it cannot know: the
-numbered folders already in 3-archived stay numbered, because fifteen have no
-recoverable date and their numbers record the real shipping order.
+The sdd skill owns how a spec folder is named, and every folder here follows it:
+`YYYY-MM-DD-<slug>`, dated from when the work started. The archive once held
+numbered folders instead. Their dates were recovered from git, so the numbers
+are gone and nothing is exempt.
+
+Where several specs share a start date, their letters run in the order the work
+shipped, which is the order the old numbers recorded.
 
 ## Code Conventions
 

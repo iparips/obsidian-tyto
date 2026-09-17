@@ -390,7 +390,7 @@ describe('the prompt messages', () => {
 
     // Asking which of several notes the user meant is what choose_note is for.
     // Left in the question rules, it routes the model to ask in prose, which is
-    // the second question 14-choosing-the-note exists to remove.
+    // the second question the choosing-the-note spec exists to remove.
     it('tells the model never to ask which of several notes the user meant', () => {
       const prompt = systemPromptText(new AgentsMdChain(), catalogue)
 

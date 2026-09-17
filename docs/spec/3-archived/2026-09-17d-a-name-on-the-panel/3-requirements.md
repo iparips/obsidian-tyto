@@ -62,7 +62,7 @@ buttons never shrink to make room for it.
 
 ### Project
 
-- [tidy-up-chat-panel](../../3-archived/6-tidy-up-chat-panel/1-index.md) - took the note name out of this header, and why the row is a toolbar today
+- [tidy-up-chat-panel](../../3-archived/2026-09-03c-tidy-up-chat-panel/1-index.md) - took the note name out of this header, and why the row is a toolbar today
 
 ### Architecture
 

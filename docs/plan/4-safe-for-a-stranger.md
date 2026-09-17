@@ -5,7 +5,7 @@ A stranger has no API key, no allow-list, and no patience for an edit landing
 in the wrong note.
 
 C1 to C4 are the remaining commits of
-[community-plugin-submission/5-tasks.md](../spec/2-active/2026-09-11a-community-plugin-submission/5-tasks.md).
+[community-plugin-submission/5-tasks.md](../spec/2-active/2026-09-11b-community-plugin-submission/5-tasks.md).
 Its commit 1, the rename from Owl to Tyto, is done: the manifest id is tyto and
 no Owl string survives in src or styles.css.
 
@@ -90,7 +90,7 @@ outside your control, so D is what to build during it.
 
 Not scheduled, and worth reaching for the moment a prompt change breaks
 something twice.
-[eval-suite/1-index.md](../spec/1-upcoming/2026-09-11b-eval-suite/1-index.md)
+[eval-suite/1-index.md](../spec/1-upcoming/2026-09-11c-eval-suite/1-index.md)
 is designed in five commits, the first of which is CI for the unit suite the
 repo does not yet have.
 

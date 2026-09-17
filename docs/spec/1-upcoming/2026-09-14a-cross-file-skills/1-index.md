@@ -4,7 +4,7 @@ Implementable spec for cross-file skills, which [plan/1-index.md](../../../plan/
 Desktop MVP; unlisted components are unchanged.
 
 Discovery, frontmatter parsing and prompt injection ship in the MVPs. See
-[1-desktop-mvp/3-component-design.md](../../3-archived/1-desktop-mvp/4-component-design.md).
+[2026-08-28a-desktop-mvp/3-component-design.md](../../3-archived/2026-08-28a-desktop-mvp/4-component-design.md).
 This release lifts the single-note limit those releases declare.
 
 - [2-requirements.md](2-requirements.md) - problem, goals, functional and non-functional requirements

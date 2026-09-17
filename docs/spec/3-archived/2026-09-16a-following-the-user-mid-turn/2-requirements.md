@@ -86,5 +86,5 @@ and a model that retries from the same snapshot misses again.
 
 ### Project
 
-- [33-reporting-what-a-turn-did](../../3-archived/33-reporting-what-a-turn-did/1-index.md) - removed the history message this spec partly restores, and left the batch question open as D4
-- [29-following-the-note-across-a-restore](../../3-archived/29-following-the-note-across-a-restore/1-index.md) - why following the user is the rule, which this spec does not change
+- [reporting-what-a-turn-did](../../3-archived/2026-09-16e-reporting-what-a-turn-did/1-index.md) - removed the history message this spec partly restores, and left the batch question open as D4
+- [following-the-note-across-a-restore](../../3-archived/2026-09-14h-following-the-note-across-a-restore/1-index.md) - why following the user is the rule, which this spec does not change

@@ -30,8 +30,8 @@ system, described in four places, none of which is current on its own.
 
 Releases 5 and 6 are unbuilt. Both already have a spec in 1-upcoming, each
 fuller than the architecture file:
-[2026-09-14b-desktop-v1](../../1-upcoming/2026-09-14b-desktop-v1/1-index.md)
-and [2026-09-14c-mobile-v1](../../1-upcoming/2026-09-14c-mobile-v1/1-index.md).
+[desktop-v1](../../1-upcoming/2026-09-14b-desktop-v1/1-index.md)
+and [mobile-v1](../../1-upcoming/2026-09-14c-mobile-v1/1-index.md).
 
 Unbuilt work has a home, and it is 1-upcoming. An architecture doc that
 describes it says the code is one shape when it is another.
