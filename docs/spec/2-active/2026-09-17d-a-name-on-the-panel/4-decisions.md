@@ -14,11 +14,11 @@ updated: 2026-09-17
 By moving the path data into a module under views/ that the header renders as an
 inline svg. Ilya chose it.
 
-| Option                        | Cost                                                     |
-| ----------------------------- | -------------------------------------------------------- |
-| Inline svg in views/          | Chosen                                                   |
-| setIcon through a prop        | A port carried through the panel for one glyph            |
-| A second copy of the path     | Two marks that drift apart on the next edit               |
+| Option                    | Cost                                           |
+| ------------------------- | ---------------------------------------------- |
+| Inline svg in views/      | Chosen                                         |
+| setIcon through a prop    | A port carried through the panel for one glyph |
+| A second copy of the path | Two marks that drift apart on the next edit    |
 
 Nothing outside views/ imports React and nothing in views/ may reach Obsidian,
 so a header that names an icon id has no way to render it. setIcon would work
