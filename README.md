@@ -102,7 +102,8 @@ Skills must live in a normal vault folder. Obsidian Sync copies no dot-folder to
 
 - Mic errors: macOS needs microphone permission for Obsidian under System Settings, Privacy and Security.
 - 401 errors: check the API key in settings.
-- "note is not open in an editor": the session's note must stay open in a tab while you edit.
+- "Undo not available" on an edit: the note had no tab open, so the edit was written to the file directly. It landed; only undo was lost.
+- "is not a markdown note": the session is on a canvas, a PDF or a Bases file, which have no editor to write through. Press Reset and start on a note.
 - No skills on mobile: check the skills path in settings is a normal folder, not a dot-folder.
 
 ## Releasing
