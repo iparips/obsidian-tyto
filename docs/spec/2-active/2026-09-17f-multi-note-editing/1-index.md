@@ -11,6 +11,7 @@ The loop can already edit several notes in a turn: reach a note, edit it, reach 
 
 The work is one rule: refuse a second retargeting call in a step, as a second edit is already refused. A prompt line asking the model to reach one note before the next sits beside it, and is tuning rather than the fix.
 
+- [0-prompt-design.md](0-prompt-design.md) - hands the design phase to a fresh session: what is settled, what to verify, and where D4 has teeth
 - [2-requirements.md](2-requirements.md) - the once-per-step read, the two tools that move the target, and steps to replicate
 - [3-decisions.md](3-decisions.md) - why the rule covers every retargeting call, why a step cannot both reach and edit, and what the fix assumes about the model
 - [4-acceptance-criteria.md](4-acceptance-criteria.md) - six manual checks, since whether the model interleaves is a judgement no unit test makes
