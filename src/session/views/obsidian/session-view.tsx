@@ -2,6 +2,8 @@ import { ItemView, WorkspaceLeaf } from 'obsidian'
 import { createRoot, Root } from 'react-dom/client'
 import { SessionPanel, SessionPanelProps } from '../SessionPanel'
 import { TYTO_ICON } from './tyto-icon'
+import { entryMarkdownRender } from './entry-markdown-render'
+import { MarkdownRenderFn } from '../markdown-render'
 
 export const VIEW_TYPE_SESSION = 'tyto-session'
 
@@ -12,6 +14,10 @@ export type RestoreSessionFn = (view: SessionView) => Promise<SessionPanelProps 
 
 export class SessionView extends ItemView {
   private root: Root | null = null
+  // Built on first render rather than as a field, so it reads this.app after
+  // ItemView's constructor has set it. Held after that, because a new function
+  // each render would restart every entry through the effect depending on it.
+  private markdownRender: MarkdownRenderFn | null = null
   private panelProps: SessionPanelProps | null = null
   // Bumped on every bind, and the panel's whole key, so an unbound session needs
   // no note name to remount and clear the entries on screen.
@@ -91,10 +97,19 @@ export class SessionView extends ItemView {
     this.opening = null
   }
 
+  private renderMarkdownFn(): MarkdownRenderFn {
+    this.markdownRender ??= entryMarkdownRender(this.app)
+    return this.markdownRender
+  }
+
   private renderPanel(): void {
     if (!this.root) return
     if (!this.panelProps) return
     const key = `session-${this.sessionCount}`
-    this.root.render(<SessionPanel key={key} {...this.panelProps} />)
+    // Supplied here rather than by wiring: the renderer needs the app, and the
+    // view is the only part of the panel that already holds one.
+    this.root.render(
+      <SessionPanel key={key} {...this.panelProps} renderMarkdownFn={this.renderMarkdownFn()} />,
+    )
   }
 }

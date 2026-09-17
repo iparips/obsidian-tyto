@@ -15,6 +15,27 @@ describe('HistoryEntry', () => {
     })
   })
 
+  // The model writes markdown in a reply, so a section name reaches the panel
+  // as **Top Ups**. The renderer is the panel's, threaded from the view that
+  // holds the app.
+  describe('when a markdown renderer is supplied', () => {
+    it('renders the entry text through it rather than printing the source', () => {
+      const renderMarkdownFn = vi.fn().mockReturnValue(() => {})
+
+      render(
+        <HistoryEntry
+          entry={{ kind: 'assistant', text: 'Added to the **Top Ups** section' }}
+          renderMarkdownFn={renderMarkdownFn}
+        />,
+      )
+
+      expect(renderMarkdownFn).toHaveBeenCalledWith(
+        'Added to the **Top Ups** section',
+        expect.anything(),
+      )
+    })
+  })
+
   describe('when the entry carries a weight', () => {
     it('carries the utterance weight class when the entry is a user entry', () => {
       const { container } = render(<HistoryEntry entry={{ kind: 'user', text: 'do the thing' }} />)
