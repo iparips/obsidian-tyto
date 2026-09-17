@@ -38,24 +38,22 @@ This updates package.json, manifest.json, and versions.json, then commits and ta
 git push origin main --tags
 ```
 
-## 5. Create the GitHub Release
+## 5. Let the Workflow Cut the Release
 
-1. Go to Releases, then "Draft a new release"
-2. Select the new tag, for example `0.2.0`
-3. Set the title to `v0.2.0`
-4. Fill in new features, bug fixes, and the minimum Obsidian version from manifest.json
-5. Upload main.js, manifest.json, and styles.css as release assets
-6. Publish
+Pushing the tag triggers .github/workflows/release.yml, which rebuilds from a
+clean checkout, attaches main.js, manifest.json and styles.css, and attests
+them with GitHub's build provenance. Nothing is uploaded by hand.
 
-### Using GitHub CLI
+It fails the run if manifest.json disagrees with the tag, since a release the
+directory cannot resolve is worse than no release.
+
+Check the attestations landed:
 
 ```bash
-gh release create 0.2.0 main.js manifest.json styles.css \
-  --title "v0.2.0" \
-  --notes "## What's New
-- Feature X
-- Bug fix Y"
+gh attestation verify main.js --repo <owner>/<repo>
 ```
+
+Then edit the generated notes if they need more than the commit list.
 
 ## Version History
 

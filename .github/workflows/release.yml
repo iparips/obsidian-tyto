@@ -1,0 +1,58 @@
+# Cuts the release the community directory reads. The scan rebuilds from source
+# and compares against the main.js attached here, so this runs the same `build`
+# script the scan does rather than a release-only variant.
+name: Release
+
+on:
+  push:
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+'
+
+permissions:
+  contents: write
+  # Required by attest-build-provenance to sign the assets.
+  id-token: write
+  attestations: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - run: bun install --frozen-lockfile
+
+      # The suite and the linter run here rather than in `build`, which the
+      # scan calls and which must stay the bundle alone.
+      - run: bun run typecheck
+      - run: bun run test
+      - run: bun run lint
+
+      - run: bun run build
+
+      # The tag names the release, so a manifest that disagrees with it ships a
+      # version the directory cannot resolve.
+      - name: Check the manifest matches the tag
+        run: |
+          manifest="$(jq -r .version manifest.json)"
+          if [[ "$manifest" != "${GITHUB_REF_NAME}" ]]; then
+            echo "manifest.json says $manifest, tag says ${GITHUB_REF_NAME}" >&2
+            exit 1
+          fi
+
+      - uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: 'main.js, manifest.json, styles.css'
+
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${GITHUB_REF_NAME}" \
+            main.js manifest.json styles.css \
+            --title "v${GITHUB_REF_NAME}" \
+            --generate-notes
