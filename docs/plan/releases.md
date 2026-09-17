@@ -87,7 +87,7 @@ Detailed design, one folder per feature:
 - [14-choosing-the-note/1-index.md](../spec/3-archived/14-choosing-the-note/1-index.md) - the user picks the note from a shortlist, which is also the permission to write to it. Built; exit tests outstanding.
 - [session-persistence/1-index.md](../spec/3-archived/22-session-persistence/1-index.md) - a session that survives the app being backgrounded. Designed.
 
-High-level design: [architecture/4-obsidian-agent-harness.md](../architecture/4-obsidian-agent-harness.md).
+High-level design: [architecture/6-reaching-a-note.md](../architecture/6-reaching-a-note.md).
 
 Exit test: "open my daily note and add a paragraph under Meetings" opens the note and edits it, "what did I write about the roofing quote recently" returns a copyable summary naming its sources and touches no note, and a vault with an empty allow-list behaves byte for byte as release 3.
 

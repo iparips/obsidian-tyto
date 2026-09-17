@@ -24,7 +24,7 @@ flowchart LR
 Arrows: uses-relationship (client to supplier).
 
 The model cycle is documented in
-[architecture/7-package-design.md](../../../architecture/7-package-design.md). The
+[architecture/1-overview.md](../../../architecture/1-overview.md). The
 session cycle is not: that doc records session depending on engine, and engine
 on session for nothing.
 

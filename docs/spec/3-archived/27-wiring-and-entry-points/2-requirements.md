@@ -110,4 +110,4 @@ Then  no file there constructs SessionRepository or TranscriptRepository
 
 ### Architecture
 
-- [architecture/7-package-design.md](../../../architecture/7-package-design.md) - the dependency rule and the package table this updates
+- [architecture/1-overview.md](../../../architecture/1-overview.md) - the dependency rule and the package table this updates

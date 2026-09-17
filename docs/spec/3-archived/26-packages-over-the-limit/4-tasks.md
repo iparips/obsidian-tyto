@@ -65,7 +65,7 @@ views/ goes 17 to 10.
 ## Commit 5: the architecture doc matches the tree
 
 The size table in
-[architecture/7-package-design.md](../../../architecture/7-package-design.md) is
+[architecture/1-overview.md](../../../architecture/1-overview.md) is
 re-counted, its "over the limit today" line removed, and the new folders added
 to the package table with what each owns.
 

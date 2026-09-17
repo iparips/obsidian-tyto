@@ -84,7 +84,7 @@ moves the target note in passing. It holds what a turn needs while running. The
 engine does not import PanelEntry today, and giving it a reason to would widen the
 engine-to-session cycle the package design already names as a compromise.
 
-[11-the-two-records.md](../../../architecture/11-the-two-records.md) is the map
+[7-the-panel.md](../../../architecture/7-the-panel.md) is the map
 of what each list holds and where the two overlap.
 
 ## Entries are rewritten, not appended

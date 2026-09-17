@@ -159,7 +159,7 @@ existing behaviour for a note the resolver cannot reach, and it needs no change.
 - Saying "no note bound" in the panel beyond the header going blank. The
   sibling's retarget step already says it (D1).
 - Moving the markdown-only rule out of wiring and into engine, which
-  [7-package-design.md](../../../architecture/7-package-design.md) records as
+  [1-overview.md](../../../architecture/1-overview.md) records as
   open.
 
 ## References

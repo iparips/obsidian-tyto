@@ -122,7 +122,7 @@ it, two checks the suite cannot make:
 - Count the source files in every folder, excluding tests, and confirm none
   exceeds ten.
 - Confirm the size table in
-  [architecture/7-package-design.md](../../../architecture/7-package-design.md)
+  [architecture/1-overview.md](../../../architecture/1-overview.md)
   matches the tree, and that no folder is listed as over.
 
 ## Out of scope
@@ -135,6 +135,6 @@ it, two checks the suite cannot make:
 ## References
 
 - [2-requirements.md](2-requirements.md) - what is over and what may not change
-- [architecture/7-package-design.md](../../../architecture/7-package-design.md) - the size table this updates
+- [architecture/1-overview.md](../../../architecture/1-overview.md) - the size table this updates
 - src/engine/tools - the skill gate, and the two request values waiting reads
 - src/engine/turn/turn-spend.ts - the concept the spending folder is named for

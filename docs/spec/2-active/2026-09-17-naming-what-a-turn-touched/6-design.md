@@ -90,5 +90,5 @@ limit.
 ## References
 
 - [4-decisions.md](4-decisions.md) - D1 on what stops showing, D2 on which lines name a note, D3 on the warning
-- [architecture/12-the-panel-vocabulary.md](../../../architecture/12-the-panel-vocabulary.md) - the entry kinds this removes one of
+- [architecture/2-vocabulary.md](../../../architecture/2-vocabulary.md) - the entry kinds this removes one of
 - [3-requirements.md](3-requirements.md) - the files each change starts in, with a brief each

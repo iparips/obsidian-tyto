@@ -17,8 +17,8 @@ Never push, force-push, or merge without being asked.
 
 ## Where Things Are
 
-- [docs/architecture/0-index.md](docs/architecture/0-index.md) - the architecture docs, indexed
-- [docs/architecture/12-the-panel-vocabulary.md](docs/architecture/12-the-panel-vocabulary.md) - read before naming anything a turn, a turn step or a progress line; the three are easily confused
+- [docs/architecture/1-overview.md](docs/architecture/1-overview.md) - the architecture docs, indexed, and the rules that hold across packages
+- [docs/architecture/2-vocabulary.md](docs/architecture/2-vocabulary.md) - read before naming anything a turn, a turn step or a progress line; the three are easily confused
 - [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) - setup and build, for a person rather than an agent
 - [README.md](README.md) - what the plugin does and does not do, and why
 
@@ -55,9 +55,10 @@ specific to this repo.
 
 ## Package Layout
 
-[docs/architecture/7-package-design.md](docs/architecture/7-package-design.md)
-owns it: what each package holds, which way dependencies run, the two open
-cycles, and the layout within a package. Read it before adding a file.
+[docs/architecture/1-overview.md](docs/architecture/1-overview.md) owns it:
+what each package holds, which way dependencies run, and the two open cycles.
+The layout within a package sits in the subsystem file that governs it, so
+engine's folders are in 4-the-turn.md. Read the overview before adding a file.
 
 Two rules from it are worth stating here, because both are checkable by reading
 a path and both are easy to break by accident.

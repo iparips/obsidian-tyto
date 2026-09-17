@@ -56,7 +56,7 @@ than a record, and no block names it well.
 | UtteranceQueue | One utterance at a time, without interleaving |
 
 These carry no domain meaning at all. They are described in
-[architecture/8-parking-a-turn.md](../../../architecture/8-parking-a-turn.md).
+[architecture/4-the-turn.md](../../../architecture/4-the-turn.md).
 
 ## Why the category exists
 

@@ -130,4 +130,4 @@ And   the last harness block of the second names stuck
 
 ### Architecture
 
-- [docs/architecture/7-package-design.md](../../../architecture/7-package-design.md) - the dependency direction, which decides where the prompt may be stored and read
+- [docs/architecture/1-overview.md](../../../architecture/1-overview.md) - the dependency direction, which decides where the prompt may be stored and read
