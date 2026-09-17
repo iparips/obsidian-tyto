@@ -55,15 +55,37 @@ and the handle is held for the turn, so every later step inherits the wrong body
 ## Steps to Replicate
 
 Not reproduced on demand, and the timing is unknown. The reported session is the
-evidence, so a probe comes before a fix.
+evidence.
 
-The shape to attempt, on mobile first, where OpenedNoteWait's comment says the
-open race is lost most often:
+The shape to attempt, on mobile, where OpenedNoteWait's comment says the open
+race is lost most often:
 
 1. Open a note with a long body, so a wrong one is obvious.
 2. Start a session on another note.
 3. Ask for an edit to a third note a listed command opens.
 4. Copy the transcript and compare each note context's path against its body.
+
+### What the probe showed
+
+Run on desktop, 2026-09-17, after the fix landed. Session on a daily note with a
+long body, then a command opened the shopping list.
+
+- It did not reproduce. The note context after the command carried the shopping
+  list's path and the shopping list's body.
+- The edit went through the editor, with no direct-write warning. So the guard
+  passes a loaded view rather than failing every comparison.
+
+A non-reproduction bounds the timing rather than settling the cause: it says the
+race is not reliably lost on desktop, and says nothing about mobile. The
+assumption in [4-decisions.md](4-decisions.md) that the view reported the
+target's path while its editor held the previous note is therefore still
+unconfirmed, and the mobile pass in
+[5-acceptance-criteria.md](5-acceptance-criteria.md) is what would confirm it.
+
+One thing the run did settle, having been in doubt: an earlier session took the
+vault on all six edits, which looked like a guard that never passes. It was the
+user typing into the editor between turns, which is D1's accepted cost behaving
+as designed.
 
 ## References
 

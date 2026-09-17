@@ -59,7 +59,9 @@ Not code. Both need a real vault, a key and a mobile pass.
 
 1. Run the probe in 3-requirements.md. Record what it shows in the spec even if
    it does not reproduce: a probe that fails to reproduce bounds the timing.
-2. Run 5-acceptance-criteria.md, mobile included.
+   Done on desktop, 2026-09-17. It did not reproduce, and the result is in
+   3-requirements.md. Mobile is outstanding.
+2. Run 5-acceptance-criteria.md, mobile included. Desktop has passed.
 
 What the probe settles, and nothing in commits 1 to 3 does: whether the view
 really reported the target's path while its editor held the previous note. If it
