@@ -234,10 +234,15 @@ carries no attestations, which the directory recommends, so those stay.
 
 Not commits. The things to do once, by hand.
 
-- Rotate the Mistral key that sits in the working tree's data.json.
 - Cut a release whose tag matches the manifest version.
 - Confirm the manifest on the default branch is the one the directory reads.
 - Submit at community.obsidian.md with the GitHub account linked, the owner set
   to Ilya, and the payment category set to Optional payment.
 - Read the scan result in the dashboard, which arrives within minutes, and fix
   what it raises before the 24 hours that puts the listing in the app.
+
+Not on this list, though an earlier draft had it: rotating the Mistral key.
+data.json is gitignored and was never committed, which
+[2-audit/5-passes.md](2-audit/5-passes.md) finding 11 establishes, so nothing
+leaked and there is nothing to revoke. Rotating is optional hygiene, not a step
+the submission waits on.
