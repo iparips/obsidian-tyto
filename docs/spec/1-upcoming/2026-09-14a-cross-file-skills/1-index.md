@@ -1,6 +1,6 @@
 # Cross-File Skills: Detailed Design
 
-Implementable spec for release 7 of [2-plan.md](../../../plan/releases.md). A delta on the
+Implementable spec for cross-file skills, which [plan/1-index.md](../../../plan/1-index.md) lists as not planned. A delta on the
 Desktop MVP; unlisted components are unchanged.
 
 Discovery, frontmatter parsing and prompt injection ship in the MVPs. See

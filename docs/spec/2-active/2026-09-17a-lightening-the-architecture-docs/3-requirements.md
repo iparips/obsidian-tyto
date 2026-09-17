@@ -76,5 +76,5 @@ A third, engine/turn, has reached it.
 
 ### Project
 
-- [docs/plan/releases.md](../../../plan/releases.md) - the seven releases, and which have shipped
+- [docs/plan/1-index.md](../../../plan/1-index.md) - what has shipped, and the milestones left
 - [AGENTS.md](../../../../AGENTS.md) - points at the architecture docs, and defers package layout to them
