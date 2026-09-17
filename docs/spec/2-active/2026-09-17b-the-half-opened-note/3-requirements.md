@@ -78,7 +78,7 @@ open race is lost most often:
 ### Project
 
 - [reaching-a-note-by-path](../../3-archived/2026-09-16b-reaching-a-note-by-path/1-index.md) - gave the write the vault fallback this reuses
-- [naming-what-a-turn-touched](../../2-active/2026-09-17-naming-what-a-turn-touched/1-index.md) - the edit line this reuses, whose wording names a cause that is now one of two
+- [naming-what-a-turn-touched](../../3-archived/2026-09-17c-naming-what-a-turn-touched/1-index.md) - the edit line this reuses, whose wording names a cause that is now one of two
 
 ### Architecture
 
