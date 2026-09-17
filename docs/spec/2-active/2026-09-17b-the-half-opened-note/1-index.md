@@ -25,8 +25,8 @@ path from one half of the pair and reads its body through the other.
 The model refusing was luck: it was handed a body obviously unlike a shopping
 list. Two similar notes would have gone through silently.
 
-Not reproduced on demand, so a probe still comes after the fix to say whether
-the state is the one described. The suite covers the writer's half: a test puts
+Not reproduced on demand, and the desktop probe after the fix did not reproduce
+it either, so whether the state is the one described rests on a mobile run. The suite covers the writer's half: a test puts
 the turn's handle over one text and the vault over another, which is the shape
 the reported session had.
 
