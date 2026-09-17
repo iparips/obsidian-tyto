@@ -247,6 +247,37 @@ describe('EditEngine', () => {
     })
   })
 
+  // The reported session ran the same command twice: reported as a success, a
+  // command that opened nothing never reached the counter that stops a loop.
+  describe('when a command opens no note', () => {
+    beforeEach(() => {
+      registry.executeCommandById = (id: string) => {
+        registry.executed.push(id)
+        return true
+      }
+    })
+
+    it('tells the model a retry changes nothing', async () => {
+      respondsWith(runCommand())
+
+      await engineOf().processUtterance('open my daily note')
+
+      expect(
+        complete.mock.calls[1][0].filter((m: ChatMessage) => m.isToolResult())[0],
+      ).toMatchObject({
+        content: expect.stringContaining('it opened no note, so nothing changed'),
+      })
+    })
+
+    it('stops the turn rather than running it forever', async () => {
+      complete.mockResolvedValue(Outcomes.success(runCommand()))
+
+      await engineOf().processUtterance('open my daily note')
+
+      expect(registry.executed).toEqual(['daily-notes:goto-today', 'daily-notes:goto-today'])
+    })
+  })
+
   describe('when the rebound note sits in another folder', () => {
     beforeEach(() => {
       opensDailyNote()
@@ -564,7 +595,15 @@ describe('EditEngine', () => {
       expect(resultsOf(1)[0].content).toContain('the tools you may call are')
     })
 
-    it('does not repeat the name it was sent', async () => {
+    it('names the call it stopped, so the model reads which one was refused', async () => {
+      respondsWith(aToolTurn(aToolCall('goto_next_note', {})))
+
+      await engineOf().processUtterance('add an item')
+
+      expect(resultsOf(1)[0].content).toContain('no tool named "goto_next_note"')
+    })
+
+    it('truncates a name too long to be one, rather than echoing the blob', async () => {
       respondsWith(aToolTurn(aToolCall(REASONING, {})))
 
       await engineOf().processUtterance('add an item')
@@ -616,7 +655,7 @@ describe('EditEngine', () => {
 
         await engineOf().processUtterance('rename the heading')
 
-        expect(resultsOf(1)[0].content).toContain('no tool named that')
+        expect(resultsOf(1)[0].content).toContain('no tool named')
       })
     })
   })
