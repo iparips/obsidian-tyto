@@ -197,14 +197,37 @@ installed from the directory and never seen the repo.
 Last, because it changes no plugin behaviour and the listing goes live without
 it.
 
-- Add .github/workflows/release.yml, triggered on a tag matching the manifest
-  version.
-- Run the same `build` the scanner runs.
-- Attach main.js, manifest.json and styles.css, attested with
-  `actions/attest-build-provenance` and `id-token: write`.
+- Add .github/workflows/build.yml, on push, pull request, release created and
+  workflow dispatch.
+- Run the same `build` the scanner runs, after typecheck, test and lint as
+  separate steps.
+- Attach main.js, manifest.json and styles.css to a created release, attested
+  with `actions/attest-build-provenance` and `id-token: write`.
 
-Exit test: a tag produces a release whose three assets carry attestations, and
-`gh attestation verify main.js` passes.
+Exit test: a pull request runs the checks, and publishing a release leaves it
+holding three attested assets that `gh attestation verify main.js` passes.
+
+### Shaped After the Plugin Already in the Store
+
+The design proposed a release-only workflow on a tag. It is now modelled on
+open-or-create-file-obsidian-plugin's build.yml, which has been running against
+a listed plugin, so its shape is proven rather than reasoned.
+
+What that changed, and why each is worth it:
+
+- It is CI as well as release. Running on push and pull request means a red
+  build is found on the branch rather than at the tag, which is the larger
+  share of the value.
+- A release is drafted by hand and the workflow attaches the assets, rather
+  than a tag creating the release. It keeps one release ritual across both
+  plugins.
+- `format` is left out of the run. It rewrites files, which a CI job must not
+  do, so the linter is what CI enforces.
+
+Two things it does not copy. The reference runs in a `node:24-alpine` container
+and installs Bun by piping curl, which is there because that repo needs a Node
+base image; `oven-sh/setup-bun` on a plain runner is fewer moving parts. And it
+carries no attestations, which the directory recommends, so those stay.
 
 ## Before Submitting
 
