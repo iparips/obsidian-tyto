@@ -24,6 +24,7 @@ import { FakeWorkspace } from '../../test-support/fake-workspace'
 
 const TODO = 'Journal/Weekly/Week-36/todo.md'
 const MISSING = 'Journal/Weekly/Week-99/todo.md'
+const EMPTY = 'Journal/Weekly/Week-36/09-17-Thu.md'
 
 describe('HarnessToolsService', () => {
   let vault: FakeVault
@@ -137,6 +138,36 @@ describe('HarnessToolsService', () => {
       )
 
       expect(harnessResult.result).toBe('- [ ] milk')
+    })
+  })
+
+  // An empty string reads as a read that answered nothing, and the model
+  // retries until the turn runs out of steps. Saying so ends the retry.
+  describe('when the note is empty', () => {
+    it('says the note is empty rather than answering nothing', async () => {
+      vault = new FakeVault().withNote(EMPTY, '')
+
+      const harnessResult = await readNote(EMPTY)
+
+      expect(harnessResult.result).toContain(`${EMPTY} is empty`)
+    })
+
+    it('says so for a note holding only whitespace', async () => {
+      vault = new FakeVault().withNote(EMPTY, '\n\n  \n')
+
+      const harnessResult = await readNote(EMPTY)
+
+      expect(harnessResult.result).toContain(`${EMPTY} is empty`)
+    })
+
+    // The read succeeded, so the path is offerable on the same terms as any
+    // other note the vault answered for.
+    it('records the path as found, since the read succeeded', async () => {
+      vault = new FakeVault().withNote(EMPTY, '')
+
+      await readNote(EMPTY)
+
+      expect(turn.pathsReturnedByVault.includes(EMPTY)).toBe(true)
     })
   })
 

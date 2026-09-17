@@ -105,7 +105,19 @@ export class HarnessToolsService {
     if (contentsOutcome.hasFailed()) return Refusal.of(contentsOutcome.message)
     turn.pathsReturnedByVault.recordPaths([path])
     turn.notesRead.record(path)
-    return new TextResult(contentsOutcome.value, ProgressLine.read(path))
+    return new TextResult(
+      HarnessToolsService.contentsOrEmptyNote(path, contentsOutcome.value),
+      ProgressLine.read(path),
+    )
+  }
+
+  // An empty note read back as an empty string is indistinguishable from a read
+  // that answered nothing, so the model retries it until the turn runs out of
+  // steps. Saying the note is empty is the whole fix: the read succeeded, and
+  // the model needs to know it may write rather than read again.
+  private static contentsOrEmptyNote(path: string, contents: string): string {
+    if (contents.trim().length > 0) return contents
+    return `${path} is empty; the read succeeded and there is nothing in the note to anchor to`
   }
 
   // The turn's own note reads from the editor holding it, every other note from
