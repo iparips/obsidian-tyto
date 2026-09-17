@@ -86,10 +86,13 @@ a path and both are easy to break by accident.
 
 ```bash
 bun run test     # unit suite
-bun run build    # test, lint, format, then bundle
+bun run verify   # typecheck, test, lint, format, then bundle
+bun run build    # bundle to main.js, and nothing else
 ```
 
-Two things to know about `bun run build`:
+`build` is the bundle alone because the community directory's scan calls it to
+rebuild from source and compare against the released main.js. `verify` is the
+one to run by hand, and two things are worth knowing about it:
 
 - It runs prettier over the whole repo, so it reformats files unrelated to your
   change. Keep that reformatting and commit it on its own, as a whitespace

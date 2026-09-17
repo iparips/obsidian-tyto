@@ -20,8 +20,8 @@ export const DEFAULT_SETTINGS: TytoSettings = {
   mistralApiKey: '',
   editModel: 'mistral-medium-latest',
   skillsPath: '0 - Meta/Skills',
-  commandAllowList: ['daily-notes:*'],
-  searchEnabled: true,
+  commandAllowList: [],
+  searchEnabled: false,
   openMode: 'confirm',
   transcriptCopyEnabled: false,
 }
