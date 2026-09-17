@@ -499,6 +499,75 @@ describe('TranscriptDocument', () => {
 
       expect(document).not.toContain('### Setup')
     })
+
+    // A turn refused before its first model call has no step to slice to, so
+    // the end of the slice is the session's line count and only its start keeps
+    // the previous turn's lines out.
+    describe('on a turn that spent no steps', () => {
+      const aLine = (label: string) => ({
+        label,
+        detail: '',
+        refused: false,
+        note: null,
+        wroteDirect: false,
+      })
+
+      const twoTurns = (secondTurnLines: string[]) => [
+        {
+          kind: 'turn' as const,
+          target: 'Journal/09-09-Wed.md',
+          entries: [
+            { kind: 'user' as const, text: 'first' },
+            {
+              kind: 'progress' as const,
+              lines: [aLine('Ran a command'), aLine('Edited the note')],
+            },
+          ],
+        },
+        {
+          kind: 'turn' as const,
+          target: 'Journal/09-09-Wed.md',
+          entries: [
+            { kind: 'user' as const, text: 'second' },
+            ...(secondTurnLines.length === 0
+              ? []
+              : [{ kind: 'progress' as const, lines: secondTurnLines.map(aLine) }]),
+          ],
+        },
+      ]
+
+      it('prints only its own lines', () => {
+        const document = documentOf({
+          items: twoTurns(['Loaded agent instructions']),
+          steps: [new RecordedTurnStep(0, 0, aPart(), new StepRange(0, 0), new StepRange(0, 1))],
+        })
+
+        const setup = document.slice(document.indexOf('### Setup', document.indexOf('second')))
+        expect(setup.split('\n').filter((line) => line.startsWith('- '))).toEqual([
+          '- Loaded agent instructions',
+        ])
+      })
+
+      it('leaves the previous turn`s command and edit in the previous turn', () => {
+        const document = documentOf({
+          items: twoTurns(['Loaded agent instructions']),
+          steps: [new RecordedTurnStep(0, 0, aPart(), new StepRange(0, 0), new StepRange(0, 1))],
+        })
+
+        const secondTurnAt = document.indexOf('Utterance: second')
+        expect(document.slice(secondTurnAt)).not.toContain('- Ran a command')
+        expect(document.slice(secondTurnAt)).not.toContain('- Edited the note')
+      })
+
+      it('prints no Setup block when it produced no lines of its own', () => {
+        const document = documentOf({
+          items: twoTurns([]),
+          steps: [new RecordedTurnStep(0, 0, aPart(), new StepRange(0, 0), new StepRange(0, 1))],
+        })
+
+        expect(document.slice(document.indexOf('Utterance: second'))).not.toContain('### Setup')
+      })
+    })
   })
 
   describe('a skill body', () => {
