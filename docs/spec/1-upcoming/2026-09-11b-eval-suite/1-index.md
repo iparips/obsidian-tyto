@@ -6,7 +6,7 @@ updated: 2026-09-11
 # Eval Suite: Spec
 
 Guards the model's judgement. A prompt change is a behaviour change, and
-[docs/AGENTS.md](../../../AGENTS.md) already says the unit tests cannot catch a
+[AGENTS.md](../../../../AGENTS.md) already says the unit tests cannot catch a
 regression in one. Its answer today is to test by hand against a real vault and
 a real key, which runs when someone remembers and records nothing.
 

@@ -17,7 +17,7 @@ Read 1-index.md, 2-requirements.md and 3-design.md before starting, and
 each commit's section as you reach it. The suite must stay green at every
 commit.
 
-Repo conventions are in docs/AGENTS.md: package layout, the repository-scope
+Repo conventions are in AGENTS.md: package layout, the repository-scope
 rule, test placement, and what a prompt change obliges. Read it first. Its
 "Prompt Changes Are Behaviour Changes" section governs commit 5.
 

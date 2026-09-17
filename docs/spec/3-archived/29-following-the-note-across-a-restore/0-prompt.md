@@ -18,7 +18,7 @@ read it if the requirements leave you unsure what went wrong. 5-tasks.md gives
 the build order in three commits and opens with two things to measure first. The
 suite must stay green at each commit.
 
-Repo conventions are in docs/AGENTS.md: package layout, the rule that wiring is
+Repo conventions are in AGENTS.md: package layout, the rule that wiring is
 the only place that constructs across packages, test placement, and the rule
 that a prompt change is a behaviour change. Read it first.
 

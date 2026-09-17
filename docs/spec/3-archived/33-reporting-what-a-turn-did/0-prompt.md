@@ -17,7 +17,7 @@ commit 1, the commit they mostly describe. 8-transcripts.md is evidence rather
 than instruction: read it only if a defect stops making sense.
 4-acceptance-criteria.md holds the checks a person runs afterwards.
 
-Repo conventions are in docs/AGENTS.md, including the rule that a prompt change
+Repo conventions are in AGENTS.md, including the rule that a prompt change
 is a behaviour change. Nothing here changes a prompt, but commit 1 removes a
 message the model used to read, which 4-acceptance-criteria.md has you check by
 hand.

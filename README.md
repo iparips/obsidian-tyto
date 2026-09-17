@@ -46,9 +46,9 @@ Small and legible
 - Conversation history lives in memory. Edits are saved to the note, but a reload clears the chat.
 - One recording per request, up to the provider's limits: currently 60 minutes or 500 MB, though Tyto tracks Mistral's latest transcription model, so that can move. A longer recording is rejected rather than split, and the panel offers a retry rather than losing the audio. Normal dictation is nowhere near either, since five minutes is about 1 MB.
 
-Specs live in docs/spec, in three buckets: [1-upcoming](docs/spec/1-upcoming/index.md)
-is designed but unbuilt, [2-active](docs/spec/2-active) is in flight, and
-[3-archived](docs/spec/3-archived/index.md) is what shipped.
+Specs live in docs/spec, in three buckets: [1-upcoming](docs/spec/1-upcoming) is
+designed but unbuilt, [2-active](docs/spec/2-active) is in flight, and
+[3-archived](docs/spec/3-archived) is what shipped.
 
 ## Install for Development
 

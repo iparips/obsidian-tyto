@@ -269,5 +269,5 @@ every fork pull request (FR17). It is never attached to push (FR18).
   rules in their descriptions that the trajectory family guards
 - src/model/providers/types.ts:11 - ChatProvider, the interface the recorder
   implements
-- docs/AGENTS.md:67 - the prompt-changes-are-behaviour-changes rule this suite
+- AGENTS.md:67 - the prompt-changes-are-behaviour-changes rule this suite
   answers, and the byte-for-byte fixture it must not disturb

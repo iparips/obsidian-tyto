@@ -16,7 +16,7 @@ Read 1-index.md, then 2-requirements.md, then 4-tasks.md, which is the build
 order: three commits, each standing alone with its tests green. Read
 3a-interface.md before commit 1, and 3b-wiring.md before commit 2.
 
-Repo conventions are in docs/AGENTS.md, and the branching rules in CLAUDE.md.
+Repo conventions are in AGENTS.md, and the branching rules in CLAUDE.md.
 
 Three claims are about code that may have moved since the spec was written.
 Check each rather than trusting it:
