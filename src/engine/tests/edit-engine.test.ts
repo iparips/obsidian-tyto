@@ -191,7 +191,52 @@ describe('EditEngine', () => {
 
       await engine.processUtterance('edit')
 
-      expect(toolResults()[0]).toMatchObject({ content: 'anchor not found in note' })
+      expect(toolResults()[0]).toMatchObject({
+        content: 'anchor "missing" not found in note.md, the note this edit reached',
+      })
+    })
+
+    // The anchor that failed in practice ran to three lines. Quoting all of it
+    // wraps the message and repeats what the model sent a message earlier.
+    it('quotes the first line only when the anchor runs to several', async () => {
+      complete
+        .mockResolvedValueOnce(
+          Outcomes.success(
+            aToolTurn(
+              aToolCall('insert_text', {
+                anchor_text: '## Top Ups\n- [ ] eggs',
+                position: 'after',
+                content: '\n- [ ] bananas',
+              }),
+            ),
+          ),
+        )
+        .mockResolvedValueOnce(Outcomes.success(aTextTurn('done')))
+
+      await engine.processUtterance('edit')
+
+      expect(toolResults()[0]).toMatchObject({
+        content: 'anchor "## Top Ups..." not found in note.md, the note this edit reached',
+      })
+    })
+
+    // The target moves with the last command run, so an anchor read from one
+    // note is applied to another. Without the path the model reads the refusal
+    // as a bad anchor and lengthens it, which fails the same way.
+    it('names the note the edit reached when apply returns multipleMatches', async () => {
+      complete
+        .mockResolvedValueOnce(
+          Outcomes.success(
+            aToolTurn(aToolCall('replace_text', { anchor_text: 'd', replacement: 'x' })),
+          ),
+        )
+        .mockResolvedValueOnce(Outcomes.success(aTextTurn('done')))
+
+      await engine.processUtterance('edit')
+
+      expect(toolResults()[0]).toMatchObject({
+        content: 'anchor "d" matches multiple places in note.md; use a longer anchor',
+      })
     })
 
     it('sends invalid-arguments as tool result when args fail validation', async () => {
