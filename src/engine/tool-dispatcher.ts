@@ -24,6 +24,10 @@ import { ChoiceRequest } from './waiting/choice-request'
 import { ProgressLine } from './progress-line'
 import { TOOL_SCHEMAS } from './tools/tool-schemas'
 
+// Long enough to carry any real tool name, short enough that a reasoning
+// paragraph sent as one is cut rather than repeated into the history.
+const NAME_ECHO_LIMIT = 40
+
 const CANCELLED_RESULT = 'the user stopped the turn; this call did not run'
 const SEARCH_OFF_RESULT = 'searching the vault is turned off in settings'
 const NO_ANSWER_RESULT = 'the user did not answer; stop and say what you were waiting on'
@@ -71,20 +75,25 @@ export class ToolDispatcher {
     return this.recordEdit(call, await this.noteEditTool.execute(call))
   }
 
-  // The refusal names the tools that may be called rather than echoing the
-  // name it was sent: the session that showed this sent its whole reasoning
-  // text as a function name, and echoing put that blob in the history three
-  // times in one conversation.
-  //
   // Checked against every name the catalogue defines rather than the set this
   // turn offers. A tool a disabled capability withheld is a real tool, and the
   // branches below refuse it by name and reason, which is what keeps the
   // schemas from being the only thing holding a disabled flow out of reach.
   private refuseWhenNameIsNotOffered(call: ToolCall): ToolCallOutcome | null {
     if (ToolDispatcher.definedToolNames().includes(call.name)) return null
-    const reason = `no tool named that; the tools you may call are ${this.offeredToolNames().join(', ')}`
+    const reason = `no tool named ${ToolDispatcher.quotedName(call.name)}; the tools you may call are ${this.offeredToolNames().join(', ')}`
     this.turnProgressPublisher.publishProgressLineFn(ProgressLine.refusedByUnnamedTool(reason))
     return ToolCallOutcome.refused(reason)
+  }
+
+  // Quoted so the refusal says which call it stopped, and truncated because the
+  // name is not always a name: the session that showed this sent a whole
+  // paragraph of reasoning as one, and echoing it whole put that blob in the
+  // history once per refusal.
+  private static quotedName(name: string): string {
+    const firstLine = name.split('\n')[0]
+    if (firstLine.length <= NAME_ECHO_LIMIT) return `"${firstLine}"`
+    return `"${firstLine.slice(0, NAME_ECHO_LIMIT)}..."`
   }
 
   private static definedToolNames(): string[] {
@@ -204,11 +213,7 @@ export class ToolDispatcher {
       case HarnessResultKind.OpenNote:
         return this.openModelChosenNote(harnessResult.openNoteAtPath)
       case HarnessResultKind.ObsidianCommandRan:
-        return ToolCallOutcome.of(
-          await this.publishCommandAndUpdateSessionTargetNote(
-            harnessResult.recordNoteOpenedByObsidianCommand,
-          ),
-        )
+        return this.runObsidianCommand(harnessResult.recordNoteOpenedByObsidianCommand)
       case HarnessResultKind.Text:
         return ToolDispatcher.outcomeOf(harnessResult)
     }
@@ -264,6 +269,16 @@ export class ToolDispatcher {
     const reason = `${path} was not chosen by the user this turn; call choose_note with it now, then open it. Do not ask the user in prose`
     this.turnProgressPublisher.publishProgressLineFn(ProgressLine.refused(OPEN_NOTE, reason))
     return ToolCallOutcome.refused(reason)
+  }
+
+  // A command that opened nothing is refused rather than reported: it reads as a
+  // success otherwise, and the counter that stops a loop never sees the repeat.
+  private async runObsidianCommand(
+    noteOpenedByObsidianCommand: NoteOpenedByObsidianCommand,
+  ): Promise<ToolCallOutcome> {
+    const result = await this.publishCommandAndUpdateSessionTargetNote(noteOpenedByObsidianCommand)
+    if (noteOpenedByObsidianCommand.rebinds()) return ToolCallOutcome.of(result)
+    return ToolCallOutcome.refused(result)
   }
 
   // The step goes up before the target moves, so the list reads in the order

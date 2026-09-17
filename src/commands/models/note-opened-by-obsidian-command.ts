@@ -28,7 +28,7 @@ export class NoteOpenedByObsidianCommand {
     }
     return this.openedPath
       ? `ran ${this.commandName}; the session is now editing ${this.openedPath}`
-      : `ran ${this.commandName}; no note opened, still editing the same note`
+      : `ran ${this.commandName}; it opened no note, so nothing changed. Running it again will do the same; edit the note you are on, or reach another one a different way`
   }
 
   // Distinct from opening nothing: the note is the target, so a retry reaches

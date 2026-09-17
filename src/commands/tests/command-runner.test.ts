@@ -97,11 +97,11 @@ describe('ObsidianCommandRunner', () => {
       expect(outcome.hasFailed() ? null : outcome.value.rebinds()).toBe(false)
     })
 
-    it('says the binding stayed when the active note is unchanged', async () => {
+    it('says a retry changes nothing, so the model tries another way instead', async () => {
       const outcome = await runnerOf('daily-notes:*').run('daily-notes:goto-today')
 
       expect(outcome.hasFailed() ? '' : outcome.value.descriptionForModel(true)).toBe(
-        'ran Open today; no note opened, still editing the same note',
+        'ran Open today; it opened no note, so nothing changed. Running it again will do the same; edit the note you are on, or reach another one a different way',
       )
     })
 
