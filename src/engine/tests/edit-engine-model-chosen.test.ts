@@ -256,14 +256,15 @@ describe('EditEngine', () => {
       expect(toolResultsOf(3).at(-1)).toMatchObject({ content: `opened ${TODO}` })
     })
 
-    it('says the note is not editable when nothing can open it, so the turn says why', async () => {
+    // Even with no opener, so the note gains no editor at all: it is still the
+    // turn's target and the write goes through the vault (D5). The panel is
+    // what tells the user undo is not available.
+    it('reports the note opened when nothing can open it', async () => {
       respondsWith(findsTodo(), offersTodo(), opensTodo())
 
       await engineOf(picking(TODO)).processUtterance('add toilet paper')
 
-      expect(toolResultsOf(3).at(-1)).toMatchObject({
-        content: `opened ${TODO}, but it is not editable yet`,
-      })
+      expect(toolResultsOf(3).at(-1)).toMatchObject({ content: `opened ${TODO}` })
     })
   })
 

@@ -251,6 +251,69 @@ describe('TargetNoteWriter', () => {
     })
   })
 
+  // A note with no leaf anywhere. It is still the turn's target: the write goes
+  // through the vault, which costs undo and nothing else, where refusing the
+  // turn cost the user the session (D5).
+  describe('when the note carries no editor', () => {
+    const unopened = (content = '- milk') => ({
+      target: new OpenNote(null, TARGET, { line: 0, ch: 0 }),
+      vault: new FakeVault().withNote(TARGET, content),
+    })
+
+    it('writes through the vault', async () => {
+      const { target, vault } = unopened()
+
+      await aWriter(new FakeNoteLocator(), vault).write(target, {
+        kind: 'insertAt',
+        location: 'noteEnd',
+        content: '\n- eggs',
+      })
+
+      expect(vault.contentOf(TARGET)).toBe('- milk\n- eggs')
+    })
+
+    // What the panel warns on: this is the path that costs the cursor.
+    it('reports wroteThrough vault, so the panel says undo is not available', async () => {
+      const { target, vault } = unopened()
+
+      const result = await aWriter(new FakeNoteLocator(), vault).write(target, {
+        kind: 'insertAt',
+        location: 'noteEnd',
+        content: '\n- eggs',
+      })
+
+      expect(result).toMatchObject({ applied: true, wroteThrough: 'vault' })
+    })
+
+    it('reads the file rather than throwing on the null editor', async () => {
+      const { target, vault } = unopened()
+
+      expect(await aWriter(new FakeNoteLocator(), vault).read(target)).toBe('- milk')
+    })
+
+    it('scrolls nothing and does not throw', () => {
+      const { target, vault } = unopened()
+
+      expect(() =>
+        aWriter(new FakeNoteLocator(), vault).focusEdit(target, { line: 1, ch: 6 }),
+      ).not.toThrow()
+    })
+
+    // The deleted note the acceptance criteria reach: the tool result says the
+    // anchor was not found, and the model ends the turn saying so.
+    it('reports noMatch when the file is gone as well', async () => {
+      const target = new OpenNote(null, TARGET, { line: 0, ch: 0 })
+
+      const result = await aWriter(new FakeNoteLocator(), new FakeVault()).write(target, {
+        kind: 'insertAt',
+        location: 'noteEnd',
+        content: '\n- eggs',
+      })
+
+      expect(result).toEqual({ applied: false, reason: 'noMatch' })
+    })
+  })
+
   // Only the note in front is scrolled, which is the whole of the guard: the
   // note behind the panel and the note in a background tab are the same answer
   // reached from the two platforms, mobile and desktop (D6).

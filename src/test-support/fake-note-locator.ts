@@ -56,9 +56,17 @@ export class FakeNoteLocator extends WorkspaceNoteLocator {
     if (editor) this.saveFn?.(path, editor.getValue())
   }
 
+  // A markdown note with no editor resolves carrying a null editor, as the real
+  // locator does: the write goes through the vault rather than the turn being
+  // refused. Only a path no editor could ever show fails.
   async locate(path: string): Promise<Attempt<OpenNote>> {
+    if (!path.endsWith('.md'))
+      return Outcomes.failure(
+        'apply',
+        `${path} is not a markdown note, so it cannot be edited; press Reset to start a session on a note`,
+      )
     const editor = this.editors.get(path)
-    if (!editor) return Outcomes.failure('apply', `${path} is not open in an editor`)
+    if (!editor) return Outcomes.success(new OpenNote(null, path, { line: 0, ch: 0 }))
     return Outcomes.success(new OpenNote(editor.asEditor(), path, editor.getCursor()))
   }
 }
