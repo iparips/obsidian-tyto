@@ -39,6 +39,25 @@ describe('PanelHeader', () => {
       expect(screen.getByRole('button', { name: 'Reset session' })).toBeTruthy()
       expect(copyButton()).toBeTruthy()
     })
+
+    it('names the session', () => {
+      renderHeader({ onReset: vi.fn() })
+
+      expect(screen.getByText('Tyto session')).toBeTruthy()
+    })
+
+    it('renders the owl', () => {
+      renderHeader({ onReset: vi.fn() })
+
+      expect(screen.getByTitle('Tyto owl')).toBeTruthy()
+    })
+
+    // The title is a label, so a running turn neither removes it nor greys it.
+    it('names the session while a turn runs', () => {
+      renderHeader({ onReset: vi.fn(), running: true })
+
+      expect(screen.getByText('Tyto session')).toBeTruthy()
+    })
   })
 
   describe('when the setting is off', () => {

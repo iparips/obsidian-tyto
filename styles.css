@@ -14,8 +14,23 @@
   gap: var(--size-4-2);
 }
 
-/* The header is a toolbar now the note sits on the turn, so the buttons take
-   the row rather than sitting beside a name (D4). */
+.tyto-header-title {
+  display: flex;
+  align-items: center;
+  gap: var(--size-4-2);
+}
+
+/* Takes the spare width, so the buttons sit at the right edge and the title at
+   the left. Neither block shrinks when the sidebar is dragged narrow (D2). */
+.tyto-header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--size-4-2);
+  margin-left: auto;
+}
+
+/* The buttons keep their intrinsic width, so a narrow sidebar squeezes the gap
+   between the title and them rather than the controls themselves (D2). */
 .tyto-new-session,
 .tyto-copy-transcript {
   flex: 0 0 auto;
