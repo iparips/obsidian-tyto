@@ -102,6 +102,7 @@ export class TurnRunnerFactory {
         this.modelProvider,
         this.harnessToolsService,
         this.transcriptRepository,
+        this.targetNoteWriter,
       ),
       new ToolCallExecutor(
         this.sessionRepository,

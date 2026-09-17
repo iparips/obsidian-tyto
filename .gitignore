@@ -26,6 +26,8 @@ coverage
 .vscode
 .idea
 *.iml
+*.swp
+*.swo
 
 # macOS
 .DS_Store

@@ -1,5 +1,6 @@
 import { EditorPosition, TAbstractFile, TFile, Vault } from 'obsidian'
 import { EditOperation, NoteEditor, PlannedWrite } from './note-editor'
+import { NoteDetails } from './note-details'
 import { OpenNote } from './open-note'
 import { WorkspaceNoteLocator } from '../note-binding/workspace-note-locator'
 
@@ -28,6 +29,12 @@ export class TargetNoteWriter {
   // scroll whatever note it moved to, which is the defect in another form.
   focusEdit(note: OpenNote, position: EditorPosition): void {
     if (this.tabStillShows(note)) this.noteEditor.focusEdit(note.editor, position)
+  }
+
+  // The note as the model is shown it. Built here rather than on OpenNote so
+  // the content under the path comes from the same place a write would go.
+  async getDetails(note: OpenNote): Promise<NoteDetails> {
+    return new NoteDetails(note.path, await this.read(note), note.cursorAtStart)
   }
 
   // What the note holds now, from wherever the next write to it would go, so a

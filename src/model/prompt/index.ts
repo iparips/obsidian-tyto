@@ -33,7 +33,7 @@ export class PromptFactory {
 
   private static sessionTarget(request: ModelRequest): ChatMessage {
     return request.note
-      ? NoteContextMessage.build(request.note.details())
+      ? NoteContextMessage.build(request.note)
       : NoNoteBoundMessage.build(request.hasCommands(), request.searchEnabled)
   }
 }
