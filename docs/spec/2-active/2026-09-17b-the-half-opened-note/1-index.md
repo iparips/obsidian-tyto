@@ -13,6 +13,7 @@ before loading that file into the editor, and the wait guarding the gap settles
 on the first of those. The turn captures a handle in between, then prints its
 path from one half of the pair and reads its body through the other.
 
+- [0-prompt.md](0-prompt.md) - the block to hand a fresh session that will design it
 - [3-requirements.md](3-requirements.md) - the mismatch, why the vault fallback is bypassed, and the gap the wait settles in
 - [4-decisions.md](4-decisions.md) - the text comparison that decides whether a handle is trusted, and what the panel says when it does not
 - [5-acceptance-criteria.md](5-acceptance-criteria.md) - three checks, all needing a real vault
