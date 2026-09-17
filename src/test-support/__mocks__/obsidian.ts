@@ -67,6 +67,12 @@ export class Setting {
 export class MarkdownView {
   file: TFile | null = null
   editor!: Editor
+  // TextFileView's flush. A fake records it rather than writing, since what a
+  // test asserts is that the save reached the view at all.
+  saved = 0
+  async save(): Promise<void> {
+    this.saved += 1
+  }
 }
 
 export type Editor = {
@@ -96,9 +102,14 @@ export interface Command {
   checkCallback?(checking: boolean): boolean | void
 }
 
+export interface MarkdownFileInfo {
+  editor?: Editor
+}
+
 export interface Workspace {
   getActiveFile(): TFile | null
   getLeavesOfType(type: string): unknown[]
+  activeEditor: MarkdownFileInfo | null
 }
 
 export interface Vault {

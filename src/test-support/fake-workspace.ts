@@ -1,15 +1,22 @@
-import { TFile, Workspace } from 'obsidian'
+import { Editor, MarkdownFileInfo, TFile, Workspace } from 'obsidian'
+import { FakeMarkdownLeaves } from './fake-markdown-leaves'
 
 // Reports an active note path a test can change between calls, which is what
 // makes the before-and-after diff around a command run assertable.
 export class FakeWorkspace {
   private openListeners: ((file: TFile | null) => void)[] = []
-  private editorPaths: string[] = []
+  private activeEditorPath: string | null = null
+  private readonly leaves = new FakeMarkdownLeaves()
   // What the test asserts NoteOpener asked the workspace to open.
   readonly opened: string[] = []
 
   constructor(private activePath: string | null = null) {
-    if (activePath) this.editorPaths.push(activePath)
+    if (activePath) this.leaves.open(activePath)
+  }
+
+  // The paths loadIfDeferred was called on, in order.
+  get loadedLeaves(): readonly string[] {
+    return this.leaves.loaded
   }
 
   // Obsidian fires file-open once a note is actually showing, which is what a
@@ -37,7 +44,7 @@ export class FakeWorkspace {
   // the editor already mounted.
   finishesOpening(path: string): void {
     this.activePath = path
-    this.editorPaths.push(path)
+    this.leaves.open(path)
     this.openListeners.forEach((listener) => listener({ path } as TFile))
   }
 
@@ -49,12 +56,37 @@ export class FakeWorkspace {
   }
 
   mountsEditor(path: string): void {
-    this.editorPaths.push(path)
+    this.leaves.open(path)
+  }
+
+  // A tab that is open but not in front, which is the state Obsidian 1.7.2
+  // added and the one no test could construct before.
+  defers(path: string): this {
+    this.leaves.defer(path)
+    return this
+  }
+
+  // Which editor a path's leaf answers with, so a test can tell one tab's
+  // editor from another's. Absent, the leaf gets an empty stand-in.
+  withEditor(path: string, editor: Editor): this {
+    this.leaves.setEditor(path, editor)
+    return this
+  }
+
+  // What the D6 guard compares against: the note the user has in front of them.
+  isLookingAt(path: string | null): this {
+    this.activeEditorPath = path
+    return this
+  }
+
+  get activeEditor(): MarkdownFileInfo | null {
+    if (this.activeEditorPath === null) return null
+    return { editor: this.leaves.editorOf(this.activeEditorPath) } as MarkdownFileInfo
   }
 
   getLeavesOfType(type: string): unknown[] {
     if (type !== 'markdown') return []
-    return this.editorPaths.map((path) => ({ view: { file: { path }, editor: {} } }))
+    return this.leaves.all()
   }
 
   // openFile is what NoteOpener calls: Obsidian mounts the editor and announces
