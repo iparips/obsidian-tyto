@@ -7,6 +7,9 @@ updated: 2026-09-16
 
 Paste the block below into a fresh session to build this spec.
 
+Spent: the four commits below are built and committed. The one bullet it left
+was built from [0-prompt-2.md](0-prompt-2.md), which is spent too.
+
 ```text
 Build the spec in docs/spec/2-active/2026-09-16b-reaching-a-note-by-path. The plugin reaches
 a note through an editor, and an editor belongs to a tab rather than a file, so
@@ -18,7 +21,7 @@ the build order. Read 5-design.md and 6-unit-tests.md before commit 1.
 9-transcript.md is evidence, read only if a defect stops making sense.
 7-acceptance-criteria.md holds the checks afterwards.
 
-Repo conventions are in docs/AGENTS.md. Commits 1 and 2 are the fault and ship
+Repo conventions are in AGENTS.md. Commits 1 and 2 are the fault and ship
 without 3 and 4, which matters: the wrong-note write is live, so do not hold
 them behind the panel work.
 

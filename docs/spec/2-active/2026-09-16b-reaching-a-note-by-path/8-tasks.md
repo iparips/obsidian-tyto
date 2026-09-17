@@ -1,12 +1,12 @@
 ---
 created: 2026-09-16
-updated: 2026-09-16
+updated: 2026-09-17
 ---
 
 # Tasks
 
-Four commits. The first two are the fault and can ship without the rest; the
-last two are the panel and depend on each other.
+All four commits are built. The first two are the fault and can ship without the
+rest; the last two are the panel and depend on each other.
 
 ## Commit 1: a write reaches the note by path
 
@@ -31,7 +31,8 @@ last two are the panel and depend on each other.
 - The note context message reads the target through the writer too, so the model
   is never shown another note's content under the target's path. ModelRequest
   holds NoteDetails rather than an OpenNote, which removes the handle
-  PromptFactory was reaching through
+  PromptFactory was reaching through. OpenNote.details goes with it, so the
+  writer is the only thing that builds a NoteDetails
 
 This is the reported defect and the one that corrupts notes. It ships alone if
 the rest waits.
@@ -78,7 +79,7 @@ moves here from the offset fix.
 - useTargetNote stays and narrows to the path. It is what supplies the session's
   note when a turn opens, which is D5's starting target
 - HistoryTurn (session/views, new) renders the target then the turn's entries,
-  so HistoryEntry keeps the eleven kinds unchanged
+  so HistoryEntry keeps the other kinds unchanged
 - The turn renders its target first
 - A tool moving the target updates the open turn, through its own action rather
   than the retargets channel, which also carries the user's moves

@@ -30,7 +30,8 @@ authoritative for finding notes. Every defect here is one of them failing.
 - [7-acceptance-criteria.md](7-acceptance-criteria.md) - four checks, and the one that needs a moving tab
 - [8-tasks.md](8-tasks.md) - four commits, the first two shipping the fault fix alone
 - [9-transcript.md](9-transcript.md) - the two answers, in one request
-- [0-prompt.md](0-prompt.md) - the block to hand a fresh session that will build it
+- [0-prompt.md](0-prompt.md) - the block that built the four commits, now spent
+- [0-prompt-2.md](0-prompt-2.md) - the block that built the last bullet, now spent
 
 A write goes through the editor where it still shows the path the tool named,
 and through the vault where it does not. The common case keeps undo and the
