@@ -166,18 +166,18 @@ the target, so the field becomes `Editor | null`.
 Every read of it is already guarded or becomes so:
 
 - `TargetNoteWriter.tabShowsPath` compares the located editor against
-  `note.editor`. A null editor never equals a located one, so the comparison
-  answers false and the write falls to the vault, which is the wanted answer
-  with no extra branch.
+  `note.editor`, and requires a non-null handle before comparing.
 - `TargetNoteWriter.writeThroughEditor` and `read` sit behind
   `editorHoldsTheNote`, which `tabShowsPath` already gates.
-- `TargetNoteWriter.focusEdit` gains the D6 guard below, which a null editor
-  also fails.
+- `TargetNoteWriter.focusEdit` gains the D6 guard below, which also requires a
+  non-null handle.
 - `NoteEditTool` reads only `note.path`.
 
-The type change is therefore the whole of the work: the null case routes itself
-through guards the writer already has. That is why D5 could say the fallback was
-already built.
+Both guards are explicit rather than implied by the comparison. Once the locator
+succeeds with a null editor, a note with no leaf is null on both sides, and
+`null === null` answers true: a comparison alone would send a vault-only note
+down the editor path. So each call site asks whether the handle exists before
+asking whether it matches.
 
 ## Focus Only The Note In Front
 
