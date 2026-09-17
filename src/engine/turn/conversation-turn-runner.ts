@@ -30,8 +30,8 @@ export class ConversationTurnRunner {
 
   async run(): Promise<Outcome<string>> {
     const spend = new TurnSpend()
-    for (let step = 0; !spend.isExhausted(); step++) {
-      const turnStepOutcome = await this.runTurnStep(spend, step)
+    while (!spend.isExhausted()) {
+      const turnStepOutcome = await this.runTurnStep(spend)
       if (turnStepOutcome.turnEnded()) return this.recordEndingAndGetOutcome(turnStepOutcome)
     }
     return this.recordEndingAndGetOutcome(TurnOutcomes.exhausted())
@@ -42,11 +42,11 @@ export class ConversationTurnRunner {
     return endedTurn.outcome
   }
 
-  private async runTurnStep(spend: TurnSpend, stepNumber: number): Promise<TurnStepOutcome> {
+  private async runTurnStep(spend: TurnSpend): Promise<TurnStepOutcome> {
     if (this.cancellationController.isCancelled())
       return this.turnEndingService.endTurnAsCancelled(this.repository.notesWritten())
 
-    const modelAnswer = await this.modelService.askModel(stepNumber)
+    const modelAnswer = await this.modelService.askModel()
 
     // Whether an unfinished answer is a cancel or a failure is the ending
     // service's decision, so it comes back named rather than read a second time

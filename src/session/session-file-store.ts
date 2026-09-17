@@ -31,7 +31,8 @@ export class SessionFileStore {
     try {
       await this.adapter.write(path, JSON.stringify(session))
     } catch {
-      console.debug('[tyto] could not write the session')
+      // A session that could not be written is one that was not recorded, which
+      // is the same outcome as never having had one.
     }
   }
 
@@ -58,7 +59,7 @@ export class SessionFileStore {
     try {
       await this.adapter.remove(path)
     } catch {
-      console.debug('[tyto] no stored session to remove')
+      // Nothing stored to remove, which is already the state the caller wanted.
     }
   }
 

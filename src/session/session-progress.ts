@@ -8,7 +8,7 @@ import { TranscriptRepository } from './transcript/transcript-repository'
 
 // Where each thing a turn narrates lands. A skill and a resolved chain join the
 // numbered steps rather than sitting beside them, so the list reads in the order
-// the turn actually ran. A drop also reaches a Notice and the console.
+// the turn actually ran. A drop also reaches a Notice.
 export class SessionProgress {
   // A command that retargets resolves the chain again, so the last report is
   // held to keep an unchanged chain from printing twice.
@@ -50,9 +50,8 @@ export class SessionProgress {
     })
   }
 
-  // The three channels a drop reaches the user through: the panel entry, one
-  // Notice per resolved chain, and a console line naming every file
-  // (FR10, FR14-16).
+  // The two channels a drop reaches the user through: the panel entry, and one
+  // Notice per resolved chain (FR10, FR14-16).
   private reportInstructions(chain: AgentsMdChain): void {
     const report = InstructionReport.of(chain)
     if (report.isEmpty() || report.sameAs(this.lastReported)) return
@@ -60,12 +59,5 @@ export class SessionProgress {
     this.lastReported = report
     if (!chain.hasDrops()) return
     new Notice(report.noticeText())
-    SessionProgress.logDrops(chain)
-  }
-
-  private static logDrops(chain: AgentsMdChain): void {
-    chain.dropped.forEach((file) =>
-      console.debug('[tyto] instruction file dropped:', file.fileName, 'in', file.label()),
-    )
   }
 }
