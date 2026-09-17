@@ -8,8 +8,9 @@ updated: 2026-09-17
 Ten commits. Each leaves the suite green and the plugin loadable, so the order
 can stop at any point without a half-migrated vault.
 
-Commits 1 and 2 have shipped. The linter went first because it is the gate the
-other eight land against, so start at commit 3.
+All ten have landed. Commits 1 and 2 shipped to main before this spec was split
+across two sessions; 3 to 10 are on the community-plugin-submission branch.
+What remains is [Before Submitting](#before-submitting), which is done by hand.
 
 ## 1. Rename Owl to Tyto (done, shipped)
 
@@ -76,7 +77,7 @@ The fourth is answered rather than fixed:
   CORS to bypass. The rule is switched off for that one file, with the
   reasoning in eslint.config.mjs and beside the call.
 
-## 3. Migrate Settings Across the Id Change
+## 3. Migrate Settings Across the Id Change (done)
 
 The blocker's real cost, and the only task that touches a user's stored data.
 
@@ -92,7 +93,7 @@ and allow list survive, and that a second install removes the old plugin folder.
 Then install into a clean vault and confirm the defaults load with nothing
 logged.
 
-## 4. Disclose Network Use in the README
+## 4. Disclose Network Use in the README (done)
 
 No code. Do it before the settings work, so a half-finished branch still
 carries the disclosure the policies require.
@@ -104,7 +105,7 @@ carries the disclosure the policies require.
 Exit test: read it as a stranger and answer "what leaves my vault, and to
 whom" without opening another file. Search it for "clipboard" and find it.
 
-## 5. Silence the Console
+## 5. Silence the Console (done)
 
 Small and isolated.
 
@@ -114,7 +115,7 @@ Small and isolated.
 Exit test: run a full turn with the console at default level and see nothing
 printed.
 
-## 6. Rebuild the Settings Tab
+## 6. Rebuild the Settings Tab (done)
 
 The largest task, and the one the scan comments on today.
 
@@ -136,7 +137,7 @@ plugin's settings and looks native, the API key still renders as dots, the
 picker still finds a command, and the settings appear in 1.13's settings
 search.
 
-## 7. Move Vault Reads Off the Adapter
+## 7. Move Vault Reads Off the Adapter (done)
 
 - AgentsMdRepository and SkillRepository take Vault rather than DataAdapter.
 - Read with `cachedRead`, resolve with `getFileByPath` and `getFolderByPath`.
@@ -149,7 +150,18 @@ Exit test: skills still load from a normal vault folder, and an AGENTS.md in a
 note's folder chain still reaches the prompt. The `vault/iterate` rule stays
 quiet.
 
-## 8. Tighten the Defaults and Reshape the Build
+Two tests changed, because the Vault API is not the adapter and the design did
+not say so.
+
+- A miss no longer records a read. getFileByPath returns null before cachedRead
+  is reached, where the adapter attempted the read and threw. The
+  sibling-folder test asserted a missing file's read, so it now gives the
+  sibling a file and asserts that one.
+- The vanishing-skill fixture has to keep valid frontmatter. Without it the
+  skill never lists, and the failure reads as absent rather than unreadable,
+  which is a different branch.
+
+## 8. Tighten the Defaults and Reshape the Build (done)
 
 - DEFAULT_SETTINGS ships an empty allow list and search off, which also drops
   the invalid `daily-notes:*` pattern.
@@ -157,11 +169,14 @@ quiet.
 - `verify` becomes typecheck, test, lint, format, then build.
 - Point RELEASE.md step 2 and CONTRIBUTING.md at the new names.
 
+Also `./install --skip-tests`, which named the removed `build:no-tests`. It
+selects `build` over `verify` now, which is the same intent under the new names.
+
 Exit test: a fresh vault runs no command and searches nothing until the
 checkboxes are ticked. `bun run build` writes a main.js with no
 sourceMappingURL comment and rewrites no source file.
 
-## 9. Name the Copyright Holder, and Sweep the Prose
+## 9. Name the Copyright Holder, and Sweep the Prose (done)
 
 Paperwork, and the last of the rename.
 
@@ -177,7 +192,7 @@ Paperwork, and the last of the rename.
 Exit test: `validate-license` passes. Read the README as someone who has just
 installed from the directory and never seen the repo.
 
-## 10. Add the Release Workflow
+## 10. Add the Release Workflow (done)
 
 Last, because it changes no plugin behaviour and the listing goes live without
 it.
