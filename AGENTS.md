@@ -36,6 +36,11 @@ No categories row, so a spec folder sits directly under a stage. The stages run
 in that order: designed but unbuilt, being built now, then shipped. Read a spec
 before changing behaviour it describes, and update it when the behaviour moves.
 
+A new spec goes in 2-active, not in the first stage. The sdd skill defaults to
+the first because it cannot know which stage a repo starts work in; here a spec
+is written because the work is starting, so 1-upcoming is for the ones Ilya
+parks there by asking. Put a spec in 1-upcoming only when he says so.
+
 The sdd skill owns how a spec folder is named. One thing it cannot know: the
 numbered folders already in 3-archived stay numbered, because fifteen have no
 recoverable date and their numbers record the real shipping order.
