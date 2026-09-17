@@ -10,7 +10,7 @@ does not go green until it lands.
 ### A1. Finish naming what a turn touched (3 h)
 
 Follows the three commits in
-[naming-what-a-turn-touched/8-tasks.md](../spec/2-active/2026-09-17-naming-what-a-turn-touched/8-tasks.md).
+[naming-what-a-turn-touched/8-tasks.md](../spec/3-archived/2026-09-17c-naming-what-a-turn-touched/8-tasks.md).
 Five tests fail in the tree until it is done.
 
 - [ ] A progress line names the note it acted on
