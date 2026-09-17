@@ -29,18 +29,21 @@ export class SessionController {
   async openSession(): Promise<void> {
     const view = await this.leaf.reveal()
     if (!view) return
-    // The view restores itself as it opens, and revealing one is what starts
-    // that. Deciding the panel is empty before the read settles is what bound a
-    // fresh session over the one left behind.
+    // The view binds itself as it opens, and revealing one is what starts that.
+    // Deciding the panel is empty before the read settles is what bound a fresh
+    // session over the one left behind.
     await view.whenOpened()
     if (!view.hasSession()) view.bindSession(this.buildInitialSessionProps(view))
   }
 
   // Asked by the view as it opens, which is where a leaf Obsidian reopened on
-  // restart gets its session back without the user invoking Tyto again.
-  async readPanelPropsFromSessionStore(view: SessionView): Promise<SessionPanelProps | null> {
+  // restart gets its session without the user invoking Tyto again. A store with
+  // nothing in it answers with a fresh session rather than nothing: the panel
+  // renders only once it holds props, so returning null here is what left a
+  // reopened sidebar blank until the user clicked the ribbon.
+  async readPanelPropsFromSessionStore(view: SessionView): Promise<SessionPanelProps> {
     const sessionSnapshot = await this.sessionFileStore.read()
-    if (!sessionSnapshot) return null
+    if (!sessionSnapshot) return this.buildInitialSessionProps(view)
     return this.panelPropsBuilder().buildFromSessionSnapshot(
       sessionSnapshot,
       this.leaf,
