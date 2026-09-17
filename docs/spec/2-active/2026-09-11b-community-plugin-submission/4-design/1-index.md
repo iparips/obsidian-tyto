@@ -12,7 +12,7 @@ finding number.
   an existing install's settings across it
 - [3-disclosures.md](3-disclosures.md) - what the README section says
 - [4-settings-tab.md](4-settings-tab.md) - the tab rebuilt on the declarative
-  settings API, and the minAppVersion bump it needs
+  settings API, and the minAppVersion it needs, which is already in place
 - [5-smaller-changes.md](5-smaller-changes.md) - logging, vault reads, path
   normalisation, and defaults
 - [6-the-automated-review.md](6-the-automated-review.md) - the scanner that is

@@ -82,16 +82,6 @@ export default [
     },
   },
   {
-    // Both findings are real: the plugin calls APIs newer than the
-    // minAppVersion it declares. The settings work raises that floor to
-    // 1.13.0 and both go quiet, so they warn until it lands rather than
-    // gating every commit before it.
-    files: ['src/session/turn-notices.ts', 'src/wiring/session-leaf.ts'],
-    rules: {
-      'obsidianmd/no-unsupported-api': 'warn',
-    },
-  },
-  {
     // The rule matches the name `write` looking for document.write.
     // TranscriptDocument.write returns a markdown string and touches no DOM.
     files: [

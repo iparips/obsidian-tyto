@@ -8,8 +8,8 @@ updated: 2026-09-17
 Ten commits. Each leaves the suite green and the plugin loadable, so the order
 can stop at any point without a half-migrated vault.
 
-Commit 1 has shipped. The linter comes next, because it is the commit that
-checks the other nine.
+Commits 1 and 2 have shipped. The linter went first because it is the gate the
+other eight land against, so start at commit 3.
 
 ## 1. Rename Owl to Tyto (done, shipped)
 
@@ -25,18 +25,53 @@ Nothing to do here. Two things it left for later, both deliberate:
 - The docs and README still say Owl in prose, including "Owl runs an Obsidian
   command you have allowed". Commit 9 sweeps them.
 
-## 2. Adopt the Scanner's Linter
+## 2. Adopt the Scanner's Linter (done)
 
-First, because it re-audits the repo for free and every later commit then lands
-against a gate rather than a document.
+Landed on main before this spec was split across two sessions, because it is
+the gate the other eight commits land against.
 
-- Add eslint-plugin-obsidianmd as a dev dependency, and raise ESLint 8 to 9.
-- Replace .eslintrc with eslint.config.mjs on its recommended preset.
-- Fix what it reports, except the settings-tab rules, which commit 6 owns.
-- Record anything it raises that this spec's audit missed.
+eslint-plugin-obsidianmd is a dev dependency, ESLint is 9, and eslint.config.mjs
+replaces .eslintrc. `bun run lint` reports no errors.
 
-Exit test: `bun run lint` is clean but for the settings-tab rules, and those
-name only the settings tab.
+Two warnings remain: the settings-tab rule, which commit 6 owns as this spec
+expected, and `fetch` in the Mistral provider, which is the fourth finding
+below.
+
+The preset also turns on type-aware TypeScript rules. Most of what they found
+had one cause: a callback declared as a method shorthand carries a `this`
+context. The port and props interfaces now declare callbacks as properties.
+
+### Four Findings the Audit Missed
+
+The first two are the same bug, and one of them crashes. Both are calls to an
+API newer than the 1.5.0 the manifest declared.
+
+- Notice.messageEl arrived in 1.8.7, replacing noticeEl. Below that version the
+  property is undefined, so turn-notices.ts:46 throws a TypeError on every
+  notice it shows, which is every turn the panel is not visible.
+- revealLeaf is milder. It predates 1.7.2; what that version added was the
+  promise, so awaiting it guarantees the view is no longer deferred. Below it
+  the await at session-leaf.ts:16 resolves immediately, so the next line can
+  read a view that is not a SessionView yet and reveal returns null. Same
+  failure the deferred-views spec covers.
+
+Raising minAppVersion to 1.13.0 clears both, and it has landed on main rather
+than waiting for commit 6: the deferred-views spec needs the same floor, and
+two parallel sessions editing manifest.json would conflict. This spec had
+framed the bump as a settings-search concern rather than a bug. Nothing has
+shipped, so no install was on an affected version.
+
+The third was fixed in commit 2 rather than deferred:
+
+- Two clipboard handlers dropped a rejection and claimed "Copied" when nothing
+  was copied.
+
+The fourth is open, and belongs in its own spec:
+
+- `no-restricted-globals` wants requestUrl rather than fetch for network calls,
+  which the Mistral provider uses. Swapping them changes how the request
+  streams and how errors surface, so it is a behaviour change rather than a
+  rename, and too large to carry here.
 
 ## 3. Migrate Settings Across the Id Change
 
@@ -77,7 +112,8 @@ printed.
 
 The largest task, and the one the scan comments on today.
 
-- Raise minAppVersion to 1.13.0, and map 0.1.0 to it in versions.json.
+- minAppVersion is already 1.13.0, mapped in versions.json. It landed on main
+  ahead of this work, because the deferred-views spec needs the same floor.
 - Implement `getSettingDefinitions()` on TytoSettingsTab (Tyto), and delete
   `display()` with SettingsPanel (Tyto).
 - Three groups: Skills, Commands, Vault. The two general settings sit above the

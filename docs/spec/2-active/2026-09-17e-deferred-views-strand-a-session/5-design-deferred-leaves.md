@@ -251,9 +251,8 @@ needs.
   loaded leaf stays loaded for the turn; the assumption is recorded in D2 and
   the acceptance criteria reach it.
 - Deciding who owns the version bump. Both this spec and
-  community-plugin-submission raise minAppVersion to 1.13.0, and whichever lands
-  first owns the manifest and versions.json edit. Neither has landed, so the
-  rollout below carries it.
+  community-plugin-submission raise minAppVersion to 1.13.0. It landed on main
+  ahead of both, so neither carries it and neither can conflict over it.
 - Telling the model that its target has no editor. The write succeeds through
   the vault, so there is nothing for the model to route around.
 
@@ -261,10 +260,9 @@ needs.
 
 1. Land the transcript setup slice. It shares no code with the rest and makes
    the next report of this bug readable.
-2. Raise minAppVersion to 1.13.0 in manifest.json, and remap 0.1.0 to it in
-   versions.json, which pins the same floor and would otherwise let 1.5.0 users
-   install a build whose API calls they do not have. Skip both if
-   community-plugin-submission has already landed them.
+2. Done, on main. minAppVersion is 1.13.0 in manifest.json and versions.json
+   maps 0.1.0 to it, which pins the same floor and would otherwise let 1.5.0
+   users install a build whose API calls they do not have.
 3. Give FakeWorkspace its deferred-leaf state, so the regression is reachable.
 4. Make `locate` async and load the deferred leaf. This alone fixes the reported
    failure, since the target does resolve once the leaf is loaded.
