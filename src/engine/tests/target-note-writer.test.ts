@@ -15,11 +15,34 @@ const aTarget = (editor: FakeEditor): OpenNote =>
 const aWriter = (locator: FakeNoteLocator, vault: FakeVault): TargetNoteWriter =>
   new TargetNoteWriter(new NoteEditor(), locator, vault.asVault())
 
+// A view that finished loading: the editor holds the target, and so does the
+// file. The text is the editor's, so a test that asserts on it still says it.
+const aLoadedWriter = (editor: FakeEditor): TargetNoteWriter =>
+  aWriter(
+    new FakeNoteLocator().withOpenNote(TARGET, editor),
+    new FakeVault().withNote(TARGET, editor.getValue()),
+  )
+
+// The reported session: the locator answers with the turn's own handle for the
+// target's path, and the file under that path says something else. The view has
+// been pointed at the target and its editor still holds the previous note.
+const halfOpened = (): { target: OpenNote; stale: FakeEditor; vault: FakeVault } => {
+  const stale = new FakeEditor('# Session transcript')
+  return {
+    target: aTarget(stale),
+    stale,
+    vault: new FakeVault().withNote(TARGET, '- milk'),
+  }
+}
+
+const aHalfOpenedWriter = (stale: FakeEditor, vault: FakeVault): TargetNoteWriter =>
+  aWriter(new FakeNoteLocator().withOpenNote(TARGET, stale), vault)
+
 describe('TargetNoteWriter', () => {
   describe('when the tab still shows the target', () => {
     it('writes through the editor', async () => {
       const editor = new FakeEditor('- milk')
-      const writer = aWriter(new FakeNoteLocator().withOpenNote(TARGET, editor), new FakeVault())
+      const writer = aLoadedWriter(editor)
 
       await writer.write(aTarget(editor), {
         kind: 'insertAt',
@@ -32,7 +55,7 @@ describe('TargetNoteWriter', () => {
 
     it('reports where the edit ended, so the turn can focus it', async () => {
       const editor = new FakeEditor('- milk')
-      const writer = aWriter(new FakeNoteLocator().withOpenNote(TARGET, editor), new FakeVault())
+      const writer = aLoadedWriter(editor)
 
       const result = await writer.write(aTarget(editor), {
         kind: 'insertAt',
@@ -45,7 +68,7 @@ describe('TargetNoteWriter', () => {
 
     it('refuses an anchor the note does not hold', async () => {
       const editor = new FakeEditor('- milk')
-      const writer = aWriter(new FakeNoteLocator().withOpenNote(TARGET, editor), new FakeVault())
+      const writer = aLoadedWriter(editor)
 
       const result = await writer.write(aTarget(editor), {
         kind: 'replace',
@@ -134,6 +157,56 @@ describe('TargetNoteWriter', () => {
     })
   })
 
+  // The defect this spec is about. The handle is the turn's own and the path is
+  // the target's, so the identity test alone passes it; only the text says the
+  // view is showing a note the file does not hold.
+  describe('when the tab shows the path but its editor holds another note', () => {
+    it('writes the target through the vault', async () => {
+      const { target, stale, vault } = halfOpened()
+      const writer = aHalfOpenedWriter(stale, vault)
+
+      await writer.write(target, { kind: 'insertAt', location: 'noteEnd', content: '\n- eggs' })
+
+      expect(vault.contentOf(TARGET)).toBe('- milk\n- eggs')
+    })
+
+    // What stops the write reaching the note the editor is still showing.
+    it('leaves the stale text in the editor untouched', async () => {
+      const { target, stale, vault } = halfOpened()
+      const writer = aHalfOpenedWriter(stale, vault)
+
+      await writer.write(target, { kind: 'insertAt', location: 'noteEnd', content: '\n- eggs' })
+
+      expect(stale.content).toBe('# Session transcript')
+    })
+
+    it('reports the write went through the vault', async () => {
+      const { target, stale, vault } = halfOpened()
+      const writer = aHalfOpenedWriter(stale, vault)
+
+      const result = await writer.write(target, {
+        kind: 'insertAt',
+        location: 'noteEnd',
+        content: '\n- eggs',
+      })
+
+      expect(result).toMatchObject({ applied: true, wroteThrough: 'vault' })
+    })
+
+    it('refuses an anchor the file does not hold', async () => {
+      const { target, stale, vault } = halfOpened()
+      const writer = aHalfOpenedWriter(stale, vault)
+
+      const result = await writer.write(target, {
+        kind: 'replace',
+        anchor: '# Session transcript',
+        replacement: '- eggs',
+      })
+
+      expect(result).toEqual({ applied: false, reason: 'noMatch' })
+    })
+  })
+
   describe('when the target has no editor at all', () => {
     it('writes through the vault', async () => {
       const target = aTarget(new FakeEditor('- milk'))
@@ -176,11 +249,22 @@ describe('TargetNoteWriter', () => {
   describe('when focusing the edit at the end of a turn', () => {
     it('moves the cursor while the tab still shows the target', () => {
       const editor = new FakeEditor('- milk\n- eggs')
-      const writer = aWriter(new FakeNoteLocator().withOpenNote(TARGET, editor), new FakeVault())
+      const writer = aLoadedWriter(editor)
 
       writer.focusEdit(aTarget(editor), { line: 1, ch: 6 })
 
       expect(editor.cursor).toEqual({ line: 1, ch: 6 })
+    })
+
+    // The deliberate asymmetry: focus keeps the identity test alone, so a view
+    // still loading is scrolled. Asserted so a later change cannot quietly make
+    // focusEdit async.
+    it('moves the cursor while the editor still holds another note', () => {
+      const { target, stale, vault } = halfOpened()
+
+      aHalfOpenedWriter(stale, vault).focusEdit(target, { line: 1, ch: 6 })
+
+      expect(stale.cursor).toEqual({ line: 1, ch: 6 })
     })
 
     it('leaves the cursor alone once the tab has moved', () => {
@@ -198,14 +282,26 @@ describe('TargetNoteWriter', () => {
   })
 
   describe('when reading the target', () => {
-    it('reads the editor while the tab still shows it', async () => {
-      const editor = new FakeEditor('- milk, unsaved')
-      const writer = aWriter(
-        new FakeNoteLocator().withOpenNote(TARGET, editor),
-        new FakeVault().withNote(TARGET, '- milk'),
-      )
+    it('reads the editor when its text is the file the path names', async () => {
+      const editor = new FakeEditor('- milk')
+      const writer = aLoadedWriter(editor)
 
-      expect(await writer.read(aTarget(editor))).toBe('- milk, unsaved')
+      expect(await writer.read(aTarget(editor))).toBe('- milk')
+    })
+
+    it('reads the file when the editor holds another note', async () => {
+      const { target, stale, vault } = halfOpened()
+
+      expect(await aHalfOpenedWriter(stale, vault).read(target)).toBe('- milk')
+    })
+
+    // An unloaded editor and an empty note both read as the empty string, so
+    // the check cannot tell them apart and both take the vault.
+    it('reads the empty string when the path is not a note in the vault', async () => {
+      const editor = new FakeEditor('- milk')
+      const writer = aWriter(new FakeNoteLocator().withOpenNote(TARGET, editor), new FakeVault())
+
+      expect(await writer.read(aTarget(editor))).toBe('')
     })
 
     it('reads the file once the tab has moved', async () => {
@@ -223,15 +319,22 @@ describe('TargetNoteWriter', () => {
   // What the model is shown. The path and the content have to come from the
   // same note, which is what a tab that moved broke.
   describe('when describing the target for the model', () => {
-    it('describes the editor while the tab still shows it', async () => {
-      const editor = new FakeEditor('- milk, unsaved')
-      const writer = aWriter(
-        new FakeNoteLocator().withOpenNote(TARGET, editor),
-        new FakeVault().withNote(TARGET, '- milk'),
-      )
+    it('describes the editor when its text is the file the path names', async () => {
+      const editor = new FakeEditor('- milk')
+      const writer = aLoadedWriter(editor)
 
       expect(await writer.getDetails(aTarget(editor))).toEqual(
-        new NoteDetails(TARGET, '- milk, unsaved', { line: 0, ch: 0 }),
+        new NoteDetails(TARGET, '- milk', { line: 0, ch: 0 }),
+      )
+    })
+
+    // The defect stated as the model sees it: the path and the body it is shown
+    // under it came from two different notes.
+    it('carries the file body under the path when the editor holds another note', async () => {
+      const { target, stale, vault } = halfOpened()
+
+      expect(await aHalfOpenedWriter(stale, vault).getDetails(target)).toEqual(
+        new NoteDetails(TARGET, '- milk', { line: 0, ch: 0 }),
       )
     })
 

@@ -114,6 +114,8 @@ export class HarnessToolsService {
   private async readContents(path: string, turn: TurnState): Promise<Attempt<string>> {
     const target = turn.targetNote()
     if (!this.targetNoteWriter || target?.path !== path) return this.noteReader.read(path)
-    return Outcomes.success(await this.targetNoteWriter.read(target))
+    return Outcomes.success(
+      await this.targetNoteWriter.read(target, turn.wasWrittenThroughEditor(path)),
+    )
   }
 }

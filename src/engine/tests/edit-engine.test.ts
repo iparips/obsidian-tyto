@@ -9,6 +9,7 @@ import { ChatProvider, ChatMessage } from '../../model/providers/types'
 import { aSession, aTextTurn, aToolCall, aToolTurn, anEngine } from '../../test-support/builders'
 import { FakeEditor } from '../../test-support/fake-editor'
 import { FakeNoteLocator } from '../../test-support/fake-note-locator'
+import { FakeVault } from '../../test-support/fake-vault'
 import { SessionRepository } from '../../session/session-repository'
 
 describe('EditEngine', () => {
@@ -18,6 +19,7 @@ describe('EditEngine', () => {
   let engine: EditEngine
   let chat: ChatProvider
   let noteLocator: FakeNoteLocator
+  let vault: FakeVault
 
   beforeEach(() => {
     vi.clearAllMocks()
@@ -26,9 +28,11 @@ describe('EditEngine', () => {
     complete = vi.fn()
     chat = { complete }
     noteLocator = new FakeNoteLocator().withOpenNote('note.md', editor)
+    vault = new FakeVault()
     engine = anEngine(chat, {
       sessions,
       noteLocator,
+      vault,
       agentsMdRepository: noInstructions(),
     })
   })
@@ -762,7 +766,10 @@ describe('EditEngine', () => {
     it('re-reads note content when a new turn starts', async () => {
       complete.mockResolvedValue(Outcomes.success(aTextTurn('ok')))
       await engine.processUtterance('first')
+      // An external change reaches the file and the view reloads from it, so
+      // the two move together rather than the editor drifting alone.
       editor.content = 'changed externally'
+      vault.withNote('note.md', 'changed externally')
 
       await engine.processUtterance('second')
 

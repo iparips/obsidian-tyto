@@ -97,6 +97,7 @@ describe('EditEngine', () => {
       {
         sessions,
         noteLocator,
+        vault,
         agentsMdRepository: new AgentsMdRepository(new FakeAdapter().asAdapter()),
         harnessToolsService: harnessOf(),
         noteChoiceService: buildChoice,

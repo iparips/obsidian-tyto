@@ -25,37 +25,58 @@ export class TargetNoteWriter {
     private vault: Vault,
   ) {}
 
-  async write(note: OpenNote, op: EditOperation): Promise<ApplyResult> {
-    if (this.tabStillShows(note)) return this.writeThroughEditor(note, op)
+  // wroteThroughEditor is the turn's own record for this path, which says
+  // whether the view may be flushed before the comparison.
+  async write(note: OpenNote, op: EditOperation, wroteThroughEditor = false): Promise<ApplyResult> {
+    if (await this.editorHoldsTheNote(note, wroteThroughEditor))
+      return this.writeThroughEditor(note, op)
     return this.writeThroughVault(note, op)
   }
 
-  // Focusing asks the same question the write does: a tab that moved would
-  // scroll whatever note it moved to, which is the defect in another form.
+  // Scrolling asks the cheaper question. A tab that moved must not be scrolled;
+  // a tab still loading is about to show this note anyway, so a scroll into it
+  // is at worst early.
   focusEdit(note: OpenNote, position: EditorPosition): void {
-    if (this.tabStillShows(note)) this.noteEditor.focusEdit(note.editor, position)
+    if (this.tabShowsPath(note)) this.noteEditor.focusEdit(note.editor, position)
   }
 
   // The note as the model is shown it. Built here rather than on OpenNote so
   // the content under the path comes from the same place a write would go.
-  async getDetails(note: OpenNote): Promise<NoteDetails> {
-    return new NoteDetails(note.path, await this.read(note), note.cursorAtStart)
+  async getDetails(note: OpenNote, wroteThroughEditor = false): Promise<NoteDetails> {
+    return new NoteDetails(note.path, await this.read(note, wroteThroughEditor), note.cursorAtStart)
   }
 
   // What the note holds now, from wherever the next write to it would go, so a
   // guard comparing against it cannot be reading a note the tab moved to.
-  async read(note: OpenNote): Promise<string> {
-    if (this.tabStillShows(note)) return note.editor.getValue()
-    const file = this.vault.getAbstractFileByPath(note.path)
-    if (!TargetNoteWriter.isNote(file)) return ''
-    return this.vault.cachedRead(file)
+  async read(note: OpenNote, wroteThroughEditor = false): Promise<string> {
+    if (await this.editorHoldsTheNote(note, wroteThroughEditor)) return note.editor.getValue()
+    return this.readFile(note.path)
+  }
+
+  // A tab that moved answers with another handle. A tab that has not finished
+  // loading answers with this one and holds the previous note's text, so the
+  // handle is trusted only where the two agree.
+  private async editorHoldsTheNote(note: OpenNote, wroteThroughEditor: boolean): Promise<boolean> {
+    if (!this.tabShowsPath(note)) return false
+    // Only a view this turn already wrote through: it passed this test to earn
+    // that write, so flushing it writes back what it was trusted with. A save
+    // writes the editor over the file, so flushing a half-opened one would put
+    // the note it still shows under the target's path.
+    if (wroteThroughEditor) await this.noteLocator.saveOpenNote(note.path)
+    return note.editor.getValue() === (await this.readFile(note.path))
   }
 
   // The same handle the locator answers with means the tab has not moved, so
   // the write goes through the editor and keeps undo and the cursor.
-  private tabStillShows(note: OpenNote): boolean {
+  private tabShowsPath(note: OpenNote): boolean {
     const located = this.noteLocator.locate(note.path)
     return located.succeeded() && located.value.editor === note.editor
+  }
+
+  private async readFile(path: string): Promise<string> {
+    const file = this.vault.getAbstractFileByPath(path)
+    if (!TargetNoteWriter.isNote(file)) return ''
+    return this.vault.cachedRead(file)
   }
 
   private writeThroughEditor(note: OpenNote, op: EditOperation): ApplyResult {

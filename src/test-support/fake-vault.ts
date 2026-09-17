@@ -1,4 +1,5 @@
 import { TFile, Vault } from 'obsidian'
+import { FakeNoteLocator } from './fake-note-locator'
 
 interface FakeNote {
   content: string
@@ -17,6 +18,18 @@ export class FakeVault {
 
   withNote(path: string, content: string, mtime = Date.now()): this {
     this.notes.set(path, { content, mtime })
+    return this
+  }
+
+  // A view that finished loading holds the file's text, which is what the
+  // writer's trust test compares. Notes the test set itself are left alone, so
+  // a disagreement it asked for survives. The save is wired the same way round,
+  // since a flushed view writes its text to this vault.
+  withLoadedNotes(locator: FakeNoteLocator): this {
+    locator.openNotes().forEach((editor, path) => {
+      if (!this.notes.has(path)) this.withNote(path, editor.getValue())
+    })
+    locator.savesWith((path, content) => this.withNote(path, content))
     return this
   }
 

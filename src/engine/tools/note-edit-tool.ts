@@ -1,6 +1,6 @@
 import { ToolCall } from '../../model/providers/types'
 import { EditOperation } from '../note-editing/note-editor'
-import { TargetNoteWriter } from '../note-editing/target-note-writer'
+import { ApplyResult, TargetNoteWriter } from '../note-editing/target-note-writer'
 import { NoteChoiceService } from '../waiting/note-choice-service'
 import { NoteOperationParser } from '../note-editing/note-operation-parser'
 import { OpenNote } from '../note-editing/open-note'
@@ -64,7 +64,7 @@ export class NoteEditTool {
       return ToolCallOutcome.of(
         `call read_note on ${note.path} in this turn before writing the whole of it`,
       )
-    if ((await this.targetNoteWriter.read(note)) !== call.argument('read_content'))
+    if ((await this.readNote(note)) !== call.argument('read_content'))
       return ToolCallOutcome.of(
         `${note.path} has changed since you read it; read it again and rewrite from what it says now`,
       )
@@ -82,7 +82,7 @@ export class NoteEditTool {
     op: EditOperation,
     note: OpenNote,
   ): Promise<ToolCallOutcome> {
-    const result = await this.targetNoteWriter.write(note, op)
+    const result = await this.writeRecordingThePath(note, op)
     if (result.applied)
       return ToolCallOutcome.edited(
         `${tool} applied to ${note.path}, ending at line ${result.endedAt.line + 1}`,
@@ -92,5 +92,19 @@ export class NoteEditTool {
       )
     if (result.reason === 'noMatch') return ToolCallOutcome.of('anchor not found in note')
     return ToolCallOutcome.of('anchor matches multiple places; use a longer anchor')
+  }
+
+  // The record is what lets the next trust test flush this view before it
+  // compares, so it is written here rather than left to the caller to remember.
+  private async writeRecordingThePath(note: OpenNote, op: EditOperation): Promise<ApplyResult> {
+    const wroteThroughEditor = this.turnRepository.wasWrittenThroughEditor(note.path)
+    const result = await this.targetNoteWriter.write(note, op, wroteThroughEditor)
+    if (result.applied && result.wroteThrough === 'editor')
+      this.turnRepository.recordWrittenThroughEditor(note.path)
+    return result
+  }
+
+  private async readNote(note: OpenNote): Promise<string> {
+    return this.targetNoteWriter.read(note, this.turnRepository.wasWrittenThroughEditor(note.path))
   }
 }

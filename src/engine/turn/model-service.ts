@@ -61,7 +61,11 @@ export class ModelService {
   // moved would put another note's content under the target's path.
   private async targetNoteDetails(): Promise<NoteDetails | null> {
     const target = this.turnRepository.targetNote()
-    return target ? this.targetNoteWriter.getDetails(target) : null
+    if (!target) return null
+    return this.targetNoteWriter.getDetails(
+      target,
+      this.turnRepository.wasWrittenThroughEditor(target.path),
+    )
   }
 
   private recordCall(parts: ModelRequestParts, historyLength: number): void {
