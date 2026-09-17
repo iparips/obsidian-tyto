@@ -11,7 +11,7 @@ third is the one a user is currently missing most.
 ## Prerequisite
 
 Every class below was introduced by
-[reaching-a-note-by-path](../2026-09-16b-reaching-a-note-by-path/8-tasks.md) and
+[reaching-a-note-by-path](../../3-archived/2026-09-16b-reaching-a-note-by-path/8-tasks.md) and
 the rename that followed it. ProgressLine, TargetNoteWriter, EntryProgress,
 HistoryTurn and PanelReducer do not exist before those land, so check they are
 in the tree before starting: a clone that lacks them needs that spec built

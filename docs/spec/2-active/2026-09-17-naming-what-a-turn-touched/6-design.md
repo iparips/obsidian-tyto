@@ -85,7 +85,7 @@ limit.
   discards a record of the wrong shape, and removing a kind changes the shape.
 - Saying where the next turn will start. The panel records where edits landed,
   per D4 of
-  [reaching-a-note-by-path](../2026-09-16b-reaching-a-note-by-path/4-decisions-showing.md).
+  [reaching-a-note-by-path](../../3-archived/2026-09-16b-reaching-a-note-by-path/4-decisions-showing.md).
 
 ## References
 

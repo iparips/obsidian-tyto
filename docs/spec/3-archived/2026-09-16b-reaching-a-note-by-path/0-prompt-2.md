@@ -9,7 +9,7 @@ The four commits in [8-tasks.md](8-tasks.md) are built and committed. One bullet
 of commit 1 is not, and this is the block to hand a fresh session for it.
 
 ```text
-One change is left from docs/spec/2-active/2026-09-16b-reaching-a-note-by-path.
+One change is left from docs/spec/3-archived/2026-09-16b-reaching-a-note-by-path.
 The other four commits are built; do not rebuild them.
 
 It is the last bullet of commit 1 in 8-tasks.md: the note context message still
