@@ -64,7 +64,7 @@ decisions and the resulting counts.
 
 ## Commit 5: the architecture doc records the building block
 
-[architecture/7-package-design.md](../../../architecture/7-package-design.md)
+[architecture/1-overview.md](../../../architecture/1-overview.md)
 gains wiring in the package table, the three package kinds in the layout
 section, and a redrawn dependency graph with wiring above the services.
 

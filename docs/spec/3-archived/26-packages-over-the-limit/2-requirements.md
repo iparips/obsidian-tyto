@@ -38,7 +38,7 @@ Applied here, three of the four are concept splits and one is a kind split.
   paths.
 - Public names. A class keeps its name; only the file it lives in moves.
 - The dependency direction in
-  [architecture/7-package-design.md](../../../architecture/7-package-design.md).
+  [architecture/1-overview.md](../../../architecture/1-overview.md).
   No new folder may import from a package above it.
 - The release 3 prompt fixture, which no file here touches.
 
@@ -86,4 +86,4 @@ And   no folder is listed as over the limit
 
 ### Project
 
-- [architecture/7-package-design.md](../../../architecture/7-package-design.md) - what each package owns, the dependency rule, and the size table this updates
+- [architecture/1-overview.md](../../../architecture/1-overview.md) - what each package owns, the dependency rule, and the size table this updates

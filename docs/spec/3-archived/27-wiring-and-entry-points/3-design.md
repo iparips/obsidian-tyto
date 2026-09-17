@@ -222,4 +222,4 @@ it, three checks the suite cannot make:
 - [2-requirements.md](2-requirements.md) - the rule and what may not change
 - [4-survey.md](4-survey.md) - the entry surface of every package, and the cycle
 - [src/wiring/engine-factory.ts](../../../../src/wiring/engine-factory.ts) - the container being named
-- [architecture/7-package-design.md](../../../architecture/7-package-design.md) - the package table this updates
+- [architecture/1-overview.md](../../../architecture/1-overview.md) - the package table this updates

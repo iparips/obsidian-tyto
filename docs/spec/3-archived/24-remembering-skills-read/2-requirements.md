@@ -164,4 +164,4 @@ Then  the edit applies with no skill check
 
 ### Project
 
-- [docs/architecture/10-asking-the-model.md](../../../architecture/10-asking-the-model.md) - where skills enter the model, and why the body never passes through message assembly
+- [docs/architecture/5-asking-the-model.md](../../../architecture/5-asking-the-model.md) - where skills enter the model, and why the body never passes through message assembly

@@ -75,4 +75,4 @@ edit land correctly with nothing saying it went through the vault.
 ### Project
 
 - [reaching-a-note-by-path](../../3-archived/2026-09-16b-reaching-a-note-by-path/1-index.md) - gave the turn its target and the write its fallback, and left both unsaid in the panel
-- [architecture/12-the-panel-vocabulary.md](../../../architecture/12-the-panel-vocabulary.md) - turn, turn step and progress line, and the entry kinds this spec removes one of
+- [architecture/2-vocabulary.md](../../../architecture/2-vocabulary.md) - turn, turn step and progress line, and the entry kinds this spec removes one of

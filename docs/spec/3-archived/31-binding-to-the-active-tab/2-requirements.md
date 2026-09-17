@@ -61,4 +61,4 @@ the subscription and the retarget path both work. Only the empty tab is dropped.
 
 ### Architecture
 
-- [7-package-design.md](../../../architecture/7-package-design.md) - the open note recording that the retarget rule sits in wiring, reads as engine's, and has no test
+- [1-overview.md](../../../architecture/1-overview.md) - the open note recording that the retarget rule sits in wiring, reads as engine's, and has no test

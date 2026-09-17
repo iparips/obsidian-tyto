@@ -7,7 +7,7 @@ updated: 2026-09-14
 
 Four folders hold more than the ten files the architecture allows. Each has been
 over for a while, and
-[architecture/7-package-design.md](../../../architecture/7-package-design.md) says
+[architecture/1-overview.md](../../../architecture/1-overview.md) says
 so in its own size table: "Each is a split waiting to be specified, not a reason
 to raise the limit."
 
