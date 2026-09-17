@@ -7,6 +7,10 @@ const SESSION_FILE = 'session.json'
 // path returns nothing rather than throwing: a session that cannot be read is a
 // session that was not there, and the plugin must load either way (FR9, FR10).
 export class SessionFileStore {
+  // The adapter rather than the Vault, unlike the other two repositories: the
+  // plugin's config folder sits outside the vault's file tree, so the Vault API
+  // cannot address it.
+  //
   // Optional in the Obsidian typings, and an absent one means no session is
   // stored: the store reads and writes nothing rather than guessing a path.
   constructor(
@@ -31,7 +35,8 @@ export class SessionFileStore {
     try {
       await this.adapter.write(path, JSON.stringify(session))
     } catch {
-      console.debug('[tyto] could not write the session')
+      // A session that could not be written is one that was not recorded, which
+      // is the same outcome as never having had one.
     }
   }
 
@@ -58,7 +63,7 @@ export class SessionFileStore {
     try {
       await this.adapter.remove(path)
     } catch {
-      console.debug('[tyto] no stored session to remove')
+      // Nothing stored to remove, which is already the state the caller wanted.
     }
   }
 

@@ -12,7 +12,6 @@ import { SearchToolsService } from '../engine/tools/search-tools-service'
 import { DateToolService } from '../engine/tools/date-tool-service'
 import { NoteReader } from '../search/note-reader'
 import { FakeVault } from './fake-vault'
-import { FakeAdapter } from './fake-adapter'
 import { EditEngine } from '../engine/edit-engine'
 import { TurnEndingService } from '../engine/turn-ending-service'
 import { NoteEditor } from '../engine/note-editing/note-editor'
@@ -77,7 +76,7 @@ export interface EnginePartsOptions {
 // The resolver and dispatcher a test needs beside an engine, wired the way
 // EngineFactory wires them, so a test states only what it varies.
 export const anEngine = (modelProvider: ChatProvider, options: EnginePartsOptions): EditEngine => {
-  const skills = options.skillRepository ?? new SkillRepository(new FakeAdapter().asAdapter(), '')
+  const skills = options.skillRepository ?? new SkillRepository(new FakeVault().asVault(), '')
   const harness = options.harnessToolsService ?? noHarness()
   const progress = options.progress ?? TurnProgressPublisher.silent()
   const vault = (options.vault ?? new FakeVault()).withLoadedNotes(options.noteLocator)

@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { SkillRepository } from '../skill-repository'
-import { FakeAdapter } from '../../test-support/fake-adapter'
+import { FakeVault } from '../../test-support/fake-vault'
 
 const DEFAULT_PATH = '0 - Meta/Skills'
 
@@ -8,17 +8,17 @@ const aSkillFile = (name: string, description: string) =>
   `---\nname: ${name}\ndescription: ${description}\n---\n\nBody.`
 
 describe('SkillRepository', () => {
-  let adapter: FakeAdapter
+  let vault: FakeVault
 
   beforeEach(() => {
-    adapter = new FakeAdapter()
+    vault = new FakeVault()
   })
 
-  const load = (path = DEFAULT_PATH) => new SkillRepository(adapter.asAdapter(), path).listSkills()
+  const load = (path = DEFAULT_PATH) => new SkillRepository(vault.asVault(), path).listSkills()
 
   describe('when the skills directory holds skills', () => {
     beforeEach(() => {
-      adapter
+      vault
         .withSkill(`${DEFAULT_PATH}/tidy-notes`, aSkillFile('tidy-notes', 'Tidies a note.'))
         .withSkill(`${DEFAULT_PATH}/weekly-review`, aSkillFile('weekly-review', 'Reviews a week.'))
     })
@@ -43,7 +43,7 @@ describe('SkillRepository', () => {
 
   describe('when a skill file is unusable', () => {
     it('skips a skill file when its frontmatter has no name', async () => {
-      adapter.withSkill(`${DEFAULT_PATH}/nameless`, '---\ndescription: Tidies a note.\n---\n')
+      vault.withSkill(`${DEFAULT_PATH}/nameless`, '---\ndescription: Tidies a note.\n---\n')
 
       const catalogue = await load()
 
@@ -51,7 +51,7 @@ describe('SkillRepository', () => {
     })
 
     it('keeps valid siblings when one skill file is malformed', async () => {
-      adapter
+      vault
         .withSkill(`${DEFAULT_PATH}/broken`, 'No frontmatter here.')
         .withSkill(`${DEFAULT_PATH}/tidy-notes`, aSkillFile('tidy-notes', 'Tidies a note.'))
 
@@ -61,7 +61,7 @@ describe('SkillRepository', () => {
     })
 
     it('parses a description written as a folded scalar across several lines', async () => {
-      adapter.withSkill(
+      vault.withSkill(
         `${DEFAULT_PATH}/tidy-notes`,
         '---\nname: tidy-notes\ndescription: >-\n  Tidies a note by\n  merging its lists.\n---\n',
       )
@@ -74,8 +74,8 @@ describe('SkillRepository', () => {
 
   describe('when a skill body is requested', () => {
     it('returns the file source when the skill exists', async () => {
-      adapter.withSkill(`${DEFAULT_PATH}/tidy-notes`, aSkillFile('tidy-notes', 'Tidies.'))
-      const loader = new SkillRepository(adapter.asAdapter(), DEFAULT_PATH)
+      vault.withSkill(`${DEFAULT_PATH}/tidy-notes`, aSkillFile('tidy-notes', 'Tidies.'))
+      const loader = new SkillRepository(vault.asVault(), DEFAULT_PATH)
       const [skill] = await loader.listSkills()
 
       const body = await loader.readBody(skill)
@@ -84,7 +84,7 @@ describe('SkillRepository', () => {
     })
 
     it('returns null when the skill file has gone', async () => {
-      const loader = new SkillRepository(adapter.asAdapter(), DEFAULT_PATH)
+      const loader = new SkillRepository(vault.asVault(), DEFAULT_PATH)
 
       const body = await loader.readBody({ name: 'x', description: '', path: 'missing/SKILL.md' })
 
@@ -99,16 +99,16 @@ describe('SkillRepository', () => {
       expect(catalogue).toEqual([])
     })
 
-    it('leaves the adapter untouched when the configured path is empty', async () => {
+    it('reads nothing when the configured path is empty', async () => {
       await load('')
 
-      expect(adapter.listed).toEqual([])
+      expect(vault.reads).toEqual([])
     })
   })
 
   describe('when settings override the default path', () => {
     it('reads the configured path when settings override the default', async () => {
-      adapter.withSkill('Custom/Skills/tidy-notes', aSkillFile('tidy-notes', 'Tidies a note.'))
+      vault.withSkill('Custom/Skills/tidy-notes', aSkillFile('tidy-notes', 'Tidies a note.'))
 
       const catalogue = await load('Custom/Skills')
 

@@ -3,7 +3,7 @@ import { EditEngine } from '../edit-engine'
 import { Outcome, Outcomes } from '../../shared/models/outcome'
 import { TurnProgressPublisher } from '../turn-progress-publisher'
 import { AgentsMdRepository } from '../../agents/agents-md-repository'
-import { FakeAdapter } from '../../test-support/fake-adapter'
+import { FakeVault } from '../../test-support/fake-vault'
 import { ChatProvider } from '../../model/providers/types'
 import { ChatTurn } from '../../model/providers/models/chat-turn'
 import { aSession, aTextTurn, aToolCall, aToolTurn, anEngine } from '../../test-support/builders'
@@ -29,7 +29,7 @@ describe('ConversationTurnRunner endings', () => {
       {
         sessions: aSession(),
         noteLocator: new FakeNoteLocator().withOpenNote('note.md', new FakeEditor('# Budget')),
-        agentsMdRepository: new AgentsMdRepository(new FakeAdapter().asAdapter()),
+        agentsMdRepository: new AgentsMdRepository(new FakeVault().asVault()),
         progress: TurnProgressPublisher.silent(),
         transcript,
       },

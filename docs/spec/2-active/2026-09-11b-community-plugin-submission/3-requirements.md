@@ -38,7 +38,7 @@ something the build checks, which keeps checking after the listing lands.
 - Silence debug logging in normal use.
 - Move vault reads off the adapter, except the plugin-config write that has no
   Vault API equivalent, and normalise constructed paths.
-- Ship defaults that touch nothing until the user opts in.
+- Ship defaults whose only reach is the daily note, with search off.
 - Give `build` the shape the scan's build verification expects, and drop the
   dangling source-map reference from it.
 - Name the copyright holder in the LICENSE.
@@ -81,7 +81,7 @@ And   the id matches the plugin folder name in the vault
 Given eslint-plugin-obsidianmd is installed with its recommended config
 When  the lint script runs over src
 Then  no error is reported
-And   the only warnings name the settings tab or the provider's use of fetch
+And   no warning is reported either
 ```
 
 ### Build verification reproduces the shipped bundle
@@ -111,12 +111,12 @@ Then  each reads Tyto
 And   a copied transcript is headed Tyto rather than Owl
 ```
 
-### A fresh install touches nothing before the user asks
+### A fresh install reaches no further than the daily note
 
 ```gherkin
 Given the plugin is installed and no setting has been changed
 When  the user opens a note and starts a session
-Then  no Obsidian command is allowed to run
+Then  the only command allowed to run is daily-notes
 And   the vault is not searched
 ```
 
@@ -131,7 +131,7 @@ And   an error is printed only where a step failed
 
 ## Decisions
 
-All three are settled, so a fresh session starts on none of them.
+All four are settled, so a fresh session starts on none of them.
 
 Migrate silently, with no notice
 
@@ -148,6 +148,15 @@ The allow-list examples become daily-notes and open-or-create-file-command:*
 
 - `daily-notes:*` goes entirely. It is invalid rather than merely unhelpful, so
   it misleads a reader into writing an entry that matches nothing.
+
+The default allow list ships holding daily-notes
+
+- Opening the daily note creates or reveals one note and destroys nothing, so
+  it is the one command safe to allow unasked. The alternative, an empty list,
+  makes the first useful thing a user tries fail silently until they find the
+  setting.
+- Search still ships off. It reads every note in the vault, which is a wider
+  reach than one non-destructive command.
 
 ## References
 

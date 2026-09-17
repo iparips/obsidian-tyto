@@ -4,25 +4,25 @@ import { NoNoteBound, ResolutionFailed, TargetResolved } from '../note-binding/t
 import { TurnProgressPublisher } from '../turn-progress-publisher'
 import { AgentsMdRepository } from '../../agents/agents-md-repository'
 import { SessionRepository } from '../../session/session-repository'
-import { FakeAdapter } from '../../test-support/fake-adapter'
+import { FakeVault } from '../../test-support/fake-vault'
 import { FakeEditor } from '../../test-support/fake-editor'
 import { FakeNoteLocator } from '../../test-support/fake-note-locator'
 import { aSession } from '../../test-support/builders'
 
 describe('TargetNoteResolver', () => {
   let noteLocator: FakeNoteLocator
-  let adapter: FakeAdapter
+  let vault: FakeVault
 
   beforeEach(() => {
     noteLocator = new FakeNoteLocator().withOpenNote('note.md', new FakeEditor('# Budget\n\nbody'))
-    adapter = new FakeAdapter()
+    vault = new FakeVault()
   })
 
   const resolverFor = (sessions: SessionRepository): TargetNoteResolver =>
     new TargetNoteResolver(
       sessions,
       noteLocator,
-      new AgentsMdRepository(adapter.asAdapter()),
+      new AgentsMdRepository(vault.asVault()),
       TurnProgressPublisher.silent(),
     )
 
@@ -74,7 +74,7 @@ describe('TargetNoteResolver', () => {
     it('reads no instruction file when no note is open', async () => {
       await resolverFor(new SessionRepository(null)).resolve()
 
-      expect(adapter.reads).toEqual([])
+      expect(vault.reads).toEqual([])
     })
   })
 
@@ -117,9 +117,11 @@ describe('TargetNoteResolver', () => {
     // The folders are the path's, not the editor's, so the chain is collected
     // whether or not a tab is showing the note.
     it('still collects the instruction chain', async () => {
+      vault.withNote('AGENTS.md', 'Write in second person.')
+
       await resolverFor(aSession('closed.md')).resolve()
 
-      expect(adapter.reads).not.toEqual([])
+      expect(vault.reads).toEqual(['AGENTS.md'])
     })
   })
 
@@ -154,7 +156,7 @@ describe('TargetNoteResolver', () => {
     it('collects no chain, since nothing resolved to read folders from', async () => {
       await resolverFor(aSession('board.canvas')).resolve()
 
-      expect(adapter.reads).toEqual([])
+      expect(vault.reads).toEqual([])
     })
   })
 })

@@ -8,13 +8,17 @@ Always release from `main`, after merging the feature PR. Tags must point at com
 git checkout main && git pull
 ```
 
-## 2. Build the Plugin
+## 2. Verify and Build
 
 ```bash
-bun run build
+bun run verify
 ```
 
-This runs tests, lint, format, and bundles main.js.
+This typechecks, runs the suite, lints, formats, then bundles main.js.
+
+`bun run build` is the bundle alone. The community directory's scan calls it to
+rebuild from source and compare against the released main.js, so it must stay
+the bundle and nothing else.
 
 ## 3. Bump the Version
 
@@ -34,24 +38,29 @@ This updates package.json, manifest.json, and versions.json, then commits and ta
 git push origin main --tags
 ```
 
-## 5. Create the GitHub Release
+## 5. Draft the Release
 
-1. Go to Releases, then "Draft a new release"
-2. Select the new tag, for example `0.2.0`
-3. Set the title to `v0.2.0`
-4. Fill in new features, bug fixes, and the minimum Obsidian version from manifest.json
-5. Upload main.js, manifest.json, and styles.css as release assets
-6. Publish
+Go to Releases, then "Draft a new release". Select the new tag, title it
+`v0.2.0`, and write what changed. Publish.
 
-### Using GitHub CLI
+Creating it triggers .github/workflows/build.yml, which rebuilds from a clean
+checkout and attaches main.js, manifest.json and styles.css, attested with
+GitHub's build provenance. Nothing is uploaded by hand.
 
 ```bash
-gh release create 0.2.0 main.js manifest.json styles.css \
-  --title "v0.2.0" \
-  --notes "## What's New
-- Feature X
-- Bug fix Y"
+gh release create 0.2.0 --title "v0.2.0" --generate-notes
 ```
+
+The run fails if manifest.json disagrees with the tag, since a release the
+directory cannot resolve is worse than no release.
+
+## 6. Check the Assets Landed
+
+```bash
+gh attestation verify main.js --repo <owner>/<repo>
+```
+
+Three assets on the release, each attested.
 
 ## Version History
 

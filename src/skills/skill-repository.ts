@@ -1,4 +1,4 @@
-import { DataAdapter } from 'obsidian'
+import { normalizePath, TFolder, Vault } from 'obsidian'
 import { Skill } from './skill'
 import { SkillFrontmatterParser } from './skill-frontmatter'
 
@@ -8,15 +8,14 @@ const SKILL_FILE = 'SKILL.md'
 // vault without skills behaves exactly as one built before them (FR38).
 export class SkillRepository {
   constructor(
-    private adapter: DataAdapter,
+    private vault: Vault,
     private skillsPath: string,
   ) {}
 
   // Descriptions only: prompt cost scales with skill count, not skill size (NFR6).
   async listSkills(): Promise<readonly Skill[]> {
     if (!this.skillsPath.trim()) return []
-    const folders = await this.skillFolders()
-    const skills = await Promise.all(folders.map((folder) => this.read(folder)))
+    const skills = await Promise.all(this.skillFolders().map((folder) => this.read(folder)))
     return skills.filter((skill): skill is Skill => skill !== null)
   }
 
@@ -26,15 +25,12 @@ export class SkillRepository {
     return this.readFile(skill.path)
   }
 
-  private async skillFolders(): Promise<string[]> {
-    try {
-      const folders = (await this.adapter.list(this.skillsPath)).folders
-      console.debug('[tyto]', folders.length, 'skill folders under', this.skillsPath)
-      return folders
-    } catch {
-      console.debug('[tyto] no skill folders under', this.skillsPath)
-      return []
-    }
+  private skillFolders(): string[] {
+    const root = this.vault.getFolderByPath(normalizePath(this.skillsPath))
+    if (!root) return []
+    return root.children
+      .filter((child): child is TFolder => child instanceof TFolder)
+      .map((folder) => folder.path)
   }
 
   private async read(folder: string): Promise<Skill | null> {
@@ -46,9 +42,13 @@ export class SkillRepository {
     return new Skill(frontmatter.name, frontmatter.description, path)
   }
 
+  // cachedRead rather than read: a skill is read for its content and never
+  // written back, which is the case the cache exists for.
   private async readFile(path: string): Promise<string | null> {
+    const file = this.vault.getFileByPath(normalizePath(path))
+    if (!file) return null
     try {
-      return await this.adapter.read(path)
+      return await this.vault.cachedRead(file)
     } catch {
       return null
     }

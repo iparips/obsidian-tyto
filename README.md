@@ -10,12 +10,12 @@ Other voice plugins transcribe what you say into the note. Tyto treats what you 
 
 1. [Why Tyto](#why-tyto)
 2. [What it does not do](#what-it-does-not-do)
-3. [Install for Development](#install-for-development)
-4. [Test It Out](#test-it-out)
+3. [What Leaves Your Vault](#what-leaves-your-vault)
+4. [Getting Started](#getting-started)
 5. [Commands and Search](#commands-and-search)
 6. [On Mobile](#on-mobile)
 7. [Troubleshooting](#troubleshooting)
-8. [Releasing](#releasing)
+8. [Contributing and Releasing](#contributing-and-releasing)
 
 ## Why Tyto
 
@@ -29,7 +29,7 @@ Edits you can undo
 
 It can open the note first
 
-- Owl runs an Obsidian command you have allowed, follows the note it opens, and edits there. See [Commands and Search](#commands-and-search).
+- Tyto runs an Obsidian command you have allowed, follows the note it opens, and edits there. See [Commands and Search](#commands-and-search).
 
 Built for a phone
 
@@ -50,13 +50,53 @@ Specs live in docs/spec, in three buckets: [1-upcoming](docs/spec/1-upcoming) is
 designed but unbuilt, [2-active](docs/spec/2-active) is in flight, and
 [3-archived](docs/spec/3-archived) is what shipped.
 
-## Install for Development
+## What Leaves Your Vault
 
-See [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) for prerequisites, build commands, and how to symlink the repo into a vault.
+Tyto sends note content to a remote service. This section says what, when, and to whom.
 
-## Test It Out
+The service
 
-1. Open any note and click the mic ribbon icon, or run "Start session for active note". The session panel opens in the right sidebar.
+- Mistral, at api.mistral.ai. Nothing is sent anywhere else.
+
+What is sent
+
+- Your spoken audio, so it can be transcribed.
+- The instruction, the text of the note the session is on, any skill the turn matched, any AGENTS.md or CLAUDE.md in that note's folder chain, and search excerpts when vault search is on.
+
+When
+
+- Only during a turn you start, by recording or by typing an instruction. Nothing is sent in the background, and nothing is sent while the panel sits idle.
+
+Why
+
+- Tyto is an instruction parser, and the parsing is the model's. Turning free speech into a structural edit is what the model does, and no local model does it.
+
+The account
+
+- A Mistral API key is required. Without one Tyto does nothing.
+- The key is stored in the plugin's folder inside your vault, and is sent only to Mistral.
+
+The clipboard
+
+- Off by default. Turning the transcript on adds a copy button, which puts the turn's text on your clipboard. That text includes note content and any vault instructions the turn read.
+
+What never leaves
+
+- No telemetry, no analytics, and no host other than Mistral.
+
+What it can do in the vault without being configured
+
+- Run one Obsidian command, daily-notes, which creates or reveals your daily note. Nothing else is allowed until you add it. See [Commands and Search](#commands-and-search).
+- Vault search is off by default, so nothing beyond the note in the session is read.
+
+## Getting Started
+
+Tyto needs a Mistral API key. Create one at console.mistral.ai, then open
+Settings, Tyto, and paste it into Mistral API key. Nothing works without it.
+
+Then try a turn:
+
+1. Open any note and click the mic ribbon icon, or run "Tyto: Start session". The session panel opens in the right sidebar.
 2. Type an instruction first, to prove the loop without the mic: "add a heading called Test at the start of the file", then Send.
 3. Click Mic, say "rename heading Test to Done", click Stop. The transcript appears, then the edit lands.
 4. Try dictation: "make a list of apples, bananas and pears under a heading called Shopping".
@@ -64,6 +104,9 @@ See [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) for prerequisites, build comman
 6. Press Ctrl+Z / Cmd+Z in the note: the last edit undoes through the native history.
 
 If a step fails, the panel shows an error entry naming the failing step: transcription, chat, or apply.
+
+Commands and vault search are both off until you turn them on. See
+[Commands and Search](#commands-and-search).
 
 ## Commands and Search
 
@@ -75,17 +118,23 @@ search the vault to answer a question.
 - Say "what did I write about the roofing quote recently". The panel shows a
   copyable summary naming the notes it drew on. Nothing is written to a note.
 
-Owl runs only the commands you allow. Settings holds one command id or namespace
-pattern per line, such as daily-notes:*, and a collapsed count showing what those
-entries currently resolve to. A pattern's plugin id must be literal, and only a
-trailing wildcard is allowed. Leave the list empty to allow no commands.
+Tyto runs only the commands you allow. Settings holds one command id or namespace
+pattern per line, and a collapsed count showing what those entries currently
+resolve to. A pattern's plugin id must be literal, and only a trailing wildcard
+is allowed.
 
-Search is a checkbox in settings. With commands off and search off, Tyto behaves
-exactly as it did before this release.
+The list ships holding daily-notes, so "open my daily note" works out of the
+box. Opening the daily note creates or reveals one note and destroys nothing,
+which is what makes it safe to allow unasked. Clear the line to allow nothing.
+
+Write daily-notes for a single command, and open-or-create-file-command:* for
+every command in a namespace. Obsidian's core commands are not namespaced, so
+daily-notes:* matches none of them.
+
+Search is a toggle in settings, off by default. With both off, Tyto reads and
+edits only the note the session is on.
 
 ## On Mobile
-
-`./install` rebuilds and copies the plugin into the vault, which is what a phone needs: Obsidian Sync does not follow symlinks. See [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md).
 
 The session panel opens as a drawer from the right sidebar. To reach it in one tap, add the command to the mobile toolbar: Settings, Mobile, Manage toolbar options, then add "Tyto: Start session".
 
@@ -106,6 +155,8 @@ Skills must live in a normal vault folder. Obsidian Sync copies no dot-folder to
 - "is not a markdown note": the session is on a canvas, a PDF or a Bases file, which have no editor to write through. Press Reset and start on a note.
 - No skills on mobile: check the skills path in settings is a normal folder, not a dot-folder.
 
-## Releasing
+## Contributing and Releasing
 
-See [docs/RELEASE.md](docs/RELEASE.md).
+Building from source, running the suite and installing a development build are
+in [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md). Cutting a release is in
+[docs/RELEASE.md](docs/RELEASE.md).

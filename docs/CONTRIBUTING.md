@@ -71,17 +71,20 @@ bun run test        # unit test suite
 bun run lint        # eslint
 bun run lint:fix    # eslint with autofix
 bun run format      # prettier
-bun run build       # test, lint, format, then bundle to main.js
+bun run verify      # typecheck, test, lint, format, then bundle
+bun run build       # bundle to main.js, and nothing else
 ```
 
 The build writes main.js at the repo root, next to manifest.json and styles.css. Those three files are the plugin.
+
+`build` is the bundle alone because the community directory's scan calls it to rebuild from source and compare the result against the released main.js. `verify` is the one to run by hand.
 
 After a rebuild, reload the plugin: toggle it off and on in Community plugins, or run "Reload app without saving".
 
 ## Code Conventions
 
 - Tests use Vitest, in a tests/ folder beside the code under test
-- Prettier and eslint run as part of `bun run build`, so commit formatted code
+- Prettier and eslint run as part of `bun run verify`, so commit formatted code
 - Specs live under docs/spec, one folder per feature
 
 Working with an AI agent: see [AGENTS.md](../AGENTS.md).
