@@ -41,5 +41,5 @@ it decides the wording, not the design.
 Every decision is settled and the design is written.
 
 Downstream of
-[reaching-a-note-by-path](../2026-09-16b-reaching-a-note-by-path/1-index.md), which gave the
+[reaching-a-note-by-path](../../3-archived/2026-09-16b-reaching-a-note-by-path/1-index.md), which gave the
 turn its target and the write its fallback, and left both unsaid.

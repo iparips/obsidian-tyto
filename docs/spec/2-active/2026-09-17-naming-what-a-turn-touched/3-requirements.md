@@ -46,7 +46,7 @@ wrote to it, and a reader had to compare two free-text details to know that.
 
 ### A write that falls back to the vault is silent
 
-Archived spec [reaching-a-note-by-path](../2026-09-16b-reaching-a-note-by-path/1-index.md)
+Archived spec [reaching-a-note-by-path](../../3-archived/2026-09-16b-reaching-a-note-by-path/1-index.md)
 gave a write two paths: through the editor while it still shows the target, and
 through the vault where the tab has moved. The vault path costs the cursor, and
 may cost undo.
@@ -74,5 +74,5 @@ edit land correctly with nothing saying it went through the vault.
 
 ### Project
 
-- [reaching-a-note-by-path](../2026-09-16b-reaching-a-note-by-path/1-index.md) - gave the turn its target and the write its fallback, and left both unsaid in the panel
+- [reaching-a-note-by-path](../../3-archived/2026-09-16b-reaching-a-note-by-path/1-index.md) - gave the turn its target and the write its fallback, and left both unsaid in the panel
 - [architecture/12-the-panel-vocabulary.md](../../../architecture/12-the-panel-vocabulary.md) - turn, turn step and progress line, and the entry kinds this spec removes one of

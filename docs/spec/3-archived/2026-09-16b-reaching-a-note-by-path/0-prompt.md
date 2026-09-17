@@ -11,7 +11,7 @@ Spent: the four commits below are built and committed. The one bullet it left
 was built from [0-prompt-2.md](0-prompt-2.md), which is spent too.
 
 ```text
-Build the spec in docs/spec/2-active/2026-09-16b-reaching-a-note-by-path. The plugin reaches
+Build the spec in docs/spec/3-archived/2026-09-16b-reaching-a-note-by-path. The plugin reaches
 a note through an editor, and an editor belongs to a tab rather than a file, so
 a write follows the tab and lands in a note nobody named. Four commits.
 

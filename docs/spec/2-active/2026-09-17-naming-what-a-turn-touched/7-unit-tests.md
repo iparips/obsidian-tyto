@@ -51,7 +51,7 @@ a retarget the user made
 ```
 
 The second case replaces the sibling-entry test from
-[reaching-a-note-by-path](../2026-09-16b-reaching-a-note-by-path/6-unit-tests.md),
+[reaching-a-note-by-path](../../3-archived/2026-09-16b-reaching-a-note-by-path/6-unit-tests.md),
 since the entry it asserted no longer exists.
 
 ## TargetNoteWriter.write
