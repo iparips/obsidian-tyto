@@ -1,11 +1,11 @@
 ---
 created: 2026-09-11
-updated: 2026-09-11
+updated: 2026-09-17
 ---
 
-# Logging, Vault Reads, Defaults, and the Bundle
+# Logging, Vault Reads, and Defaults
 
-Four changes, none of which touches more than a handful of lines.
+Three changes, none of which touches more than a handful of lines.
 
 ## Logging
 
@@ -64,14 +64,6 @@ This is a behaviour change for an existing user, which is why it lands after
 the migration: a migrated settings file carries the user's own values, so only
 a genuinely new install sees the new defaults.
 
-## Release Bundle
-
-The build drops `--sourcemap`, so main.js ships with no dangling reference.
-
-```
-bun build src/main.ts --outdir . --entry-naming "[name].[ext]" --external obsidian --format cjs
-```
-
-Development keeps the map. The simplest split is a second script,
-`build:release`, that the release process calls in place of `build`.
-RELEASE.md step 2 changes to name it.
+The release bundle changes too, and
+[6-the-automated-review.md](6-the-automated-review.md) owns it: the build
+verification the scan runs decides which script drops `--sourcemap`.
