@@ -213,6 +213,19 @@ describe('SessionPanelPropsBuilder', () => {
       ])
     })
 
+    // A record with nothing in it comes back indistinguishable from a fresh
+    // session, so the line would announce a restore the user cannot see.
+    it('adds no restored line when the record holds no entries', () => {
+      const props = builder.buildFromSessionSnapshot(
+        aSnapshot({ entries: [] }),
+        leaf,
+        startNewSession,
+        onObsidianBackgrounded,
+      )
+
+      expect(props.entries).toEqual([])
+    })
+
     it('stamps the restored line when the record says it was written', () => {
       const stored = { ...aSnapshot(), writtenAt: new Date(2026, 8, 11, 14, 32).getTime() }
 
