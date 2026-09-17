@@ -26,6 +26,10 @@ export const EntryProgress = ({
 // The note shows only where it differs from the turn's target, since the turn
 // names its target at the top (D2). A direct write always names it: that edit
 // is the one the user may need to undo by hand.
+//
+// No cause is named, because there are now two: a tab that moved, and a file
+// whose editor does not match it. The consequence is the same and is what the
+// reader can act on.
 const ProgressRow = ({ line, target }: { line: ProgressLine; target: string | null }) => (
   <li className={line.refused ? 'tyto-progress-refused' : undefined}>
     <span className="tyto-progress-label">{line.label}</span>
@@ -33,9 +37,7 @@ const ProgressRow = ({ line, target }: { line: ProgressLine; target: string | nu
     {line.wroteDirect && (
       <>
         <span className="tyto-progress-detail tyto-progress-directly">directly.</span>
-        <span className="tyto-progress-direct">
-          Undo not available - because editor moved to another note
-        </span>
+        <span className="tyto-progress-direct">Undo not available</span>
       </>
     )}
     {line.note !== null && (line.wroteDirect || line.note !== target) && (
