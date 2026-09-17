@@ -1,11 +1,11 @@
 ---
 created: 2026-09-17
-updated: 2026-09-17
+updated: 2026-09-18
 ---
 
 # Acceptance Criteria
 
-Every check here is a judgement about what the model does across a whole turn, which the unit suite cannot make. The suite asserts that a second retargeting call is refused; whether the model then interleaves its opens and edits, and whether the turn writes all three notes, is what a person has to watch.
+Every check here is a judgement about what the model does across a whole turn, which the unit suite cannot make. The suite asserts that a second retargeting call is refused, for both commands and open_note, and that the first note stays reachable; whether the model then interleaves its opens and edits, and whether the turn writes all three notes, is what a person has to watch.
 
 ## Setup
 
@@ -33,17 +33,6 @@ And   the panel shows each open followed by the edit that belongs to it
 ```
 
 A step that retargets twice means the refusal is not reaching the model, or the prompt still reads as an instruction to plan the whole turn up front.
-
-### A refused retarget leaves the first note reachable
-
-```gherkin
-Given a model that sends two commands in one step
-When  the second is refused
-Then  the target is the note the first command opened
-And   the next step's edit applies to that note
-```
-
-Run this a second time with two open_note calls in place of the commands. Both reach the same retarget, so a rule catching only one of them passes here and fails in a vault where the model searches rather than running a command.
 
 ### An anchor refusal says which note it reached
 
