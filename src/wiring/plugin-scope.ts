@@ -20,11 +20,11 @@ export class PluginScope {
   // A method rather than a field for the same reason settings are: it reads
   // settings.skillsPath, so a field would snapshot the path the user edits.
   skillRepository(): SkillRepository {
-    return new SkillRepository(this.app.vault.adapter, this.settings.skillsPath)
+    return new SkillRepository(this.app.vault, this.settings.skillsPath)
   }
 
   agentsMdRepository(): AgentsMdRepository {
-    return new AgentsMdRepository(this.app.vault.adapter)
+    return new AgentsMdRepository(this.app.vault)
   }
 
   activeNote(): ActiveNote {

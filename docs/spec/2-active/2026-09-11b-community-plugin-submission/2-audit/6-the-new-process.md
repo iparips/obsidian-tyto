@@ -3,7 +3,7 @@ created: 2026-09-17
 updated: 2026-09-17
 ---
 
-# Findings From the Process Change, and One Defect
+# Findings From the Process Change, and Two Defects
 
 The rest of this audit was written against a submission by pull request against
 a plugin list, reviewed by a person. That process is gone. Submission is a
@@ -13,7 +13,8 @@ Six findings follow from that, none of which the earlier passes could have
 caught. Design in
 [../4-design/6-the-automated-review.md](../4-design/6-the-automated-review.md).
 
-A seventh, finding 19, is a plain defect found on the way.
+Findings 19 and 20 are plain defects found on the way, one in the shipped
+defaults and one in the build order this spec sets.
 
 ## 13. The Repo Does Not Run the Scanner's Linter
 
@@ -106,6 +107,25 @@ Replacements, both already used in the repo's own tests:
 
 AllowedEntries' test pairs exactly these two, so the tests were right where the
 docs and the default were wrong.
+
+## 20. The Installer Would Delete the Settings It Migrates
+
+Not a guideline. Found while building the migration, because the design gives
+the installer and the plugin two rules that contradict each other.
+
+The plugin leaves the legacy data.json in place, and says the installer handles
+the folder. The installer removes the folder. Both are reasonable alone, and
+together they lose the API key.
+
+The installer always runs before the plugin's next load, so the order is:
+install copies the new folder and deletes obsidian-owl, then Obsidian starts and
+the migration finds nothing to read.
+
+- Evidence: the install script's main runs build, then copy or link, and exits.
+  The migration runs in onload, which Obsidian calls on the next start.
+- Fix: the installer removes the legacy folder only once the new id holds a
+  data.json of its own, which is the migration having run and saved. Until then
+  it says why it left the folder alone, so a second install finishes the job.
 
 ## Two Passes Confirmed Under the New Rules
 

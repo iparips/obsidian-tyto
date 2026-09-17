@@ -1,4 +1,4 @@
-import { DataAdapter } from 'obsidian'
+import { normalizePath, Vault } from 'obsidian'
 import { AgentsMdFile } from './agents-md-file'
 import { AgentsMdChain } from './agents-md-chain'
 import { AncestorFolders } from './ancestor-folders'
@@ -13,7 +13,7 @@ export class AgentsMdRepository {
   // invalidated: editing an instruction file mid-session keeps the stale chain.
   private readonly chains = new Map<string, AgentsMdChain>()
 
-  constructor(private adapter: DataAdapter) {}
+  constructor(private vault: Vault) {}
 
   async resolveFor(notePath: string): Promise<AgentsMdChain> {
     const folder = AgentsMdRepository.folderOf(notePath)
@@ -50,9 +50,13 @@ export class AgentsMdRepository {
     return folder === '' ? fileName : `${folder}/${fileName}`
   }
 
+  // cachedRead rather than read: an instruction file is read for its content
+  // and never written back, which is the case the cache exists for.
   private async readFile(path: string): Promise<string | null> {
+    const file = this.vault.getFileByPath(normalizePath(path))
+    if (!file) return null
     try {
-      return await this.adapter.read(path)
+      return await this.vault.cachedRead(file)
     } catch {
       return null
     }

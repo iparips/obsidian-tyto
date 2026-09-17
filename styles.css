@@ -241,12 +241,6 @@
   min-height: 32px;
 }
 
-.tyto-settings {
-  display: flex;
-  flex-direction: column;
-  gap: var(--size-4-3);
-}
-
 .tyto-setting {
   display: flex;
   flex-direction: column;
@@ -279,12 +273,6 @@
   word-break: break-word;
 }
 
-.tyto-setting-inline {
-  flex-direction: row;
-  align-items: center;
-  gap: var(--size-4-2);
-}
-
 .tyto-settings-error {
   color: var(--text-error);
   font-size: var(--font-ui-small);
@@ -294,6 +282,12 @@
   display: flex;
   flex-direction: column;
   gap: var(--size-4-2);
+}
+
+/* The editor is a search and two lists, so it takes the row's full width and
+   sits below the name rather than in the control cell beside it. */
+.tyto-allow-list-setting {
+  display: block;
 }
 
 /* The picker finds a command; the table holds what is allowed. A rule between

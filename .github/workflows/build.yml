@@ -1,0 +1,81 @@
+# CI on every push and pull request, and the release's assets when one is
+# created. Drafting the release stays a person's job; this attaches the three
+# files to it, so a release is never a hand-uploaded bundle from a laptop.
+name: Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  release:
+    types: [created]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  # attest-build-provenance signs the assets with these two.
+  id-token: write
+  attestations: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Install Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      # Separate steps rather than one `verify`, so a red run names which check
+      # failed in the job list rather than in the log. `format` is left out: it
+      # rewrites files, which a CI run must not do.
+      - name: Typecheck
+        run: bun run typecheck
+
+      - name: Test
+        run: bun run test
+
+      - name: Lint
+        run: bun run lint
+
+      # The same script the community directory's scan calls to rebuild from
+      # source, so the two agree by construction.
+      - name: Build
+        run: bun run build
+
+      # A release whose manifest disagrees with its tag is one the directory
+      # cannot resolve, and it is cheaper to fail here than to yank a listing.
+      - name: Check the manifest matches the release tag
+        if: github.event_name == 'release'
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+        run: |
+          manifest="$(jq -r .version manifest.json)"
+          if [[ "$manifest" != "$TAG" ]]; then
+            echo "manifest.json says $manifest, the release tag says $TAG" >&2
+            exit 1
+          fi
+
+      - name: Attest the assets
+        if: github.event_name == 'release'
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: 'main.js, manifest.json, styles.css'
+
+      - name: Upload to release
+        if: github.event_name == 'release'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release upload '${{ github.event.release.tag_name }}' \
+            main.js manifest.json styles.css \
+            --repo '${{ github.repository }}' --clobber

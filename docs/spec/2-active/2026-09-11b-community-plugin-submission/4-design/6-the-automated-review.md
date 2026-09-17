@@ -25,9 +25,10 @@ eslint.config.mjs replaces the legacy .eslintrc. This turned the audit from a
 reading of the docs into something the build checks, and it keeps checking
 after the submission lands.
 
-`bun run lint` reports no errors. Two warnings remain: the settings-tab rule,
-which the settings work clears, and fetch in the Mistral provider, which no
-commit here owns.
+`bun run lint` reports no errors and no warnings. The settings-tab rule was
+cleared by the settings work, and fetch in the Mistral provider is answered
+rather than fixed: the rule is off for that one file, because RequestUrlParam
+carries no AbortSignal and api.mistral.ai needs no CORS bypass.
 
 Two warnings the linter raised first are already gone, and they are worth
 recording because this design first read them as a settings-search concern.
@@ -105,11 +106,18 @@ scorecards the directory is building.
 The release is cut by hand today and the repo has no workflow at all, so a
 workflow buys two things: the attestations, and a build that is not a laptop.
 
-- Add .github/workflows/release.yml, triggered on a tag matching the manifest
-  version.
-- Run the same `build` the scanner runs, so the two agree by construction.
-- Attach main.js, manifest.json and styles.css, with
+- Add .github/workflows/build.yml, modelled on the one already running against
+  open-or-create-file-obsidian-plugin: push, pull request, release created and
+  workflow dispatch.
+- Run the same `build` the scanner runs, so the two agree by construction,
+  after typecheck, test and lint as separate steps.
+- Attach main.js, manifest.json and styles.css to a created release, with
   `actions/attest-build-provenance` and `id-token: write` permission.
+
+Taking a shape that is already serving a listed plugin makes the workflow CI as
+well as a release step, which is where most of its value is: a red build is
+found on the branch rather than at the tag. The release itself is drafted by
+hand, so both plugins keep one ritual.
 
 Deliberately last in the task list. It changes no plugin behaviour, and the
 listing goes live without it.

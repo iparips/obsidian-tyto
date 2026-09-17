@@ -56,8 +56,13 @@ has. Everything else is text.
 
 The plugin folder in a vault is named after the id, so an existing install ends
 up with a stale `obsidian-owl` folder beside the new `tyto` one. Obsidian lists
-both, the old one now broken. The installer removes the old folder when it
-finds one.
+both, the old one now broken. The installer removes the old folder, but only
+once the new id holds a data.json of its own.
+
+That condition matters. The installer always runs before the plugin's next load,
+so an unconditional removal deletes the legacy settings before the migration has
+read them. Until the migration has saved, the installer leaves the folder and
+says why, and a second install finishes the job.
 
 The view type `owl-session` is written into the saved workspace layout. Renamed
 to `tyto-session`, Obsidian finds no view for the old type and drops the leaf.
@@ -94,7 +99,7 @@ sequenceDiagram
     participant Migration as LegacySettingsMigration [Tyto, new]
     participant Adapter as DataAdapter [Obsidian]
 
-    Plugin->>Migration: settingsFor
+    Plugin->>Migration: migrateSettings
     Migration->>Plugin: loadData
     Note over Migration: A stored value under the new id wins and ends the migration
     Migration->>Adapter: read legacy data.json
@@ -118,7 +123,7 @@ Rules it follows.
   the fresh-install path and it must not log or notify.
 - The legacy file is left in place. Deleting a user's only copy of an API key
   on a guess is worse than leaving a stale file behind, and the installer
-  handles the folder.
+  removes the folder once this migration has saved.
 
 The stored session is not migrated. It lives in the plugin folder under a
 version stamp, a session is a transient thing, and losing one costs a

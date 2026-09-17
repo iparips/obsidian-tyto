@@ -4,8 +4,8 @@
   "description": "Edit your notes by voice. Speak an instruction and the note changes, with no fixed command phrases.",
   "main": "main.js",
   "scripts": {
-    "build": "bun run typecheck && bun run test && bun run build:no-tests",
-    "build:no-tests": "bun run lint && bun run format && bun build src/main.ts --outdir . --entry-naming \"[name].[ext]\" --external obsidian --format cjs --sourcemap",
+    "build": "bun build src/main.ts --outdir . --entry-naming \"[name].[ext]\" --external obsidian --format cjs",
+    "verify": "bun run typecheck && bun run test && bun run lint && bun run format && bun run build",
     "version:major": "bun run version-bump.mjs major",
     "version:minor": "bun run version-bump.mjs minor",
     "version:patch": "bun run version-bump.mjs patch",

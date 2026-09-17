@@ -17,7 +17,6 @@ import { NoteGrep } from '../../search/note-grep'
 import { SearchToolsService } from '../tools/search-tools-service'
 import { DateToolService } from '../tools/date-tool-service'
 import { NoteReader } from '../../search/note-reader'
-import { FakeAdapter } from '../../test-support/fake-adapter'
 import { FakeEditor } from '../../test-support/fake-editor'
 import { FakeVault } from '../../test-support/fake-vault'
 import { FakeCommandRegistry } from '../../test-support/fake-command-registry'
@@ -52,7 +51,7 @@ describe('EditEngine', () => {
   let registry: FakeCommandRegistry
   let workspace: FakeWorkspace
   let vault: FakeVault
-  let adapter: FakeAdapter
+  let instructionVault: FakeVault
   let noteLocator: FakeNoteLocator
   let sessions: SessionRepository
   let steps: string[]
@@ -68,7 +67,7 @@ describe('EditEngine', () => {
     registry = new FakeCommandRegistry().withCommand('daily-notes:goto-today', 'Open today')
     workspace = new FakeWorkspace('note.md')
     vault = new FakeVault()
-    adapter = new FakeAdapter()
+    instructionVault = new FakeVault()
     steps = []
     answers = []
     retargets = []
@@ -116,7 +115,7 @@ describe('EditEngine', () => {
         sessions,
         noteLocator,
         vault,
-        agentsMdRepository: new AgentsMdRepository(adapter.asAdapter()),
+        agentsMdRepository: new AgentsMdRepository(instructionVault.asVault()),
         harnessToolsService: harnessOf(allowed, searchEnabled),
         toolNoteOpening,
         progress: new TurnProgressPublisher(
@@ -282,7 +281,7 @@ describe('EditEngine', () => {
   describe('when the rebound note sits in another folder', () => {
     beforeEach(() => {
       opensDailyNote()
-      adapter.withFile('Journal/AGENTS.md', 'Write in second person.')
+      instructionVault.withNote('Journal/AGENTS.md', 'Write in second person.')
     })
 
     it('resolves the new folder chain before the next write when a command retargets', async () => {
