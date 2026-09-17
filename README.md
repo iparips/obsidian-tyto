@@ -84,6 +84,11 @@ What never leaves
 
 - No telemetry, no analytics, and no host other than Mistral.
 
+What it can do in the vault without being configured
+
+- Run one Obsidian command, daily-notes, which creates or reveals your daily note. Nothing else is allowed until you add it. See [Commands and Search](#commands-and-search).
+- Vault search is off by default, so nothing beyond the note in the session is read.
+
 ## Getting Started
 
 Tyto needs a Mistral API key. Create one at console.mistral.ai, then open
@@ -116,7 +121,11 @@ search the vault to answer a question.
 Tyto runs only the commands you allow. Settings holds one command id or namespace
 pattern per line, and a collapsed count showing what those entries currently
 resolve to. A pattern's plugin id must be literal, and only a trailing wildcard
-is allowed. The list is empty by default, so no command runs until you add one.
+is allowed.
+
+The list ships holding daily-notes, so "open my daily note" works out of the
+box. Opening the daily note creates or reveals one note and destroys nothing,
+which is what makes it safe to allow unasked. Clear the line to allow nothing.
 
 Write daily-notes for a single command, and open-or-create-file-command:* for
 every command in a namespace. Obsidian's core commands are not namespaced, so

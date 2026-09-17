@@ -163,8 +163,9 @@ not say so.
 
 ## 8. Tighten the Defaults and Reshape the Build (done)
 
-- DEFAULT_SETTINGS ships an empty allow list and search off, which also drops
-  the invalid `daily-notes:*` pattern.
+- DEFAULT_SETTINGS ships search off, and the allow list holding `daily-notes`
+  rather than the invalid `daily-notes:*`. Opening the daily note destroys
+  nothing, so it is the one command safe to allow unasked.
 - `build` becomes the bundle alone, with no `--sourcemap`.
 - `verify` becomes typecheck, test, lint, format, then build.
 - Point RELEASE.md step 2 and CONTRIBUTING.md at the new names.
@@ -172,8 +173,8 @@ not say so.
 Also `./install --skip-tests`, which named the removed `build:no-tests`. It
 selects `build` over `verify` now, which is the same intent under the new names.
 
-Exit test: a fresh vault runs no command and searches nothing until the
-checkboxes are ticked. `bun run build` writes a main.js with no
+Exit test: a fresh vault opens the daily note and searches nothing until the
+search toggle is on. `bun run build` writes a main.js with no
 sourceMappingURL comment and rewrites no source file.
 
 ## 9. Name the Copyright Holder, and Sweep the Prose (done)

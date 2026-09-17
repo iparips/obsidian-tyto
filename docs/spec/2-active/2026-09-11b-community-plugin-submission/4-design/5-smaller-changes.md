@@ -52,13 +52,19 @@ it from FakeAdapter.
 Two defaults change.
 
 ```ts
-commandAllowList: [],
+commandAllowList: ['daily-notes'],
 searchEnabled: false,
 ```
 
-A fresh install then runs no command and reads no note beyond the one in the
-session. Both are one checkbox away, and the settings text already explains
-what each turns on.
+A fresh install then reaches no further than the daily note, and reads no note
+beyond the one in the session. Opening the daily note creates or reveals one
+note and destroys nothing, which is what makes it the one command safe to allow
+unasked; an empty list instead makes the first useful thing a user tries fail
+silently until they find the setting.
+
+Search still ships off, because it reads every note in the vault, which is a
+wider reach than one non-destructive command. It is one toggle away, and the
+settings text explains what it turns on.
 
 This is a behaviour change for an existing user, which is why it lands after
 the migration: a migrated settings file carries the user's own values, so only
