@@ -71,6 +71,39 @@ Compare the note's editor against workspace.activeEditor (Obsidian). On mobile
 the panel holds the screen, so the comparison fails and nothing scrolls, with no
 platform check written anywhere.
 
+### D7: Does ResolutionFailed come out entirely? [resolved 2026-09-17]
+
+No. It stays, with its only remaining cause a path that is not a markdown note.
+Settled in the design, correcting D5, which said the class loses its last caller
+and comes out.
+
+D5 read the locator as having one failure. It has two, and only one of them is
+the failure D5 removes.
+
+| Option                                    | Cost                                                                    |
+| ----------------------------------------- | ----------------------------------------------------------------------- |
+| Keep ResolutionFailed for non-markdown    | The resolution keeps three states rather than dropping to two            |
+| Remove it and vault-write anything bound  | A session bound to a canvas has its JSON rewritten as markdown           |
+| Remove it and guard inside the writer     | The same guard, further from the message that explains it to the user    |
+
+WorkspaceNoteLocator.notOpenMessage (engine note-binding) branches on the .md
+extension. The markdown branch is what D5 replaces with a vault write. The other
+branch names a canvas, a PDF or a Bases file, and tells the user to press Reset,
+because no amount of opening gains such a path an editor.
+
+Vault-writing that path is worse than refusing it.
+TargetNoteWriter.writeThroughVault (engine note-editing) guards only on the file
+having a stat, which every one of those satisfies, so the write would land and
+corrupt the file. D5's reasoning, that the panel saying a note is not open is
+never the helpful answer, does not carry here: the message is not asking the
+user to open anything, it is saying the session is on something it can never
+edit.
+
+ActiveNote.path (wiring) already refuses to bind a session to a non-markdown
+file, so this is reached only by a rename under a live session. It is kept
+anyway: the cost of dropping it is a corrupted file, and the cost of keeping it
+is one branch.
+
 #### Assumptions
 
 - The transcript defect is cosmetic, so it cannot strand a session or lose an
@@ -83,18 +116,33 @@ platform check written anywhere.
 
 ## Design
 
-### D3: Does the locator stay synchronous? [open]
+### D3: Does the locator stay synchronous? [resolved 2026-09-17]
 
-WorkspaceNoteLocator.locate (engine) is synchronous today. Loading a deferred
-leaf is awaited, so the signature changes and every caller is touched.
+No. locate becomes async, and so does the FakeNoteLocator (test-support)
+override that follows it. Settled in the design: the ripple is two production
+callers and both are already inside async methods, so nothing above them
+changes.
 
 | Option                                   | Cost                                                    |
 | ---------------------------------------- | ------------------------------------------------------- |
 | Make locate async                        | Ripples to callers; resolveFor (engine) is already async |
 | Add an async loader beside locate        | Two entry points, and the sync one keeps the bug         |
 
-Not blocking, and mechanical now D2 is settled. The ordered search D2 chose
-awaits a load on the miss path, so something above locate has to be async.
+What decided it was reading the two callers. TargetNoteResolver.resolveFor
+(engine note-binding) is already async and awaits the chain after the locate, so
+it takes an await and nothing else. TargetNoteWriter.tabShowsPath (engine
+note-editing) is synchronous, but its two callers are not the same: it is
+awaited inside editorHoldsTheNote, which is async already, and read from
+focusEdit, which is not.
+
+D6 takes focusEdit off tabShowsPath and onto workspace.activeEditor (Obsidian),
+which is a field read rather than a search. So the one caller that would have
+forced a synchronous locate stops calling it, and the two changes fit together
+rather than fighting.
+
+The second option was rejected on the same ground as D2's first: an entry point
+that still holds the bug is one a later change reaches for, with no compile
+error to say it chose wrong.
 
 ### D4: Is the load guarded on the API version? [resolved 2026-09-17]
 
