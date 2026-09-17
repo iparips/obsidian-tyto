@@ -152,6 +152,28 @@ describe('SessionPanel', () => {
 
       await waitFor(() => expect(screen.getByText('chat failed: model unavailable')).toBeTruthy())
     })
+
+    it('starts no turn when the transcript came back with nothing said', async () => {
+      transcribe.mockResolvedValue(Outcomes.success('   '))
+      renderPanel()
+      await userEvent.click(screen.getByRole('button', { name: 'Record' }))
+
+      await userEvent.click(screen.getByRole('button', { name: 'Send recording' }))
+
+      await waitFor(() => expect(screen.getByRole('button', { name: 'Record' })).toBeTruthy())
+      expect(processUtterance).not.toHaveBeenCalled()
+    })
+
+    it('leaves the history empty when the transcript came back with nothing said', async () => {
+      transcribe.mockResolvedValue(Outcomes.success(''))
+      const { container } = renderPanel()
+      await userEvent.click(screen.getByRole('button', { name: 'Record' }))
+
+      await userEvent.click(screen.getByRole('button', { name: 'Send recording' }))
+
+      await waitFor(() => expect(screen.getByRole('button', { name: 'Record' })).toBeTruthy())
+      expect(container.querySelectorAll('.tyto-history > *')).toHaveLength(0)
+    })
   })
 
   describe('when starting a new session', () => {

@@ -73,6 +73,9 @@ export const useRecording = (
         retryable: true,
       })
     held.current = null
+    // A recording that said nothing is the user changing their mind, not an
+    // instruction: sending it asks the model to act on silence.
+    if (transcript.value.trim() === '') return dispatchFn({ type: 'cancelled' })
     await runTurnFn(transcript.value)
   }
 
