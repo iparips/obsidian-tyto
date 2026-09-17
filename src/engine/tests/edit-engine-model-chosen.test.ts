@@ -22,7 +22,6 @@ import { NoteGrep } from '../../search/note-grep'
 import { SearchToolsService } from '../tools/search-tools-service'
 import { DateToolService } from '../tools/date-tool-service'
 import { NoteReader } from '../../search/note-reader'
-import { FakeAdapter } from '../../test-support/fake-adapter'
 import { FakeEditor } from '../../test-support/fake-editor'
 import { FakeVault } from '../../test-support/fake-vault'
 import { FakeCommandRegistry } from '../../test-support/fake-command-registry'
@@ -98,7 +97,7 @@ describe('EditEngine', () => {
         sessions,
         noteLocator,
         vault,
-        agentsMdRepository: new AgentsMdRepository(new FakeAdapter().asAdapter()),
+        agentsMdRepository: new AgentsMdRepository(new FakeVault().asVault()),
         harnessToolsService: harnessOf(),
         noteChoiceService: buildChoice,
         noteOpener,

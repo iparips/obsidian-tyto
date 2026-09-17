@@ -17,7 +17,6 @@ import { OpenedNoteWait } from '../../commands/opened-note-wait'
 import { NoteGlob } from '../../search/note-glob'
 import { NoteGrep } from '../../search/note-grep'
 import { NoteReader } from '../../search/note-reader'
-import { FakeAdapter } from '../../test-support/fake-adapter'
 import { FakeEditor } from '../../test-support/fake-editor'
 import { FakeVault } from '../../test-support/fake-vault'
 import { FakeCommandRegistry } from '../../test-support/fake-command-registry'
@@ -102,7 +101,7 @@ describe('EditEngine', () => {
       {
         sessions,
         noteLocator: new FakeNoteLocator().withOpenNote(TODO, editor),
-        agentsMdRepository: new AgentsMdRepository(new FakeAdapter().asAdapter()),
+        agentsMdRepository: new AgentsMdRepository(new FakeVault().asVault()),
         harnessToolsService: harnessOf(),
         noteChoiceService: confirming(confirms),
       },

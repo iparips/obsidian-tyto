@@ -4,7 +4,6 @@ import { Outcomes } from '../../shared/models/outcome'
 import { ChatProvider } from '../../model/providers/types'
 import { AgentsMdRepository } from '../../agents/agents-md-repository'
 import { TurnProgressPublisher } from '../turn-progress-publisher'
-import { FakeAdapter } from '../../test-support/fake-adapter'
 import { FakeEditor } from '../../test-support/fake-editor'
 import { FakeNoteLocator } from '../../test-support/fake-note-locator'
 import { FakeVault } from '../../test-support/fake-vault'
@@ -46,7 +45,7 @@ describe('EditEngine', () => {
         sessions,
         noteLocator,
         vault,
-        agentsMdRepository: new AgentsMdRepository(new FakeAdapter().asAdapter()),
+        agentsMdRepository: new AgentsMdRepository(new FakeVault().asVault()),
         progress: new TurnProgressPublisher(
           () => undefined,
           () => undefined,
