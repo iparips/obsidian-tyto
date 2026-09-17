@@ -31,8 +31,10 @@ views/TytoOwl.tsx          TYTO_OWL_PATHS, and the component rendering them
 views/obsidian/tyto-icon.ts  imports TYTO_OWL_PATHS, registers tyto-owl
 ```
 
-The svg takes width and height from the font size and fills with currentColor,
-so it follows the header's text colour in both themes.
+The svg takes its width and height from Obsidian's --icon-size, the 18 pixels
+the command ribbon draws, since the mark was drawn to read at that size and
+fuses below it. It fills with currentColor, so it follows the header's text
+colour in both themes.
 
 ## The header row
 

@@ -30,9 +30,9 @@ When  the user looks at the owl in the header
 Then  it is the mark the ribbon shows, and its face is a visible gap
 ```
 
-The mark fuses into a blob when it renders too small, which is what
-tyto-icon.ts's comments are about. The header draws it at a size the ribbon
-never does, so it is worth one look in each theme.
+The mark fuses into a blob when it renders too small, which is what TytoOwl's
+comments are about. The header draws it at the ribbon's own 18 pixels, the size
+the glyph was drawn for, so the check is that the two agree in each theme.
 
 ### A narrow sidebar keeps both
 

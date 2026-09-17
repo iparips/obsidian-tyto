@@ -20,6 +20,14 @@
   gap: var(--size-4-2);
 }
 
+/* The 18 pixels the command ribbon draws. The mark was drawn to read at that
+   size and fuses into a blob below it, so it takes the ribbon's own token. */
+.tyto-owl {
+  width: var(--icon-size, 18px);
+  height: var(--icon-size, 18px);
+  flex: 0 0 auto;
+}
+
 /* Takes the spare width, so the buttons sit at the right edge and the title at
    the left. Neither block shrinks when the sidebar is dragged narrow (D2). */
 .tyto-header-actions {

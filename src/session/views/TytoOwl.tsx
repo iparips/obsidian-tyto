@@ -35,13 +35,13 @@ export const TYTO_OWL_PATHS = `
 </g>
 `
 
-// Sized from the font rather than in pixels, so the mark matches whatever text
-// it sits beside and follows its colour through currentColor.
+// Sized by the stylesheet to Obsidian's icon size, the 18 pixels the ribbon
+// draws, since the mark is drawn to read at that size and not below it. Colour
+// follows the text it sits beside through currentColor.
 export const TytoOwl = () => (
   <svg
+    className="tyto-owl"
     viewBox="0 0 100 100"
-    width="1em"
-    height="1em"
     role="img"
     dangerouslySetInnerHTML={{ __html: `<title>Tyto owl</title>${TYTO_OWL_PATHS}` }}
   />
