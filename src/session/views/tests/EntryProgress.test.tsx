@@ -171,13 +171,7 @@ describe('EntryProgress', () => {
 
       expect(
         [...(container.querySelector('li')?.children ?? [])].map((at) => at.textContent),
-      ).toEqual([
-        'Edit',
-        'applied',
-        'directly.',
-        'Undo not available',
-        'Lists/shopping.md',
-      ])
+      ).toEqual(['Edit', 'applied', 'directly.', 'Undo not available', 'Lists/shopping.md'])
     })
 
     it('leaves an edit through the editor unmarked', () => {
