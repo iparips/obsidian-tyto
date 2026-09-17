@@ -61,10 +61,14 @@ export class OpenedNoteWait {
     window.setTimeout(() => this.awaitEditor(path, finishFn, hasSettledFn), EDITOR_POLL_MS)
   }
 
+  // instanceof rather than a cast, so a deferred leaf reads as absent rather
+  // than throwing on the missing file. Deliberately not a load: this is polling
+  // a leaf Obsidian is mounting, and loading one would race that mount.
   private hasEditor(path: string): boolean {
     return this.app.workspace
       .getLeavesOfType('markdown')
-      .map((leaf) => leaf.view as MarkdownView)
+      .map((leaf) => leaf.view)
+      .filter((view): view is MarkdownView => view instanceof MarkdownView)
       .some((view) => view.file?.path === path && Boolean(view.editor))
   }
 }
