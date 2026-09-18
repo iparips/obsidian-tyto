@@ -5,8 +5,18 @@ interface ApiToolCall {
   function: { name: string; arguments: string }
 }
 
+// The API answers content as a string or as a list of chunks, and which one it
+// sends for the same request varies. Only a text chunk carries the reply: a
+// reference names a source, and a thinking chunk is reasoning the user never
+// asked for. The list is open, so an unrecognised type contributes nothing
+// rather than breaking the reply.
+export interface ApiContentChunk {
+  type?: string
+  text?: string
+}
+
 export interface ApiMessage {
-  content?: string | null
+  content?: string | ApiContentChunk[] | null
   tool_calls?: ApiToolCall[] | null
 }
 
@@ -47,7 +57,15 @@ export class MistralMapper {
   }
 
   private static contentOf(message: ApiMessage): string {
-    return typeof message.content === 'string' ? message.content : ''
+    if (typeof message.content === 'string') return message.content
+    if (!Array.isArray(message.content)) return ''
+    return message.content.map(MistralMapper.textOf).join('')
+  }
+
+  // Joined with nothing between: the chunks are one reply split up, not a list
+  // of separate ones, so a separator would insert whitespace mid-sentence.
+  private static textOf(chunk: ApiContentChunk): string {
+    return chunk.type === 'text' ? (chunk.text ?? '') : ''
   }
 
   private static toApiToolCall(call: ToolCall): ApiToolCall {

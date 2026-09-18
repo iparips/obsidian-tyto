@@ -74,6 +74,71 @@ describe('MistralMapper', () => {
     })
   })
 
+  // The API answers content as a string or as a list of chunks, and sends
+  // either one for the same request. Read as a string alone, a chunked reply
+  // is discarded and the turn ends having said nothing.
+  describe('when the reply carries its content in chunks', () => {
+    it('reads the text out of a single chunk', () => {
+      const turn = MistralMapper.toChatTurn({ content: [{ type: 'text', text: 'Added it.' }] })
+
+      expect(turn.content).toBe('Added it.')
+    })
+
+    // One reply split up rather than several replies, so nothing joins them.
+    it('joins several text chunks with nothing between them', () => {
+      const turn = MistralMapper.toChatTurn({
+        content: [
+          { type: 'text', text: 'Added the ' },
+          { type: 'text', text: 'heading.' },
+        ],
+      })
+
+      expect(turn.content).toBe('Added the heading.')
+    })
+
+    it('leaves out a reference chunk, which names a source rather than saying anything', () => {
+      const turn = MistralMapper.toChatTurn({
+        content: [{ type: 'text', text: 'Found it.' }, { type: 'reference' }],
+      })
+
+      expect(turn.content).toBe('Found it.')
+    })
+
+    // Reasoning the user never asked for, and it nests its text under another
+    // key, so reading it would put the model's working into the reply.
+    it('leaves out a thinking chunk, so reasoning stays out of the reply', () => {
+      const turn = MistralMapper.toChatTurn({
+        content: [{ type: 'thinking' }, { type: 'text', text: 'Added it.' }],
+      })
+
+      expect(turn.content).toBe('Added it.')
+    })
+
+    // The chunk list is open: the SDK carries an unknown variant of its own, so
+    // a type this has never seen must cost the reply nothing.
+    it('leaves out a chunk of a kind it does not know', () => {
+      const turn = MistralMapper.toChatTurn({
+        content: [{ type: 'audio' }, { type: 'text', text: 'Added it.' }],
+      })
+
+      expect(turn.content).toBe('Added it.')
+    })
+
+    it('holds an empty text when no chunk carries any', () => {
+      expect(MistralMapper.toChatTurn({ content: [{ type: 'reference' }] }).content).toBe('')
+    })
+
+    it('reads the text out of chunks beside tool calls, so a spoken batch keeps its words', () => {
+      const turn = MistralMapper.toChatTurn({
+        content: [{ type: 'text', text: 'Searching now.' }],
+        tool_calls: [{ id: 'call-1', function: { name: 'grep_notes', arguments: '{}' } }],
+      })
+
+      expect(turn.isToolCalls()).toBe(true)
+      expect(turn.content).toBe('Searching now.')
+    })
+  })
+
   describe('when an assistant message carrying tool calls is sent', () => {
     it('sends the content back, so the model reads its own last reply in full', () => {
       const call = new ToolCall('call-1', 'grep_notes', { q: 'jon' })
