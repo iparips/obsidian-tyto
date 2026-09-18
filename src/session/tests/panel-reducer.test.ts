@@ -207,6 +207,12 @@ describe('PanelReducer', () => {
       })
     })
 
+    it('settles a pending choice when the turn ends on its answer', () => {
+      const state = PanelReducer.reduce(choosing, { type: 'turnAnswered' })
+
+      expect(state.flattened().at(-1)).toMatchObject({ kind: 'choice', pending: false })
+    })
+
     it('settles a pending choice when the turn is cancelled', () => {
       const state = PanelReducer.reduce(choosing, { type: 'turnCancelled', notesWritten: [] })
 
@@ -221,6 +227,27 @@ describe('PanelReducer', () => {
       })
 
       expect(state.flattened().at(-2)).toMatchObject({ pending: false })
+    })
+  })
+
+  // The answer block is already on the panel by the time this arrives, so the
+  // ending settles the turn and writes nothing of its own.
+  describe('when the turn ends on its answer', () => {
+    const answered = () => {
+      const withAnswer = PanelReducer.reduce(thinking, {
+        type: 'answer',
+        text: 'It was 12k.',
+        sources: ['Quotes/roofing.md'],
+      })
+      return PanelReducer.reduce(withAnswer, { type: 'turnAnswered' })
+    }
+
+    it('moves to idle, which publishing the answer had left alone', () => {
+      expect(answered().phase).toBe('idle')
+    })
+
+    it('appends no entry of its own, so the answer is not shown twice', () => {
+      expect(answered().flattened().at(-1)).toMatchObject({ kind: 'answer' })
     })
   })
 

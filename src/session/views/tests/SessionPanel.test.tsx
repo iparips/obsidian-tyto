@@ -7,6 +7,7 @@ import { Attempt, Outcome, Outcomes } from '../../../shared/models/outcome'
 import { RetargetReport } from '../../session-listeners'
 import { TurnResult } from '../../../engine/turn/ending/turn-result'
 import { aTurnResult } from '../../../test-support/builders'
+import { TurnEndingKind } from '../../../engine/turn/ending/turn-ending-kind'
 
 describe('SessionPanel', () => {
   let recorder: RecorderPort
@@ -785,6 +786,60 @@ describe('SessionPanel', () => {
       )
 
       expect(screen.getByLabelText('Answer sources').textContent).toBe('From 1 note')
+    })
+
+    // The answer block is already on the panel by the time the turn ends, so
+    // an entry written by the ending would be the same text a second time.
+    describe('when the turn ends answered', () => {
+      const anAnsweredTurn = (answer = 'It was 12k.') =>
+        processUtterance.mockResolvedValue(
+          aTurnResult(Outcomes.success(answer), TurnEndingKind.Answered),
+        )
+
+      const runATurn = async () => {
+        await userEvent.type(screen.getByLabelText('Instruction'), 'what was it{Enter}')
+      }
+
+      it('writes no assistant entry', async () => {
+        anAnsweredTurn()
+        renderPanel({ onAnswer })
+
+        await runATurn()
+
+        await waitFor(() => expect(screen.queryByText('It was 12k.')).toBeNull())
+      })
+
+      it('returns the panel to idle', async () => {
+        anAnsweredTurn()
+        renderPanel({ onAnswer })
+
+        await runATurn()
+
+        await waitFor(() => expect(screen.getByRole('button', { name: 'Record' })).toBeTruthy())
+      })
+
+      it('notifies with the answer text', async () => {
+        const notifySucceeded = vi.fn()
+        anAnsweredTurn('The roofing quote was 12k.')
+        renderPanel({ onAnswer, notifySucceeded })
+
+        await runATurn()
+
+        await waitFor(() =>
+          expect(notifySucceeded).toHaveBeenCalledWith('The roofing quote was 12k.'),
+        )
+      })
+    })
+
+    describe('when the turn ends replied', () => {
+      it('writes the assistant entry, as today', async () => {
+        processUtterance.mockResolvedValue(aTurnResult(Outcomes.success('made the edit')))
+        renderPanel({ onAnswer })
+
+        await userEvent.type(screen.getByLabelText('Instruction'), 'do it{Enter}')
+
+        await waitFor(() => expect(screen.getByText('made the edit')).toBeTruthy())
+      })
     })
   })
 

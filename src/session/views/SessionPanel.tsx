@@ -82,7 +82,12 @@ export const SessionPanel = (props: SessionPanelProps) => {
     dispatch({ type: 'transcript', text, target: targetNote })
     const result = await props.processUtterance(text)
     const outcome = result.outcome
-    if (outcome.succeeded()) {
+    // Ahead of the shape-first branches, since an answered ending is a success
+    // and would otherwise take the summary branch and write a second entry.
+    if (result.answered() && outcome.succeeded()) {
+      dispatch({ type: 'turnAnswered' })
+      props.notifySucceeded?.(outcome.value)
+    } else if (outcome.succeeded()) {
       dispatch({ type: 'summary', text: outcome.value })
       props.notifySucceeded?.(outcome.value)
     } else if (outcome.wasCancelled()) {
