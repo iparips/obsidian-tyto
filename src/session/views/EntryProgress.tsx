@@ -60,12 +60,13 @@ const ProgressRow = ({ line, target }: { line: ProgressLine; target: string | nu
 // that refused nothing rarely needs explaining.
 const summaryOf = (lines: ProgressLine[], spend?: TurnSpendReport): string => {
   const refused = lines.filter((line) => line.refused).length
-  const headline = spend ? `${spend.used} of ${spend.budget} steps used` : lineCountOf(lines)
+  const headline = spend ? `${spend.used} of ${spend.budget} steps used` : WORKING
   return refused === 0 ? headline : `${headline}, ${refused} refused`
 }
 
-// The fallback for a turn with no spend to name: one restored from a record
-// written before the spend was published, and a turn whose first charge has not
-// landed. Named as lines rather than steps, since that is what they are.
-const lineCountOf = (lines: ProgressLine[]): string =>
-  `${lines.length} ${lines.length === 1 ? 'line' : 'lines'}`
+// What a turn says before its first charge lands. The setup lines publish
+// ahead of the first model call, so a count here would show for a moment and
+// then be replaced by the budget, which reads as the number correcting itself.
+// A restored record written before the spend was published shows it too, and a
+// finished turn that says only this is one whose spend went unrecorded.
+const WORKING = 'working'

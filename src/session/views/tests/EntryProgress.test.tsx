@@ -65,16 +65,19 @@ describe('EntryProgress', () => {
   // A record written before the spend was published, and a turn whose first
   // charge has not landed, both have lines and no spend.
   describe('when the turn has no spend to name', () => {
-    it('falls back to the row count, named as lines rather than steps', () => {
+    // The setup lines publish before the first model call, so a count here
+    // showed for a moment and was then replaced by the budget, which read as
+    // the number correcting itself.
+    it('says it is working rather than counting rows the budget will replace', () => {
       render(<EntryProgress lines={[aStep('Searched', 'milk'), aStep('Read', '')]} target={null} />)
 
-      expect(screen.getByText('2 lines')).toBeTruthy()
+      expect(screen.getByText('working')).toBeTruthy()
     })
 
-    it('uses the singular when one line ran', () => {
+    it('counts no rows, whatever the list holds', () => {
       render(<EntryProgress lines={[aStep('Searched', 'milk')]} target={null} />)
 
-      expect(screen.getByText('1 line')).toBeTruthy()
+      expect(screen.queryByText(/line/)).toBeNull()
     })
   })
 
