@@ -27,13 +27,13 @@ it, and the README opens with the full-colour version.
 
 ## Where the assets live
 
-Two homes, because the files have different jobs.
+Three homes, because the files have different jobs.
 
 | File                           | Home            | Role                                  |
 | ------------------------------ | --------------- | ------------------------------------- |
 | tyto-mask-heart.svg            | docs/spec/23... | The chosen design, unchanged          |
 | src/session/views/tyto-icon.ts | src             | The glyph markup the plugin registers |
-| docs/assets/tyto-logo.png      | docs/assets     | The README image                      |
+| tyto-logo.png                  | repo root       | The README image                      |
 
 The spec folder keeps the design and its rejected siblings; it is a record of
 what was decided. Shipped assets do not live there, which is what NFR3 and the
@@ -168,7 +168,7 @@ not push the prose down the page (FR6, FR7, FR8):
 
 ```html
 <p align="center">
-  <img src="docs/assets/tyto-logo.png" alt="Tyto" width="200" />
+  <img src="tyto-logo.png" alt="Tyto" width="200" />
 </p>
 ```
 
