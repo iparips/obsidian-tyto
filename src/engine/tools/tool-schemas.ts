@@ -21,6 +21,15 @@ import {
 const ANCHOR_DESCRIPTION =
   'Exact text currently in the note. Must match exactly once. Include enough surrounding text to be unique.'
 
+// Lengthening the anchor is how a replace disambiguates, since the whole match
+// is rewritten. An insert splices at the anchor's edge instead, so the same move
+// carries the insertion point into the middle of a sentence.
+const INSERT_ANCHOR_DESCRIPTION =
+  'Exact text currently in the note. Must match exactly once. Keep it to the line your content ' +
+  'goes before or after: unlike a replace, a longer anchor moves where the content lands rather ' +
+  'than only making the match unique. Where a short anchor is not unique, anchor on the nearest ' +
+  'line that is, or use replace_text to rewrite the line and its new neighbour together.'
+
 export const TOOL_SCHEMAS: ToolSchema[] = [
   {
     name: REPLACE_TEXT,
@@ -37,11 +46,14 @@ export const TOOL_SCHEMAS: ToolSchema[] = [
   {
     name: INSERT_TEXT,
     description:
-      'Insert content immediately before or after one exact, unique occurrence of anchor_text.',
+      'Insert content immediately before or after one exact, unique occurrence of anchor_text. ' +
+      'The content lands at the end of the anchor, so the anchor is the line you want to write ' +
+      'after and nothing more: extending it to reach further into the note carries the insertion ' +
+      'point along with it and splices your content mid-sentence.',
     parameters: {
       type: 'object',
       properties: {
-        anchor_text: { type: 'string', description: ANCHOR_DESCRIPTION },
+        anchor_text: { type: 'string', description: INSERT_ANCHOR_DESCRIPTION },
         position: { type: 'string', enum: ['before', 'after'] },
         content: { type: 'string' },
       },
