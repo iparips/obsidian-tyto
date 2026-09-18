@@ -33,15 +33,15 @@ None. This repo has no feature flags and no flag registry, so both sections have
 
 ## Where the tag reader lives
 
-In src/search, beside NoteGlob and NoteReader, as TagIndex (Search, new) with TagCount (Search Models, new) and TagListResult (Search Models, new) beside it.
+In src/search, beside NoteGlob and NoteReader, as TagReader (Search, new) with TagCount (Search Models, new) and TagListResult (Search Models, new) beside it.
 
 Search owns reading the vault without binding to it, which is what this does. That a cache walk is not a content search is the weaker argument; the dependency shape is the stronger one. A package of its own would depend on obsidian and shared, be constructed in EngineFactory (Wiring), and be reached only through the engine's tool service. That is the arrow set Search already has, so it gives a second package indistinguishable from the first, against a ten-file limit src/search is nowhere near at five.
 
-TagIndex takes the Vault and the MetadataCache both: the vault lists the markdown files, the cache answers each file's tags. Every other search class takes the Vault alone, so the constructor states the difference.
+TagReader takes the Vault and the MetadataCache both: the vault lists the markdown files, the cache answers each file's tags. Every other search class takes the Vault alone, so the constructor states the difference.
 
 ## What one call returns
 
-TagIndex.list(filter) walks every markdown file once, reads getAllTags (Obsidian) on its cache entry, and tallies distinct tags per note.
+TagReader.findTags(filter) walks every markdown file once, reads getAllTags (Obsidian) on its cache entry, and tallies distinct tags per note.
 
 - getAllTags (Obsidian) combines the frontmatter tags list and the inline hashes into one array, each normalised with a leading hash. That is the one call that makes frontmatter and inline the same vocabulary.
 - A tag repeated within a note counts once, per D2 and D7. The walk puts each note's tags through a Set before tallying.
@@ -52,7 +52,7 @@ TagIndex.list(filter) walks every markdown file once, reads getAllTags (Obsidian
 
 ## What the model reads back
 
-TagReport.ofTags (Search, new), a second reporter beside SearchReport rather than a third method on it. A tag row is a count and a name where a glob row is a path, and the empty case is a statement about the vault rather than about a pattern, so the two share no branch.
+TagReport.buildReport (Search, new), a second reporter beside SearchReport rather than a third method on it. A tag row is a count and a name where a glob row is a path, and the empty case is a statement about the vault rather than about a pattern, so the two share no branch.
 
 ```text
 #journal - 312 notes
@@ -108,7 +108,7 @@ sequenceDiagram
     participant Dispatcher as ToolDispatcher [Engine]
     participant Harness as HarnessToolsService [Engine Tools]
     participant Search as SearchToolsService [Engine Tools]
-    participant Index as TagIndex [Search, new]
+    participant Reader as TagReader [Search, new]
     participant Cache as MetadataCache [Obsidian]
     participant Report as TagReport [Search, new]
     participant Panel as TurnProgressPublisher [Engine]
@@ -119,12 +119,12 @@ sequenceDiagram
         Note over Harness: the schema is absent too, so this is the second gate
     else searching is on
         Harness->>Search: listTags
-        Search->>Index: list
-        Index->>Cache: getFileCache per markdown file
-        Note over Index: each note contributes a tag at most once
-        Cache-->>Index: CachedMetadata
-        Index-->>Search: TagListResult [new]
-        Search->>Report: ofTags
+        Search->>Reader: findTags
+        Reader->>Cache: getFileCache per markdown file
+        Note over Reader: each note contributes a tag at most once
+        Cache-->>Reader: CachedMetadata
+        Reader-->>Search: TagListResult [new]
+        Search->>Report: buildReport
         Note over Report: rows, then a trimmed line only when the cap bit
         Report-->>Search: report text
         Search->>Panel: ProgressLine.listedTags [new]
@@ -145,7 +145,7 @@ src/search/models/tag-count.ts, one row of the list: a tag and the number of not
 export class TagCount {
   constructor(
     readonly tag: string,
-    readonly notes: number,
+    readonly noteCount: number,
   ) {}
 }
 ```
@@ -155,7 +155,7 @@ src/search/models/tag-list-result.ts, the rows that survived the cap plus the un
 ```ts
 export class TagListResult {
   constructor(
-    readonly counts: readonly TagCount[],
+    readonly tags: readonly TagCount[],
     readonly total: number,
   ) {}
 
@@ -163,14 +163,14 @@ export class TagListResult {
 }
 ```
 
-src/search/tag-index.ts, the walk itself. It takes the MetadataCache beside the Vault, which no other search class does.
+src/search/tag-reader.ts, the walk itself. TagReader is an agent noun beside NoteReader and NoteGlob (Search), where TagIndex would name a thing that holds state and this holds none. It takes the MetadataCache beside the Vault, which no other search class does.
 
 ```ts
 // Fifty, mirroring MAX_GLOB_RESULTS: a vocabulary trimmed shorter than that
 // stops being the vault's conventions and starts being a sample.
 export const MAX_TAG_RESULTS = 50
 
-export class TagIndex {
+export class TagReader {
   constructor(
     private vault: Vault,
     private metadataCache: MetadataCache,
@@ -178,15 +178,15 @@ export class TagIndex {
 
   // Null filter lists everything. No cachedRead anywhere in this class: the
   // cache already holds the tags, so a tally must not cost a read.
-  list(filter: string | null): TagListResult
+  findTags(filter: string | null): TagListResult
 }
 ```
 
-src/search/tag-report.ts, what the model reads back.
+src/search/tag-report.ts, what the model reads back. It builds a string rather than a TagReport, so it is a factory by the naming rules and its method takes build. SearchReport.ofGlob (Search) is the nearer precedent and the of- shape is wrong there too, but the unchanged path stays unchanged: renaming it is its own commit.
 
 ```ts
 export class TagReport {
-  static ofTags(filter: string | null, result: TagListResult): string
+  static buildReport(filter: string | null, result: TagListResult): string
 }
 ```
 
@@ -246,9 +246,9 @@ The obsidian mock and the fakes need extending before any of it runs. src/test-s
 ## Rollout
 
 1. Land the mock and FakeVault (Test Support) extensions, with no production code.
-2. Land TagIndex, TagCount, TagListResult and TagReport (Search, new) with their tests.
+2. Land TagReader, TagCount, TagListResult and TagReport (Search, new) with their tests.
 3. Land LIST_TAGS, the schema, the SEARCH_TOOLS entry, the dispatcher branch and the progress line, with the catalogue's search-off case.
-4. Construct TagIndex in EngineFactory.buildHarnessTools (Wiring) and pass it to SearchToolsService.
+4. Construct TagReader in EngineFactory.buildHarnessTools (Wiring) and pass it to SearchToolsService.
 5. Land the prompt section, run bun run test, then judge the wording against a real vault and key.
 
 ## References
