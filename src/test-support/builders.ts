@@ -50,6 +50,11 @@ export const aToolCall = (name: string, args: Record<string, unknown>): ToolCall
 
 export const aToolTurn = (...calls: ToolCall[]): ChatTurn => ChatTurn.ofToolCalls(calls)
 
+// The reply shape a sentence alongside a batch produces, which aToolTurn
+// cannot express: it is variadic over calls, so it has no room for a text.
+export const aSpokenToolTurn = (content: string, ...calls: ToolCall[]): ChatTurn =>
+  ChatTurn.ofToolCalls(calls, content)
+
 export const aTextTurn = (content: string): ChatTurn => ChatTurn.ofText(content)
 
 export interface EnginePartsOptions {

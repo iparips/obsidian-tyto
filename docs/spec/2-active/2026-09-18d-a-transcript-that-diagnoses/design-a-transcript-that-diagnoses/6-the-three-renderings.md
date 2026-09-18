@@ -28,11 +28,13 @@ A step with no charge recorded writes no budget line. That is a step whose provi
 
 Three facts, three wordings, replacing one.
 
-| Slice                                         | Renders                                             |
-| --------------------------------------------- | --------------------------------------------------- |
-| Empty, and the step drew no charge            | no reply recorded: the provider call did not return |
-| Holds a reply carrying neither text nor calls | the model returned an empty reply                   |
-| Empty, and the step was charged               | nothing recorded                                    |
+| Slice                                                   | Renders                                             |
+| ------------------------------------------------------- | --------------------------------------------------- |
+| Empty, and the step drew no charge                      | no reply recorded: the provider call did not return |
+| Holds a model message whose content and calls are empty | the model returned an empty reply                   |
+| Empty, and the step was charged                         | nothing recorded                                    |
+
+The middle row is a message, not an absence. A reply carrying neither text nor calls reaches the history as an assistant message with an empty content, since MistralMapper.toChatTurn (Model Providers) maps it to ChatTurn.ofText and the turn ends on it.
 
 The third is kept as the honest fallback. It means the harness cannot account for the step, which is a defect in the transcript rather than in the turn, and a reader who sees it should file one.
 

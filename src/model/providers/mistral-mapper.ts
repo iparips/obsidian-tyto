@@ -12,10 +12,12 @@ export interface ApiMessage {
 
 export class MistralMapper {
   static toApiMessage(message: ChatMessage): Record<string, unknown> {
+    // The content travels with the calls rather than being hardcoded empty, so
+    // the model reads its own last reply in full on the next step.
     if (message.hasToolCalls())
       return {
         role: 'assistant',
-        content: '',
+        content: message.content,
         tool_calls: message.toolCalls.map(MistralMapper.toApiToolCall),
       }
     if (message.isToolResult())
@@ -32,13 +34,20 @@ export class MistralMapper {
 
   static toChatTurn(message: ApiMessage): ChatTurn {
     if (message.tool_calls?.length)
-      return ChatTurn.ofToolCalls(message.tool_calls.map(MistralMapper.toToolCall))
-    return ChatTurn.ofText(typeof message.content === 'string' ? message.content : '')
+      return ChatTurn.ofToolCalls(
+        message.tool_calls.map(MistralMapper.toToolCall),
+        MistralMapper.contentOf(message),
+      )
+    return ChatTurn.ofText(MistralMapper.contentOf(message))
   }
 
   static fileNameFor(mimeType: string): string {
     const extension = mimeType.split(';')[0].split('/')[1] ?? 'webm'
     return `utterance.${extension}`
+  }
+
+  private static contentOf(message: ApiMessage): string {
+    return typeof message.content === 'string' ? message.content : ''
   }
 
   private static toApiToolCall(call: ToolCall): ApiToolCall {

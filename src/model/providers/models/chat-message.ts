@@ -25,8 +25,8 @@ export class ChatMessage {
     return new ChatMessage('assistant', content, [], '')
   }
 
-  static modelToolCalls(toolCalls: ToolCall[]): ChatMessage {
-    return new ChatMessage('assistant', '', toolCalls, '')
+  static modelToolCalls(toolCalls: ToolCall[], content = ''): ChatMessage {
+    return new ChatMessage('assistant', content, toolCalls, '')
   }
 
   static toolCallResult(toolCallId: string, content: string): ChatMessage {

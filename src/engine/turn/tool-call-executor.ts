@@ -32,8 +32,9 @@ export class ToolCallExecutor {
   async executeToolCalls(
     toolCalls: ToolCall[],
     refusals: RepeatedRefusalCounter,
+    spokenContent = '',
   ): Promise<string | null> {
-    this.sessionRepository.appendChatMessage(ChatMessage.modelToolCalls(toolCalls))
+    this.sessionRepository.appendChatMessage(ChatMessage.modelToolCalls(toolCalls, spokenContent))
     let editApplied = false
     let answerEndingTheTurn: string | null = null
     const targetAtStepStart = this.sessionRepository.targetNote()

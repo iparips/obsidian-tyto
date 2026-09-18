@@ -10,13 +10,16 @@ updated: 2026-09-18
 The method the nothing-recorded symptom renders from. Three cases replace one.
 
 ```text
-lines  = answered.filter(hasToolCalls or isModelText).flatMap(responseLines)
+spoke  = answered.filter(hasToolCalls or isModelText)
 budget = charge ? ['- Spend: {charged} charged, {usedAfter} of {budget} used'] : []
 
-lines empty and no charge -> budget + ['- no reply recorded: the provider call did not return']
-lines empty and charged   -> budget + ['- nothing recorded']
-otherwise                 -> budget + lines
+spoke empty and no charge  -> budget + ['- no reply recorded: the provider call did not return']
+spoke carried nothing      -> budget + ['- the model returned an empty reply']
+spoke empty and charged    -> budget + ['- nothing recorded']
+otherwise                  -> budget + spoke.flatMap(responseLines)
 ```
+
+A reply carrying neither text nor calls is a message in the slice rather than an absence from it. MistralMapper.toChatTurn (Model Providers) maps it to ChatTurn.ofText with an empty content, so the turn ends through TurnEndingService.endTurnWithModelUtterance (Engine) and the history keeps an assistant message whose content is empty. The middle case therefore tests the message rather than the slice, which is what tells it from the failed provider call above it.
 
 ```text
 the reply carried text and tool calls

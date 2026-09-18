@@ -5,7 +5,14 @@ import { SkillRepository } from '../../skills/skill-repository'
 import { TurnProgressPublisher } from '../turn-progress-publisher'
 import { AgentsMdRepository } from '../../agents/agents-md-repository'
 import { ChatProvider, ChatMessage } from '../../model/providers/types'
-import { aSession, aTextTurn, aToolCall, aToolTurn, anEngine } from '../../test-support/builders'
+import {
+  aSession,
+  aSpokenToolTurn,
+  aTextTurn,
+  aToolCall,
+  aToolTurn,
+  anEngine,
+} from '../../test-support/builders'
 import { FakeEditor } from '../../test-support/fake-editor'
 import { FakeNoteLocator } from '../../test-support/fake-note-locator'
 import { FakeVault } from '../../test-support/fake-vault'
@@ -53,6 +60,21 @@ describe('EditEngine', () => {
   })
 
   describe('when the model responds with tool calls', () => {
+    it('keeps the text in the history when the reply spoke beside its calls', async () => {
+      complete
+        .mockResolvedValueOnce(
+          Outcomes.success(
+            aSpokenToolTurn('Renaming the heading now.', aToolCall('read_note', {})),
+          ),
+        )
+        .mockResolvedValueOnce(Outcomes.success(aTextTurn('done')))
+
+      await engine.processUtterance('rename it')
+
+      const spoken = sessions.chatHistory().find((message: ChatMessage) => message.hasToolCalls())
+      expect(spoken?.content).toBe('Renaming the heading now.')
+    })
+
     // The second anchor was computed against the note the first call changed,
     // which is what duplicated the reported user's content.
     it('applies the first edit only when a turn batches two of them', async () => {
