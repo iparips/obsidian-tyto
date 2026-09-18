@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { MistralMapper } from '../mistral-mapper'
+import { ChatMessage } from '../models/chat-message'
+import { ToolCall } from '../models/tool-call'
 
 describe('MistralMapper', () => {
   describe('when naming the uploaded audio file', () => {
@@ -17,6 +19,97 @@ describe('MistralMapper', () => {
 
     it('falls back to webm when the mime type is empty', () => {
       expect(MistralMapper.fileNameFor('')).toBe('utterance.webm')
+    })
+  })
+
+  describe('when a reply carrying tool calls is read', () => {
+    it('keeps the text alongside the calls, so a sentence the model spoke is not lost', () => {
+      const turn = MistralMapper.toChatTurn({
+        content: 'Searching for that name now.',
+        tool_calls: [{ id: 'call-1', function: { name: 'grep_notes', arguments: '{"q":"jon"}' } }],
+      })
+
+      expect(turn.content).toBe('Searching for that name now.')
+      expect(turn.calls).toEqual([new ToolCall('call-1', 'grep_notes', { q: 'jon' })])
+    })
+
+    it('holds the calls alone when the reply carried no text', () => {
+      const turn = MistralMapper.toChatTurn({
+        content: null,
+        tool_calls: [{ id: 'call-1', function: { name: 'grep_notes', arguments: '{}' } }],
+      })
+
+      expect(turn.content).toBe('')
+      expect(turn.calls).toEqual([new ToolCall('call-1', 'grep_notes', {})])
+    })
+
+    it('reads as tool calls rather than text, so the turn does not end on it', () => {
+      const turn = MistralMapper.toChatTurn({
+        content: 'Searching now.',
+        tool_calls: [{ id: 'call-1', function: { name: 'grep_notes', arguments: '{}' } }],
+      })
+
+      expect(turn.isToolCalls()).toBe(true)
+    })
+  })
+
+  describe('when a reply carrying no tool calls is read', () => {
+    it('holds the text and no calls', () => {
+      const turn = MistralMapper.toChatTurn({ content: 'Added the heading.' })
+
+      expect(turn.isText()).toBe(true)
+      expect(turn.content).toBe('Added the heading.')
+      expect(turn.calls).toEqual([])
+    })
+
+    it('holds an empty text when the content is null, rather than the string null', () => {
+      expect(MistralMapper.toChatTurn({ content: null }).content).toBe('')
+    })
+
+    it('holds an empty text when the reply carried neither, so the turn ends', () => {
+      const turn = MistralMapper.toChatTurn({})
+
+      expect(turn.isText()).toBe(true)
+      expect(turn.content).toBe('')
+    })
+  })
+
+  describe('when an assistant message carrying tool calls is sent', () => {
+    it('sends the content back, so the model reads its own last reply in full', () => {
+      const call = new ToolCall('call-1', 'grep_notes', { q: 'jon' })
+
+      expect(
+        MistralMapper.toApiMessage(ChatMessage.modelToolCalls([call], 'Searching now.')),
+      ).toEqual({
+        role: 'assistant',
+        content: 'Searching now.',
+        tool_calls: [{ id: 'call-1', function: { name: 'grep_notes', arguments: '{"q":"jon"}' } }],
+      })
+    })
+
+    it('sends an empty content when the message carried none', () => {
+      const call = new ToolCall('call-1', 'grep_notes', {})
+
+      expect(MistralMapper.toApiMessage(ChatMessage.modelToolCalls([call])).content).toBe('')
+    })
+  })
+
+  describe('when a tool result message is sent', () => {
+    it('sends the call id it answers, so the provider pairs it with its call', () => {
+      expect(MistralMapper.toApiMessage(ChatMessage.toolCallResult('call-1', 'the note'))).toEqual({
+        role: 'tool',
+        tool_call_id: 'call-1',
+        content: 'the note',
+      })
+    })
+  })
+
+  describe('when an ordinary message is sent', () => {
+    it('sends its role and content unchanged', () => {
+      expect(MistralMapper.toApiMessage(ChatMessage.user('add a heading'))).toEqual({
+        role: 'user',
+        content: 'add a heading',
+      })
     })
   })
 })

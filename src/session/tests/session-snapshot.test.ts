@@ -85,6 +85,30 @@ describe('SessionSnapshot', () => {
       expect(message.toolCalls).toEqual([new ToolCall('call-1', 'read_note', { path: 'day.md' })])
     })
 
+    it('reads the content back when the model spoke beside its tool calls', () => {
+      const call = new ToolCall('call-1', 'read_note', { path: 'day.md' })
+      const stored = StoredMessages.of(ChatMessage.modelToolCalls([call], 'Reading the note.'))
+
+      const message = StoredMessages.toMessage(roundTripped(sessionHolding(stored)).messages[0])
+
+      expect(message.content).toBe('Reading the note.')
+    })
+
+    // What pins SESSION_SNAPSHOT_VERSION in place: a record written before the
+    // model's words were kept carries an empty content, which is today's shape.
+    it('reads back with an empty content when the record was written without one', () => {
+      const stored = {
+        role: 'assistant' as const,
+        content: '',
+        toolCalls: [{ id: 'call-1', name: 'read_note', args: { path: 'day.md' } }],
+        toolCallId: '',
+      }
+
+      const message = StoredMessages.toMessage(roundTripped(sessionHolding(stored)).messages[0])
+
+      expect(message.content).toBe('')
+    })
+
     it('rebuilds a plain reply when the role is assistant and no calls were made', () => {
       const message = StoredMessages.toMessage(StoredMessages.of(ChatMessage.model('done')))
 

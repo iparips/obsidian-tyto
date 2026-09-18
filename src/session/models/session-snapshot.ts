@@ -65,6 +65,7 @@ export class StoredMessages {
     if (stored.toolCalls.length === 0) return ChatMessage.model(stored.content)
     return ChatMessage.modelToolCalls(
       stored.toolCalls.map((call) => new ToolCall(call.id, call.name, call.args)),
+      stored.content,
     )
   }
 }
