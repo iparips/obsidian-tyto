@@ -40,11 +40,21 @@ describe('ProgressLine', () => {
 
   describe('when a grep is recorded', () => {
     it('names the expression and how many matched when notes come back', () => {
-      expect(ProgressLine.grepped('roofing', 2).detail).toBe('roofing — 2 notes')
+      expect(ProgressLine.grepped('roofing', 'the whole vault', 2).detail).toBe(
+        'roofing in the whole vault — 2 notes',
+      )
+    })
+
+    // A narrowed grep finding nothing is a fact about the narrowing, and a line
+    // that omits it reads as a fact about the vault.
+    it('names the folder it searched when the grep was narrowed to one', () => {
+      expect(ProgressLine.grepped('roofing', '1 - Journal/*', 0).detail).toBe(
+        'roofing in 1 - Journal/* — nothing matched',
+      )
     })
 
     it('labels it as a grep', () => {
-      expect(ProgressLine.grepped('roofing', 2).label).toBe('Grepped')
+      expect(ProgressLine.grepped('roofing', 'the whole vault', 2).label).toBe('Grepped')
     })
   })
 

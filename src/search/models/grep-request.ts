@@ -26,6 +26,15 @@ export class GrepRequest {
     return this.compiled !== null || this.paths.length > 0
   }
 
+  // Where the search looked, for the panel. A grep that found nothing under one
+  // folder reads as a vault with nothing in it unless the line says which folder
+  // was asked, so this names the narrowing rather than leaving it implied.
+  scopeDescription(): string {
+    if (this.compiled !== null) return this.pathPattern as string
+    if (this.paths.length > 0) return `${this.paths.length} named notes`
+    return 'the whole vault'
+  }
+
   private admitsByPattern(path: string): boolean {
     return this.compiled === null || this.compiled.matches(path)
   }

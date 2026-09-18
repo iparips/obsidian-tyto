@@ -30,8 +30,11 @@ export class ProgressLine {
     return new ProgressLine('Globbed', `${pattern} — ${ProgressLine.noteCount(found)}`)
   }
 
-  static grepped(pattern: string, found: number): ProgressLine {
-    return new ProgressLine('Grepped', `${pattern} — ${ProgressLine.noteCount(found)}`)
+  // Names where it looked as well as what it looked for. A grep narrowed to one
+  // folder and finding nothing is a fact about that folder, and a line omitting
+  // it reads as a fact about the vault.
+  static grepped(pattern: string, scope: string, found: number): ProgressLine {
+    return new ProgressLine('Grepped', `${pattern} in ${scope} — ${ProgressLine.noteCount(found)}`)
   }
 
   // A null filter reads as the whole vault, so the line says which question was

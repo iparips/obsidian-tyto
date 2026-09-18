@@ -29,13 +29,21 @@ export class SearchReport {
   // The "nothing to read" case is grep's alone and is not the same as no match
   // (FR6c): a scope that admitted no note and a text that is absent are
   // different answers to different questions.
-  static ofGrep(pattern: string, result: GrepResult): string {
+  // A narrowed grep that found nothing says so about the narrowing rather than
+  // about the vault: "no notes contain X" reads as an answer to a question the
+  // search never asked, and is what sends a model on to widen the pattern.
+  static ofGrep(pattern: string, result: GrepResult, scope?: string): string {
     if (result.readNothing) return `no notes to search: the narrowing matched none`
-    if (result.total === 0) return `no notes contain ${pattern}`
+    if (result.total === 0) return SearchReport.foundNothing(pattern, scope)
     return [
       ...SearchReport.rows(result),
       ...SearchReport.trimmedLine(result.hits.length, result),
     ].join('\n')
+  }
+
+  private static foundNothing(pattern: string, scope?: string): string {
+    if (scope === undefined) return `no notes contain ${pattern}`
+    return `no notes in ${scope} contain ${pattern}; the search went no wider than that`
   }
 
   private static rows(result: GrepResult): string[] {

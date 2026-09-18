@@ -32,12 +32,10 @@ export class SearchToolsService {
   }
 
   async grep(call: ToolCall, turn: TurnState): Promise<HarnessResult> {
-    const outcome = await this.noteGrep.find(
-      SearchToolsService.requestOf(call),
-      SearchToolsService.orderOf(call),
-    )
+    const request = SearchToolsService.requestOf(call)
+    const outcome = await this.noteGrep.find(request, SearchToolsService.orderOf(call))
     if (outcome.hasFailed()) return Refusal.of(outcome.message)
-    return SearchToolsService.reported(call.argument('pattern'), outcome.value, turn)
+    return SearchToolsService.reported(request, outcome.value, turn)
   }
 
   // No TurnState, unlike glob and grep: nothing it returns is a path, so
@@ -51,11 +49,16 @@ export class SearchToolsService {
     )
   }
 
-  private static reported(pattern: string, result: GrepResult, turn: TurnState): HarnessResult {
+  private static reported(
+    request: GrepRequest,
+    result: GrepResult,
+    turn: TurnState,
+  ): HarnessResult {
     turn.pathsReturnedByVault.recordPaths(result.hits.map((hit) => hit.path))
+    const scope = request.scopeDescription()
     return new TextResult(
-      SearchReport.ofGrep(pattern, result),
-      ProgressLine.grepped(pattern, result.total),
+      SearchReport.ofGrep(request.pattern, result, request.narrows() ? scope : undefined),
+      ProgressLine.grepped(request.pattern, scope, result.total),
     )
   }
 

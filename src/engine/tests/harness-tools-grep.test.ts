@@ -77,7 +77,7 @@ describe('HarnessToolsService', () => {
     it('reports a grep as a step, naming the expression and the count', async () => {
       const harnessResult = await grep('roofing')
 
-      expect(harnessResult.publishStepSummary?.detail).toBe('roofing — 1 note')
+      expect(harnessResult.publishStepSummary?.detail).toBe('roofing in the whole vault — 1 note')
     })
 
     it('returns paths alone when paths_only is asked for', async () => {
@@ -104,6 +104,16 @@ describe('HarnessToolsService', () => {
       const harnessResult = await grep('plumbing')
 
       expect(harnessResult.result).toBe('no notes contain plumbing')
+    })
+
+    // Unqualified, this reads as an answer about the vault, and a model that
+    // believes the tag exists nowhere stops looking instead of widening.
+    it('says which narrowing found nothing, so the miss is not read as the vault', async () => {
+      const harnessResult = await grep('plumbing', { path_pattern: 'Quotes/*.md' })
+
+      expect(harnessResult.result).toBe(
+        'no notes in Quotes/*.md contain plumbing; the search went no wider than that',
+      )
     })
 
     it('says the narrowing matched none when no note was read', async () => {
