@@ -28,7 +28,9 @@ Three checks against a real vault and a real API key.
 
 Five commits, in build order. Each leaves the suite green.
 
-Commits one and two are built. Three to five wait on the three manual checks above, which gate commit three and need Obsidian driven by hand against a real vault and a real Mistral key.
+All five are built and the unit suite is green. The three manual checks above are still outstanding, since they need Obsidian driven by hand against a real vault and a real Mistral key.
+
+Commit four landed after the budget became a setting, so IterationCounter.max (Engine Turn Spending) is already public and an instance method. Only spent and chargeOfLastSpend were added.
 
 1. ChatTurn and ChatMessage take an optional content beside their calls, and aToolTurn (Test Support) gains a sibling builder for the pair. No behaviour moves, since the defaults keep every existing call site meaning what it meant.
 2. MistralMapper carries the content both ways, and StoredMessages.assistant (Session Models) reads it back. ConversationTurnRunner.executeToolCalls and ToolCallExecutor.executeToolCalls (Engine Turn) pass the text on to the message the history keeps, since the mapper alone only gets it as far as the ChatTurn. This is the behaviour change, and the point to run the three manual checks above.
