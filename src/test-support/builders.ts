@@ -8,6 +8,7 @@ import { ObsidianCommandRegistry } from '../commands/obsidian-command-registry'
 import { AllowList } from '../commands/allow-list'
 import { NoteGlob } from '../search/note-glob'
 import { NoteGrep } from '../search/note-grep'
+import { TagReader } from '../search/tag-reader'
 import { SearchToolsService } from '../engine/tools/search-tools-service'
 import { DateToolService } from '../engine/tools/date-tool-service'
 import { NoteReader } from '../search/note-reader'
@@ -141,6 +142,7 @@ export const noHarness = (): HarnessToolsService =>
     new SearchToolsService(
       new NoteGlob(new FakeVault().asVault()),
       new NoteGrep(new FakeVault().asVault()),
+      new TagReader(new FakeVault().asVault(), new FakeVault().asMetadataCache()),
     ),
     new DateToolService(),
   )

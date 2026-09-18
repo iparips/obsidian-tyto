@@ -14,6 +14,7 @@ import { OpenedNoteWait } from '../../commands/opened-note-wait'
 import { ToolNoteOpening } from '../../session/tool-note-opening'
 import { NoteGlob } from '../../search/note-glob'
 import { NoteGrep } from '../../search/note-grep'
+import { TagReader } from '../../search/tag-reader'
 import { SearchToolsService } from '../tools/search-tools-service'
 import { DateToolService } from '../tools/date-tool-service'
 import { NoteReader } from '../../search/note-reader'
@@ -119,7 +120,11 @@ describe('EditEngine', () => {
       new NoteReader(vault.asVault()),
       catalogue,
       searchEnabled,
-      new SearchToolsService(new NoteGlob(vault.asVault()), new NoteGrep(vault.asVault())),
+      new SearchToolsService(
+        new NoteGlob(vault.asVault()),
+        new NoteGrep(vault.asVault()),
+        new TagReader(vault.asVault(), vault.asMetadataCache()),
+      ),
       new DateToolService(),
     )
   }
