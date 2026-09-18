@@ -13,10 +13,10 @@ The edit tools. Ilya: the tag tool is read-only, and applying a tag is text like
 
 A tag is text in a note. replace_text, insert_text and insert_at already write text against an anchor the model read, and the single-edit-per-step rule and the confirm flow already cover them. A tag tool that writes would need all of that again.
 
-| Option                       | Cost                                                                          |
-| ---------------------------- | ----------------------------------------------------------------------------- |
-| Edit tools apply the tag     | Frontmatter is edited as text, so YAML shape is the model's to get right      |
-| A dedicated add_tag tool     | A second write path, its own confirm flow, and a second place the step rule holds |
+| Option                   | Cost                                                                              |
+| ------------------------ | --------------------------------------------------------------------------------- |
+| Edit tools apply the tag | Frontmatter is edited as text, so YAML shape is the model's to get right          |
+| A dedicated add_tag tool | A second write path, its own confirm flow, and a second place the step rule holds |
 
 The risk this carries: a model editing a frontmatter tags list as text can produce invalid YAML. The read-then-anchor shape limits it, since the model sees the exact block it is changing, and write_note exists for a note where the edit is scattered.
 
@@ -28,11 +28,11 @@ Every tag with the count of notes carrying it, sorted by count descending, with 
 
 A count is what separates the vault's convention from a typo used once, and a model given a flat list picks by string similarity instead. The filter is what keeps the tool usable on a vault with hundreds of tags, and it is optional because the model cannot guess a query before it has seen the vocabulary.
 
-| Option                        | Cost                                                                 |
-| ----------------------------- | -------------------------------------------------------------------- |
-| All tags, optional filter     | One schema with an optional argument; a large vault needs two calls  |
-| Filter required               | The model queries before it knows the vocabulary, so it guesses      |
-| All tags, no filter           | A large vault truncates and the model never sees the rest            |
+| Option                    | Cost                                                                |
+| ------------------------- | ------------------------------------------------------------------- |
+| All tags, optional filter | One schema with an optional argument; a large vault needs two calls |
+| Filter required           | The model queries before it knows the vocabulary, so it guesses     |
+| All tags, no filter       | A large vault truncates and the model never sees the rest           |
 
 ### D3: Is the tool general, or shaped around journal entries? [resolved 2026-09-18]
 
@@ -48,11 +48,11 @@ Listing the vocabulary is the part grep cannot do. A grep for a tag pattern retu
 
 Finding notes by tag is the part grep can do, but wrongly. A regular expression for #health also matches #healthcare, matches the string inside a code fence, and misses a frontmatter `tags: [health]` entirely, since frontmatter writes tags without the hash. MetadataCache (Obsidian) has resolved all four cases already.
 
-| Option                          | Cost                                                                      |
-| ------------------------------- | ------------------------------------------------------------------------- |
+| Option                          | Cost                                                                                       |
+| ------------------------------- | ------------------------------------------------------------------------------------------ |
 | List only                       | Finding notes by tag stays a grep, with its false positives and its frontmatter blind spot |
-| List, plus a paths flag         | One more argument and a second result shape on the same tool              |
-| A second find_notes_by_tag tool | Two tools where the model has to choose, and grep still exists beside both |
+| List, plus a paths flag         | One more argument and a second result shape on the same tool                               |
+| A second find_notes_by_tag tool | Two tools where the model has to choose, and grep still exists beside both                 |
 
 Leaning to list only. The suggesting flow needs the vocabulary and not the notes, so a paths flag would ship untested against the case it exists for. Add it when a real turn needs the notes and the grep gets them wrong.
 
