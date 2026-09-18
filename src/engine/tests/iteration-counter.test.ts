@@ -11,10 +11,38 @@ describe('IterationCounter', () => {
   const spend = (times: number) => Array.from({ length: times }).forEach(() => counter.spend())
 
   describe('when a reply batches several tool calls', () => {
-    it('spends one step per call, so the count matches the steps list', () => {
-      counter.spend(5)
+    // A batch costs one round-trip however many calls it carries, so the calls
+    // after the first are charged half. Asserted through isSpent, since what a
+    // turn has left is the only thing the count is for.
+    it('spends three for four calls, so batching leaves room to use what it found', () => {
+      counter.spend(4)
+      spend(16)
 
-      expect(counter.justRanLow()).toBe(false)
+      expect(counter.isSpent()).toBe(false)
+    })
+
+    it('spends the four that four single calls would, once four more follow', () => {
+      counter.spend(4)
+      spend(17)
+
+      expect(counter.isSpent()).toBe(true)
+    })
+
+    it('spends one for a single call, so an unbatched turn is charged as before', () => {
+      counter.spend(1)
+      spend(19)
+
+      expect(counter.isSpent()).toBe(true)
+    })
+
+    // Rounded when read rather than as each batch lands: two replies of two
+    // calls cost four, where rounding each would cost four and a half.
+    it('keeps the fraction between batches rather than rounding each one', () => {
+      counter.spend(2)
+      counter.spend(2)
+      spend(16)
+
+      expect(counter.isSpent()).toBe(false)
     })
 
     it('spends one step for a reply that called no tool', () => {
@@ -42,6 +70,15 @@ describe('IterationCounter', () => {
 
       expect(counter.isSpent()).toBe(true)
     })
+
+    // The turn this change exists for: eleven replies carrying twenty calls
+    // between them, which cost exactly twenty before and left nothing to read
+    // the notes the last batch had just found.
+    it('leaves room after the eleven batches that used to exhaust a turn', () => {
+      ;[1, 1, 1, 1, 1, 2, 2, 2, 2, 3, 4].forEach((calls) => counter.spend(calls))
+
+      expect(counter.isSpent()).toBe(false)
+    })
   })
 
   describe('when the turn is running low', () => {
@@ -68,9 +105,12 @@ describe('IterationCounter', () => {
 
     // A reply that batches several calls can jump past the threshold without
     // landing on it, and a turn that never warns is one the user cannot cancel
-    // in time.
+    // in time. Reached from a turn already underway: a batch now costs half per
+    // call after the first, so no batch a provider sends crosses from empty.
     it('warns when a batch crosses the threshold without landing on it', () => {
-      counter.spend(18)
+      spend(15)
+
+      counter.spend(4)
 
       expect(counter.justRanLow()).toBe(true)
     })

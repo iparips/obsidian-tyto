@@ -6,21 +6,35 @@ const MAX_ITERATIONS = 20
 // Warns with three left rather than one, so the user can still cancel and
 // rephrase while the turn has room to act on the rephrasing.
 const WARN_AT_REMAINING = 3
+// What a call after the first in the same reply costs. It shares the round-trip
+// the first one paid for, so a turn that batches four searches is charged three
+// rather than four. Not free: four greps read four times as much vault as one,
+// and a reply of twenty would otherwise cost a single step.
+const BATCHED_CALL_COST = 0.5
 
 // How much room a turn has left, and when to say so. A counter rather than a
 // bare loop index, because running low is something the user is told about and
 // running out is something the reply has to explain.
 export class IterationCounter {
+  // Fractional, because a batch costs a fraction per call and rounding each one
+  // as it lands would charge a turn for half-calls it never made: eleven batches
+  // rounded singly cost eighteen where the same calls cost sixteen.
   private used = 0
 
-  // Spent per tool call, so the count matches the numbered steps the user reads.
-  // A reply with no tool calls still costs one, since it is a round-trip.
+  // The first call in a reply costs one and the rest cost half, so a turn that
+  // batches its searches has room left to read what they found. A reply with no
+  // tool calls still costs one, since it is a round-trip.
   spend(calls = 1): void {
-    this.used += Math.max(calls, 1)
+    this.used += 1 + (Math.max(calls, 1) - 1) * BATCHED_CALL_COST
   }
 
   isSpent(): boolean {
-    return this.used >= MAX_ITERATIONS
+    return this.spent() >= MAX_ITERATIONS
+  }
+
+  // Rounded only here, where the total is read, rather than as it accumulates.
+  private spent(): number {
+    return Math.ceil(this.used)
   }
 
   private warned = false
@@ -39,7 +53,7 @@ export class IterationCounter {
   }
 
   private remaining(): number {
-    return Math.max(MAX_ITERATIONS - this.used, 0)
+    return Math.max(MAX_ITERATIONS - this.spent(), 0)
   }
 
   static max(): number {
