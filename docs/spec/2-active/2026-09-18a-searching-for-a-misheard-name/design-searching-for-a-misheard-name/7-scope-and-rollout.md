@@ -5,7 +5,7 @@ updated: 2026-09-18
 
 # Design: Out Of Scope, Tests And Rollout
 
-What this change deliberately leaves, the files the sibling spec also writes, and the order the commits land. Part of [1-index.md](1-index.md).
+What this change deliberately leaves, the files the shipped tag tool already changed, and the order the commits land. Part of [1-index.md](1-index.md).
 
 ## Out of scope
 
@@ -14,15 +14,15 @@ What this change deliberately leaves, the files the sibling spec also writes, an
 - Re-wording the existing Globbing rule that ends a glob in choose_note. It is correct for the edit path it was drafted for, and the new question route covers the other case.
 - Making an overflow recoverable inside the turn, by retrying with less context. That is the budget by another name.
 
-### Files the sibling spec also writes
+### Files the sibling spec already changed
 
-2026-09-18-suggesting-tags is being built in this checkout. Whoever builds second rebases rather than assuming.
+2026-09-18-suggesting-tags shipped in pull request 8, so this design builds on it rather than beside it. Three files it changed are files this change touches, and each is now read at its post-merge state.
 
-- src/engine/tools/tool-schemas.ts. Both add to TOOL_SCHEMAS: that spec a whole list_tags schema and a SEARCH_TOOLS entry, this one one property on grep_notes.
-- src/engine/tools/search-tools-service.ts. That spec adds a listTags method; this one changes what grep passes back.
-- src/model/prompt/system-prompt-sections/search-section.ts. That spec appends a Tagging block; this one changes the trailing unheaded group. Both re-record nothing in the fixture from this file, since it is gated.
+- src/engine/tools/tool-schemas.ts. It added a list_tags schema and a SEARCH_TOOLS entry; this change adds one property to grep_notes, which is untouched by it.
+- src/engine/tools/search-tools-service.ts. It added listTags; this change alters what grep passes back. The two do not overlap, and listTags needs no foundNothing field, since a tag list is not a search over notes.
+- src/model/prompt/system-prompt-sections/search-section.ts. It appended a Tagging block before the trailing unheaded group; this change edits that group, which still sits last. The fixture is unmoved by either, since the section is gated.
 
-The design prompt names search-report.ts and note-glob.ts as shared. They are not: the sibling reads both as precedent and writes neither, adding TagReport (Search, new) as its own file.
+The design prompt named search-report.ts and note-glob.ts as shared. They are not, and the merge confirms it: the sibling read both as precedent and wrote neither, adding TagReport (Search) as its own file.
 
 ## Unit tests
 
@@ -50,14 +50,14 @@ One gap to know before starting: search-report.test.ts covers ofGlob only and ha
 - [src/search/note-excerpt.ts:1](../../../../../src/search/note-excerpt.ts) - the fixed 200-character window this replaces
 - [src/search/models/search-hit.ts:4](../../../../../src/search/models/search-hit.ts) - the hit, with describe at line 13
 - [src/search/search-report.ts:32](../../../../../src/search/search-report.ts) - ofGrep, with rows at line 41 and trimmedLine at line 48
-- [src/engine/tools/search-tools-service.ts:40](../../../../../src/engine/tools/search-tools-service.ts) - reported, which holds the GrepResult the counter's fact comes from
+- [src/engine/tools/search-tools-service.ts:54](../../../../../src/engine/tools/search-tools-service.ts) - reported, which holds the GrepResult the counter's fact comes from
 - [src/engine/turn/spending/repeated-refusal-counter.ts:8](../../../../../src/engine/turn/spending/repeated-refusal-counter.ts) - the counter EmptySearchCounter is shaped after
 - [src/engine/turn/conversation-turn-runner.ts:65](../../../../../src/engine/turn/conversation-turn-runner.ts) - the isStuck branch the found-nothing one sits beside
 - [src/engine/turn-ending-service.ts:35](../../../../../src/engine/turn-ending-service.ts) - endTurnAsCancelled, the shape the overflow ending follows
 - [src/engine/turn/paths-returned-by-vault-repository.ts:6](../../../../../src/engine/turn/paths-returned-by-vault-repository.ts) - session-scoped, and exposing includes alone
 - [src/engine/turn-progress-publisher.ts:7](../../../../../src/engine/turn-progress-publisher.ts) - one-way by design, which is why the progress lines cannot be read back
 - [src/model/providers/mistral-provider.ts:87](../../../../../src/model/providers/mistral-provider.ts) - parseResponse, rendering any non-ok response as a status and a snippet
-- [src/model/prompt/system-prompt-sections/search-section.ts:58](../../../../../src/model/prompt/system-prompt-sections/search-section.ts) - the trailing unheaded group three rules join
+- [src/model/prompt/system-prompt-sections/search-section.ts:63](../../../../../src/model/prompt/system-prompt-sections/search-section.ts) - the trailing unheaded group three rules join
 - [src/model/prompt/system-prompt-sections/dictation-section.ts:11](../../../../../src/model/prompt/system-prompt-sections/dictation-section.ts) - the duplicated checkbox line, repeated at line 12
-- [src/model/prompt/tests/system-prompt.test.ts:510](../../../../../src/model/prompt/tests/system-prompt.test.ts) - the fixture assertion, with the re-record log at line 13
-- [docs/spec/2-active/2026-09-18-suggesting-tags/5-design-listing-the-vaults-tags.md](../../2026-09-18-suggesting-tags/5-design-listing-the-vaults-tags.md) - the sibling spec, for the files both write
+- [src/model/prompt/tests/system-prompt.test.ts:511](../../../../../src/model/prompt/tests/system-prompt.test.ts) - the fixture assertion, with the re-record log at line 13
+- [docs/spec/2-active/2026-09-18-suggesting-tags/5-design-listing-the-vaults-tags.md](../../2026-09-18-suggesting-tags/5-design-listing-the-vaults-tags.md) - the tag tool, shipped in pull request 8, for the files it changed

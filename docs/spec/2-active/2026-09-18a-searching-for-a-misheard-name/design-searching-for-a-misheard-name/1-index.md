@@ -12,7 +12,7 @@ Let a turn work with a name the transcriber guessed wrong. A grep returns every 
 - [4-behaviour.md](4-behaviour.md) - the comparison table and the one sequence diagram carrying both new endings
 - [5-new-interfaces-search.md](5-new-interfaces-search.md) - every type the change adds or alters under src/search
 - [6-new-interfaces-engine.md](6-new-interfaces-engine.md) - the guard, the two endings, the continuation prompt and the overflow recogniser
-- [7-scope-and-rollout.md](7-scope-and-rollout.md) - what is left out, the files the sibling spec also writes, the commit order and the references
+- [7-scope-and-rollout.md](7-scope-and-rollout.md) - what is left out, the files the shipped tag tool already changed, the commit order and the references
 
 The unit-test plan is [6-unit-tests.md](../6-unit-tests.md), beside the design rather than inside it.
 
@@ -28,5 +28,5 @@ The second is what the harness can know once the model call itself has failed. T
 
 Two claims the code disagreed with, corrected in the design rather than worked around. Both are stated in full in [3-endings-and-the-prompt.md](3-endings-and-the-prompt.md) and [7-scope-and-rollout.md](7-scope-and-rollout.md).
 
-- The design prompt names three files the sibling spec also touches. Only tool-schemas.ts is one it writes; it reads the other two as precedent. Two files it does write went unnamed.
+- The design prompt names three files the tag-tool spec also touches. Only tool-schemas.ts is one it wrote; it read the other two as precedent. Two files it did write went unnamed. Its merge confirms this.
 - The requirements place the empty-search guard at ConversationTurnRunner.isStuck alone. The guard needs a fact from the tool layer that nothing carries today, so it is four files rather than one.

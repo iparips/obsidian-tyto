@@ -104,6 +104,6 @@ The test's comment logs each prior re-record, so this one is added in the same s
 
 Two claims the code disagrees with, corrected here rather than designed around.
 
-- The design prompt says the sibling spec touches three files this one touches: search-report.ts, note-glob.ts and tool-schemas.ts. Only the last is true. The sibling's design adds TagReport (Search, new) as a new file beside SearchReport and cites note-glob.ts only for MAX_GLOB_RESULTS as a precedent for its own cap. Its rollout writes neither. The real collisions are in [7-scope-and-rollout.md](7-scope-and-rollout.md), and they include two files the prompt does not name.
+- The design prompt says the tag-tool spec touches three files this one touches: search-report.ts, note-glob.ts and tool-schemas.ts. Only the last is true. That spec added TagReport (Search) as a new file beside SearchReport and cited note-glob.ts only for MAX_GLOB_RESULTS as a precedent for its own cap. Its merge in pull request 8 wrote neither. The files it did share are in [7-scope-and-rollout.md](7-scope-and-rollout.md), and they include two the prompt does not name.
 - The requirements call the empty-search guard one of two changes to the turn loop and place it at ConversationTurnRunner.isStuck. The guard needs a fact from the tool layer that nothing carries today, so it is four files rather than one: the counter, the field on TextResult, the field on ToolCallOutcome, and the runner branch. The spec's framing understates it, and a build planned as a one-line change to the runner would find nothing to read.
 
