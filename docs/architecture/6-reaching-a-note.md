@@ -138,7 +138,8 @@ drift from what the skill actually does.
 ## Search Answers Touch No Note
 
 A search answer is a copyable panel block citing the notes it drew on. It is
-never written into a note, and it never reaches the chat history.
+never written into a note. It ends the turn it was made in, and its text is
+appended to the chat history as that turn's closing message.
 
 So the two flows share the agent loop and nothing else. A command resolves a
 destination and an edit may follow; a search reads and terminates at the panel.

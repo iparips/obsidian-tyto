@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, Mock, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { SessionPanel, RecorderPort, SessionPanelProps } from '../SessionPanel'
 import { Utterance } from '../../../recorder'
-import { Attempt, Outcome, Outcomes } from '../../../shared/models/outcome'
+import { Attempt, Outcomes } from '../../../shared/models/outcome'
 import { TurnResult } from '../../../engine/turn/ending/turn-result'
 import { aTurnResult } from '../../../test-support/builders'
 

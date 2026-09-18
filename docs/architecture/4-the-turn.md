@@ -7,17 +7,22 @@ in [2-vocabulary.md](2-vocabulary.md).
 
 ## How A Turn Ends
 
-The turn's return type is Outcome of string, and only one of its three states
-carries that string.
+The turn's return type is TurnResult (Engine Turn Ending): the ending kind
+beside an Outcome of string, of whose three states only one carries that string.
 
-| State     | Carries                  | Panel shows        |
-| --------- | ------------------------ | ------------------ |
-| Success   | The model's answer       | An assistant entry |
-| Cancelled | The notes the turn wrote | A cancelled entry  |
-| Failure   | A step and a message     | An error entry     |
+| State     | Carries                  | Panel shows                                |
+| --------- | ------------------------ | ------------------------------------------ |
+| Success   | The model's answer       | An assistant entry, or none if it answered |
+| Cancelled | The notes the turn wrote | A cancelled entry                          |
+| Failure   | A step and a message     | An error entry                             |
 
 The type parameter names the success case only. The other two are generic in
 it so they can share the union, and hold no value of that type.
+
+The kind travels beside the outcome because the outcome cannot say which ending
+it was. A turn that answered from search succeeds carrying its answer, which the
+panel has already shown, so the panel reads the kind to know not to show it
+again.
 
 ## Why The Ending Returns Rather Than Publishes
 
@@ -147,6 +152,6 @@ TurnRunnerFactory.
 
 ## References
 
-- [2-vocabulary.md](2-vocabulary.md) - turn, turn step, progress line, and the five endings
+- [2-vocabulary.md](2-vocabulary.md) - turn, turn step, progress line, and the six endings
 - [5-asking-the-model.md](5-asking-the-model.md) - what one step's model call is made of
 - [7-the-panel.md](7-the-panel.md) - where the ending and the progress lines land

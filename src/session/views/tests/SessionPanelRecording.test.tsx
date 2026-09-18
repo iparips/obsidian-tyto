@@ -3,7 +3,7 @@ import { act, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { ChoiceRequest, SessionPanel, RecorderPort, SessionPanelProps } from '../SessionPanel'
 import { Utterance } from '../../../recorder'
-import { Attempt, Outcome, Outcomes } from '../../../shared/models/outcome'
+import { Attempt, Outcomes } from '../../../shared/models/outcome'
 import { PanelItem } from '../../models/panel-state'
 import { TurnResult } from '../../../engine/turn/ending/turn-result'
 import { aTurnResult } from '../../../test-support/builders'
@@ -131,7 +131,9 @@ describe('SessionPanel', () => {
     })
 
     it('records the error when the turn failed', async () => {
-      processUtterance.mockResolvedValue(aTurnResult(Outcomes.failure('chat', 'the provider failed')))
+      processUtterance.mockResolvedValue(
+        aTurnResult(Outcomes.failure('chat', 'the provider failed')),
+      )
       renderPanel()
 
       await runTurn()

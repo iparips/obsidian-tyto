@@ -78,10 +78,10 @@ the panel reads as a conversation rather than as a row of unlike boxes.
 | context   | restored     | Where a restored session picks up                |
 
 An assistant entry and an answer entry are both the model talking, and differ in
-three ways. The assistant entry is the turn's ending, is appended to the chat
-history for the next turn to read, and happens once. An answer is a tool result
-mid-turn, cites the notes it drew on, never reaches the chat history, and can
-happen any number of times.
+two ways. The assistant entry is the turn's ending and happens once. An answer
+is a tool result, cites the notes it drew on, and can happen any number of
+times. Both reach the chat history: an answer that ends its turn is appended
+there as the turn's closing message.
 
 Two of these read an answer back, which the engine's one-way publisher cannot
 do, so they are held apart as the two ways a turn parks on the user.
@@ -106,12 +106,13 @@ starts, and the turn it opens names that.
 
 ## How a turn ends
 
-Five endings (TurnEndingKind [Engine Turn Ending]), so the transcript reads the
+Six endings (TurnEndingKind [Engine Turn Ending]), so the transcript reads the
 ending rather than inferring it.
 
 | Ending    | Is                                               | Panel shows        |
 | --------- | ------------------------------------------------ | ------------------ |
 | Replied   | The model answered in text                       | An assistant entry |
+| Answered  | The model answered from search                   | An answer entry    |
 | Cancelled | The user stopped it, between steps or mid-flight | A cancelled entry  |
 | Failed    | The provider failed                              | An error entry     |
 | Exhausted | The step budget ran out                          | An error entry     |

@@ -1,4 +1,3 @@
-import { Outcome } from '../../shared/models/outcome'
 import { ToolCall } from '../../model/providers/types'
 import { TurnCancellationController } from './turn-cancellation-controller'
 import { TurnEndingService } from '../turn-ending-service'
@@ -64,10 +63,7 @@ export class ConversationTurnRunner {
   // two identical refusals still ends as stuck, and before the keep-going it
   // replaces. The spend runs either way: the batch is charged for its calls.
   private async executeToolCalls(calls: ToolCall[], spend: TurnSpend): Promise<TurnStepOutcome> {
-    const answer = await this.toolCallExecutor.executeToolCalls(
-      calls,
-      spend.repeatedRefusalCounter,
-    )
+    const answer = await this.toolCallExecutor.executeToolCalls(calls, spend.repeatedRefusalCounter)
 
     if (spend.repeatedRefusalCounter.isStuck())
       return TurnOutcomes.stuck(spend.repeatedRefusalCounter)
