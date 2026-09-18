@@ -4,8 +4,8 @@ Tyto is an Obsidian plugin built with [Bun](https://bun.sh/) and TypeScript. Bun
 
 ## Prerequisites
 
-- Bun installed
-- Obsidian 1.5.0 or newer on desktop
+- Bun 1.3.13, the version .github/workflows/build.yml pins. Another version builds and tests fine, but produces a different main.js, and a release is reproducible only against the pinned one.
+- Obsidian 1.13.0 or newer on desktop, which is the manifest's minAppVersion
 - A [Mistral API key](https://console.mistral.ai/)
 
 ## Setup
@@ -71,13 +71,16 @@ bun run test        # unit test suite
 bun run lint        # eslint
 bun run lint:fix    # eslint with autofix
 bun run format      # prettier
-bun run verify      # typecheck, test, lint, format, then bundle
-bun run build       # bundle to main.js, and nothing else
+bun run verify      # typecheck, test, lint, format, then bundle for development
+bun run build       # the release bundle: minified, React in production mode
+bun run build:dev   # the same bundle unminified, which is what verify runs
 ```
 
 The build writes main.js at the repo root, next to manifest.json and styles.css. Those three files are the plugin.
 
 `build` is the bundle alone because the community directory's scan calls it to rebuild from source and compare the result against the released main.js. `verify` is the one to run by hand.
+
+Two bundles, because the one worth shipping is the one worth debugging least. `build` minifies and builds React in production mode, which is a third of the size and is what CI, a release and the directory's scan all produce. `build:dev` skips both, so a stack trace from an installed development build still names its functions, and `./install` uses it for the same reason.
 
 After a rebuild, reload the plugin: toggle it off and on in Community plugins, or run "Reload app without saving".
 

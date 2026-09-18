@@ -4,7 +4,11 @@
 #
 # Builds first, so an install is never a stale bundle. The default runs verify,
 # which typechecks, tests, lints and formats before bundling. --skip-tests runs
-# build alone, for a faster loop while debugging on a device.
+# build:dev alone, for a faster loop while debugging on a device.
+#
+# Both bundle through build:dev rather than build: an installed plugin is one
+# being debugged, and a minified bundle names no function in a stack trace.
+# build is the release bundle, which CI and the directory's scan both run.
 #
 # Default mode copies the built files as a real directory, because Obsidian
 # Sync does not follow symlinks and so never reaches mobile. --link symlinks
@@ -255,7 +259,7 @@ main() {
 	for arg in "$@"; do
 		case "$arg" in
 		--link) mode="link" ;;
-		--skip-tests) script="build" ;;
+		--skip-tests) script="build:dev" ;;
 		*) usage "$arg" ;;
 		esac
 	done

@@ -16,9 +16,14 @@ bun run verify
 
 This typechecks, runs the suite, lints, formats, then bundles main.js.
 
-`bun run build` is the bundle alone. The community directory's scan calls it to
-rebuild from source and compare against the released main.js, so it must stay
-the bundle and nothing else.
+`bun run build` is the bundle alone, minified and with React in production mode.
+The community directory's scan calls it to rebuild from source and compare
+against the released main.js, so it must stay the bundle and nothing else, and
+what it produces must be what the release carries.
+
+`verify` bundles through `build:dev`, which is the same bundle unminified. A
+release therefore runs `build` in CI rather than taking the bundle a local
+`verify` left behind.
 
 ## 3. Bump the Version
 

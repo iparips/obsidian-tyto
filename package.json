@@ -4,8 +4,9 @@
   "description": "Talk to your Obsidian notes. Edit text, format structure, and ask questions about what's in them.",
   "main": "main.js",
   "scripts": {
-    "build": "bun build src/main.ts --outdir . --entry-naming \"[name].[ext]\" --external obsidian --format cjs",
-    "verify": "bun run typecheck && bun run test && bun run lint && bun run format && bun run build",
+    "build": "bun build src/main.ts --outdir . --entry-naming \"[name].[ext]\" --external obsidian --format cjs --minify --define process.env.NODE_ENV='\"production\"'",
+    "build:dev": "bun build src/main.ts --outdir . --entry-naming \"[name].[ext]\" --external obsidian --format cjs",
+    "verify": "bun run typecheck && bun run test && bun run lint && bun run format && bun run build:dev",
     "version:major": "bun run version-bump.mjs major",
     "version:minor": "bun run version-bump.mjs minor",
     "version:patch": "bun run version-bump.mjs patch",

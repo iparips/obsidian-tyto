@@ -88,14 +88,19 @@ a path and both are easy to break by accident.
 ## Build
 
 ```bash
-bun run test     # unit suite
-bun run verify   # typecheck, test, lint, format, then bundle
-bun run build    # bundle to main.js, and nothing else
+bun run test      # unit suite
+bun run verify    # typecheck, test, lint, format, then bundle for development
+bun run build     # the release bundle: minified, React in production mode
+bun run build:dev # the same bundle unminified, which is what verify runs
 ```
 
 `build` is the bundle alone because the community directory's scan calls it to
-rebuild from source and compare against the released main.js. `verify` is the
-one to run by hand, and two things are worth knowing about it:
+rebuild from source and compare against the released main.js. It minifies and
+builds React in production mode, which is a third of the size; `build:dev`
+skips both, so a stack trace from an installed build still names its functions.
+`./install` and `verify` both use the development one.
+
+`verify` is the one to run by hand, and two things are worth knowing about it:
 
 - It runs prettier over the whole repo, so it reformats files unrelated to your
   change. Keep that reformatting and commit it on its own, as a whitespace
