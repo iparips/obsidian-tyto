@@ -19,12 +19,13 @@ Add list_tags, a read-only tool answering the vault's tags with the number of no
 6. [The tool lists tags and does not find notes](#the-tool-lists-tags-and-does-not-find-notes)
 7. [Behaviour change](#behaviour-change)
 8. [Behaviour sequence](#behaviour-sequence)
-9. [Telling the model to list before suggesting](#telling-the-model-to-list-before-suggesting)
-10. [Re-recording the prompt fixture](#re-recording-the-prompt-fixture)
-11. [Out of scope](#out-of-scope)
-12. [Unit tests](#unit-tests)
-13. [Rollout](#rollout)
-14. [References](#references)
+9. [New interfaces](#new-interfaces)
+10. [Telling the model to list before suggesting](#telling-the-model-to-list-before-suggesting)
+11. [Re-recording the prompt fixture](#re-recording-the-prompt-fixture)
+12. [Out of scope](#out-of-scope)
+13. [Unit tests](#unit-tests)
+14. [Rollout](#rollout)
+15. [References](#references)
 
 ## Feature flag and gating
 
@@ -133,6 +134,87 @@ sequenceDiagram
 ```
 
 Arrows: uses-relationship (client to supplier).
+
+## New interfaces
+
+Ordered as the Rollout section orders the commits.
+
+src/search/models/tag-count.ts, one row of the list: a tag and the number of notes carrying it.
+
+```ts
+export class TagCount {
+  constructor(
+    readonly tag: string,
+    readonly notes: number,
+  ) {}
+}
+```
+
+src/search/models/tag-list-result.ts, the rows that survived the cap plus the uncapped total, in the shape GlobResult (Search) holds.
+
+```ts
+export class TagListResult {
+  constructor(
+    readonly counts: readonly TagCount[],
+    readonly total: number,
+  ) {}
+
+  wasTrimmed(): boolean
+}
+```
+
+src/search/tag-index.ts, the walk itself. It takes the MetadataCache beside the Vault, which no other search class does.
+
+```ts
+// Fifty, mirroring MAX_GLOB_RESULTS: a vocabulary trimmed shorter than that
+// stops being the vault's conventions and starts being a sample.
+export const MAX_TAG_RESULTS = 50
+
+export class TagIndex {
+  constructor(
+    private vault: Vault,
+    private metadataCache: MetadataCache,
+  ) {}
+
+  // Null filter lists everything. No cachedRead anywhere in this class: the
+  // cache already holds the tags, so a tally must not cost a read.
+  list(filter: string | null): TagListResult
+}
+```
+
+src/search/tag-report.ts, what the model reads back.
+
+```ts
+export class TagReport {
+  static ofTags(filter: string | null, result: TagListResult): string
+}
+```
+
+src/model/providers/models/tool-call.ts, an added constant and an added method on the existing ToolCall class.
+
+```ts
+export const LIST_TAGS = 'list_tags'
+
+// On ToolCall, beside isGlobNotes. isHarnessTool gains it; requiresVaultAccess
+// does not, so the call carries no applicable_skills argument.
+isListTags(): boolean
+```
+
+src/engine/tools/search-tools-service.ts, an added method on the existing SearchToolsService class. No TurnState parameter, unlike glob and grep: nothing it returns is a path.
+
+```ts
+listTags(call: ToolCall): HarnessResult
+```
+
+src/engine/progress-line.ts, an added factory on the existing ProgressLine class.
+
+```ts
+// Null filter reads as the whole vault, so the line says which question was
+// asked rather than showing an empty detail.
+static listedTags(filter: string | null, found: number): ProgressLine
+```
+
+src/engine/tools/tool-schemas.ts gains one ToolSchema in TOOL_SCHEMAS and one name in SEARCH_TOOLS. The schema declares a single optional filter argument, so required is empty.
 
 ## Telling the model to list before suggesting
 

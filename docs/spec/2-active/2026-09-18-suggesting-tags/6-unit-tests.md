@@ -88,7 +88,8 @@ The two empty messages are the case worth splitting: told only that nothing matc
 ## SearchToolsService.listTags
 
 ```text
-result = tagIndex.list(call.optionalArgument("filter"))
+filter = call.optionalArgument("filter") ?? null
+result = tagIndex.list(filter)
 return TextResult(TagReport.ofTags(filter, result), ProgressLine.listedTags(filter, result.total))
 ```
 
