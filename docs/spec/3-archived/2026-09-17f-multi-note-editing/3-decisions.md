@@ -13,9 +13,9 @@ No. The rule counts an actual change of target, not a call that might have cause
 
 A command can run and open no note. NoteOpenedByObsidianCommand (commands) reports rebinds() false, moveTargetNote returns early, and the target is untouched. Nothing about the step has become unsafe, so refusing what follows would spend the step on nothing.
 
-| Option         | Cost                                                                        |
-| -------------- | ---------------------------------------------------------------------------- |
-| Count the move | The guard reads the target rather than the call, so it runs after dispatch  |
+| Option         | Cost                                                                                   |
+| -------------- | -------------------------------------------------------------------------------------- |
+| Count the move | The guard reads the target rather than the call, so it runs after dispatch             |
 | Count the call | A no-op command burns the step, and the next legitimate command is refused for nothing |
 
 This costs less than it first appears. The executor already loops per call and can read the target before and after each one, so a changed path is observable without the dispatcher reporting it. The guard sits after dispatch instead of before, which is where the edit rule sits, so the two stop mirroring each other exactly. Which target it reads is the design's call, settled in D5.
@@ -47,10 +47,10 @@ Yes, and nothing changes. ConversationTurnRunner.spendOn spends iterationCounter
 
 The accounting stays wrong on its own terms: a batch of three commands spends three where one ran. Correcting it means the executor returning a count the runner branches on, which is a new return shape for an error of two steps in twenty, on a shape costing about six. The counter's own comment defends the current number, since it counts tool calls so the total matches the numbered progress lines the user reads, and a refused call does publish one.
 
-| Option                        | Cost                                                                 |
-| ----------------------------- | -------------------------------------------------------------------- |
-| Spend per call, as today      | A refused batch overspends by the calls it refused                   |
-| Spend per call dispatched     | A new return shape on executeToolCalls, and the panel count stops matching the spend |
+| Option                    | Cost                                                                                 |
+| ------------------------- | ------------------------------------------------------------------------------------ |
+| Spend per call, as today  | A refused batch overspends by the calls it refused                                   |
+| Spend per call dispatched | A new return shape on executeToolCalls, and the panel count stops matching the spend |
 
 Revisit if a real turn lands near the cap. The acceptance check watching for twelve steps is what would surface it.
 
@@ -80,10 +80,10 @@ No, and the edit rule does not move. They stay one loop with two guards: the edi
 
 Moving the edit rule after dispatch to match would mean running the second edit to discover it was a second edit, which is the duplicated write the rule prevents. The asymmetry belongs to the domain: an edit declares itself in its name, and a retarget cannot, because Obsidian decides what a command opens.
 
-| Option                          | Cost                                                             |
-| ------------------------------- | ---------------------------------------------------------------- |
-| Two guards, different shapes    | The loop holds two pieces of per-step state, and they read unlike |
-| Move the edit rule after dispatch | The second edit applies before it is refused                    |
+| Option                            | Cost                                                              |
+| --------------------------------- | ----------------------------------------------------------------- |
+| Two guards, different shapes      | The loop holds two pieces of per-step state, and they read unlike |
+| Move the edit rule after dispatch | The second edit applies before it is refused                      |
 
 ### Assumptions
 

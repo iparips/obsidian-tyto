@@ -11,14 +11,14 @@ Categories are corrected from the script's guesses. It buckets a whole compound 
 
 ## By category
 
-| Category           | Design | Note                                                             |
-| ------------------ | ------ | ---------------------------------------------------------------- |
-| code               | 25,900 | 30 reads, all of obsidian-tyto src, including four test files    |
-| skill              | 14,400 | 9 files: sdd and its four references, text-generation, mermaid   |
-| reference document | 6,700  | The spec folder and three architecture docs                      |
-| navigation         | 3,700  | Three listings, one of which found all three test files          |
-| system of record   | 600    | Two suite runs and a git status                                  |
-| total              | 51,300 |                                                                  |
+| Category           | Design | Note                                                           |
+| ------------------ | ------ | -------------------------------------------------------------- |
+| code               | 25,900 | 30 reads, all of obsidian-tyto src, including four test files  |
+| skill              | 14,400 | 9 files: sdd and its four references, text-generation, mermaid |
+| reference document | 6,700  | The spec folder and three architecture docs                    |
+| navigation         | 3,700  | Three listings, one of which found all three test files        |
+| system of record   | 600    | Two suite runs and a git status                                |
+| total              | 51,300 |                                                                |
 
 ## By impact
 
@@ -32,13 +32,13 @@ Categories are corrected from the script's guesses. It buckets a whole compound 
 
 ## Most expensive reads
 
-| Read                                       | Tokens | Impact | Verdict                                                          |
-| ------------------------------------------ | ------ | ------ | ---------------------------------------------------------------- |
-| text-generation SKILL.md                   | 3,511  | medium | Mandatory per the user's post-write rule; shaped prose, not content |
-| sdd SKILL.md                               | 2,884  | high   | Earned it. Named the four references and the artefact numbering   |
-| ls of test folders plus builders.ts        | 2,423  | medium | One command that found all three target test files and the wiring |
-| combined cat of spec index and requirements | 2,196  | high   | The scope and the rule, in one read                               |
-| mermaid SKILL.md                           | 2,080  | medium | Caught two modelling errors in a diagram already written          |
+| Read                                        | Tokens | Impact | Verdict                                                             |
+| ------------------------------------------- | ------ | ------ | ------------------------------------------------------------------- |
+| text-generation SKILL.md                    | 3,511  | medium | Mandatory per the user's post-write rule; shaped prose, not content |
+| sdd SKILL.md                                | 2,884  | high   | Earned it. Named the four references and the artefact numbering     |
+| ls of test folders plus builders.ts         | 2,423  | medium | One command that found all three target test files and the wiring   |
+| combined cat of spec index and requirements | 2,196  | high   | The scope and the rule, in one read                                 |
+| mermaid SKILL.md                            | 2,080  | medium | Caught two modelling errors in a diagram already written            |
 
 ## Blind spots
 
