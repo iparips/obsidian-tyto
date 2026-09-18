@@ -2,3 +2,8 @@
 # the JSON inside them changes what the record says the model sent.
 docs/spec/**/8-transcripts.md
 docs/spec/**/*-transcript.md
+
+# A licence is a legal text, not prose to reflow. Prettier stripped the AGPL's
+# indentation and its double spaces after full stops, which is a change to a
+# document whose own terms forbid changing it.
+LICENSE.md
