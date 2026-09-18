@@ -17,12 +17,13 @@ The only error that is plainly Tyto's, and the cheapest to fix.
 
 Exit test: the word appears in neither manifest.json nor package.json, and the three descriptions are byte-identical.
 
-## 2. Pin the Bundler So the Build Reproduces
+## 2. Pin the Bundler So the Build Reproduces (done)
 
-Owned by D2, which is open on how far to go.
+D2 resolved on both halves. build.yml pins 1.3.13 rather than latest, and the prerequisites in docs/CONTRIBUTING.md name the same version and say why.
 
-- Replace `bun-version: latest` in build.yml with the exact version, so two runs of the same commit produce the same bundle.
-- Say that version in docs/CONTRIBUTING.md, so a contributor knows which Bun reproduces a release.
+Also done here, and not a finding: `build` is now the release bundle, minified and with React in production mode, which is 410 KB against 1.36 MB. `build:dev` is the same bundle unminified, and `verify` and `./install` both use it, because an installed build is one being debugged and a minified stack trace names nothing. CI and the scan both call `build`, so what a release ships is what a rebuild produces.
+
+The size change also answers two thirds of the script-element finding: the production define drops React's development build, and with it two of the three sites.
 
 Exit test: two CI runs of one commit produce the same main.js, and a local build on the pinned version matches the released asset.
 

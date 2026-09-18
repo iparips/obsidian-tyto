@@ -22,7 +22,11 @@ React DOM's resource preloading creates a script element. Nothing in Tyto reache
 
 Blocking, because it is the one finding whose answer is not obvious and whose cost ranges from a message to a rewrite. Try the reply first: the finding describes a library every React plugin in the directory ships, so the reviewers have met it before.
 
-### D2: How far does the build have to reproduce? [open]
+### D2: How far does the build have to reproduce? [resolved 2026-09-18]
+
+Both: pin the version, and say it in CONTRIBUTING. Ilya. The pin alone makes CI agree with itself, and the line in the prerequisites is what tells a contributor why their bundle differs from a release's.
+
+Pinned to 1.3.13, in build.yml and in the prerequisites, each naming the other so raising one without the other reads as the mistake it is.
 
 The scan wants its rebuild to match the released asset. Pinning `bun-version` to the exact version a release was cut with makes CI reproducible against itself, but a contributor on another Bun still gets a different bundle.
 
