@@ -4,7 +4,9 @@
 
 Talk to your notes and they change. Say "rename heading Budget to Costs" or "add apples, bananas and pears under Shopping", and the edit lands in the note you are looking at.
 
-Other voice plugins transcribe what you say into the note. Tyto treats what you say as an instruction about the note. There is no fixed command phrasing to learn, and no chat window to copy an answer out of.
+Other voice plugins transcribe what you say into the note. Tyto takes speech that mixes content with formatting and placement, and sorts out which is which. There is no fixed command phrasing to learn, and no chat window to copy an answer out of.
+
+Under the hood it is a model harness: a model with tools to read the vault, run Obsidian commands and write to a note. It runs once per utterance.
 
 ## Table of Contents
 
@@ -22,7 +24,7 @@ Other voice plugins transcribe what you say into the note. Tyto treats what you 
 
 ## Why Tyto
 
-Dictation leaves you the structure to add afterwards: you get the words down, then go back to put them under the right heading. Tyto does that part. It reads what you said as an instruction about the note, works out which heading and which list you meant, and makes the change there.
+Dictation leaves you the structure to add afterwards: you get the words down, then go back to put them under the right heading. Tyto does that part in the one utterance. It takes the words you want written down, reads what you said about where they go, and makes the change under the heading and in the list you meant.
 
 That matters most when your hands are busy. The panel is a sidebar drawer, one tap from the mobile toolbar, and adding to a shopping list while walking is the case it is designed around. Typing works too, and is the easier way to try it.
 
