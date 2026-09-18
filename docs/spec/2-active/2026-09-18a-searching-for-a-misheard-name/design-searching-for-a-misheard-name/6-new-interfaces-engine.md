@@ -100,4 +100,3 @@ endTurnAsOverflowed(utterance: string, notesRead: readonly string[]): EndedTurn
 ```
 
 src/engine/tools/tool-schemas.ts gains one optional context_lines property on the grep_notes schema. required is unchanged: pattern alone.
-

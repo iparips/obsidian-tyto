@@ -18,26 +18,26 @@ Arrows in the discovery graph run from a source to what it pointed at, labelled 
 
 Colours mark the category a source came from.
 
-| Category           | Covers                                                            |
-| ------------------ | ----------------------------------------------------------------- |
-| prompt             | the user's own message, the only node with no upstream source     |
-| skill              | instruction files the harness or a skill trigger loaded           |
-| reference document | the spec's own files, and the repo's architecture docs            |
-| code               | source files under src, prefixed obsidian-tyto                    |
-| system of record   | live state no document is trusted for: the sibling spec, git      |
-| navigation         | listings, path searches, directory globs                          |
-| never opened       | pointed at by something read, never opened; dashed outline        |
-| artefact           | the files this phase produced; terminal nodes                     |
+| Category           | Covers                                                        |
+| ------------------ | ------------------------------------------------------------- |
+| prompt             | the user's own message, the only node with no upstream source |
+| skill              | instruction files the harness or a skill trigger loaded       |
+| reference document | the spec's own files, and the repo's architecture docs        |
+| code               | source files under src, prefixed obsidian-tyto                |
+| system of record   | live state no document is trusted for: the sibling spec, git  |
+| navigation         | listings, path searches, directory globs                      |
+| never opened       | pointed at by something read, never opened; dashed outline    |
+| artefact           | the files this phase produced; terminal nodes                 |
 
 Impact is rated against the design that shipped, not against how interesting the read was.
 
-| Rating        | Meaning                                              |
-| ------------- | ---------------------------------------------------- |
-| high impact   | changed a decision in the design                     |
-| medium impact | shaped wording, a test row, or a formatting choice   |
-| low impact    | added a detail that could have been inferred         |
-| no impact     | changed nothing                                      |
-| not read      | pointed at, never opened                             |
+| Rating        | Meaning                                            |
+| ------------- | -------------------------------------------------- |
+| high impact   | changed a decision in the design                   |
+| medium impact | shaped wording, a test row, or a formatting choice |
+| low impact    | added a detail that could have been inferred       |
+| no impact     | changed nothing                                    |
+| not read      | pointed at, never opened                           |
 
 ## Categories
 

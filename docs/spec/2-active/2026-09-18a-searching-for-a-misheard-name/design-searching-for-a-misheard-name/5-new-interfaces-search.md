@@ -80,4 +80,3 @@ src/search/note-grep.ts, a changed constant on the existing NoteGrep file.
 // line, so the same payload buys fewer notes seen properly.
 const MAX_HITS = 6
 ```
-

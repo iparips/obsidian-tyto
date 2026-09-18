@@ -30,12 +30,12 @@ The old NoteExcerpt.around is deleted rather than kept beside the new path. It h
 
 The cap I accept is per match, not per note, and the numbers are the reason.
 
-| Case                                   | Today          | New, 3 lines of context | New, 15 lines |
-| -------------------------------------- | -------------- | ----------------------- | ------------- |
-| One match in one note                  | 200 chars      | ~240 chars              | ~1,200 chars  |
-| Fourteen matches in one note, merged   | 200 chars      | ~1,700 chars            | ~8,000 chars  |
-| Ten hits, four matches each            | ~2,000 chars   | ~6,800 chars            | ~34,000 chars |
-| Ten hits read in full instead          | ~10,000 tokens | not needed              | not needed    |
+| Case                                 | Today          | New, 3 lines of context | New, 15 lines |
+| ------------------------------------ | -------------- | ----------------------- | ------------- |
+| One match in one note                | 200 chars      | ~240 chars              | ~1,200 chars  |
+| Fourteen matches in one note, merged | 200 chars      | ~1,700 chars            | ~8,000 chars  |
+| Ten hits, four matches each          | ~2,000 chars   | ~6,800 chars            | ~34,000 chars |
+| Ten hits read in full instead        | ~10,000 tokens | not needed              | not needed    |
 
 Ten hits at the default width is roughly 1,700 tokens against today's 500. The workaround it replaces is reading those ten notes in full, which is about 10,000, so the change is cheaper than the behaviour it exists to stop. At the fifteen-line ceiling ten hits reach about 8,500 tokens, which is the worst case a single call can cost and is still under a tenth of a 128k window.
 
@@ -83,4 +83,3 @@ grep_notes (Engine Tools) gains one optional argument, context_lines, beside pat
 Windows merge as grep -C does: two matches whose windows touch or overlap become one excerpt spanning both, carrying the sum of their counts. Merging is why the ceiling is per match rather than per note, and it is what stops the text between two near matches being sent twice.
 
 The cap lives on GrepRequest (Search) rather than in NoteGrep (Search), since the request is where the model's arguments are already clamped and validated, and a request that cannot express an out-of-range width cannot pass one on.
-

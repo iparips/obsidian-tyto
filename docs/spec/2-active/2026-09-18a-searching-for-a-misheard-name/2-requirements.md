@@ -32,7 +32,7 @@ Turns 3 and 5 repeat the shape without the read: grep a spelling, get 11 or 92 p
 Two things that look like harness bugs on a first read, and are not. Both were checked against the code and a reproduction before being ruled out, and they are recorded so the build does not re-open them.
 
 - **The chat history is well formed across a cancel.** A cancelled turn appends the in-flight tool result, then the cancellation note, then the next utterance, in that order. A reproduction against `EditEngine` confirmed the sequence. The dispatcher already refuses to run a call once cancelled, in `ToolDispatcher.execute`.
-- **The transcript is not misrendering.** A step's tool result is rendered at the top of the *next* step's Request block by design, which `TranscriptTurnStep` states in a comment. Across a turn boundary that reads as a result leaking into a later turn; the underlying history is correct.
+- **The transcript is not misrendering.** A step's tool result is rendered at the top of the _next_ step's Request block by design, which `TranscriptTurnStep` states in a comment. Across a turn boundary that reads as a result leaking into a later turn; the underlying history is correct.
 
 So the leaked-context reading is wrong, and no engine change is needed for it. What is left is model guidance and one no-progress guard.
 
@@ -47,6 +47,7 @@ Seven changes: two to code that the prompt rules depend on, four to the prompt, 
   Per D4: every match, each with a context width the model chooses in lines and the harness caps per match, and overlapping windows merged as `grep -C` does. No per-note cap, because the model is the thing that knows which matches matter.
 
   This decides answer quality. A prompt rule telling the model to answer from excerpts is worth nothing while the excerpts omit most of the evidence.
+
 - **End a turn that runs out of context by saying so, and offer a way to resume.** Returning every match makes a wide result larger, so an overflow becomes more likely. Today it surfaces as the provider's raw error: `MistralProvider.parseResponse` renders any non-ok response as `API responded 400:` plus a 200-character snippet, and that reaches the user through `notifyFailed` as the turn's failure message. It does not say the cause was context and offers nothing to do next.
 
   Three parts, per D4. The overflow is recognised and named as itself rather than as an opaque 400. The ending says what the turn had found before it stopped, the way a cancel already names the notes it wrote. And the turn offers a continuation prompt the user can carry into a fresh session, delivered as a copyable block through the path `answer_from_search` already uses.
@@ -68,6 +69,7 @@ Seven changes: two to code that the prompt rules depend on, four to the prompt, 
   So the change is a stated route for a question, parallel to the stated route for an edit, ending in reads and an answer rather than a pick and an open. It has to be tool-agnostic: the existing answered-the-question rule is scoped to globs both by its wording and by sitting under the `Globbing:` sub-heading, and the failing calls were greps. The trailing unheaded group in `SearchSection` is where it belongs, beside the line that already says "When a search finds nothing, say so" rather than naming a glob. Per D3 that is where two of the other prompt changes land as well.
 
   This is the change closest to the observed failure, and the one the transcript argues for most directly.
+
 - **A no-progress guard on empty searches, and a prompt rule announcing it.** `RepeatedRefusalCounter` counts refusals, and an empty search result is a success, so four consecutive nothing-matched searches accumulate no count and the turn runs to its 20-step ceiling or the user's cancel. A run of searches that return nothing is a turn making no progress and ends the same way a repeated refusal does. The model is told this before it happens, in the shape `ModelsRole` already uses for the refusal guard: the rule names the consequence and the alternative, so the ending is predictable and the model has a move other than searching. Per D1 the guard and its announcement are one change; a guard the model is not warned about truncates a turn for a cause it cannot see.
 - **Remove the duplicated checkbox line in `DictationSection`.** The sentence beginning "Checking, ticking or marking items done" appears twice, verbatim and adjacent. It is the last two lines of the release 3 fixture, so it shipped. Deleting it changes what the model is told, so the fixture is re-recorded deliberately, and the test's own comment logs each prior re-record in the same shape.
 

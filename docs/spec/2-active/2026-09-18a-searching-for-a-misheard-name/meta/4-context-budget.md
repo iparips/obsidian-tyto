@@ -9,13 +9,13 @@ Metered from the session transcript rather than recalled, at bytes of tool-resul
 
 ## By category
 
-| Category   | Design | Note                                                                 |
-| ---------- | ------ | -------------------------------------------------------------------- |
-| code       | 43,164 | 49 reads, the bulk of it verifying claims the spec made              |
-| skill      | 22,681 | 12 files, measured on disk rather than from the transcript           |
-| command    | 5,309  | 8 reads, mostly the test run and the two mermaid validations         |
-| navigation | 3,285  | 4 listings, two of which found something no document named           |
-| total      | 74,440 | 73 reads                                                             |
+| Category   | Design | Note                                                         |
+| ---------- | ------ | ------------------------------------------------------------ |
+| code       | 43,164 | 49 reads, the bulk of it verifying claims the spec made      |
+| skill      | 22,681 | 12 files, measured on disk rather than from the transcript   |
+| command    | 5,309  | 8 reads, mostly the test run and the two mermaid validations |
+| navigation | 3,285  | 4 listings, two of which found something no document named   |
+| total      | 74,440 | 73 reads                                                     |
 
 ## By impact
 
@@ -30,13 +30,13 @@ Seventy-eight per cent of the budget went to reads that changed a decision or sh
 
 ## The most expensive reads
 
-| Read                          | Tokens | Impact | Verdict                                                             |
-| ----------------------------- | ------ | ------ | ------------------------------------------------------------------- |
-| Sibling design plus its ls    | 4,288  | high   | Worth it. Corrected two of the prompt's three claimed collisions    |
-| spec 3-decisions.md           | 4,220  | high   | Unavoidable. Four resolved decisions the design implements          |
-| code-generation SKILL.md      | 4,046  | high   | Worth it. Decided the NoteExcerpt split and the constructor rule    |
-| spec 2-requirements.md        | 3,726  | high   | Unavoidable. Its References section found most of the code          |
-| sdd SKILL.md                  | 3,706  | high   | Unavoidable, but two thirds of it is workflows this phase never ran |
+| Read                       | Tokens | Impact | Verdict                                                             |
+| -------------------------- | ------ | ------ | ------------------------------------------------------------------- |
+| Sibling design plus its ls | 4,288  | high   | Worth it. Corrected two of the prompt's three claimed collisions    |
+| spec 3-decisions.md        | 4,220  | high   | Unavoidable. Four resolved decisions the design implements          |
+| code-generation SKILL.md   | 4,046  | high   | Worth it. Decided the NoteExcerpt split and the constructor rule    |
+| spec 2-requirements.md     | 3,726  | high   | Unavoidable. Its References section found most of the code          |
+| sdd SKILL.md               | 3,706  | high   | Unavoidable, but two thirds of it is workflows this phase never ran |
 
 ## Blind spots
 

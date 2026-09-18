@@ -15,6 +15,7 @@ Two consequences worth stating up front. The model was not ignoring what it foun
 
 Two readings were ruled out by checking the code and running a reproduction, and the requirements record both so the build does not re-open them. The chat history is well formed across a cancel, and the transcript's habit of rendering a step's tool result at the top of the next step is by design. Neither is a leak, so no engine change is needed for them.
 
+- [0-prompt.md](0-prompt.md) - the block handing the build to a fresh session
 - [0-prompt-design.md](0-prompt-design.md) - the block handing the design phase to a fresh session, and the record of what that phase was asked for
 - [2-requirements.md](2-requirements.md) - what the transcript shows, the seven changes, and the two things that turned out not to be broken
 - [3-decisions.md](3-decisions.md) - what a grep returns for a note with many matches, why an unread result is a different defect from an empty one, where the announcement lives, and why the guard is announced rather than silent

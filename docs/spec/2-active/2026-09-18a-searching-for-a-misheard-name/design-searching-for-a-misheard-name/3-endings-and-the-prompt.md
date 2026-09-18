@@ -29,7 +29,6 @@ if (spend.emptySearchCounter.isStuck()) return TurnOutcomes.foundNothing(spend.e
 
 That is the same shape as the stuck branch above it, and the ending is a distinct kind so the panel and the transcript can tell the two apart. Per the acceptance criteria an Exhausted ending here is the failure, so the ending has to be nameable.
 
-
 ## What the harness knows at overflow
 
 TurnEndingService (Engine) builds the continuation prompt, and ContinuationPrompt (Engine Turn Ending, new) is the value it builds.
@@ -40,12 +39,12 @@ TurnEndingService is the collaborator because the ending writes to history, whic
 
 Of the four the prompt names, it reads two, and the reasons the other two are out matter more than the ones they are in.
 
-| Source                          | Scope   | Read | Why                                                          |
-| ------------------------------- | ------- | ---- | ------------------------------------------------------------ |
-| The utterance                   | Turn    | Yes  | What the user asked is the thing a fresh session must be told |
-| NotesReadRepository             | Turn    | Yes  | The notes this turn read are what it had found                |
-| PathsReturnedByVaultRepository  | Session | No   | Session-scoped, so it holds earlier turns' paths too          |
-| The progress lines              | Turn    | No   | Published one way; the publisher returns nothing to read back |
+| Source                         | Scope   | Read | Why                                                           |
+| ------------------------------ | ------- | ---- | ------------------------------------------------------------- |
+| The utterance                  | Turn    | Yes  | What the user asked is the thing a fresh session must be told |
+| NotesReadRepository            | Turn    | Yes  | The notes this turn read are what it had found                |
+| PathsReturnedByVaultRepository | Session | No   | Session-scoped, so it holds earlier turns' paths too          |
+| The progress lines             | Turn    | No   | Published one way; the publisher returns nothing to read back |
 
 PathsReturnedByVaultRepository is the one to be careful about. It is session-scoped by design, so a turn reading it at overflow would name paths a previous turn found and present them as this turn's findings. It also exposes only `includes`, so it cannot enumerate, and widening it to enumerate would be changing a session-scoped repository to serve one turn's ending. The notes actually read are the honest answer to "what had it found", and NotesReadRepository is turn-scoped, which is what makes it the right one.
 
@@ -106,4 +105,3 @@ Two claims the code disagrees with, corrected here rather than designed around.
 
 - The design prompt says the tag-tool spec touches three files this one touches: search-report.ts, note-glob.ts and tool-schemas.ts. Only the last is true. That spec added TagReport (Search) as a new file beside SearchReport and cited note-glob.ts only for MAX_GLOB_RESULTS as a precedent for its own cap. Its merge in pull request 8 wrote neither. The files it did share are in [7-scope-and-rollout.md](7-scope-and-rollout.md), and they include two the prompt does not name.
 - The requirements call the empty-search guard one of two changes to the turn loop and place it at ConversationTurnRunner.isStuck. The guard needs a fact from the tool layer that nothing carries today, so it is four files rather than one: the counter, the field on TextResult, the field on ToolCallOutcome, and the runner branch. The spec's framing understates it, and a build planned as a one-line change to the runner would find nothing to read.
-

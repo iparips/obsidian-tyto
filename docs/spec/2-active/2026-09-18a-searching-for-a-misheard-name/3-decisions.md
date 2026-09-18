@@ -52,11 +52,11 @@ D1 settles that the model is told, and points at `ModelsRole` for the shape. Whe
 
 The release 3 fixture is a vault with no commands, no search and no skills, and it carries the refusal announcement at line 21. A rule about searches returning nothing would be nonsense in that vault: there is no search tool to run. So the announcement cannot simply join `ModelsRole`, or the fixture gains a line describing a capability the prompt has just said the model does not have.
 
-| Option                                          | Cost                                                                           |
-| ----------------------------------------------- | ------------------------------------------------------------------------------ |
+| Option                                            | Cost                                                                            |
+| ------------------------------------------------- | ------------------------------------------------------------------------------- |
 | `SearchSection`, which is already gated on search | A turn-ending rule sits among globbing advice rather than with the other limits |
-| `ModelsRole`, gated like `reach` already is     | A second conditional in a section whose job is what is always true             |
-| Its own gated section                           | A section for one rule                                                         |
+| `ModelsRole`, gated like `reach` already is       | A second conditional in a section whose job is what is always true              |
+| Its own gated section                             | A section for one rule                                                          |
 
 Three of the four prompt changes therefore land in `SearchSection`: this announcement, the read-outranks-search rule, and the stated question route. They belong together, because the announcement's alternative is the other two. A rule that ends the turn for fruitless searching is only fair if the model has been told what to do instead.
 
@@ -83,12 +83,12 @@ That split is the right one, and it separates two defects that a single counter 
 
 **A search that returns paths the model never opens** is a model that does not know what to do next. Turns 3 and 5: 11 notes, then 92, then 29, and `read_note` on none of them.
 
-| Turn | Call                         | Returned  | What the model did next |
-| ---- | ---------------------------- | --------- | ----------------------- |
-| 3    | grep `Kat`                   | 11 notes  | searched again          |
-| 3    | grep `Kat`, `paths_only`     | 11 paths  | cancelled by the user   |
-| 5    | grep `Cat`, `paths_only`     | 92 paths  | searched again          |
-| 5    | grep `\bCat\b`, `paths_only` | 29 paths  | searched again          |
+| Turn | Call                         | Returned | What the model did next |
+| ---- | ---------------------------- | -------- | ----------------------- |
+| 3    | grep `Kat`                   | 11 notes | searched again          |
+| 3    | grep `Kat`, `paths_only`     | 11 paths | cancelled by the user   |
+| 5    | grep `Cat`, `paths_only`     | 92 paths | searched again          |
+| 5    | grep `\bCat\b`, `paths_only` | 29 paths | searched again          |
 
 Counting those against the model treats the symptom. Two things caused them, and neither is fixed by ending the turn sooner. The route that answers a question is unstated end to end, so narrowing was the only instructed move for a long result. And per D4 the excerpts it was narrowing did not carry the answer: one window per note from the first match, with the other matches counted and thrown away. A counter there would fire on a model doing as it was told, with evidence that could not have answered the question anyway.
 
@@ -100,11 +100,11 @@ Threshold is the design's to set. Two is what `RepeatedRefusalCounter` uses and 
 
 It ends the turn, **and the prompt says so before it fires**. Ilya: go with the recommendation. The second half is not optional, and the question that prompted it is the reason: a guard the model is not told about truncates a turn for a cause the model cannot see.
 
-| Option                                | Cost                                                                 |
-| ------------------------------------- | -------------------------------------------------------------------- |
-| End the turn, as Stuck does           | A model two searches from the answer loses it                        |
-| Feed the count back as a tool result  | Another string for the model to ignore, which is the defect already  |
-| Warn the user, let the turn run       | The user is already watching; the warning adds nothing they can act on |
+| Option                               | Cost                                                                   |
+| ------------------------------------ | ---------------------------------------------------------------------- |
+| End the turn, as Stuck does          | A model two searches from the answer loses it                          |
+| Feed the count back as a tool result | Another string for the model to ignore, which is the defect already    |
+| Warn the user, let the turn run      | The user is already watching; the warning adds nothing they can act on |
 
 Ending it is the behaviour the user performed by hand three times in one session, which is the strongest evidence available that it is the right ending.
 
