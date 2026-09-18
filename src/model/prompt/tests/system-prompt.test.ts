@@ -659,6 +659,13 @@ describe('the prompt messages', () => {
       expect(withSearch()).toContain('A claim naming a note in\nany other form is uncited')
     })
 
+    // The citing rules sat under answer_from_search, so a turn that grepped and
+    // then answered in its closing reply cited nothing: it named six notes as
+    // bare dates and left the reader no link to any of them.
+    it('tells the model the citing rules hold for a reply as well as the tool', () => {
+      expect(withSearch()).toContain('The citation rules below hold for every answer drawn from a')
+    })
+
     it('tells the model the sources argument is not shown beside the answer', () => {
       expect(withSearch()).toContain('it is not shown beside the answer')
     })
