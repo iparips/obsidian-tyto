@@ -448,6 +448,51 @@ describe('PanelReducer', () => {
     })
   })
 
+  // Published each time the counter is charged, so the summary shows the total
+  // climbing while the turn can still be stopped (D7).
+  describe('when the turn is charged', () => {
+    const aSpend = (used: number, budget = 20) => ({ type: 'turnSpent', used, budget }) as const
+
+    it('names the spend on the open turns progress entry', () => {
+      const lined = PanelReducer.reduce(thinking, aProgressLine('Searched', 'milk'))
+
+      const state = PanelReducer.reduce(lined, aSpend(1))
+
+      expect(state.flattened().at(-1)).toMatchObject({ spend: { used: 1, budget: 20 } })
+    })
+
+    it('replaces the spend as the turn climbs, rather than appending one', () => {
+      const lined = PanelReducer.reduce(thinking, aProgressLine('Searched', 'milk'))
+      const once = PanelReducer.reduce(lined, aSpend(1))
+
+      const state = PanelReducer.reduce(once, aSpend(3))
+
+      expect(state.flattened().filter((entry) => entry.kind === 'progress')).toEqual([
+        expect.objectContaining({ spend: { used: 3, budget: 20 } }),
+      ])
+    })
+
+    // A turn charged before it published a line did its work in one model call
+    // and listed nothing, so the spend still has somewhere to show.
+    it('opens a progress entry when the turn published no line', () => {
+      const state = PanelReducer.reduce(thinking, aSpend(1))
+
+      expect(state.flattened().at(-1)).toEqual({
+        kind: 'progress',
+        lines: [],
+        spend: { used: 1, budget: 20 },
+      })
+    })
+
+    it('keeps the lines the turn had already published', () => {
+      const lined = PanelReducer.reduce(thinking, aProgressLine('Searched', 'milk'))
+
+      const state = PanelReducer.reduce(lined, aSpend(1))
+
+      expect(state.flattened().at(-1)).toMatchObject({ lines: [{ label: 'Searched' }] })
+    })
+  })
+
   // Only a tool's move reaches the reducer. The user's own is dropped before
   // the dispatch, since the turn's target says what the removed entry used to.
   describe('when a tool moves the turn to another note', () => {

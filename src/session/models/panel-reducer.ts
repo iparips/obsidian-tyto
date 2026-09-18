@@ -1,6 +1,6 @@
 import { AskedEntries } from './asked-entries'
 import { PanelAction } from './panel-action'
-import { PanelState, ProgressLine } from './panel-state'
+import { PanelState, ProgressLine, TurnSpendReport } from './panel-state'
 
 export class PanelReducer {
   static reduce(state: PanelState, action: PanelAction): PanelState {
@@ -48,6 +48,8 @@ export class PanelReducer {
           note: action.note,
           wroteDirect: action.wroteDirect,
         })
+      case 'turnSpent':
+        return PanelReducer.withSpend(state, { used: action.used, budget: action.budget })
       case 'answer':
         return state.withEntry(state.phase, {
           kind: 'answer',
@@ -108,6 +110,19 @@ export class PanelReducer {
         ...turn,
         entries: turn.entries.with(at, { kind: 'progress', lines: [...open.lines, line] }),
       }
+    })
+  }
+
+  // Onto the open turn's progress entry, which is the block the summary heads.
+  // A turn charged before it published any line opens the entry, so the spend
+  // shows on a step that did its work in one model call and listed nothing.
+  private static withSpend(state: PanelState, spend: TurnSpendReport): PanelState {
+    return state.withOpenTurn((turn) => {
+      const at = turn.entries.findLastIndex((entry) => entry.kind === 'progress')
+      if (at === -1)
+        return { ...turn, entries: [...turn.entries, { kind: 'progress', lines: [], spend }] }
+      const open = turn.entries[at] as { kind: 'progress'; lines: ProgressLine[] }
+      return { ...turn, entries: turn.entries.with(at, { ...open, spend }) }
     })
   }
 

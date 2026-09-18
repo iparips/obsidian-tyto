@@ -1,6 +1,11 @@
 import { useEffect } from 'react'
 import { PanelAction } from '../../models/panel-action'
-import { AnswerReport, RetargetReport, ProgressLineReport } from '../../session-listeners'
+import {
+  AnswerReport,
+  RetargetReport,
+  ProgressLineReport,
+  TurnSpendReport,
+} from '../../session-listeners'
 
 // What the engine reports as a turn runs. Each is a subscription returning its
 // own unsubscribe, so the panel holds none of them.
@@ -15,13 +20,16 @@ export interface EngineEventPorts {
   // Every step the turn takes, collected into one collapsed entry, so a turn
   // that goes nowhere can still be inspected.
   onProgressLine?(listener: (step: ProgressLineReport) => void): () => void
+  // What the turn has spent, each time it is charged, so the summary shows the
+  // total climbing while the turn is still stoppable (D7).
+  onTurnSpent?(listener: (report: TurnSpendReport) => void): () => void
   onAnswer?(listener: (report: AnswerReport) => void): () => void
   // A tool's move sets the open turn's target. The user's own move belongs to
   // no turn and the turn's target says what it used to, so nothing shows it.
   onTargetNoteChanged?(listener: (report: RetargetReport) => void): () => void
 }
 
-// Six subscriptions the panel only forwards to the reducer, wired once. They
+// Seven subscriptions the panel only forwards to the reducer, wired once. They
 // share a shape, so listing them here leaves the component holding the state
 // and the markup rather than the plumbing.
 export const useEngineEvents = (
@@ -46,6 +54,14 @@ export const useEngineEvents = (
           note: step.note,
           wroteDirect: step.wroteDirect,
         }),
+      ),
+    [],
+  )
+
+  useEffect(
+    () =>
+      ports.onTurnSpent?.((report) =>
+        dispatchFn({ type: 'turnSpent', used: report.used, budget: report.budget }),
       ),
     [],
   )

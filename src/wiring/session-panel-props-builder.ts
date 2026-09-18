@@ -181,6 +181,7 @@ export class SessionPanelPropsBuilder {
       onInstructions: (listener) => listeners.subscribe(listener),
       onWarning: (listener) => session.warnings.subscribe(listener),
       onProgressLine: (listener) => session.steps.subscribe(listener),
+      onTurnSpent: (listener) => session.spends.subscribe(listener),
       onAnswer: (listener) => session.answers.subscribe(listener),
       onTargetNoteChanged: (listener) => session.retargets.subscribe(listener),
       onChoiceRequested: (listener) => askers.choices.subscribe(listener),
@@ -236,6 +237,7 @@ type EnginePanelProps = Pick<
   | 'onInstructions'
   | 'onWarning'
   | 'onProgressLine'
+  | 'onTurnSpent'
   | 'onAnswer'
   | 'onTargetNoteChanged'
   | 'onChoiceRequested'

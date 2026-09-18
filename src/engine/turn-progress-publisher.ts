@@ -19,6 +19,9 @@ export class TurnProgressPublisher {
     // Every step a turn takes, collapsed in the panel: the entries say what the
     // turn produced, and this says what it did to get there.
     readonly publishProgressLineFn: (step: ProgressLine) => void = () => undefined,
+    // What the turn has spent of its allowance, said each time it is charged so
+    // the panel can show the total climbing rather than only where it stopped.
+    readonly spentFn: (used: number, budget: number) => void = () => undefined,
   ) {}
 
   static silent(): TurnProgressPublisher {

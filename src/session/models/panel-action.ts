@@ -27,6 +27,9 @@ export type PanelAction =
       note: string | null
       wroteDirect: boolean
     }
+  // What the turn has spent, published each time the counter is charged so a
+  // user watching a long turn can stop it before it runs out (D7).
+  | { type: 'turnSpent'; used: number; budget: number }
   | { type: 'answer'; text: string; sources: string[] }
   // The turn ended on its answer, which the answer action already appended, so
   // this settles the turn and adds no entry of its own.

@@ -90,6 +90,7 @@ export class ConversationTurnRunner {
   private spendOn(spend: TurnSpend, calls: number): void {
     spend.iterationCounter.spend(calls)
     this.recordCharge(spend)
+    this.turnProgressPublisher.spentFn(spend.iterationCounter.spent(), spend.iterationCounter.max())
     if (spend.iterationCounter.justRanLow())
       this.turnProgressPublisher.runningLowFn(spend.iterationCounter.warning())
   }

@@ -36,6 +36,7 @@ export class SessionProgress {
       (name) => this.publishStep(ProgressLine.skillLoaded(name)),
       (text) => this.session.warnings.publish(text),
       (step) => this.publishStep(step),
+      (used, budget) => this.session.spends.publish({ used, budget }),
     )
   }
 

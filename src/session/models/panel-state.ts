@@ -16,8 +16,9 @@ export type PanelEntry =
   | { kind: 'instructions'; text: string }
   | { kind: 'warning'; text: string }
   // One entry per turn holding every step, so the panel gains a collapsed list
-  // rather than a line per tool call.
-  | { kind: 'progress'; lines: ProgressLine[] }
+  // rather than a line per tool call. The spend rides on the entry rather than
+  // on a line: it is a fact about the turn, and the lines are what it did.
+  | { kind: 'progress'; lines: ProgressLine[]; spend?: TurnSpendReport }
   | { kind: 'answer'; text: string; sources: string[] }
   | { kind: 'cancelled'; text: string }
   // Where a restored session picks up, naming when it was last written. A
@@ -48,6 +49,15 @@ export type PanelTurn = {
 // What the panel holds at the top level: turns, and the entries belonging to no
 // turn, which is a restore marker.
 export type PanelItem = PanelTurn | PanelEntry
+
+// What the turn has drawn of its allowance, in turn steps rather than in the
+// lines the list shows: a batch of four calls is one round-trip and is charged
+// as such. Rounded as IterationCounter rounds it, so a spent turn reads as
+// spent rather than as half a step short.
+export interface TurnSpendReport {
+  used: number
+  budget: number
+}
 
 export interface ProgressLine {
   label: string

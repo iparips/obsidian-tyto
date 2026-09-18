@@ -4,7 +4,7 @@ import { Outcomes } from '../../shared/models/outcome'
 import { SkillRepository } from '../../skills/skill-repository'
 import { TurnProgressPublisher } from '../turn-progress-publisher'
 import { AgentsMdRepository } from '../../agents/agents-md-repository'
-import { ChatProvider, ChatMessage } from '../../model/providers/types'
+import { ChatProvider, ChatMessage, ChatTurn } from '../../model/providers/types'
 import {
   aSession,
   aSpokenToolTurn,
@@ -56,6 +56,55 @@ describe('EditEngine', () => {
       const outcome = await engine.processUtterance('hello')
 
       expect(outcome.outcome).toEqual(Outcomes.success('Nothing to do'))
+    })
+  })
+
+  // The panel's summary is built from this, so what the engine publishes is what
+  // a reader compares against the budget (D6, D7).
+  describe('when the turn is charged', () => {
+    const spendsOf = async (turn: ChatTurn) => {
+      const spends: { used: number; budget: number }[] = []
+      const engineWatching = anEngine(chat, {
+        sessions,
+        noteLocator,
+        vault,
+        agentsMdRepository: noInstructions(),
+        progress: new TurnProgressPublisher(
+          () => undefined,
+          () => undefined,
+          () => undefined,
+          () => undefined,
+          () => undefined,
+          () => undefined,
+          (used, budget) => spends.push({ used, budget }),
+        ),
+      })
+      complete
+        .mockResolvedValueOnce(Outcomes.success(turn))
+        .mockResolvedValueOnce(Outcomes.success(aTextTurn('done')))
+      await engineWatching.processUtterance('go')
+      return spends
+    }
+
+    it('publishes one charged step for a reply that sent one call', async () => {
+      expect(await spendsOf(aToolTurn(aToolCall('read_note', {})))).toEqual([
+        { used: 1, budget: 20 },
+      ])
+    })
+
+    // The arithmetic the archived batch spec settled: four calls are one
+    // round-trip and three halves, so the panel says three rather than four.
+    it('publishes three for a batch of four, rather than one per call', async () => {
+      const spends = await spendsOf(
+        aToolTurn(
+          aToolCall('read_note', {}),
+          aToolCall('read_note', {}),
+          aToolCall('read_note', {}),
+          aToolCall('replace_text', { anchor_text: '# Budget', replacement: '# Costs' }),
+        ),
+      )
+
+      expect(spends).toEqual([{ used: 3, budget: 20 }])
     })
   })
 
