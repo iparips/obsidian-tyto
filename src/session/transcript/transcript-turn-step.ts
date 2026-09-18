@@ -4,6 +4,13 @@ import { LoadedSkills } from './loaded-skills'
 import { PartName, RecordedEnding, RecordedTurnStep } from './models/transcript-record'
 import { TranscriptEntryLines } from './transcript-entry-lines'
 
+// A step whose provider call failed appended nothing, so the slice is empty by
+// construction. The wording says why rather than reporting the model as silent.
+const NO_REPLY_RECORDED = 'no reply recorded: the provider call did not return'
+// The model answered and said nothing, which is a fact about the reply rather
+// than about the harness that carried it.
+const AN_EMPTY_REPLY = 'the model returned an empty reply'
+
 const PART_LABELS: Record<PartName, string> = {
   systemPrompt: 'system prompt',
   dateMessage: 'date',
@@ -64,11 +71,10 @@ export class TranscriptTurnStep {
   // Read off the history rather than stored: the model's answer is already
   // written there, and storing it twice would let the two disagree.
   private static response(answered: readonly ChatMessage[]): string[] {
-    const lines = answered
-      .filter((message) => message.hasToolCalls() || isModelText(message))
-      .flatMap(responseLines)
-    if (lines.length === 0) return ['Response from model', '- nothing recorded']
-    return ['Response from model', ...lines]
+    const spoke = answered.filter((message) => message.hasToolCalls() || isModelText(message))
+    if (spoke.length === 0) return ['Response from model', `- ${NO_REPLY_RECORDED}`]
+    if (spoke.every(saidNothing)) return ['Response from model', `- ${AN_EMPTY_REPLY}`]
+    return ['Response from model', ...spoke.flatMap(responseLines)]
   }
 
   // The Outcome line sits here because the harness is what decides whether the
@@ -109,10 +115,17 @@ const requestLines = (
   return blockUnder('- tool result', 'text', message.content)
 }
 
+// A reply may carry text, tool calls or both, so the text is written above the
+// calls rather than instead of them: the sentence reads before what it did.
 const responseLines = (message: ChatMessage): string[] => {
-  if (!message.hasToolCalls()) return [`- text: ${message.content}`]
-  return message.toolCalls.flatMap(toolCallLines)
+  const text = message.content === '' ? [] : [`- text: ${message.content}`]
+  return [...text, ...message.toolCalls.flatMap(toolCallLines)]
 }
+
+// Neither words nor calls reached the harness. Read off the message rather than
+// off the slice, since such a reply is a message in it rather than an absence.
+const saidNothing = (message: ChatMessage): boolean =>
+  message.content === '' && !message.hasToolCalls()
 
 const toolCallLines = (call: ToolCall): string[] =>
   blockUnder(`- tool call ${call.name}`, 'json', JSON.stringify(call.args, null, 2))

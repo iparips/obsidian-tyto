@@ -262,6 +262,47 @@ describe('TranscriptDocument', () => {
       expect(document).toContain('"pattern": "**/b.md"')
     })
 
+    it('renders the sentence and the calls when a reply carried both', () => {
+      const document = documentOf({
+        entries: [{ kind: 'user', text: 'find it' }],
+        history: [
+          ChatMessage.user('find it'),
+          ChatMessage.modelToolCalls([aGlob('**/a.md')], 'Searching the vault now.'),
+          ChatMessage.toolCallResult('c1', 'a.md'),
+        ],
+        steps: [
+          aStep(0, new StepRange(0, 0), new StepRange(0, -1)),
+          aStep(1, new StepRange(1, 2), new StepRange(0, -1)),
+        ],
+      })
+
+      expect(document).toContain('- text: Searching the vault now.')
+      expect(document).toContain('- tool call glob_notes')
+    })
+
+    it('says the provider call did not return when the step recorded no reply', () => {
+      const document = documentOf({
+        entries: [{ kind: 'user', text: 'find it' }],
+        history: [ChatMessage.user('find it')],
+        steps: [aStep(0, new StepRange(0, 0), new StepRange(0, -1))],
+        endings: [new RecordedEnding(0, TurnEndingKind.Failed, 0)],
+      })
+
+      expect(document).toContain('- no reply recorded: the provider call did not return')
+      expect(document).not.toContain('nothing recorded')
+    })
+
+    it('says the reply was empty when the model answered with neither words nor calls', () => {
+      const document = documentOf({
+        entries: [{ kind: 'user', text: 'find it' }],
+        history: [ChatMessage.user('find it'), ChatMessage.model('')],
+        steps: [aStep(0, new StepRange(0, 0), new StepRange(0, -1))],
+        endings: [new RecordedEnding(0, TurnEndingKind.Replied, 0)],
+      })
+
+      expect(document).toContain('- the model returned an empty reply')
+    })
+
     it('fences a multi-line tool result, so a listing reads as a list', () => {
       const document = documentOf({
         entries: [{ kind: 'user', text: 'find it' }],
