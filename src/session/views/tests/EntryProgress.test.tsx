@@ -113,14 +113,14 @@ describe('EntryProgress', () => {
 
   describe('when the list is rendered', () => {
     it('renders a row per step in the order they ran', () => {
-      render(
+      const { container } = render(
         <EntryProgress
           lines={[aStep('Searched', 'milk'), aStep('Grepped', 'eggs')]}
           target={null}
         />,
       )
 
-      const rows = screen.getByLabelText('What the turn did').querySelectorAll('li')
+      const rows = container.querySelectorAll('.tyto-entry-progress-lines li')
 
       expect([...rows].map((row) => row.textContent)).toEqual(['Searchedmilk', 'Greppedeggs'])
     })
@@ -129,9 +129,11 @@ describe('EntryProgress', () => {
     // other than what the summary's budget counts: twenty-one rows against a
     // budget of twenty read as arithmetic that does not add up.
     it('leaves the rows unnumbered, since a row is not a turn step', () => {
-      render(<EntryProgress lines={[aStep('Searched', 'milk')]} target={null} />)
+      const { container } = render(
+        <EntryProgress lines={[aStep('Searched', 'milk')]} target={null} />,
+      )
 
-      expect(screen.getByLabelText('What the turn did').tagName).toBe('UL')
+      expect(container.querySelector('.tyto-entry-progress-lines')?.tagName).toBe('UL')
     })
   })
 

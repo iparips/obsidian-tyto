@@ -17,7 +17,9 @@ export const EntryProgress = ({
     {/* Unordered, because a row is a progress line rather than a turn step: a
         batched step draws several rows, so an ordinal would run past the budget
         the summary names and read as arithmetic that does not add up. */}
-    <ul aria-label="What the turn did">
+    {/* No aria-label: the summary above names the list, and a label here
+        surfaced as a tooltip on hover. */}
+    <ul className="tyto-entry-progress-lines">
       {lines.map((line, index) => (
         <ProgressRow key={index} line={line} target={target} />
       ))}
