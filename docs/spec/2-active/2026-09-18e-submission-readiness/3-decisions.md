@@ -9,9 +9,20 @@ updated: 2026-09-18
 
 ### Decisions
 
-### D1: How does the licence become detectable? [open]
+### D1: How does the licence become detectable? [resolved 2026-09-18]
 
-GitHub reports the licence as Other. Its detector matches a file named LICENSE, LICENSE.md, LICENSE.txt or COPYING against known licence texts, so the filename alone is probably not the cause; the copyright line added above the AGPL body is the likelier one, since the detector matches on the text it expects to find first.
+Both causes fixed in fea533f. The guess below named one of the two.
+
+The copyright notice sat above the licence body, so the file did not open on
+the text a detector matches. It now fills the AGPL's own instantiation
+template near the end, which is where the licence says to put it, and nothing
+about the notice is weakened by sitting there.
+
+The second cause was not guessed at: prettier had reflowed the whole document,
+stripping its indentation and collapsing the double spaces after full stops.
+That is a change to a text whose own terms forbid changing it, and it survives
+the whitespace normalisation a detector does. The body is now byte for byte the
+canonical AGPL, and .prettierignore keeps prettier off it.
 
 | Option                                      | Cost                                                                    |
 | ------------------------------------------- | ----------------------------------------------------------------------- |
@@ -19,7 +30,9 @@ GitHub reports the licence as Other. Its detector matches a file named LICENSE, 
 | Add a `license` field to the repo via API   | Not a thing GitHub offers; detection is from the file alone             |
 | Leave it as Other                           | The repo page shows no licence, which a reviewer may read as unlicensed |
 
-Not blocking. The directory requires the source be public under a licence, which it is, and the README and package.json both name AGPL-3.0-or-later. The repo page is cosmetic. Worth one experiment before the submission rather than a rewrite.
+Confirm on the repo page once the branch is pushed: GitHub re-runs detection on
+a push to the default branch. Still Other after that means the remaining cause
+is something neither reading found, and it does not block the submission.
 
 ### Assumptions
 

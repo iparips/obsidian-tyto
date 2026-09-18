@@ -5,37 +5,36 @@ updated: 2026-09-18
 
 # Implementation Order
 
-One commit left, then a sequence run by hand. It is independent of the release, so it can land alone.
+No commits left. What remains is the sequence run by hand.
 
 ## 1. Silence the Console Again (done)
 
 Landed in 92db8b0. The two console.debug calls are out of WorkspaceNoteLocator (engine/note-binding), with the loop and both return paths unchanged. Verify is green and the grep over src outside tests and test-support returns nothing.
 
-## 2. Make the Licence Detectable
+## 2. Make the Licence Detectable (done)
 
-Owned by D1, which is open. Try the cheap experiment first.
+Landed in fea533f, with both causes recorded in D1. The body is byte for byte the canonical AGPL, the notice fills the licence's own instantiation template, and .prettierignore keeps prettier off the file.
 
-- Move Ilya's copyright line to sit inside the AGPL's own instantiation template near the end, in place of `Copyright (C) <year> <name of author>`, leaving the licence body's opening text as the first thing in the file.
-- Push, then re-read `gh repo view --json licenseInfo`. GitHub re-runs detection on a push to the default branch.
-- If it still reports Other, stop and record that in D1 rather than reshaping the file further. It does not block the submission.
-
-Exit test: the repo page sidebar reads AGPL-3.0, or D1 records that it does not and why.
+Exit test: the repo page sidebar reads AGPL-3.0 once the branch is pushed, since GitHub re-runs detection then. Still Other after that is recorded in D1 rather than reshaped further, and does not block the submission.
 
 ## Before Submitting
 
 Not commits. Each is done once, by hand, in this order.
 
-### Set the repo metadata
+### Set the repo metadata (done)
+
+The description and topics are live on the repo. One topic is wrong and worth
+correcting: text-to-speech is synthesis, the opposite of what Tyto does. The
+term for reading speech into text is speech-to-text.
 
 ```bash
 gh repo edit iparips/obsidian-tyto \
-  --description "Edit your notes by voice. Speak an instruction and the note changes, with no fixed command phrases." \
-  --add-topic obsidian --add-topic obsidian-plugin --add-topic obsidian-md
+  --remove-topic text-to-speech --add-topic speech-to-text
 ```
 
 ### Cut the release
 
-main is in sync with origin and its last Build run was green, so the branch already holds the tree the directory will read.
+Push first: the licence fix is local, and GitHub re-runs licence detection on a push to the default branch. Confirm the Build workflow is green before tagging.
 
 docs/RELEASE.md owns the six steps. The two that matter to the directory:
 

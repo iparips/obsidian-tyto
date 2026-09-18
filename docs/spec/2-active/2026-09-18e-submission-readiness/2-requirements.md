@@ -21,9 +21,11 @@ The submission spec's commit 5 removed all eight console.debug calls, and its ex
 
 Removed in 92db8b0, with the loop and both return paths unchanged. The grep over src outside tests and test-support now returns nothing.
 
-### The GitHub repo carries no description and no topics
+### The GitHub repo carries no description and no topics (done)
 
-The directory's reviewers and its readers both land on the repo page. It has an empty description and no topics. Set the description to the manifest's, and add the topics the directory conventionally reads: obsidian, obsidian-plugin, obsidian-md.
+The directory's reviewers and its readers both land on the repo page, and it had an empty description and no topics. Both are set now.
+
+One topic reads text-to-speech, which is speech synthesis and the opposite of what Tyto does. 5-tasks.md carries the correction.
 
 ### GitHub cannot identify the licence
 
