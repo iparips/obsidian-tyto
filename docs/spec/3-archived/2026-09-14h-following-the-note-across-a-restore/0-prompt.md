@@ -12,7 +12,7 @@ Build the spec in docs/spec/2-active/following-the-note-across-a-restore: a
 session is bound to the open markdown note, or to null when nothing markdown is
 open, whether it is new, restored, or already running.
 
-Read 1-index.md, 2-requirements.md and 4-design.md before starting. 3-transcript.md
+Read 1-index.md, 2-requirements.md and 4-design.md before starting. A transcript
 is the reported session and explains what a wrong binding looks like in practice;
 read it if the requirements leave you unsure what went wrong. 5-tasks.md gives
 the build order in three commits and opens with two things to measure first. The

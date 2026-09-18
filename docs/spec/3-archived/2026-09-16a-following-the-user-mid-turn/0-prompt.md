@@ -14,7 +14,7 @@ batch of anchored edits corrupted the note it was archiving. Four commits.
 
 Read 1-index.md, 2-requirements.md and both decisions files first, then
 9-tasks.md for the build order. Read 5-design.md and 6-unit-tests.md before
-commit 1. 7-analysis.md and 8-transcripts.md are evidence: read them only if a
+commit 1. 7-analysis.md is evidence: read it only if a
 defect stops making sense. 4-acceptance-criteria.md holds the checks afterwards.
 
 Repo conventions are in AGENTS.md, including the rule that a prompt change
@@ -36,7 +36,7 @@ heading. Duplicated items mean it is still batching, and the fix is the prompt
 in commit 4 rather than the boundary. Then type into a note while a turn is
 thinking, and confirm the write is refused rather than landing over your typing.
 
-Do not reformat 8-transcripts.md. It is copied verbatim from the panel and
+A verbatim panel transcript once sat here and was removed: held personal vault content. It is
 .prettierignore exempts it, because reformatting the JSON changes what the
 record says the model sent.
 

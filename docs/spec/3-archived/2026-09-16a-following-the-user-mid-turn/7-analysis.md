@@ -6,7 +6,7 @@ updated: 2026-09-16
 # What Went Wrong
 
 How the reported session produced the state it did, read off the transcript in
-[8-transcripts.md](8-transcripts.md). Kept apart from the requirements because
+a session transcript (removed: held personal vault content). Kept apart from the requirements because
 it explains the defect rather than stating what is built.
 
 ## The Retarget

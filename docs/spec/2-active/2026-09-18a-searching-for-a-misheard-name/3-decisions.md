@@ -15,7 +15,7 @@ Every match, each with a context width the model asks for, and **no budget machi
 
 Today `NoteGrep.excerpt` returns one excerpt per note, taken from `matches[0].index`, 200 characters wide. A note matching fourteen times is reported as "14 matches" with the context of the first one, and the other thirteen are counted and discarded.
 
-That is the defect behind turn 3. "What are some favorite things I've been doing with Cat over the last few months?" is answered by many matches spread over many notes, and the tool returns one arbitrary window per note. The question is unanswerable from that output however well the model behaves, so a prompt rule telling it to answer from excerpts would be telling it to answer from evidence it does not have.
+That is the defect behind turn 3. "What are some favorite things I've been doing with John over the last few months?" is answered by many matches spread over many notes, and the tool returns one arbitrary window per note. The question is unanswerable from that output however well the model behaves, so a prompt rule telling it to answer from excerpts would be telling it to answer from evidence it does not have.
 
 The earlier framing in this spec got this wrong twice. It proposed a rule of the shape "a high match count means read the note in full", which is a workaround for the tool discarding the other matches rather than a fix. And it invoked NFR6 to justify the fixed payload, where NFR6 is "search cost stays bounded per turn regardless of vault size": bounded by the vault, which the hit cap already does, not by the matches inside one note. NFR7 is the relevant one, "note content leaving the vault stays limited to what the turn needs", and for a survey question every match in a matched note is what the turn needs.
 
@@ -79,15 +79,15 @@ A search that returned no results. Ilya: a search whose results the model never 
 
 That split is the right one, and it separates two defects that a single counter would have conflated.
 
-**A search that returns nothing** is a model looking where the thing is not, or looking for something the vault does not hold. Turn 1 is four of them in a row: grep `Kat`, `catch up with Kat`, `catch up`, then `Kat` again over a wider path, each answered "no notes contain...". Repetition is the whole signal, so a counter is the right instrument and the ending is the right response.
+**A search that returns nothing** is a model looking where the thing is not, or looking for something the vault does not hold. Turn 1 is four of them in a row: grep `Jon`, `catch up with Jon`, `catch up`, then `Jon` again over a wider path, each answered "no notes contain...". Repetition is the whole signal, so a counter is the right instrument and the ending is the right response.
 
 **A search that returns paths the model never opens** is a model that does not know what to do next. Turns 3 and 5: 11 notes, then 92, then 29, and `read_note` on none of them.
 
 | Turn | Call                         | Returned | What the model did next |
 | ---- | ---------------------------- | -------- | ----------------------- |
-| 3    | grep `Kat`                   | 11 notes | searched again          |
-| 3    | grep `Kat`, `paths_only`     | 11 paths | cancelled by the user   |
-| 5    | grep `Cat`, `paths_only`     | 92 paths | searched again          |
+| 3    | grep `Jon`                   | 11 notes | searched again          |
+| 3    | grep `Jon`, `paths_only`     | 11 paths | cancelled by the user   |
+| 5    | grep `John`, `paths_only`    | 92 paths | searched again          |
 | 5    | grep `\bCat\b`, `paths_only` | 29 paths | searched again          |
 
 Counting those against the model treats the symptom. Two things caused them, and neither is fixed by ending the turn sooner. The route that answers a question is unstated end to end, so narrowing was the only instructed move for a long result. And per D4 the excerpts it was narrowing did not carry the answer: one window per note from the first match, with the other matches counted and thrown away. A counter there would fire on a model doing as it was told, with evidence that could not have answered the question anyway.

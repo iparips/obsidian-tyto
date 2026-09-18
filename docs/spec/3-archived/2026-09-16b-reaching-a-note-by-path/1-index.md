@@ -29,7 +29,7 @@ authoritative for finding notes. Every defect here is one of them failing.
 - [6-unit-tests.md](6-unit-tests.md) - the unit tests each changed method needs
 - [7-acceptance-criteria.md](7-acceptance-criteria.md) - four checks, and the one that needs a moving tab
 - [8-tasks.md](8-tasks.md) - four commits, the first two shipping the fault fix alone
-- [9-transcript.md](9-transcript.md) - the two answers, in one request
+- The reported session's transcript - removed: held personal vault content
 - [0-prompt.md](0-prompt.md) - the block that built the four commits, now spent
 - [0-prompt-2.md](0-prompt-2.md) - the block that built the last bullet, now spent
 

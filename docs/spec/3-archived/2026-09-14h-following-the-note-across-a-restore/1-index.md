@@ -11,7 +11,7 @@ was bound to, and the user had moved on.
 
 - [0-prompt.md](0-prompt.md) - the block to hand a fresh session that will build it
 - [2-requirements.md](2-requirements.md) - the rule, the three paths that disagree with it, and the scenarios
-- [3-transcript.md](3-transcript.md) - the reported session, kept whole because the repeated steps are the evidence
+- The reported session's transcript - removed: held personal vault content, kept whole because the repeated steps are the evidence
 - [4-design.md](4-design.md) - the seam in SessionBuilder, what asks the workspace, and what goes
 - [5-tasks.md](5-tasks.md) - build order in three commits, and what to measure first
 

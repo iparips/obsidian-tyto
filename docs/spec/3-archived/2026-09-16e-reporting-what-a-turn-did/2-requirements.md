@@ -111,7 +111,7 @@ utterance. It joins the steps entry at index 1, above the restored marker.
 - [src/engine/tools/tool-schemas.ts](../../../../src/engine/tools/tool-schemas.ts) - TOOL_SCHEMAS, the defined names a call is checked against, and ToolCatalogue.forCapabilities, the narrower set the refusal lists
 - [src/session/models/panel-state.ts](../../../../src/session/models/panel-state.ts) - the entry union holding the restored kind, and openStepsAt scoping to the last user entry
 - [src/session/models/restored-text.ts](../../../../src/session/models/restored-text.ts) - the session event a retarget would copy, and why it exists at all
-- [8-transcripts.md](8-transcripts.md) - the two reported sessions, kept whole because the tool results are the evidence
+- The reported session's transcript - removed: held personal vault content
 
 ### Project
 

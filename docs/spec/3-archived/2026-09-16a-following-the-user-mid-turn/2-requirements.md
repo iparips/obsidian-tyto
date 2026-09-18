@@ -82,7 +82,7 @@ and a model that retries from the same snapshot misses again.
 - [src/engine/turn/tool-call-executor.ts](../../../../src/engine/turn/tool-call-executor.ts) - the loop applying a batch in order, where a stale anchor is caught or is not
 - [src/engine/edit-engine.ts](../../../../src/engine/edit-engine.ts) - followActiveNote, which decides a running turn follows at all
 - [7-analysis.md](7-analysis.md) - how the session reached the state it did, and the table of drifting anchors
-- [8-transcripts.md](8-transcripts.md) - the reported session, where note context v4 is the retarget
+- The reported session's transcript - removed: held personal vault content
 
 ### Project
 

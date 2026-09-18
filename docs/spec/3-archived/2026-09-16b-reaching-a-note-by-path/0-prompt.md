@@ -18,7 +18,7 @@ a write follows the tab and lands in a note nobody named. Four commits.
 Read 1-index.md and 2-rules.md first: every decision cites a rule, and the rules
 are short. Then 3-requirements.md and both decisions files, then 8-tasks.md for
 the build order. Read 5-design.md and 6-unit-tests.md before commit 1.
-9-transcript.md is evidence, read only if a defect stops making sense.
+A session transcript was removed: held personal vault content.
 7-acceptance-criteria.md holds the checks afterwards.
 
 Repo conventions are in AGENTS.md. Commits 1 and 2 are the fault and ship

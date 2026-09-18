@@ -13,7 +13,7 @@ defects found in two session transcripts, fixed in three independent commits.
 
 Read 1-index.md, 2-requirements.md and 3-decisions.md first, then 7-tasks.md
 for the build order. Read 5-design.md and 6-unit-tests.md immediately before
-commit 1, the commit they mostly describe. 8-transcripts.md is evidence rather
+commit 1, the commit they mostly describe. The session transcript was removed: held personal vault content, and was evidence rather
 than instruction: read it only if a defect stops making sense.
 4-acceptance-criteria.md holds the checks a person runs afterwards.
 

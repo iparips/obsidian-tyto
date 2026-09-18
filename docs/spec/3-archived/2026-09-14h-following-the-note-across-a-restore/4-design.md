@@ -286,7 +286,7 @@ By hand, against a real vault:
 ## References
 
 - [2-requirements.md](2-requirements.md) - the rule, and the three paths that disagree with it
-- [3-transcript.md](3-transcript.md) - the reported session
+- The reported session's transcript - removed: held personal vault content
 - src/wiring/session-builder.ts:65 - build, which passes a file it was handed
 - src/wiring/session-builder.ts:78 - restore, which passes the stored path
 - src/wiring/session-builder.ts:98 - assemble, the seam both reach

@@ -21,7 +21,7 @@ whole-note write makes that affordable, and a batch stops at its first refusal.
 - [5-design.md](5-design.md) - what goes, what the boundary costs, and the three guards in order
 - [6-unit-tests.md](6-unit-tests.md) - the unit tests each changed method needs
 - [7-analysis.md](7-analysis.md) - how the session reached the state it did, and the table of drifting anchors
-- [8-transcripts.md](8-transcripts.md) - the reported session, where note context v4 is the retarget
+- The reported session's transcript - removed: held personal vault content
 - [9-tasks.md](9-tasks.md) - four commits, the middle two landing together
 
 A running turn now finishes on the note it started, so the session follows the

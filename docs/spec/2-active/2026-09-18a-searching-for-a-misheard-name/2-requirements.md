@@ -7,7 +7,7 @@ updated: 2026-09-18
 
 ## Motivation
 
-A voice harness never receives the name the user said. It receives what the transcriber guessed, and for a proper noun the guess is often wrong: one session spelled the same person Kat, Cat and "Catworth Sea" across five turns and never found her. The vault held the answer the whole time, in a note the model had already read.
+A voice harness never receives the name the user said. It receives what the transcriber guessed, and for a proper noun the guess is often wrong: one session spelled the same person Jon, John and "Jonah's Sea" across five turns and never found her. The vault held the answer the whole time, in a note the model had already read.
 
 The session that showed this burned 31 turn steps over five turns and answered one question. Three of the five turns ended with the user hitting stop, because the model was grepping for a spelling instead of reading the note in front of it.
 
@@ -21,9 +21,9 @@ That separates two failures a single guard would have conflated, per D2. A searc
 
 ### What the transcript shows
 
-The model read `09-17-Thu.md` at turn 1 step 5 and got back a note titled `# Cuddles with Cat`, tagged `#reflection/cat/cuddles`. Both spell the name. The question "did I enjoy my catch up with Kat yesterday?" was answerable from that content alone.
+The model read `09-17-Thu.md` at turn 1 step 5 and got back a note titled `# Coffee with John`, tagged `#reflection/john/coffee`. Both spell the name. The question "did I enjoy my catch up with Jon yesterday?" was answerable from that content alone.
 
-Instead the model ran four consecutive greps: `Kat`, then `catch up with Kat`, then `catch up`, then `Kat` again over a wider path. Each returned nothing, and nothing in the harness or the prompt treated a run of empty searches as a signal to stop and use what had already been read.
+Instead the model ran four consecutive greps: `Jon`, then `catch up with Jon`, then `catch up`, then `Jon` again over a wider path. Each returned nothing, and nothing in the harness or the prompt treated a run of empty searches as a signal to stop and use what had already been read.
 
 Turns 3 and 5 repeat the shape without the read: grep a spelling, get 11 or 92 paths back, list them, read none, get cancelled.
 
@@ -58,11 +58,11 @@ Seven changes: two to code that the prompt rules depend on, four to the prompt, 
 
 ### What the model is told
 
-- **A transcription section, telling the model a spoken name is approximate.** A proper noun in an utterance is a guess the transcriber made: it may be a homophone (Kat for Cat), a mis-split (Catworth Sea), or a near-miss. The model treats the sound as the signal and the spelling as disposable, and it never re-greps a name it has already failed to find under one spelling.
+- **A transcription section, telling the model a spoken name is approximate.** A proper noun in an utterance is a guess the transcriber made: it may be a homophone (Jon for John), a mis-split (Jonah's Sea), or a near-miss. The model treats the sound as the signal and the spelling as disposable, and it never re-greps a name it has already failed to find under one spelling.
 - **A rule that content already read outranks another search.** A note in the conversation is evidence. Where a read note answers the question, the model answers from it rather than searching for the spelling the user used. This is the rule the failing turn needed at step 5.
 - **State the route that answers a question, which today ends nowhere.** `SearchSection` opens by ordering the ways to reach a note: "run a listed command that opens it; glob for its path...; grep for text you expect it to contain; offer what you found with choose_note; open what the user picked." Every route terminates in `choose_note` then `open_note`, which is the route to a note the model is about to **edit**.
 
-  The failing turns asked questions. "What are some favorite things that I've been doing with Kat over the last few months?" has no note to pick and nothing to open: the answer is read out of several notes and summarised. `choose_note` is the wrong move for it, and so is the existing rule "A glob that returned notes has answered the question. Offer what it found with choose_note", which was drafted for the edit path and would send a question down it.
+  The failing turns asked questions. "What are some favorite things that I've been doing with Jon over the last few months?" has no note to pick and nothing to open: the answer is read out of several notes and summarised. `choose_note` is the wrong move for it, and so is the existing rule "A glob that returned notes has answered the question. Offer what it found with choose_note", which was drafted for the edit path and would send a question down it.
 
   The tools already support the question path, and `ToolDispatcher.answerFromSearch` needs no bound note: `read_note` each candidate, then `answer_from_search` with the answer and its source paths. The prompt describes that path in one line, in the trailing group, and it names only the last step: "Answer a question about the vault with answer_from_search, listing every note path the answer drew on." Nothing says the step before it is reading the candidates, so a model holding 92 paths and no rule about reading them narrows the pattern instead.
 
@@ -80,7 +80,7 @@ Where the prompt changes go, per D3: the announcement, the read-outranks-search 
 Against a real vault holding a note whose title spells a name the transcriber will mishear, and a model with search enabled.
 
 1. Open no note, so the session is unbound and every turn must search.
-2. Say a question about a person whose name is a homophone, so the transcriber writes the wrong spelling: "Did I enjoy my catch up with Kat yesterday?" where the vault spells her Cat.
+2. Say a question about a person whose name is a homophone, so the transcriber writes the wrong spelling: "Did I enjoy my catch up with Jon yesterday?" where the vault spells her John.
 3. Watch the model resolve the date, glob the week folder, and read the right note.
 4. Observe that it then greps for the transcribed spelling rather than answering from the note it just read, and keeps grepping until the step ceiling or a cancel.
 

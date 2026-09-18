@@ -11,17 +11,17 @@ Whether a model stops looping is a judgement no unit test makes, so the behaviou
 
 - A real vault and a real API key, per the repo's rule that a prompt change is a behaviour change
 - Search enabled in settings
-- A note whose title spells a name a transcriber will mishear: `# Cuddles with Cat`, tagged `#reflection/cat/cuddles`, in the current week's folder
+- A note whose title spells a name a transcriber will mishear: `# Coffee with John`, tagged `#reflection/john/coffee`, in the current week's folder
 - No note open, so the session is unbound and every turn must search
 
 ### The model answers from a note it has already read
 
 ```gherkin
 Given no note is open
-When  the user asks "Did I enjoy my catch up with Kat yesterday?"
-And   the model resolves the date, globs the week folder and reads the Cat note
+When  the user asks "Did I enjoy my catch up with Jon yesterday?"
+And   the model resolves the date, globs the week folder and reads the John note
 Then  it answers from that note
-And   it runs no further search for the spelling "Kat"
+And   it runs no further search for the spelling "Jon"
 ```
 
 Stopping after two or three searches rather than none is a partial pass: the guard caught it, the prompt rule did not. Say which, since they are fixed in different files.
@@ -29,17 +29,17 @@ Stopping after two or three searches rather than none is a partial pass: the gua
 ### A misheard name is not re-searched under the same spelling
 
 ```gherkin
-Given a turn where grepping for "Kat" returned nothing
+Given a turn where grepping for "Jon" returned nothing
 When  the model continues the turn
-Then  it does not grep for "Kat" again
-And   it does not grep for a longer phrase containing it, such as "catch up with Kat"
+Then  it does not grep for "Jon" again
+And   it does not grep for a longer phrase containing it, such as "catch up with Jon"
 ```
 
 ### The default context is wide enough to answer from
 
 ```gherkin
-Given a note mentioning Cat fourteen times
-When  the model greps for "Cat" and reads the excerpts back
+Given a note mentioning John fourteen times
+When  the model greps for "John" and reads the excerpts back
 Then  it answers from them rather than calling read_note on the same note
 ```
 
@@ -63,7 +63,7 @@ Since the budget is out of scope per D4, this ending is the only thing standing 
 
 ```gherkin
 Given no note is open
-When  the user asks "What are some favorite things I've been doing with Cat over the last few months?"
+When  the user asks "What are some favorite things I've been doing with John over the last few months?"
 Then  it answers with answer_from_search, citing the notes it drew on
 And   the answer draws on several notes, not one
 And   it does not offer a note to pick with choose_note

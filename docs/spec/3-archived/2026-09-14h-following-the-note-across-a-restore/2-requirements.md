@@ -19,7 +19,7 @@ Two things went wrong, and they compound. The session came back bound to a note
 the user had left, and the model re-ran the command that had bound it, so even
 a correct binding would have been undone mid-turn.
 
-The transcript is in [3-transcript.md](3-transcript.md).
+The transcript was removed: held personal vault content.
 
 ## The rule
 

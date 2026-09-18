@@ -17,7 +17,7 @@ reads the editor handle the turn holds, so a tab that moved shows the model
 another note's content under the target's path. Read 8-tasks.md commit 1, then
 the "Where A Write Lands" section of 5-design.md, and D3 in 4-decisions.md for
 why the writer is the one thing that knows whether the tab still shows the
-target. 9-transcript.md is the reported session; read it if a defect stops
+target. A transcript of the reported session was removed: held personal vault content; it stops
 making sense.
 
 Repo conventions are in AGENTS.md. Read

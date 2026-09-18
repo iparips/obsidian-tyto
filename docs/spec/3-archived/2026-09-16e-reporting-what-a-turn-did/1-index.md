@@ -23,7 +23,7 @@ event instead, the way a restore already is, and both faces go.
 - [5-design.md](5-design.md) - where each fix sits, and the unit tests that pin it
 - [6-unit-tests.md](6-unit-tests.md) - the unit tests each changed method needs
 - [7-tasks.md](7-tasks.md) - three commits, and what to land together
-- [8-transcripts.md](8-transcripts.md) - the two reported sessions, kept whole because the tool results are the evidence
+- The reported session's transcript - removed: held personal vault content
 - [0-prompt.md](0-prompt.md) - the block to hand a fresh session that will build it
 
 Ready for a fresh session. A retarget becomes a session event, a malformed tool

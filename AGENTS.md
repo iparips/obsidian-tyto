@@ -126,3 +126,19 @@ naming anything outside that list finds nothing to call. Keep it that way.
 
 Never let a skill file name a tool, an API endpoint, or a path outside the vault
 that the plugin then acts on.
+
+## Never Commit A Session Transcript
+
+This is a public repository and the vault it is developed against is a personal
+one. A panel transcript is a verbatim copy of real notes: names of real people,
+medical and financial errands, reference numbers. Four such files were committed
+and pushed before anyone noticed, and removing them meant rewriting history.
+
+Never commit a transcript, a session log, or a pasted note body. That holds
+however useful the evidence is, and whatever a spec's prompt asks for.
+
+Where a defect needs evidence, write down the behaviour rather than the content:
+the tool calls, what each returned, and the shape of the note. Where an example
+needs a name, invent one. `docs/spec/2-active/2026-09-18a-searching-for-a-misheard-name`
+is the worked example - it turns on a misheard name and uses Jon and John, which
+carry the homophone without carrying anyone real.

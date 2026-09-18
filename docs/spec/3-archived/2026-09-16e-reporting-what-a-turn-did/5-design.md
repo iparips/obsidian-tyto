@@ -142,7 +142,7 @@ limit.
 ## Out Of Scope
 
 - Whether a batch stops after a refusal, which is D4 and still open.
-- The transcript copy truncating near 20 KB, noted in 8-transcripts.md. The
+- The transcript copy truncating near 20 KB, noted in the session transcript (removed: held personal vault content). The
   plugin writes the whole string, so the cut is downstream of it.
 
 ## References

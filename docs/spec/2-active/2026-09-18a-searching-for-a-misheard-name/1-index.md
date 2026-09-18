@@ -5,11 +5,11 @@ updated: 2026-09-18
 
 # Searching For A Misheard Name: Spec
 
-A voice harness never gets the name the user said, only what the transcriber guessed. One session spelled the same person Kat, Cat and "Catworth Sea" across five turns and never found her, while the answer sat in a note the model had already read and quoted back.
+A voice harness never gets the name the user said, only what the transcriber guessed. One session spelled the same person Jon, John and "Jonah's Sea" across five turns and never found her, while the answer sat in a note the model had already read and quoted back.
 
 The prompt is most of the cause. It spends thirty lines on how to glob a path the model has not seen and says nothing about a name it cannot trust. Four defects follow: no rule that a spoken name is approximate, no rule that a note already read outranks another search, no stated route for answering a question, and no guard treating a run of fruitless searches as a turn going nowhere. A fifth is unrelated and sits in the same file: `DictationSection` repeats its checkbox sentence verbatim, and the duplicate shipped in release 3.
 
-The sixth is not in the prompt, and it is the one that decides answer quality. `NoteGrep` returns one excerpt per matched note, taken from the first match, and counts the rest without showing them. A note mentioning Cat fourteen times comes back as "14 matches" plus the context of one of them. A question answered by many matches across many notes therefore cannot be answered from a grep at all, which is the third turn in the transcript exactly.
+The sixth is not in the prompt, and it is the one that decides answer quality. `NoteGrep` returns one excerpt per matched note, taken from the first match, and counts the rest without showing them. A note mentioning John fourteen times comes back as "14 matches" plus the context of one of them. A question answered by many matches across many notes therefore cannot be answered from a grep at all, which is the third turn in the transcript exactly.
 
 Two consequences worth stating up front. The model was not ignoring what it found: handed 92 paths, it had no rule saying to read them, one rule that did apply to a long result — the trim line's "narrow the pattern to see the rest" — and excerpts that would not have answered the question anyway. And a prompt rule telling it to answer from search results is worth nothing until the results carry the evidence, so D4 lands with the prompt changes rather than after them.
 
