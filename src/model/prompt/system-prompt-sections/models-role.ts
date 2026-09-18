@@ -38,6 +38,9 @@ export class ModelsRole {
       'A refusal is not a retry prompt. Repeating a call that was just refused ends the',
       'turn with nothing written, so read what the refusal asks for and do that instead;',
       'where nothing you can do satisfies it, stop and say what you need.',
+      'A call that succeeded has answered. Sending it again with the same arguments',
+      'returns what you already have and spends a step doing it, so read the result you',
+      'were given rather than asking a second time.',
       ModelsRole.reach(commands, searchEnabled),
       'When you are done, respond with a one-sentence summary of what changed.',
     ].join('\n')

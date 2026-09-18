@@ -17,7 +17,10 @@ import { AllowedObsidianCommand } from '../../../commands/models/allowed-obsidia
 // ending a turn on a statement of intent, and the rule against repeating a
 // refused call. What ambiguity means re-records it again: the bare rule read as
 // licence to ask whether to make an edit the instruction had already named. So
-// does reading an applied edit back as state that was already there.
+// does reading an applied edit back as state that was already there. The rule
+// against repeating a call that succeeded re-records it again: a turn sent
+// resolve_date four times over, spending a fifth of its budget re-asking a
+// question it already had the answer to.
 import RELEASE_3_PROMPT from './fixtures/release-3-prompt.txt?raw'
 
 const aNote = (): NoteDetails => new NoteDetails('note.md', '# Budget\n\nbody', { line: 2, ch: 0 })
@@ -248,12 +251,19 @@ describe('the prompt messages', () => {
 
     // A command opened the right note, so the edit looked like success and the
     // skill's own steps were skipped without anything saying so.
-    it('tells the model every call reaching the vault names its applicable skills', () => {
+    it('tells the model a tool declaring applicable_skills is refused without it', () => {
       const prompt = systemPromptText(new AgentsMdChain(), [], catalogue)
 
-      expect(prompt).toContain(
-        'Every call that reaches the vault names the skills covering the utterance',
-      )
+      expect(prompt).toContain('declares applicable_skills is refused without it')
+    })
+
+    // The rule said every call reaching the vault, where only eight schemas
+    // declare the argument. A turn spent a whole step reasoning about where to
+    // put it on resolve_date, which does not take it.
+    it('tells the model the tools that do not declare it neither need nor take it', () => {
+      const prompt = systemPromptText(new AgentsMdChain(), [], catalogue)
+
+      expect(prompt).toContain('the rest\nneither need it nor take it')
     })
 
     // A turn globbed a guessed date order five times, then loaded the journal
@@ -508,6 +518,17 @@ describe('the prompt messages', () => {
       const prompt = systemPromptText()
 
       expect(prompt).toContain('it carries its own line')
+    })
+
+    // One turn sent resolve_date four times, grepped the same tag twice, then
+    // re-read two notes it had already read, and ran out on its last step. The
+    // rule against re-running a glob covered none of those: it is in the search
+    // section, which a vault without search never sees, and it speaks of
+    // patterns rather than of calls.
+    it('tells the model a call that succeeded has already answered', () => {
+      const prompt = systemPromptText()
+
+      expect(prompt).toContain('A call that succeeded has answered.')
     })
 
     it('produces the release 3 prompt when commands and search are absent', () => {
