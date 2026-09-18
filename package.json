@@ -1,6 +1,6 @@
 {
   "name": "tyto",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Edit your notes by voice. Speak an instruction and the note changes, with no fixed command phrases.",
   "main": "main.js",
   "scripts": {
