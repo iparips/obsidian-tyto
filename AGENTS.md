@@ -7,7 +7,10 @@ and the edits that loop applies to the note the turn is targeting.
 
 ## Branching
 
-Work on `main`. Do not create a feature branch, and do not use a git worktree.
+Work on `main`. Do not create a feature branch or a git worktree by default.
+
+Both are fine when Ilya asks for one. A request for a worktree, a branch or a PR
+is the answer, not something to confirm: take it and go.
 
 Commit directly to `main` as you go. Ilya chooses the grouping and the message,
 so leave finished work in the tree and say what is ready to commit rather than
