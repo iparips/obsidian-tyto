@@ -58,7 +58,7 @@ Keep the session across a reload
 
 Show its working
 
-- Each turn lists the steps it spent against its budget. Turning on the transcript adds a copy button that puts the whole session on the clipboard as Markdown.
+- Each turn lists the steps it spent against its budget. Every reply has a Copy button, and turning on the transcript adds one to the header that copies the whole session as Markdown.
 
 ## It Can Get It Wrong
 
@@ -133,7 +133,9 @@ The account
 
 The clipboard
 
-- Off by default. Turning the transcript on adds a copy button, which puts the turn's text on your clipboard. That text includes note content and any vault instructions the turn read.
+- Nothing reaches your clipboard unless you press a Copy button. Tyto neither reads the clipboard nor controls what your system does with it afterwards.
+- Every reply in the panel has one, including answers drawn from search. It copies that entry's text, which for an answer quotes the notes it read.
+- The Copy button in the panel header is the whole session, and is the one thing here behind a setting: it appears only once you turn the transcript on. A session transcript holds your note text and any vault instructions the turn read, which is why it is off by default. Your API key is never in it.
 
 What never leaves
 
