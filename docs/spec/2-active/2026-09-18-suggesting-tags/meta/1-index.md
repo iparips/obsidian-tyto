@@ -16,16 +16,16 @@ Excluded throughout: the system prompt, tool schemas, always-on instruction file
 
 Arrows in the discovery graph run from a source to what it pointed at, labelled with the pointer that carried the link.
 
-| Category           | Covers                                                             |
-| ------------------ | ------------------------------------------------------------------ |
-| prompt             | the user's own messages, the only nodes with no upstream source    |
-| skill              | instruction files loaded by the harness or a skill trigger         |
-| reference document | the repo's architecture docs and this spec's own files             |
-| code               | source files under src, plus the obsidian typings                  |
-| system of record   | live state no document can be trusted for: git, the test run       |
-| navigation         | file listings, path searches, directory globs                      |
-| never opened       | pointed at by something read, never opened; dashed outline         |
-| artefact           | the file the phase produced; terminal node                         |
+| Category           | Covers                                                          |
+| ------------------ | --------------------------------------------------------------- |
+| prompt             | the user's own messages, the only nodes with no upstream source |
+| skill              | instruction files loaded by the harness or a skill trigger      |
+| reference document | the repo's architecture docs and this spec's own files          |
+| code               | source files under src, plus the obsidian typings               |
+| system of record   | live state no document can be trusted for: git, the test run    |
+| navigation         | file listings, path searches, directory globs                   |
+| never opened       | pointed at by something read, never opened; dashed outline      |
+| artefact           | the file the phase produced; terminal node                      |
 
 | Rating        | Meaning                                            |
 | ------------- | -------------------------------------------------- |

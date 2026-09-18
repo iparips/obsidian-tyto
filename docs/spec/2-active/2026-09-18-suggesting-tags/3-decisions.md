@@ -71,10 +71,10 @@ In src/search, as TagReader (Search, new) beside NoteGlob and NoteReader.
 
 A package of its own would depend on obsidian and shared, be constructed in EngineFactory (Wiring), and be reached only through the engine's tool service. That is the arrow set search already has, so the second package would be indistinguishable from the first.
 
-| Option                   | Cost                                                                                    |
-| ------------------------ | ---------------------------------------------------------------------------------------- |
-| In src/search            | The package name reads as content search, where this walks an index                     |
-| A tags package of its own | A second package with the same dependencies and one entry point, for four files          |
+| Option                    | Cost                                                                            |
+| ------------------------- | ------------------------------------------------------------------------------- |
+| In src/search             | The package name reads as content search, where this walks an index             |
+| A tags package of its own | A second package with the same dependencies and one entry point, for four files |
 
 The ten-file folder limit does not force the split: src/search holds five files today.
 
@@ -84,10 +84,10 @@ Its own, TagReport (Search, new).
 
 A tag row is a count and a name where a glob row is a path, and the empty case is a statement about the vault rather than about a pattern. The only shared shape is the trimmed line, which is three lines of formatting.
 
-| Option                       | Cost                                                                    |
-| ---------------------------- | ------------------------------------------------------------------------ |
-| A TagReport of its own       | The trimmed-line shape is written twice and can drift                   |
-| A third method on SearchReport | One class holding three unrelated result shapes and their empty cases   |
+| Option                         | Cost                                                                  |
+| ------------------------------ | --------------------------------------------------------------------- |
+| A TagReport of its own         | The trimmed-line shape is written twice and can drift                 |
+| A third method on SearchReport | One class holding three unrelated result shapes and their empty cases |
 
 ### D7: Does a tag count notes or occurrences? [resolved 2026-09-18]
 
@@ -95,10 +95,10 @@ Notes, as D2 said, and the design keeps it.
 
 The prompt handing over this design flagged it as the choice most likely to be wrong in practice, so it was re-examined rather than inherited. It holds: the model is choosing a tag for one note, so the question is how many notes are about a subject, not how many times a note repeats a hash. Counting occurrences would rank a note that hashtags a word in every paragraph above a subject fifty notes share.
 
-| Option                | Cost                                                                          |
-| --------------------- | ------------------------------------------------------------------------------- |
-| Notes per tag         | A tag's weight says nothing about how central it is within any one note        |
-| Total occurrences     | One note repeating a tag outranks a tag many notes carry, which is the ranking |
+| Option            | Cost                                                                           |
+| ----------------- | ------------------------------------------------------------------------------ |
+| Notes per tag     | A tag's weight says nothing about how central it is within any one note        |
+| Total occurrences | One note repeating a tag outranks a tag many notes carry, which is the ranking |
 
 Revisit only if a real vault shows the ranking wrong, per D2's own assumption.
 
@@ -108,4 +108,3 @@ Revisit only if a real vault shows the ranking wrong, per D2's own assumption.
 - getAllTags may repeat a tag a note carries twice, so the walk puts each note's tags through a Set. If it already de-duplicates, the Set costs nothing and the count is unchanged either way.
 - A tags cap of 50 is enough for a personal vault, mirroring MAX_GLOB_RESULTS. If a vault routinely truncates, the filter carries it and the prompt line has to say to use it, per the requirements' own assumption about vault size.
 - The obsidian mock and FakeVault (Test Support) can carry a MetadataCache fake without a real Obsidian. Both are hand-written stand-ins already and nothing in the tag walk needs Obsidian's parser. If the parsing itself turns out to need testing, that is a case for the real vault rather than a fake.
-

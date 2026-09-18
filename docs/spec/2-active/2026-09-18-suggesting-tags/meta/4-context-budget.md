@@ -22,14 +22,14 @@ Categories are re-bucketed from the script's guesses. It classifies a `cat` of a
 
 ## By impact
 
-| Impact          | Design | Share |
-| --------------- | ------ | ----- |
-| high            | 25610  | 48%   |
-| medium          | 20515  | 38%   |
-| low             | 1756   | 3%    |
-| the audit itself | 4688  | 9%    |
-| no              | 2845   | 5%    |
-| total           | 53810  | 100%  |
+| Impact           | Design | Share |
+| ---------------- | ------ | ----- |
+| high             | 25610  | 48%   |
+| medium           | 20515  | 38%   |
+| low              | 1756   | 3%    |
+| the audit itself | 4688   | 9%    |
+| no               | 2845   | 5%    |
+| total            | 53810  | 100%  |
 
 Rounded from the script's per-row figures, and two rows are counted in two buckets, so the split sums a little above the total.
 
@@ -39,13 +39,13 @@ The no-impact row is edit-verification churn. The python heredocs that rewrote t
 
 ## Most expensive reads
 
-| Read                            | Tokens | Impact | Verdict                                                            |
-| ------------------------------- | ------ | ------ | ------------------------------------------------------------------ |
-| The four spec files, one cat    | 4808   | high   | Worth it. One call for the whole spec, which the prompt asked for  |
-| sdd/SKILL.md                    | 3605   | medium | Worth it, though the workflow needed is one of five it carries     |
-| tool-schemas.ts                 | 3182   | high   | Worth it. Three claims verified and two counts corrected           |
-| text-generation/SKILL.md        | 3511   | medium | Worth it, and unavoidable: the post-write rule mandates it         |
-| harness-tools-service.ts        | 1903   | high   | Worth it. The shortlist fallthrough is invisible from the schemas  |
+| Read                         | Tokens | Impact | Verdict                                                           |
+| ---------------------------- | ------ | ------ | ----------------------------------------------------------------- |
+| The four spec files, one cat | 4808   | high   | Worth it. One call for the whole spec, which the prompt asked for |
+| sdd/SKILL.md                 | 3605   | medium | Worth it, though the workflow needed is one of five it carries    |
+| tool-schemas.ts              | 3182   | high   | Worth it. Three claims verified and two counts corrected          |
+| text-generation/SKILL.md     | 3511   | medium | Worth it, and unavoidable: the post-write rule mandates it        |
+| harness-tools-service.ts     | 1903   | high   | Worth it. The shortlist fallthrough is invisible from the schemas |
 
 ## Blind spots
 

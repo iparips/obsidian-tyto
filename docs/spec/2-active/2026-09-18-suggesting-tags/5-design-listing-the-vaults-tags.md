@@ -89,17 +89,17 @@ A model needing those notes greps for the tag, with the two failures the decisio
 
 ## Behaviour change
 
-| Concern                          | Today                                          | New                                                           |
-| -------------------------------- | ---------------------------------------------- | ------------------------------------------------------------- |
-| Asking what tags a vault uses    | No tool answers it; the model invents a tag    | list_tags returns the vocabulary with a note count per tag    |
-| Frontmatter tags                 | Reachable only by grepping the word, unhashed  | Counted with inline tags, as one tag, by getAllTags           |
-| Tool list with search on         | Fourteen schemas                               | Fifteen; list_tags joins SEARCH_TOOLS                         |
-| Tool list with search off        | Seven schemas, or five with commands off       | Unchanged: the gate drops it with the other readers           |
-| applicable_skills gate           | Eight tools carry it                           | Unchanged; list_tags reaches no path, so it stays out         |
-| Paths offerable to choose_note   | Set by a glob, a grep or a read                | Unchanged: list_tags records none                             |
-| Panel                            | Globbed, Grepped, Read lines                   | A Listed tags line, naming the filter and the count           |
-| Writing a tag                    | The edit tools write text                      | Unchanged, per D1                                             |
-| release-3-prompt.txt             | The search-off prompt                          | Unchanged; see Re-recording the prompt fixture                |
+| Concern                        | Today                                         | New                                                        |
+| ------------------------------ | --------------------------------------------- | ---------------------------------------------------------- |
+| Asking what tags a vault uses  | No tool answers it; the model invents a tag   | list_tags returns the vocabulary with a note count per tag |
+| Frontmatter tags               | Reachable only by grepping the word, unhashed | Counted with inline tags, as one tag, by getAllTags        |
+| Tool list with search on       | Fourteen schemas                              | Fifteen; list_tags joins SEARCH_TOOLS                      |
+| Tool list with search off      | Seven schemas, or five with commands off      | Unchanged: the gate drops it with the other readers        |
+| applicable_skills gate         | Eight tools carry it                          | Unchanged; list_tags reaches no path, so it stays out      |
+| Paths offerable to choose_note | Set by a glob, a grep or a read               | Unchanged: list_tags records none                          |
+| Panel                          | Globbed, Grepped, Read lines                  | A Listed tags line, naming the filter and the count        |
+| Writing a tag                  | The edit tools write text                     | Unchanged, per D1                                          |
+| release-3-prompt.txt           | The search-off prompt                         | Unchanged; see Re-recording the prompt fixture             |
 
 ## Behaviour sequence
 
@@ -241,7 +241,7 @@ release-3-prompt.txt records the prompt for a vault with no commands, no search 
 
 Broken out to [6-unit-tests.md](6-unit-tests.md), since the plan runs past what the design can hold.
 
-The obsidian mock and the fakes need extending before any of it runs. src/test-support/__mocks__/obsidian.ts declares no MetadataCache, no CachedMetadata and no getAllTags, so the mock gains all three, and FakeVault (Test Support) gains a withTags method and a metadataCache accessor. That is test-support work rather than a new fake, per CLAUDE.md.
+The obsidian mock and the fakes need extending before any of it runs. src/test-support/`__mocks__`/obsidian.ts declares no MetadataCache, no CachedMetadata and no getAllTags, so the mock gains all three, and FakeVault (Test Support) gains a withTags method and a metadataCache accessor. That is test-support work rather than a new fake, per CLAUDE.md.
 
 ## Rollout
 

@@ -11,7 +11,7 @@ The plan for [5-design-listing-the-vaults-tags.md](5-design-listing-the-vaults-t
 
 None of this runs against the fakes as they stand, so the support work is the first commit.
 
-- src/test-support/__mocks__/obsidian.ts declares no MetadataCache, no CachedMetadata, no TagCache and no getAllTags. It gains a CachedMetadata interface carrying optional tags and frontmatter, a MetadataCache interface with getFileCache, and a getAllTags function combining the two the way Obsidian's does: a leading hash on every tag, frontmatter entries hashed on the way out.
+- src/test-support/`__mocks__`/obsidian.ts declares no MetadataCache, no CachedMetadata, no TagCache and no getAllTags. It gains a CachedMetadata interface carrying optional tags and frontmatter, a MetadataCache interface with getFileCache, and a getAllTags function combining the two the way Obsidian's does: a leading hash on every tag, frontmatter entries hashed on the way out.
 - FakeVault (Test Support) gains withTags(path, tags), recording a note's tags beside its content, and asMetadataCache(), answering a getFileCache built from them. Tags are given hashed or bare, so a test can state a frontmatter list as the vault writes it.
 - FakeVault.withNote leaves a note with no tags answering a cache entry with none, not null, since a note Obsidian has indexed and found nothing in is the common case.
 
