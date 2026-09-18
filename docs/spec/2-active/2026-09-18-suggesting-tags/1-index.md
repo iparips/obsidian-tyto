@@ -12,9 +12,12 @@ The work is one read-only tool. list_tags returns the vault's tags with the numb
 Obsidian indexes tags itself, in MetadataCache, covering frontmatter and inline tags alike. That is why the tool reads a cache rather than grepping: a regular expression over raw text matches #healthcare for #health and misses a frontmatter tags list entirely.
 
 - [2-requirements.md](2-requirements.md) - why an invented tag is the defect, what the tool returns, and what stays out of scope
-- [3-decisions.md](3-decisions.md) - why the edit tools apply the tag, what the list is sorted by, and the open question about finding notes by tag
-- [4-acceptance-criteria.md](4-acceptance-criteria.md) - six manual checks, since whether a suggested tag is a good tag is a judgement no unit test makes
+- [3-decisions.md](3-decisions.md) - why the edit tools apply the tag, what the list is sorted by, and why the tool never answers which notes carry one
+- [4-acceptance-criteria.md](4-acceptance-criteria.md) - five manual checks, since whether a suggested tag is a good tag is a judgement no unit test makes
+- [5-design-listing-the-vaults-tags.md](5-design-listing-the-vaults-tags.md) - where the tag reader lives, what the model reads back, and the three places the search gate holds
+- [6-unit-tests.md](6-unit-tests.md) - the suite, and the test-support work that has to land before any of it runs
+- [meta/1-index.md](meta/1-index.md) - what the design phase read, what each read changed, and what it cost
 
-One decision is open. D4 asks whether the tool also returns the notes carrying a tag; the lean is no, since the suggesting flow needs the vocabulary and not the notes.
+Every decision is settled. D4 resolved to list only: a tool returning paths would be a third source of the paths the model may shortlist and open, and no turn has needed it yet.
 
-The design phase is next: where the tag reader lives, whether it joins search or takes a package of its own, and what the result text says to the model.
+The build phase is next. Nothing under src has moved, so the design is the whole of what exists.
