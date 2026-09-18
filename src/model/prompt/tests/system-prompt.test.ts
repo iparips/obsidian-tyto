@@ -16,7 +16,8 @@ import { AllowedObsidianCommand } from '../../../commands/models/allowed-obsidia
 // the one-edit-per-step rule re-record it again, and so does the rule against
 // ending a turn on a statement of intent, and the rule against repeating a
 // refused call. What ambiguity means re-records it again: the bare rule read as
-// licence to ask whether to make an edit the instruction had already named.
+// licence to ask whether to make an edit the instruction had already named. So
+// does reading an applied edit back as state that was already there.
 import RELEASE_3_PROMPT from './fixtures/release-3-prompt.txt?raw'
 
 const aNote = (): NoteDetails => new NoteDetails('note.md', '# Budget\n\nbody', { line: 2, ch: 0 })
