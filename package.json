@@ -1,6 +1,6 @@
 {
   "name": "tyto",
-  "version": "0.5.2",
+  "version": "0.5.3",
   "description": "Talk to your notes. Edit text, format structure, and ask questions about what's in them.",
   "main": "main.js",
   "scripts": {
