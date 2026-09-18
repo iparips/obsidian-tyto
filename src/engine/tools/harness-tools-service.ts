@@ -63,6 +63,7 @@ export class HarnessToolsService {
     if (call.isGlobNotes()) return this.searchToolsService.glob(call, turn)
     if (call.isGrepNotes()) return this.searchToolsService.grep(call, turn)
     if (call.isResolveDate()) return this.dateToolService.resolve(call)
+    if (call.isListTags()) return this.searchToolsService.listTags(call)
     if (call.isReadNote()) return this.readNote(call, turn)
     if (call.isOpenNote()) return this.openNote(call, turn)
     return NotePathsShortlistTool.offerPaths(call, turn)

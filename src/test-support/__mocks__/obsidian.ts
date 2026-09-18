@@ -130,6 +130,49 @@ export interface Vault {
   getFolderByPath(path: string): TFolder | null
 }
 
+export interface Loc {
+  line: number
+  col: number
+  offset: number
+}
+
+export interface Pos {
+  start: Loc
+  end: Loc
+}
+
+export interface TagCache {
+  tag: string
+  position: Pos
+}
+
+export interface FrontMatterCache {
+  tags?: string[]
+}
+
+export interface CachedMetadata {
+  tags?: TagCache[]
+  frontmatter?: FrontMatterCache
+}
+
+export interface MetadataCache {
+  getFileCache(file: TFile): CachedMetadata | null
+}
+
+// Obsidian's combines the inline hashes and the frontmatter list into one
+// array, hashing the frontmatter entries on the way out, and answers null for a
+// note carrying neither.
+export function getAllTags(cache: CachedMetadata): string[] | null {
+  const inline = (cache.tags ?? []).map((entry) => entry.tag)
+  const frontmatter = (cache.frontmatter?.tags ?? []).map(hashed)
+  const all = [...inline, ...frontmatter]
+  return all.length > 0 ? all : null
+}
+
+function hashed(tag: string): string {
+  return tag.startsWith('#') ? tag : `#${tag}`
+}
+
 // What a test reads back, since a registered icon has no other handle.
 export const REGISTERED_ICONS = new Map<string, string>()
 

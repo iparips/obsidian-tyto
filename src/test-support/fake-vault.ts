@@ -1,9 +1,10 @@
-import { TFile, TFolder, Vault } from 'obsidian'
+import { CachedMetadata, MetadataCache, TagCache, TFile, TFolder, Vault } from 'obsidian'
 import { FakeNoteLocator } from './fake-note-locator'
 
 interface FakeNote {
   content: string
   mtime: number
+  tags: string[]
 }
 
 // Backs the search tests: notes keyed by path, each with a modification time a
@@ -12,14 +13,61 @@ export class FakeVault {
   readonly reads: string[] = []
   private readonly notes = new Map<string, FakeNote>()
   private readonly vanishing = new Set<string>()
+  private readonly unindexed = new Set<string>()
 
   asVault(): Vault {
     return this as unknown as Vault
   }
 
+  // Shaped rather than implemented, as asVault is: the tag walk calls
+  // getFileCache alone, where the real interface declares ten more.
+  asMetadataCache(): MetadataCache {
+    return { getFileCache: (file: TFile) => this.cacheOf(file.path) } as unknown as MetadataCache
+  }
+
   withNote(path: string, content: string, mtime = Date.now()): this {
-    this.notes.set(path, { content, mtime })
+    this.notes.set(path, { content, mtime, tags: [] })
     return this
+  }
+
+  // A note the vault lists and the cache has no entry for, which is what
+  // Obsidian answers for a file it has not indexed yet.
+  withUnindexedNote(path: string, content = ''): this {
+    this.withNote(path, content)
+    this.unindexed.add(path)
+    return this
+  }
+
+  // A hashed tag is an inline one and a bare tag a frontmatter entry, which is
+  // how each is written in a note, so a test states a frontmatter list the way
+  // the vault holds it rather than saying which half of the cache it lands in.
+  withTags(path: string, tags: readonly string[]): this {
+    const note = this.notes.get(path) ?? { content: '', mtime: Date.now(), tags: [] }
+    this.notes.set(path, { ...note, tags: [...tags] })
+    return this
+  }
+
+  // Null for a path this vault holds no note for, which is the entry Obsidian
+  // answers for a file it has not indexed and the case TagReader must survive.
+  // A note it does hold answers an entry with no tags rather than null.
+  private cacheOf(path: string): CachedMetadata | null {
+    const note = this.notes.get(path)
+    if (!note || this.unindexed.has(path)) return null
+    return {
+      tags: note.tags.filter(FakeVault.isInline).map(FakeVault.tagCacheOf),
+      frontmatter: { tags: note.tags.filter((tag) => !FakeVault.isInline(tag)) },
+    }
+  }
+
+  // The position is what the real cache carries beside the tag, and nothing
+  // reading this cares where in the note the tag sat.
+  private static tagCacheOf(tag: string): TagCache {
+    const at = { line: 0, col: 0, offset: 0 }
+    return { tag, position: { start: at, end: at } }
+  }
+
+  private static isInline(tag: string): boolean {
+    return tag.startsWith('#')
   }
 
   // A skill is a folder holding a SKILL.md, so naming the folder is what a test
