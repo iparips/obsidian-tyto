@@ -32,6 +32,14 @@ export class TurnEndingService {
     return TurnStepOutcomes.endedTurn(TurnEndingKind.Replied, Outcomes.success(summary))
   }
 
+  // The answer is the turn's reply, so the history keeps it rather than the
+  // restatement a further step would have written. No cursor moves: a turn that
+  // answered from search wrote nothing to follow.
+  endTurnWithAnswer(answer: string): EndedTurn {
+    this.sessionRepository.appendChatMessage(ChatMessage.model(answer))
+    return TurnStepOutcomes.endedTurn(TurnEndingKind.Answered, Outcomes.success(answer))
+  }
+
   endTurnAsCancelled(notesWritten: readonly string[]): EndedTurn {
     this.sessionRepository.appendChatMessage(
       ChatMessage.model(TurnOutcomes.cancelledNote(notesWritten)),

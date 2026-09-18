@@ -13,4 +13,7 @@ export enum TurnEndingKind {
   Failed = 'failed',
   // The user stopped the turn, whether between steps or mid-request.
   Cancelled = 'cancelled',
+  // The model answered from search, which is the turn's reply and needs no
+  // step of its own to restate.
+  Answered = 'answered',
 }

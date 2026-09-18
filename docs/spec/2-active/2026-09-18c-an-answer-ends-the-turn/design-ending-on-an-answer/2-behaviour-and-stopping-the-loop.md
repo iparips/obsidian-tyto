@@ -9,17 +9,17 @@ The behaviour the change lands, how a tool call says the turn is over given that
 
 ## Behaviour change
 
-| Concern                          | Today                                                  | New                                                           |
-| -------------------------------- | ------------------------------------------------------ | ------------------------------------------------------------- |
-| Steps after the answer           | One more, which the model fills with a restatement     | None; the loop stops on the step that answered               |
-| What ToolCallOutcome carries     | result, editEndPosition, refusal, panelSummary, wroteThrough | Those five, plus the answer that ends the turn          |
-| What ToolCallExecutor returns    | void                                                   | The first answer of the batch, or nothing                    |
-| TurnEndingKind values            | Five                                                   | Six, with Answered                                            |
-| What ConversationTurnRunner.run returns | Outcome of string                               | TurnResult, holding the kind beside that outcome              |
-| Panel entries for such a turn    | An answer entry and an assistant entry                 | The answer entry alone                                        |
-| Chat history's closing message   | The model's restatement, uncited                       | The answer text, as published                                 |
-| notifySucceeded                  | Fires with the restatement                             | Fires with the answer text                                    |
-| Iteration spend for the step     | Charged, then another step is charged                  | Charged once, for the batch that answered                     |
+| Concern                                 | Today                                                        | New                                              |
+| --------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------ |
+| Steps after the answer                  | One more, which the model fills with a restatement           | None; the loop stops on the step that answered   |
+| What ToolCallOutcome carries            | result, editEndPosition, refusal, panelSummary, wroteThrough | Those five, plus the answer that ends the turn   |
+| What ToolCallExecutor returns           | void                                                         | The first answer of the batch, or nothing        |
+| TurnEndingKind values                   | Five                                                         | Six, with Answered                               |
+| What ConversationTurnRunner.run returns | Outcome of string                                            | TurnResult, holding the kind beside that outcome |
+| Panel entries for such a turn           | An answer entry and an assistant entry                       | The answer entry alone                           |
+| Chat history's closing message          | The model's restatement, uncited                             | The answer text, as published                    |
+| notifySucceeded                         | Fires with the restatement                                   | Fires with the answer text                       |
+| Iteration spend for the step            | Charged, then another step is charged                        | Charged once, for the batch that answered        |
 
 ## How a tool call tells the loop to stop
 

@@ -88,8 +88,9 @@ export class TranscriptTurnSection {
   }
 
   // The last step has no step after it, so its answer sits in the tail. On four
-  // of the five endings TurnEndingService closes that tail with the turn's own
-  // note, which is the harness speaking rather than the model.
+  // of the six endings TurnEndingService closes that tail with the turn's own
+  // note, which is the harness speaking rather than the model. Replied and
+  // Answered both close it with the model's own words, so both keep it whole.
   private answered(
     step: RecordedTurnStep,
     next: RecordedTurnStep | undefined,
@@ -97,8 +98,12 @@ export class TranscriptTurnSection {
   ): readonly ChatMessage[] {
     if (next) return this.slice(next)
     const tail = this.tail(step)
-    if (!ending || ending.kind === TurnEndingKind.Replied) return tail
+    if (!ending || TranscriptTurnSection.closesWithTheModelsOwnWords(ending)) return tail
     return tail.slice(0, TranscriptTurnSection.lastModelNoteAt(tail))
+  }
+
+  private static closesWithTheModelsOwnWords(ending: RecordedEnding): boolean {
+    return ending.kind === TurnEndingKind.Replied || ending.kind === TurnEndingKind.Answered
   }
 
   private static lastModelNoteAt(tail: readonly ChatMessage[]): number {

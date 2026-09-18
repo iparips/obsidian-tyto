@@ -2,8 +2,10 @@ import { beforeEach, describe, expect, it, Mock, vi } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { SessionPanel, RecorderPort, SessionPanelProps } from '../SessionPanel'
-import { Attempt, Outcome, Outcomes } from '../../../shared/models/outcome'
+import { Attempt, Outcomes } from '../../../shared/models/outcome'
 import { DEFAULT_SETTINGS } from '../../../settings/settings'
+import { TurnResult } from '../../../engine/turn/ending/turn-result'
+import { aTurnResult } from '../../../test-support/builders'
 import { TranscriptSource } from '../../transcript/models/transcript-source'
 
 // The panel supplies what the user saw and the builder supplies what the model
@@ -11,7 +13,7 @@ import { TranscriptSource } from '../../transcript/models/transcript-source'
 describe('SessionPanel transcript copy', () => {
   let recorder: RecorderPort
   let transcribe: Mock<[Blob, string], Promise<Attempt<string>>>
-  let processUtterance: Mock<[string], Promise<Outcome<string>>>
+  let processUtterance: Mock<[string], Promise<TurnResult>>
   let writeText: ReturnType<typeof vi.fn>
 
   beforeEach(() => {
@@ -23,7 +25,7 @@ describe('SessionPanel transcript copy', () => {
       stream: vi.fn().mockReturnValue(null),
     }
     transcribe = vi.fn()
-    processUtterance = vi.fn().mockResolvedValue(Outcomes.success('made the edit'))
+    processUtterance = vi.fn().mockResolvedValue(aTurnResult(Outcomes.success('made the edit')))
     writeText = vi.fn().mockResolvedValue(undefined)
     Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true })
   })

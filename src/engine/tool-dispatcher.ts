@@ -197,11 +197,12 @@ export class ToolDispatcher {
     return this.publishModelAnswer(ModelAnswer.from(call))
   }
 
-  // The answer reaches the panel and stops there: no tool can carry it into a
-  // note, so the model is told to say nothing further about it (FR31).
+  // The answer reaches the panel and ends the turn it was made in, so the model
+  // gets no step in which to restate it. The text rides back on the outcome,
+  // which is how the ending gets it without this knowing about the turn.
   private publishModelAnswer(modelAnswer: ModelAnswer): ToolCallOutcome {
     this.turnProgressPublisher.publishModelAnswerFn(modelAnswer.text, modelAnswer.sources)
-    return ToolCallOutcome.of('the answer reached the panel; say nothing further about it')
+    return ToolCallOutcome.answered('the answer reached the panel', modelAnswer.text)
   }
 
   // Exhaustive over the kinds, so a tool added without a branch here fails to

@@ -9,14 +9,14 @@ Metered from this session's transcript by the context-audit script, at bytes of 
 
 ## By category
 
-| Category           | Design | Note                                                                          |
-| ------------------ | ------ | ----------------------------------------------------------------------------- |
-| code               | 36,412 | 37 reads. The largest single category, and the phase was a code-shape design  |
-| skill              | 23,210 | 13 reads, five of them reference files the SKILL.md bodies pointed at         |
-| command            | 5,291  | Writes, greps whose output was read, and the suite run                        |
-| navigation         | 826    | One file search, for the describe block the prompt named                      |
-| system of record   | 514    | Two git reads                                                                 |
-| total              | 66,252 |                                                                               |
+| Category         | Design | Note                                                                         |
+| ---------------- | ------ | ---------------------------------------------------------------------------- |
+| code             | 36,412 | 37 reads. The largest single category, and the phase was a code-shape design |
+| skill            | 23,210 | 13 reads, five of them reference files the SKILL.md bodies pointed at        |
+| command          | 5,291  | Writes, greps whose output was read, and the suite run                       |
+| navigation       | 826    | One file search, for the describe block the prompt named                     |
+| system of record | 514    | Two git reads                                                                |
+| total            | 66,252 |                                                                              |
 
 The architecture docs land in the code row. The script buckets a `cat docs/...` by its command pattern, and re-bucketing them would move roughly 5,180 tokens from code to reference document. Left as measured, with the correction stated here.
 
@@ -34,14 +34,14 @@ The no-impact fifth is almost entirely skill bodies whose reference files carrie
 
 ## Most expensive single reads
 
-| Read                                   | Tokens | Impact | Verdict                                                                   |
-| -------------------------------------- | ------ | ------ | ------------------------------------------------------------------------- |
-| The four spec files, in one command    | 6,177  | high   | Right call. One read, and it carried every decision the design implements |
-| src/engine/tool-dispatcher.ts, whole   | 4,762  | high   | Half-wasted. Two methods mattered; a sed of :190-:245 was 600 tokens      |
-| skills/code-generation/SKILL.md        | 4,046  | medium | The typescript.md reference it points at did the deciding                 |
-| skills/sdd/SKILL.md                    | 3,706  | high   | Unavoidable. It routes to every format file the phase needed              |
-| skills/text-generation/SKILL.md        | 3,511  | high   | Paid for itself: it forced both file splits and cut a stale note          |
-| src/session/views/SessionPanel.tsx     | 2,088  | high   | Right call. The branch order needed the whole component in view           |
+| Read                                 | Tokens | Impact | Verdict                                                                   |
+| ------------------------------------ | ------ | ------ | ------------------------------------------------------------------------- |
+| The four spec files, in one command  | 6,177  | high   | Right call. One read, and it carried every decision the design implements |
+| src/engine/tool-dispatcher.ts, whole | 4,762  | high   | Half-wasted. Two methods mattered; a sed of :190-:245 was 600 tokens      |
+| skills/code-generation/SKILL.md      | 4,046  | medium | The typescript.md reference it points at did the deciding                 |
+| skills/sdd/SKILL.md                  | 3,706  | high   | Unavoidable. It routes to every format file the phase needed              |
+| skills/text-generation/SKILL.md      | 3,511  | high   | Paid for itself: it forced both file splits and cut a stale note          |
+| src/session/views/SessionPanel.tsx   | 2,088  | high   | Right call. The branch order needed the whole component in view           |
 
 ## Blind spots
 

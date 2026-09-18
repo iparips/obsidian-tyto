@@ -54,6 +54,10 @@ export class PanelReducer {
           text: action.text,
           sources: action.sources,
         })
+      // The summary case minus the entry: publishing the answer mid-turn left
+      // the phase where it was, so the ending is what moves it.
+      case 'turnAnswered':
+        return AskedEntries.turnEnded(state).withPhase('idle')
       case 'cancelRequested':
         return state.withPhase('cancelling')
       case 'turnCancelled':

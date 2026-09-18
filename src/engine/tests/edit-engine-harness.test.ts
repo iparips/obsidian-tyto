@@ -336,7 +336,7 @@ describe('EditEngine', () => {
 
         const outcome = await engineOf().processUtterance('open both notes')
 
-        expect(outcome).toEqual(Outcomes.success('done'))
+        expect(outcome.outcome).toEqual(Outcomes.success('done'))
       })
     })
 
@@ -378,7 +378,7 @@ describe('EditEngine', () => {
 
         const outcome = await engineOf().processUtterance('open all three')
 
-        expect(outcome).toEqual(Outcomes.success('done'))
+        expect(outcome.outcome).toEqual(Outcomes.success('done'))
       })
     })
 
@@ -642,6 +642,129 @@ describe('EditEngine', () => {
 
       const results = complete.mock.calls[1][0].filter((m: ChatMessage) => m.isToolResult())
       expect(results[0]).toMatchObject({ content: 'no notes match Plumbing/*.md' })
+    })
+
+    const anAnswer = (answer: string, sources: string[] = ['Quotes/roofing.md']) =>
+      aToolCall('answer_from_search', { answer, sources })
+
+    const modelMessagesIn = (): string[] =>
+      sessions
+        .chatHistory()
+        .filter((message) => message.apiRole() === 'assistant' && !message.hasToolCalls())
+        .map((message) => message.content)
+
+    describe('when the batch holds one answer', () => {
+      it('ends the turn on the step that answered', async () => {
+        respondsWith(aToolTurn(anAnswer('The roofing quote was 12k.')))
+
+        const result = await engineOf().processUtterance('what was the roofing quote')
+
+        expect(result.outcome).toEqual(Outcomes.success('The roofing quote was 12k.'))
+      })
+
+      it('makes no further model call', async () => {
+        respondsWith(aToolTurn(anAnswer('The roofing quote was 12k.')))
+
+        await engineOf().processUtterance('what was the roofing quote')
+
+        expect(complete).toHaveBeenCalledTimes(1)
+      })
+    })
+
+    describe('when the batch holds an answer and a later call', () => {
+      it('runs the later call and appends its result', async () => {
+        respondsWith(
+          aToolTurn(anAnswer('It was 12k.'), aToolCall('glob_notes', { pattern: 'Quotes/*.md' })),
+        )
+
+        await engineOf().processUtterance('what was the roofing quote')
+
+        const results = sessions.chatHistory().filter((message) => message.isToolResult())
+        expect(results[1].content).toContain('Quotes/roofing.md')
+      })
+
+      it('ends the turn once the step is complete', async () => {
+        respondsWith(
+          aToolTurn(anAnswer('It was 12k.'), aToolCall('glob_notes', { pattern: 'Quotes/*.md' })),
+        )
+
+        const result = await engineOf().processUtterance('what was the roofing quote')
+
+        expect(result.outcome).toEqual(Outcomes.success('It was 12k.'))
+      })
+    })
+
+    describe('when the batch holds two answers', () => {
+      it('publishes both answer blocks to the panel', async () => {
+        respondsWith(aToolTurn(anAnswer('It was 12k.'), anAnswer('It was paid in March.')))
+
+        await engineOf().processUtterance('what was the roofing quote')
+
+        expect(answers.map((published) => published.text)).toEqual([
+          'It was 12k.',
+          'It was paid in March.',
+        ])
+      })
+
+      it('appends the first answer to the history', async () => {
+        respondsWith(aToolTurn(anAnswer('It was 12k.'), anAnswer('It was paid in March.')))
+
+        await engineOf().processUtterance('what was the roofing quote')
+
+        expect(modelMessagesIn().at(-1)).toBe('It was 12k.')
+      })
+    })
+
+    describe('when the batch holds an answer and two identical refusals', () => {
+      it('ends the turn as stuck rather than as answered', async () => {
+        respondsWith(
+          aToolTurn(
+            anAnswer('It was 12k.'),
+            aToolCall('open_note', { path: 'elsewhere.md' }),
+            aToolCall('open_note', { path: 'elsewhere.md' }),
+          ),
+        )
+
+        const result = await engineOf().processUtterance('what was the roofing quote')
+
+        expect(result.outcome.succeeded()).toBe(false)
+      })
+    })
+
+    describe('when the batch holds no answer', () => {
+      it('keeps the turn going, as today', async () => {
+        respondsWith(aToolTurn(aToolCall('glob_notes', { pattern: 'Quotes/*.md' })))
+
+        await engineOf().processUtterance('what did I write about the roofing quote')
+
+        expect(complete).toHaveBeenCalledTimes(2)
+      })
+    })
+
+    describe('when the turn ends on its answer', () => {
+      it('appends the answer text as a model message', async () => {
+        respondsWith(aToolTurn(anAnswer('The roofing quote was 12k.')))
+
+        await engineOf().processUtterance('what was the roofing quote')
+
+        expect(modelMessagesIn().at(-1)).toBe('The roofing quote was 12k.')
+      })
+
+      it('appends no sources beside it', async () => {
+        respondsWith(aToolTurn(anAnswer('The roofing quote was 12k.')))
+
+        await engineOf().processUtterance('what was the roofing quote')
+
+        expect(modelMessagesIn().at(-1)).not.toContain('Quotes/roofing.md')
+      })
+
+      it('moves no cursor, since the turn wrote nothing', async () => {
+        respondsWith(aToolTurn(anAnswer('The roofing quote was 12k.')))
+
+        await engineOf().processUtterance('what was the roofing quote')
+
+        expect(editor.scrolledTo).toBeNull()
+      })
     })
   })
 

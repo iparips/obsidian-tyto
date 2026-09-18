@@ -85,7 +85,7 @@ src/session/models/panel-action.ts, the action that settles an answered turn.
 export type PanelAction =
   // The turn ended on its answer, which the answer action already appended, so
   // this settles the turn and adds no entry of its own.
-  | { type: 'turnAnswered' }
+  { type: 'turnAnswered' }
 ```
 
 Changed signatures on existing types, each one method:

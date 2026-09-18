@@ -142,6 +142,15 @@ describe('TranscriptRepository', () => {
       ])
     })
 
+    it('records answered with the turn and the step it ended at', () => {
+      recordCall(1)
+      transcript.recordEnding(TurnEndingKind.Answered)
+
+      expect(transcript.recordedEndings()).toEqual([
+        { turn: 0, kind: TurnEndingKind.Answered, step: 0 },
+      ])
+    })
+
     it('numbers the next turn steps from zero again', () => {
       recordCall(1)
       transcript.recordEnding(TurnEndingKind.Replied)
