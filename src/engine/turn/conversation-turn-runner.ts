@@ -22,6 +22,9 @@ export class ConversationTurnRunner {
     private turnEndingService: TurnEndingService,
     private turnProgressPublisher: TurnProgressPublisher,
     private transcriptRepository: TranscriptRepository,
+    // The user's allowance, read per turn so a change in settings reaches the
+    // next turn rather than waiting for a reload.
+    private maxIterations?: number,
   ) {}
 
   cancel(): void {
@@ -29,12 +32,12 @@ export class ConversationTurnRunner {
   }
 
   async run(): Promise<TurnResult> {
-    const spend = new TurnSpend()
+    const spend = new TurnSpend(this.maxIterations)
     while (!spend.isExhausted()) {
       const turnStepOutcome = await this.runTurnStep(spend)
       if (turnStepOutcome.turnEnded()) return this.recordEndingAndGetResult(turnStepOutcome)
     }
-    return this.recordEndingAndGetResult(TurnOutcomes.exhausted())
+    return this.recordEndingAndGetResult(TurnOutcomes.exhausted(spend.iterationCounter.max()))
   }
 
   private recordEndingAndGetResult(endedTurn: EndedTurn): TurnResult {

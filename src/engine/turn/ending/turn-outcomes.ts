@@ -1,5 +1,4 @@
 import { Outcomes } from '../../../shared/models/outcome'
-import { IterationCounter } from '../spending/iteration-counter'
 import { RepeatedRefusalCounter } from '../spending/repeated-refusal-counter'
 import { TurnEndingKind } from './turn-ending-kind'
 import { EndedTurn, TurnStepOutcomes } from './turn-step-outcome'
@@ -20,12 +19,12 @@ export class TurnOutcomes {
 
   // Points at the steps list rather than repeating it: every step is numbered
   // there, so where the turn went is already on screen.
-  static exhausted(): EndedTurn {
+  static exhausted(maxIterations: number): EndedTurn {
     return TurnStepOutcomes.endedTurn(
       TurnEndingKind.Exhausted,
       Outcomes.failure(
         'chat',
-        `Tyto ran out of steps for this turn after ${IterationCounter.max()}. The steps list shows where they went. Try a smaller instruction, or say which note to use.`,
+        `Tyto ran out of steps for this turn after ${maxIterations}. The steps list shows where they went. Try a smaller instruction, or say which note to use.`,
       ),
     )
   }

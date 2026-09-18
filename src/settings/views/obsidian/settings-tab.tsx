@@ -3,6 +3,7 @@ import { createRoot, Root } from 'react-dom/client'
 import { AllowListEditor } from '../AllowListEditor'
 import { AllowListEditorInputs } from '../allow-list-editor-inputs'
 import { TytoSettings } from '../../settings'
+import { MODEL_ROWS, SKILLS_ROWS, VAULT_ROWS } from './setting-rows'
 
 export interface SettingsHost {
   settings: TytoSettings
@@ -27,25 +28,10 @@ export class TytoSettingsTab extends PluginSettingTab {
 
   getSettingDefinitions(): SettingDefinitionItem[] {
     return [
-      this.apiKeyDefinition(),
-      {
-        name: 'Edit model',
-        desc: 'The Mistral model that reads your instruction and edits the note.',
-        control: { type: 'text', key: 'editModel' },
-      },
-      {
-        type: 'group',
-        heading: 'Skills',
-        items: [
-          {
-            name: 'Skills folder',
-            desc: 'Vault folder holding agent skills. Their names and descriptions are sent with each instruction. Leave empty to disable.',
-            control: { type: 'folder', key: 'skillsPath' },
-          },
-        ],
-      },
+      { type: 'group', heading: 'Model', items: [this.apiKeyDefinition(), ...MODEL_ROWS] },
+      { type: 'group', heading: 'Skills', items: SKILLS_ROWS },
       { type: 'group', heading: 'Commands', items: [this.allowListDefinition()] },
-      { type: 'group', heading: 'Vault', items: this.vaultDefinitions() },
+      { type: 'group', heading: 'Vault', items: VAULT_ROWS },
     ]
   }
 
@@ -108,30 +94,6 @@ export class TytoSettingsTab extends PluginSettingTab {
     this.renderAllowListEditor()
   }
 
-  private vaultDefinitions(): SettingDefinition[] {
-    return [
-      {
-        name: 'Search the vault to answer questions',
-        desc: 'Tyto can search your notes and summarise what it finds in the panel. The summary is never written into a note.',
-        control: { type: 'toggle', key: 'searchEnabled' },
-      },
-      {
-        name: 'Ask before opening a note Tyto found',
-        desc: 'Tyto can search for the note an instruction names and open it. Ask shows you what it found and waits for you to pick one. Open opens a note when only one matched, and still asks when several did. A note one of your commands opens never asks.',
-        control: {
-          type: 'dropdown',
-          key: 'openMode',
-          options: { confirm: 'Ask which note', auto: 'Open the only match' },
-        },
-      },
-      {
-        name: 'Copy the session transcript',
-        desc: 'Adds a Copy button to the panel header. The transcript holds the whole session as Markdown, including your note text and any vault instructions, so a turn that went wrong can be filed rather than described. Your key is never in it.',
-        control: { type: 'toggle', key: 'transcriptCopyEnabled' },
-      },
-    ]
-  }
-
   getControlValue(key: string): unknown {
     return this.host.settings[key as keyof TytoSettings]
   }
@@ -139,6 +101,15 @@ export class TytoSettingsTab extends PluginSettingTab {
   // Through updateSettings rather than mutating settings in place, so the
   // plugin stays the one writer and a session built earlier reads the change.
   async setControlValue(key: string, value: unknown): Promise<void> {
+    if (!TytoSettingsTab.isAcceptable(key, value)) return
     await this.host.updateSettings({ [key]: value })
+  }
+
+  // A budget is a count of turn steps, so a fraction or a non-number is not a
+  // smaller budget but no budget at all. Rejected rather than rounded: the
+  // stored value stands and the field shows it again on reopen.
+  private static isAcceptable(key: string, value: unknown): boolean {
+    if (key !== 'maxTurnSteps') return true
+    return typeof value === 'number' && Number.isInteger(value) && value >= 1
   }
 }

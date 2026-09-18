@@ -130,6 +130,7 @@ export class EngineFactory {
           NoteChoiceService.unasked(notesChosenByUser)),
       askers.userQuestionService ?? (() => UserQuestionService.unanswered()),
       transcript,
+      () => this.scope.settings.maxTurnSteps,
     )
   }
 

@@ -13,6 +13,11 @@ export interface TytoSettings {
   // Off by default: the transcript carries note text and vault instructions
   // verbatim, so copying one is the user's decision rather than the default.
   transcriptCopyEnabled: boolean
+  // One turn's whole allowance of steps. Raising it lets a long instruction
+  // finish; lowering it caps what a turn can spend before it has to report.
+  // IterationCounter holds the same number as its fallback, for a counter built
+  // without a setting to read.
+  maxTurnSteps: number
 }
 
 export const DEFAULT_SETTINGS: TytoSettings = {
@@ -27,4 +32,5 @@ export const DEFAULT_SETTINGS: TytoSettings = {
   searchEnabled: false,
   openMode: 'confirm',
   transcriptCopyEnabled: false,
+  maxTurnSteps: 20,
 }

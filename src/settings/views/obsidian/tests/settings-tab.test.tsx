@@ -46,22 +46,26 @@ describe('TytoSettingsTab', () => {
   })
 
   describe('when the definitions are read', () => {
-    it('puts the two general settings above the first group', () => {
-      const definitions = tab.getSettingDefinitions()
-
-      expect(definitions.slice(0, 2).map((item) => (item as SettingDefinition).name)).toEqual([
-        'Mistral API key',
-        'Edit model',
-      ])
-    })
-
-    it('groups the rest under Skills, Commands and Vault, in that order', () => {
+    it('groups the settings under Model, Skills, Commands and Vault, in that order', () => {
       const definitions = tab.getSettingDefinitions()
 
       expect(definitions.filter(isGroup).map((group) => group.heading)).toEqual([
+        'Model',
         'Skills',
         'Commands',
         'Vault',
+      ])
+    })
+
+    // The budget sits with the model settings because what it caps is spend:
+    // a turn step is a model call, so the number is what an instruction costs.
+    it('puts the turn step budget under Model', () => {
+      const model = tab.getSettingDefinitions().filter(isGroup)[0]
+
+      expect((model.items ?? []).map((item) => (item as SettingDefinition).name)).toEqual([
+        'Mistral API key',
+        'Edit model',
+        'Turn step budget',
       ])
     })
 
@@ -75,6 +79,7 @@ describe('TytoSettingsTab', () => {
       expect(keys).toEqual([
         undefined,
         'editModel',
+        'maxTurnSteps',
         'skillsPath',
         undefined,
         'searchEnabled',
@@ -103,7 +108,7 @@ describe('TytoSettingsTab', () => {
     })
 
     it('offers the daily note as a bare id, since the namespaced pattern matches nothing', () => {
-      const commands = tab.getSettingDefinitions().filter(isGroup)[1]
+      const commands = tab.getSettingDefinitions().filter(isGroup)[2]
 
       const desc = (commands.items?.[0] as SettingDefinition).desc
 
@@ -128,6 +133,35 @@ describe('TytoSettingsTab', () => {
       await tab.setControlValue('editModel', 'mistral-large-latest')
 
       expect(tab.getControlValue('editModel')).toBe('mistral-large-latest')
+    })
+  })
+
+  // A budget counts turn steps, so anything that is not a whole count leaves
+  // the stored number standing rather than replacing it with one the loop
+  // cannot spend.
+  describe('when the turn step budget is written', () => {
+    it('saves a whole number', async () => {
+      await tab.setControlValue('maxTurnSteps', 30)
+
+      expect(updates).toEqual([{ maxTurnSteps: 30 }])
+    })
+
+    it('rejects a fraction, which is not a number of steps', async () => {
+      await tab.setControlValue('maxTurnSteps', 12.5)
+
+      expect(updates).toEqual([])
+    })
+
+    it('rejects a value below one, which would end every turn unstarted', async () => {
+      await tab.setControlValue('maxTurnSteps', 0)
+
+      expect(updates).toEqual([])
+    })
+
+    it('rejects a value that is not a number at all', async () => {
+      await tab.setControlValue('maxTurnSteps', '20')
+
+      expect(updates).toEqual([])
     })
   })
 })

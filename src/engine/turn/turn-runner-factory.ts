@@ -53,6 +53,9 @@ export class TurnRunnerFactory {
     // Session-scoped like the history it indexes into, so a turn records into
     // the store the panel reads.
     private transcriptRepository: TranscriptRepository,
+    // Read per turn rather than snapshotted, so an edit in settings reaches the
+    // next turn of a session already open.
+    private readMaxIterationsFn: () => number | undefined = () => undefined,
   ) {}
 
   // Session-scoped, so a note found in one turn can still be opened in the
@@ -114,6 +117,7 @@ export class TurnRunnerFactory {
       this.turnEnding,
       this.turnProgressPublisher,
       this.transcriptRepository,
+      this.readMaxIterationsFn(),
     )
   }
 

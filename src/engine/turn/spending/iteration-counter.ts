@@ -2,7 +2,7 @@
 // a reply that batches five calls does five things, and the steps list shows
 // five. One number rather than a cap per tool, so a turn that runs out says
 // where it went through the list itself.
-const MAX_ITERATIONS = 20
+const DEFAULT_MAX_ITERATIONS = 20
 // Warns with three left rather than one, so the user can still cancel and
 // rephrase while the turn has room to act on the rephrasing.
 const WARN_AT_REMAINING = 3
@@ -21,6 +21,8 @@ export class IterationCounter {
   // rounded singly cost eighteen where the same calls cost sixteen.
   private used = 0
 
+  constructor(private readonly maxIterations: number = DEFAULT_MAX_ITERATIONS) {}
+
   // The first call in a reply costs one and the rest cost half, so a turn that
   // batches its searches has room left to read what they found. A reply with no
   // tool calls still costs one, since it is a round-trip.
@@ -29,7 +31,7 @@ export class IterationCounter {
   }
 
   isSpent(): boolean {
-    return this.spent() >= MAX_ITERATIONS
+    return this.spent() >= this.maxIterations
   }
 
   // Rounded only here, where the total is read, rather than as it accumulates.
@@ -53,10 +55,10 @@ export class IterationCounter {
   }
 
   private remaining(): number {
-    return Math.max(MAX_ITERATIONS - this.spent(), 0)
+    return Math.max(this.maxIterations - this.spent(), 0)
   }
 
-  static max(): number {
-    return MAX_ITERATIONS
+  max(): number {
+    return this.maxIterations
   }
 }

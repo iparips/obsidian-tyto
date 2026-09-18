@@ -121,4 +121,18 @@ describe('IterationCounter', () => {
       expect(counter.warning()).toBe('Tyto is taking longer than usual: 3 steps left this turn.')
     })
   })
+
+  describe('when the user has set their own budget', () => {
+    it('spends the budget it was given rather than the default', () => {
+      counter = new IterationCounter(5)
+
+      spend(5)
+
+      expect(counter.isSpent()).toBe(true)
+    })
+
+    it('reports the budget it was given, which is what an exhausted turn names', () => {
+      expect(new IterationCounter(5).max()).toBe(5)
+    })
+  })
 })
