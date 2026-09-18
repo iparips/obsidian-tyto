@@ -20,7 +20,9 @@ import { AllowedObsidianCommand } from '../../../commands/models/allowed-obsidia
 // does reading an applied edit back as state that was already there. The rule
 // against repeating a call that succeeded re-records it again: a turn sent
 // resolve_date four times over, spending a fifth of its budget re-asking a
-// question it already had the answer to.
+// question it already had the answer to. Extending that rule to a reworded
+// argument re-records it once more: the same turn asked for one day under six
+// phrasings, and only two of them were literal repeats.
 import RELEASE_3_PROMPT from './fixtures/release-3-prompt.txt?raw'
 
 const aNote = (): NoteDetails => new NoteDetails('note.md', '# Budget\n\nbody', { line: 2, ch: 0 })
@@ -529,6 +531,14 @@ describe('the prompt messages', () => {
       const prompt = systemPromptText()
 
       expect(prompt).toContain('A call that succeeded has answered.')
+    })
+
+    // Only two of the six calls were literal repeats. The rest reworded the
+    // argument, which the same-arguments rule does not reach.
+    it('tells the model a reworded argument asks the same question', () => {
+      const prompt = systemPromptText()
+
+      expect(prompt).toContain('Rewording the arguments is the same')
     })
 
     it('produces the release 3 prompt when commands and search are absent', () => {

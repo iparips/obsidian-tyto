@@ -40,7 +40,9 @@ export class ModelsRole {
       'where nothing you can do satisfies it, stop and say what you need.',
       'A call that succeeded has answered. Sending it again with the same arguments',
       'returns what you already have and spends a step doing it, so read the result you',
-      'were given rather than asking a second time.',
+      'were given rather than asking a second time. Rewording the arguments is the same',
+      'question again: a tool that resolved a date from one phrase has told you that date,',
+      'and a second phrase for the same day cannot tell you more.',
       ModelsRole.reach(commands, searchEnabled),
       'When you are done, respond with a one-sentence summary of what changed.',
     ].join('\n')

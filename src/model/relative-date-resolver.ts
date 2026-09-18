@@ -58,11 +58,14 @@ export class RelativeDateResolver {
   }
 
   // Taking the first would be choosing for the user, so both are named and the
-  // model asks which.
+  // model asks which. The last sentence is the one nothingParsed already
+  // carries: a turn met this refusal and answered it with five more wordings of
+  // the same day, spending eight steps on a date its first call had returned.
   private static tooManyParsed(phrase: string, results: ParsedResult[]): UnresolvedDate {
     const dates = results.map((result) => new ResolvedDate(phrase, result.start.date()).isoDate())
     return new UnresolvedDate(
-      `"${phrase}" names more than one date: ${dates.join(' and ')}. Ask the user which one they mean.`,
+      `"${phrase}" names more than one date: ${dates.join(' and ')}. Ask the user which one they mean, ` +
+        `rather than rewording the phrase: a rewording is a new question about the same day, and the day you already resolved is the answer.`,
     )
   }
 

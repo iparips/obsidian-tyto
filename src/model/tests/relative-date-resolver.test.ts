@@ -76,9 +76,15 @@ describe('RelativeDateResolver', () => {
     })
 
     it('names both dates when a phrase parses to two, rather than taking the first', () => {
-      expect(reasonOf('Friday or Saturday')).toBe(
-        '"Friday or Saturday" names more than one date: 2026-09-11 and 2026-09-12. Ask the user which one they mean.',
+      expect(reasonOf('Friday or Saturday')).toContain(
+        '"Friday or Saturday" names more than one date: 2026-09-11 and 2026-09-12.',
       )
+    })
+
+    // A turn answered this refusal with five more wordings of the same day,
+    // spending eight of its twenty steps on a date its first call had returned.
+    it('says to ask rather than reword, since a rewording asks the same question', () => {
+      expect(reasonOf('Friday or Saturday')).toContain('rather than rewording the phrase')
     })
 
     // One result, so the count cannot catch it: a bare month name knows a month
