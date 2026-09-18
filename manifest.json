@@ -1,7 +1,7 @@
 {
   "id": "tyto",
   "name": "Tyto",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "minAppVersion": "1.13.0",
   "description": "Talk to your notes. Edit text, format structure, and ask questions about what's in them.",
   "author": "Ilya Paripsa",
