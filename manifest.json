@@ -5,5 +5,7 @@
   "minAppVersion": "1.13.0",
   "description": "Edit your notes by voice. Speak an instruction and the note changes, with no fixed command phrases.",
   "author": "Ilya Paripsa",
+  "authorUrl": "https://github.com/iparips",
+  "fundingUrl": "https://github.com/sponsors/iparips",
   "isDesktopOnly": false
 }
