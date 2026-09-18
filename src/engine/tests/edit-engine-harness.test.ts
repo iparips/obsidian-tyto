@@ -33,6 +33,7 @@ import {
 import { EditEngine } from '../edit-engine'
 
 const DAILY = 'Journal/2026-09-02.md'
+const SHOPPING = 'Lists/shopping.md'
 
 // The sequence the provider rejects: a tool result must follow the assistant
 // message that called it, so anything appended between the two ends the turn.
@@ -47,6 +48,7 @@ const systemMessagesSplittingToolPairsIn = (sent: readonly ChatMessage[]): strin
 describe('EditEngine', () => {
   let editor: FakeEditor
   let dailyEditor: FakeEditor
+  let shoppingEditor: FakeEditor
   let complete: Mock<Parameters<ChatProvider['complete']>, ReturnType<ChatProvider['complete']>>
   let registry: FakeCommandRegistry
   let workspace: FakeWorkspace
@@ -63,8 +65,11 @@ describe('EditEngine', () => {
     vi.clearAllMocks()
     editor = new FakeEditor('# Budget\n\nbody')
     dailyEditor = new FakeEditor('# Today\n\n## Meetings\n')
+    shoppingEditor = new FakeEditor('# Shopping\n\n- milk\n')
     complete = vi.fn()
-    registry = new FakeCommandRegistry().withCommand('daily-notes:goto-today', 'Open today')
+    registry = new FakeCommandRegistry()
+      .withCommand('daily-notes:goto-today', 'Open today')
+      .withCommand('daily-notes:goto-shopping', 'Open shopping')
     workspace = new FakeWorkspace('note.md')
     vault = new FakeVault()
     instructionVault = new FakeVault()
@@ -76,12 +81,23 @@ describe('EditEngine', () => {
     noteLocator = new FakeNoteLocator()
       .withOpenNote('note.md', editor)
       .withOpenNote(DAILY, dailyEditor)
+      .withOpenNote(SHOPPING, shoppingEditor)
   })
 
   const opensDailyNote = () => {
     registry.executeCommandById = (id: string) => {
       registry.executed.push(id)
       workspace.finishesOpening(DAILY)
+      return true
+    }
+  }
+
+  // A note per command, so a batch of two commands moves the target twice where
+  // the single-note helper would move it once and then find it already there.
+  const opensANotePerCommand = (notesByCommandId: Record<string, string>) => {
+    registry.executeCommandById = (id: string) => {
+      registry.executed.push(id)
+      workspace.finishesOpening(notesByCommandId[id])
       return true
     }
   }
@@ -136,6 +152,8 @@ describe('EditEngine', () => {
 
   const runCommand = () =>
     aToolTurn(aToolCall('run_command', { command_id: 'daily-notes:goto-today' }))
+
+  const commandOpening = (commandId: string) => aToolCall('run_command', { command_id: commandId })
 
   describe('when a command opens a note', () => {
     beforeEach(() => {
@@ -228,6 +246,283 @@ describe('EditEngine', () => {
       await engineOf().processUtterance('run the command')
 
       expect(steps).toContain('Ran command: Open today')
+    })
+  })
+
+  // A step reads its note once, so a second note opened inside that step leaves
+  // every following call anchored to a note the model was never shown.
+  describe('when a step moves the target', () => {
+    const editsTheTarget = () => aToolCall('insert_at', { location: 'note_end', content: '\nx' })
+
+    describe('when a batch runs two commands, each opening a note', () => {
+      beforeEach(() => {
+        opensANotePerCommand({
+          'daily-notes:goto-today': DAILY,
+          'daily-notes:goto-shopping': SHOPPING,
+        })
+      })
+
+      it('leaves the target on the note the first command opened', async () => {
+        respondsWith(
+          aToolTurn(
+            commandOpening('daily-notes:goto-today'),
+            commandOpening('daily-notes:goto-shopping'),
+          ),
+        )
+
+        await engineOf().processUtterance('open my daily note and my shopping list')
+
+        expect(sessions.targetNote()).toBe(DAILY)
+      })
+
+      it('never runs the second command, so the second note is never opened', async () => {
+        respondsWith(
+          aToolTurn(
+            commandOpening('daily-notes:goto-today'),
+            commandOpening('daily-notes:goto-shopping'),
+          ),
+        )
+
+        await engineOf().processUtterance('open my daily note and my shopping list')
+
+        expect(registry.executed).toEqual(['daily-notes:goto-today'])
+      })
+
+      it('names both notes in the refusal the model reads', async () => {
+        respondsWith(
+          aToolTurn(
+            commandOpening('daily-notes:goto-today'),
+            commandOpening('daily-notes:goto-shopping'),
+          ),
+        )
+
+        await engineOf().processUtterance('open my daily note and my shopping list')
+
+        const results = complete.mock.calls[1][0].filter((m: ChatMessage) => m.isToolResult())
+        expect(results[1].content).toBe(
+          `One note per step. Running that opened ${DAILY}, and the note this step ` +
+            'was read against was note.md, so this call would act on a note you ' +
+            `have not been shown. Send it on the next step, which reads ${DAILY} first.`,
+        )
+      })
+
+      it('publishes a refused line for the second command', async () => {
+        respondsWith(
+          aToolTurn(
+            commandOpening('daily-notes:goto-today'),
+            commandOpening('daily-notes:goto-shopping'),
+          ),
+        )
+
+        await engineOf().processUtterance('open my daily note and my shopping list')
+
+        expect(steps.filter((step) => step.startsWith('Refused'))).toEqual([
+          expect.stringContaining('One note per step'),
+        ])
+      })
+
+      it('keeps the turn going rather than ending it stuck', async () => {
+        respondsWith(
+          aToolTurn(
+            commandOpening('daily-notes:goto-today'),
+            commandOpening('daily-notes:goto-shopping'),
+          ),
+        )
+
+        const outcome = await engineOf().processUtterance('open both notes')
+
+        expect(outcome).toEqual(Outcomes.success('done'))
+      })
+    })
+
+    // Neither refusal reaches RepeatedRefusalCounter, which would otherwise end
+    // the turn on the second identical one.
+    describe('when a batch runs three commands, each opening a note', () => {
+      beforeEach(() => {
+        opensANotePerCommand({
+          'daily-notes:goto-today': DAILY,
+          'daily-notes:goto-shopping': SHOPPING,
+          'daily-notes:goto-archive': 'Lists/archive.md',
+        })
+        registry.withCommand('daily-notes:goto-archive', 'Open archive')
+        noteLocator.withOpenNote('Lists/archive.md', new FakeEditor('# Archive\n'))
+      })
+
+      it('runs the first alone, so the second and third are both refused', async () => {
+        respondsWith(
+          aToolTurn(
+            commandOpening('daily-notes:goto-today'),
+            commandOpening('daily-notes:goto-shopping'),
+            commandOpening('daily-notes:goto-archive'),
+          ),
+        )
+
+        await engineOf().processUtterance('open all three')
+
+        expect(registry.executed).toEqual(['daily-notes:goto-today'])
+      })
+
+      it('keeps the turn going, since neither refusal is recorded as repeated', async () => {
+        respondsWith(
+          aToolTurn(
+            commandOpening('daily-notes:goto-today'),
+            commandOpening('daily-notes:goto-shopping'),
+            commandOpening('daily-notes:goto-archive'),
+          ),
+        )
+
+        const outcome = await engineOf().processUtterance('open all three')
+
+        expect(outcome).toEqual(Outcomes.success('done'))
+      })
+    })
+
+    describe('when a command opens a note and an edit follows it in the batch', () => {
+      beforeEach(() => {
+        opensDailyNote()
+      })
+
+      it('refuses the edit, since the target moved ahead of it', async () => {
+        respondsWith(aToolTurn(commandOpening('daily-notes:goto-today'), editsTheTarget()))
+
+        await engineOf().processUtterance('open my daily note and add a line')
+
+        const results = complete.mock.calls[1][0].filter((m: ChatMessage) => m.isToolResult())
+        expect(results[1].content).toContain('One note per step')
+      })
+
+      it('leaves the note the step was read against unwritten', async () => {
+        respondsWith(aToolTurn(commandOpening('daily-notes:goto-today'), editsTheTarget()))
+
+        await engineOf().processUtterance('open my daily note and add a line')
+
+        expect(editor.content).toBe('# Budget\n\nbody')
+      })
+
+      it('leaves the note the command opened unwritten', async () => {
+        respondsWith(aToolTurn(commandOpening('daily-notes:goto-today'), editsTheTarget()))
+
+        await engineOf().processUtterance('open my daily note and add a line')
+
+        expect(dailyEditor.content).toBe('# Today\n\n## Meetings\n')
+      })
+    })
+
+    describe('when an edit runs before the command that opens a note', () => {
+      beforeEach(() => {
+        opensDailyNote()
+      })
+
+      it('applies the edit, since nothing had moved when it was dispatched', async () => {
+        respondsWith(aToolTurn(editsTheTarget(), commandOpening('daily-notes:goto-today')))
+
+        await engineOf().processUtterance('add a line then open my daily note')
+
+        expect(editor.content).toBe('# Budget\n\nbody\nx')
+      })
+
+      it('runs the command, since the edit moved nothing', async () => {
+        respondsWith(aToolTurn(editsTheTarget(), commandOpening('daily-notes:goto-today')))
+
+        await engineOf().processUtterance('add a line then open my daily note')
+
+        expect(sessions.targetNote()).toBe(DAILY)
+      })
+    })
+  })
+
+  // A command that opened nothing moved no target, so the guard must not latch
+  // on a call that merely might have moved one.
+  describe('when a command opens no note', () => {
+    beforeEach(() => {
+      registry.executeCommandById = (id: string) => {
+        registry.executed.push(id)
+        return true
+      }
+    })
+
+    it('applies the edit that follows it to the note the step was read against', async () => {
+      respondsWith(
+        aToolTurn(
+          commandOpening('daily-notes:goto-today'),
+          aToolCall('insert_at', { location: 'note_end', content: '\nx' }),
+        ),
+      )
+
+      await engineOf().processUtterance('run the command then add a line')
+
+      expect(editor.content).toBe('# Budget\n\nbody\nx')
+    })
+
+    it('publishes no refusal, since the target never moved', async () => {
+      respondsWith(
+        aToolTurn(
+          commandOpening('daily-notes:goto-today'),
+          aToolCall('insert_at', { location: 'note_end', content: '\nx' }),
+        ),
+      )
+
+      await engineOf().processUtterance('run the command then add a line')
+
+      expect(steps.filter((step) => step.startsWith('Refused'))).toEqual([])
+    })
+
+    it('runs a second command that does open one, since nothing had moved', async () => {
+      registry.executeCommandById = (id: string) => {
+        registry.executed.push(id)
+        if (id === 'daily-notes:goto-shopping') workspace.finishesOpening(SHOPPING)
+        return true
+      }
+      respondsWith(
+        aToolTurn(
+          commandOpening('daily-notes:goto-today'),
+          commandOpening('daily-notes:goto-shopping'),
+        ),
+      )
+
+      await engineOf().processUtterance('run both commands')
+
+      expect(sessions.targetNote()).toBe(SHOPPING)
+    })
+  })
+
+  // The session binds before the path is resolved, so an unresolvable retarget
+  // moves the session's target and leaves the turn's note where it was. Reading
+  // the turn's note here would let the following edit through.
+  describe('when a command opens a note the vault cannot resolve', () => {
+    beforeEach(() => {
+      registry.executeCommandById = (id: string) => {
+        registry.executed.push(id)
+        workspace.finishesOpening('Lists/unreachable.canvas')
+        return true
+      }
+    })
+
+    it('refuses the edit that follows it', async () => {
+      respondsWith(
+        aToolTurn(
+          commandOpening('daily-notes:goto-today'),
+          aToolCall('insert_at', { location: 'note_end', content: '\nx' }),
+        ),
+      )
+
+      await engineOf().processUtterance('open it and add a line')
+
+      const results = complete.mock.calls[1][0].filter((m: ChatMessage) => m.isToolResult())
+      expect(results[1].content).toContain('One note per step')
+    })
+
+    it('leaves the note the step was read against unwritten', async () => {
+      respondsWith(
+        aToolTurn(
+          commandOpening('daily-notes:goto-today'),
+          aToolCall('insert_at', { location: 'note_end', content: '\nx' }),
+        ),
+      )
+
+      await engineOf().processUtterance('open it and add a line')
+
+      expect(editor.content).toBe('# Budget\n\nbody')
     })
   })
 
