@@ -11,32 +11,33 @@ The plan for [5-design-stable-step-target.md](5-design-stable-step-target.md). T
 
 Three files, split by what each already wires. None of the three needs a new fake.
 
-| File                                   | Carries                                          | Why there                                             |
-| -------------------------------------- | ------------------------------------------------ | ----------------------------------------------------- |
-| edit-engine-harness.test.ts            | The run_command cases, including opened nothing  | Already drives a command that opens a note, and one that opens none |
-| edit-engine-model-chosen.test.ts       | The open_note cases                              | Already runs glob, choose and open end to end          |
-| edit-engine.test.ts                    | The single-edit rule, unchanged                  | The three-edit batch stays as the regression it is     |
-| system-prompt.test.ts                  | The prompt line, if it lands                     | Holds the release 3 fixture assertion                  |
+| File                             | Carries                                         | Why there                                                           |
+| -------------------------------- | ----------------------------------------------- | ------------------------------------------------------------------- |
+| edit-engine-harness.test.ts      | The run_command cases, including opened nothing | Already drives a command that opens a note, and one that opens none |
+| edit-engine-model-chosen.test.ts | The open_note cases                             | Already runs glob, choose and open end to end                       |
+| edit-engine.test.ts              | The single-edit rule, unchanged                 | The three-edit batch stays as the regression it is                  |
+| system-prompt.test.ts            | The prompt line, if it lands                    | Holds the release 3 fixture assertion                               |
 
 The harness file's second note is DAILY, and its opensDailyNote helper rebinds executeCommandById to finish the open. A second command opening a second note needs one more registered command and one more note in the locator, which is the only new wiring in the plan.
 
 ## ToolCallExecutor.executeToolCalls
 
 ```text
-targetAtLastCall = session.targetNote()
+targetAtStepStart = session.targetNote()
 editApplied = false
 for each call:
-  if session.targetNote() != targetAtLastCall:
+  if session.targetNote() != targetAtStepStart:
     refuse, naming both paths; do not record against refusals
   else if call.isEditTool() and editApplied:
     refuse with the one-edit reason; do not record against refusals
   else:
     dispatch, append the result, store the edit end, record the refusal
     editApplied = editApplied or call.isEditTool()
-  targetAtLastCall = session.targetNote()
 ```
 
-The move is read after every call rather than only after a dispatch, so a refused call cannot leave the comparison stale.
+The comparison is against the step's own target, read once before the loop and never reassigned. That is the note ModelService (Engine Turn) read at the step's start, which is what every call in the step is anchored against.
+
+Re-reading into the same local after each call would make the guard dead. The first move updates it, so the next comparison finds the target where it was just left and refuses nothing.
 
 ### Test outline
 

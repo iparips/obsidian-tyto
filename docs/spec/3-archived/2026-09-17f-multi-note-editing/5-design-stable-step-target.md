@@ -15,7 +15,7 @@ None. This repo has no feature flags and no flag registry, so the Feature flag a
 
 ## Where the guard reads the move
 
-The guard reads SessionRepository.targetNote (Session), per D5, and compares it before and after each call.
+The guard reads SessionRepository.targetNote (Session), per D5. It reads it once before the loop, then again at the top of each call, and refuses when the two differ.
 
 SessionRepository.bindTo runs unconditionally inside ToolDispatcher.moveSessionTargetNoteTo (Engine), so the session's path moves on every retarget. TurnRepository.retargetTo (Engine Turn) runs only when the path resolves; where it does not, cannotWriteTo is set and TurnRepository.targetNote still answers the note it held. That case is still a moved target, so reading the turn's note would let it through.
 
@@ -24,22 +24,22 @@ SessionRepository.bindTo runs unconditionally inside ToolDispatcher.moveSessionT
 One loop, two guards, different shapes. That is the cost D4 named and D6 accepts.
 
 - The edit rule reads a ToolCall before dispatch. isSecondEditIn (Engine Turn) asks what the call is, and refuses it without running.
-- The retarget rule reads the session's target around dispatch, because nothing about a call says whether it will move the target.
+- The retarget rule reads the session's target at the top of each call and compares it to the step's, because nothing about a call says whether it will move the target.
 
-The edit rule does not move to match: running the second edit to discover it was a second edit is the duplicated write it prevents. The loop therefore holds two pieces of per-step state, whether an edit has applied and the path as it stood after the last call.
+The edit rule does not move to match: running the second edit to discover it was a second edit is the duplicated write it prevents. The loop therefore holds two pieces of per-step state, whether an edit has applied and the path the step was read against.
 
 ## Behaviour change
 
-| Concern                          | Today                                                     | New                                                                  |
-| -------------------------------- | --------------------------------------------------------- | -------------------------------------------------------------------- |
-| Second retargeting call in a step | Runs, and moves the target again                          | Refused before dispatch, with the reason as its tool result           |
-| Edit following a retarget in a step | Runs, anchored against the previous note's text           | Refused, since the target moved ahead of it                          |
-| Command that opened nothing      | Runs, target untouched                                    | Unchanged: no move, so what follows still runs                        |
-| First retargeting call of a step | Runs                                                      | Unchanged                                                             |
-| Search or read after a retarget  | Runs                                                      | Refused, as the guard covers every call after a move                  |
-| RepeatedRefusalCounter           | Sees a no-op command's refusal                            | Unchanged; the new refusal is not recorded, as refuseSecondEdit is not |
-| IterationCounter                 | Spends one per call in the batch, refused or not          | Unchanged, per D3                                                     |
-| Panel                            | One retarget line per move                                | A refused line per call after the move                                |
+| Concern                             | Today                                            | New                                                                    |
+| ----------------------------------- | ------------------------------------------------ | ---------------------------------------------------------------------- |
+| Second retargeting call in a step   | Runs, and moves the target again                 | Refused before dispatch, with the reason as its tool result            |
+| Edit following a retarget in a step | Runs, anchored against the previous note's text  | Refused, since the target moved ahead of it                            |
+| Command that opened nothing         | Runs, target untouched                           | Unchanged: no move, so what follows still runs                         |
+| First retargeting call of a step    | Runs                                             | Unchanged                                                              |
+| Search or read after a retarget     | Runs                                             | Refused, as the guard covers every call after a move                   |
+| RepeatedRefusalCounter              | Sees a no-op command's refusal                   | Unchanged; the new refusal is not recorded, as refuseSecondEdit is not |
+| IterationCounter                    | Spends one per call in the batch, refused or not | Unchanged, per D3                                                      |
+| Panel                               | One retarget line per move                       | A refused line per call after the move                                 |
 
 The fifth row is the widest consequence and is deliberate. The refusal is about the step's read being stale, and a read_note or a glob after a move is answering against a target the model no longer holds. Narrowing the guard to edits and retargets would need a second predicate saying which calls tolerate a moved target, and nothing in the tool list today does.
 
@@ -55,9 +55,10 @@ sequenceDiagram
 
     Runner->>Executor: executeToolCalls
     Executor->>Session: targetNote
-    Note over Executor: targetAtLastCall holds that path
+    Note over Executor: targetAtStepStart holds that path, and is never reassigned
     loop each call in the batch
-        alt the target moved during the previous call
+        Executor->>Session: targetNote
+        alt the target moved earlier in this step
             Executor->>Panel: publishProgressLineFn
             Executor->>Session: appendChatMessage
             Note over Executor: the reason names both paths
@@ -73,8 +74,6 @@ sequenceDiagram
             Dispatcher-->>Executor: ToolCallOutcome
             Executor->>Session: appendChatMessage
         end
-        Executor->>Session: targetNote
-        Note over Executor: re-read after every call, refused or not
     end
     Executor-->>Runner: void
     Note over Runner: spendOn counts the whole batch, refused calls included

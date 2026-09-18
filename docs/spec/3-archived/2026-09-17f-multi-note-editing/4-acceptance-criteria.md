@@ -60,7 +60,27 @@ Landed in 79e505c. A run of identical reads means the empty-note message is not 
 ```gherkin
 Given the same utterance naming three notes
 When  the turn ends
-Then  it used fewer than twelve steps
+Then  it used fewer than twelve steps, counting neither a skill-gating refusal,
+      nor the load_skill that answers it, nor the call it forced to be repeated
 ```
 
 The interleaved shape costs about six against a cap of twenty. Near the cap means the model is retrying something rather than progressing, and the panel's step list says what.
+
+Skill gating is excluded because it is not this spec's cost. A note whose skill has not been read costs three steps before any work happens: the refusal, the load, and the re-run. Those three would be spent reaching the same note in a turn of its own, so counting them measures how many skills the utterance touched rather than whether the turn progressed.
+
+## The three-note baseline
+
+Run on 2026-09-18, mistral-medium-latest, against the real vault. One utterance naming a shopping list, a todo and today's daily note. All five checks pass.
+
+| Measure                     | Observed |
+| --------------------------- | -------- |
+| Notes named                 | 3        |
+| Notes written               | 3        |
+| Steps, total                | 15       |
+| Steps, excluding gating     | 6        |
+| Steps that retargeted twice | 0        |
+| Refusals from the new guard | 0        |
+
+Six steps excluding gating is what the design predicted. The other nine are three skills at three steps each: a refusal, a load_skill, and the run_command repeated.
+
+The guard never fired, which is the outcome the rollout was watching for. The model reached one note, edited it, then reached the next, without the prompt line. That is what settles commit 2: the refusal was never needed, so the line that would save a wasted step has no wasted step to save.
