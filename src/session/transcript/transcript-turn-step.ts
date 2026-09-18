@@ -1,7 +1,7 @@
 import { ChatMessage, ToolCall } from '../../model/providers/types'
 import { ProgressLine } from '../models/panel-state'
 import { LoadedSkills } from './loaded-skills'
-import { PartName, RecordedEnding, RecordedTurnStep } from './models/transcript-record'
+import { PartName, RecordedEnding, RecordedTurnStep, StepCharge } from './models/transcript-record'
 import { TranscriptEntryLines } from './transcript-entry-lines'
 
 // A step whose provider call failed appended nothing, so the slice is empty by
@@ -45,7 +45,7 @@ export class TranscriptTurnStep {
       '',
       ...TranscriptTurnStep.request(step, history.sent, skills),
       '',
-      ...TranscriptTurnStep.response(history.answered),
+      ...TranscriptTurnStep.response(history.answered, step.charge),
       '',
       ...TranscriptTurnStep.harness(progressLines, ending, history.harnessNotes),
     ]
@@ -70,11 +70,12 @@ export class TranscriptTurnStep {
 
   // Read off the history rather than stored: the model's answer is already
   // written there, and storing it twice would let the two disagree.
-  private static response(answered: readonly ChatMessage[]): string[] {
+  private static response(answered: readonly ChatMessage[], charge: StepCharge | null): string[] {
+    const opening = ['Response from model', ...budgetLines(charge)]
     const spoke = answered.filter((message) => message.hasToolCalls() || isModelText(message))
-    if (spoke.length === 0) return ['Response from model', `- ${NO_REPLY_RECORDED}`]
-    if (spoke.every(saidNothing)) return ['Response from model', `- ${AN_EMPTY_REPLY}`]
-    return ['Response from model', ...spoke.flatMap(responseLines)]
+    if (spoke.length === 0) return [...opening, `- ${chargedNothingRecorded(charge)}`]
+    if (spoke.every(saidNothing)) return [...opening, `- ${AN_EMPTY_REPLY}`]
+    return [...opening, ...spoke.flatMap(responseLines)]
   }
 
   // The Outcome line sits here because the harness is what decides whether the
@@ -126,6 +127,19 @@ const responseLines = (message: ChatMessage): string[] => {
 // off the slice, since such a reply is a message in it rather than an absence.
 const saidNothing = (message: ChatMessage): boolean =>
   message.content === '' && !message.hasToolCalls()
+
+// First in the block, and only where a charge was recorded: a step whose
+// provider call failed drew none, and inventing a number would report a charge
+// the turn never took.
+const budgetLines = (charge: StepCharge | null): string[] => {
+  if (!charge) return []
+  return [`- Spend: ${charge.charged} charged, ${charge.usedAfter} of ${charge.budget} used`]
+}
+
+// An empty slice on a charged step means the harness cannot account for the
+// step, which is a defect in the record rather than a fact about the turn.
+const chargedNothingRecorded = (charge: StepCharge | null): string =>
+  charge ? 'nothing recorded' : NO_REPLY_RECORDED
 
 const toolCallLines = (call: ToolCall): string[] =>
   blockUnder(`- tool call ${call.name}`, 'json', JSON.stringify(call.args, null, 2))

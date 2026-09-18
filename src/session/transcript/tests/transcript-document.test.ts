@@ -7,6 +7,7 @@ import { TranscriptSource } from '../models/transcript-source'
 import {
   RecordedEnding,
   RecordedTurnStep,
+  StepCharge,
   StepRange,
   TranscriptPart,
 } from '../models/transcript-record'
@@ -301,6 +302,70 @@ describe('TranscriptDocument', () => {
       })
 
       expect(document).toContain('- the model returned an empty reply')
+    })
+
+    it('names what the turn has spent and what the budget is, on a step that went fine', () => {
+      const document = documentOf({
+        entries: [{ kind: 'user', text: 'find it' }],
+        history: [
+          ChatMessage.user('find it'),
+          ChatMessage.modelToolCalls([aGlob('**/a.md')]),
+          ChatMessage.toolCallResult('c1', 'a.md'),
+        ],
+        steps: [
+          aStep(0, new StepRange(0, 0), new StepRange(0, -1)).withCharge(new StepCharge(1, 1, 20)),
+          aStep(1, new StepRange(1, 2), new StepRange(0, -1)),
+        ],
+      })
+
+      expect(document).toContain('- Spend: 1 charged, 1 of 20 used')
+    })
+
+    // The case the line exists for: a reader comparing the charge against the
+    // calls listed below it must not read the pair as a contradiction.
+    it('names a charge that carries a half when the reply batched four calls', () => {
+      const document = documentOf({
+        entries: [{ kind: 'user', text: 'find it' }],
+        history: [
+          ChatMessage.user('find it'),
+          ChatMessage.modelToolCalls([aGlob('**/a.md')]),
+          ChatMessage.toolCallResult('c1', 'a.md'),
+        ],
+        steps: [
+          aStep(0, new StepRange(0, 0), new StepRange(0, -1)).withCharge(
+            new StepCharge(2.5, 3, 20),
+          ),
+          aStep(1, new StepRange(1, 2), new StepRange(0, -1)),
+        ],
+      })
+
+      expect(document).toContain('- Spend: 2.5 charged, 3 of 20 used')
+    })
+
+    it('writes no budget line for a step whose provider call drew no charge', () => {
+      const document = documentOf({
+        entries: [{ kind: 'user', text: 'find it' }],
+        history: [ChatMessage.user('find it')],
+        steps: [aStep(0, new StepRange(0, 0), new StepRange(0, -1))],
+        endings: [new RecordedEnding(0, TurnEndingKind.Failed, 0)],
+      })
+
+      expect(document).not.toContain('- Spend:')
+    })
+
+    // The honest fallback: the harness charged the step and kept no reply, which
+    // is a defect in the record rather than a fact about the turn.
+    it('falls back to nothing recorded when a charged step recorded no reply', () => {
+      const document = documentOf({
+        entries: [{ kind: 'user', text: 'find it' }],
+        history: [ChatMessage.user('find it')],
+        steps: [
+          aStep(0, new StepRange(0, 0), new StepRange(0, -1)).withCharge(new StepCharge(1, 1, 20)),
+        ],
+        endings: [new RecordedEnding(0, TurnEndingKind.Exhausted, 0)],
+      })
+
+      expect(document).toContain('- nothing recorded')
     })
 
     it('fences a multi-line tool result, so a listing reads as a list', () => {

@@ -122,6 +122,64 @@ describe('IterationCounter', () => {
     })
   })
 
+  describe('when the running total is read', () => {
+    it('reads zero before anything is spent', () => {
+      expect(counter.spent()).toBe(0)
+    })
+
+    it('reads one after a single call', () => {
+      counter.spend(1)
+
+      expect(counter.spent()).toBe(1)
+    })
+
+    it('reads three after a batch of four, which is a round-trip and three halves', () => {
+      counter.spend(4)
+
+      expect(counter.spent()).toBe(3)
+    })
+
+    // Rounded once when read, so the total the transcript shows is the one the
+    // exhausted message names rather than a sum of rounded steps.
+    it('reads three after two batches of two, rather than the four rounding each would give', () => {
+      counter.spend(2)
+      counter.spend(2)
+
+      expect(counter.spent()).toBe(3)
+    })
+  })
+
+  describe('when the last charge is read', () => {
+    it('charges zero before anything is spent, so an uncharged step reads as one', () => {
+      expect(counter.chargeOfLastSpend()).toBe(0)
+    })
+
+    it('charges two and a half for a batch of four, which is what the budget line shows', () => {
+      counter.spend(4)
+
+      expect(counter.chargeOfLastSpend()).toBe(2.5)
+    })
+
+    it('charges one for a single call', () => {
+      counter.spend(1)
+
+      expect(counter.chargeOfLastSpend()).toBe(1)
+    })
+
+    it('charges one for a reply that sent no call, since a round-trip is a round-trip', () => {
+      counter.spend(0)
+
+      expect(counter.chargeOfLastSpend()).toBe(1)
+    })
+
+    it('charges the most recent spend rather than the total', () => {
+      counter.spend(4)
+      counter.spend(1)
+
+      expect(counter.chargeOfLastSpend()).toBe(1)
+    })
+  })
+
   describe('when the user has set their own budget', () => {
     it('spends the budget it was given rather than the default', () => {
       counter = new IterationCounter(5)

@@ -21,13 +21,24 @@ export class IterationCounter {
   // rounded singly cost eighteen where the same calls cost sixteen.
   private used = 0
 
+  // Zero until the first spend, so a step that never reached the counter reads
+  // as uncharged rather than as having drawn a round-trip.
+  private charged = 0
+
   constructor(private readonly maxIterations: number = DEFAULT_MAX_ITERATIONS) {}
 
   // The first call in a reply costs one and the rest cost half, so a turn that
   // batches its searches has room left to read what they found. A reply with no
   // tool calls still costs one, since it is a round-trip.
   spend(calls = 1): void {
-    this.used += 1 + (Math.max(calls, 1) - 1) * BATCHED_CALL_COST
+    this.charged = 1 + (Math.max(calls, 1) - 1) * BATCHED_CALL_COST
+    this.used += this.charged
+  }
+
+  // What the most recent spend drew, recorded as it was charged rather than
+  // recomputed: the transcript names the charge a step actually took.
+  chargeOfLastSpend(): number {
+    return this.charged
   }
 
   isSpent(): boolean {
@@ -35,7 +46,7 @@ export class IterationCounter {
   }
 
   // Rounded only here, where the total is read, rather than as it accumulates.
-  private spent(): number {
+  spent(): number {
     return Math.ceil(this.used)
   }
 

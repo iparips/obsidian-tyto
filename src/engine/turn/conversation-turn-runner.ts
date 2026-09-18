@@ -9,6 +9,7 @@ import { TurnSpend } from './spending/turn-spend'
 import { TurnOutcomes } from './ending/turn-outcomes'
 import { EndedTurn, TurnStepOutcome, TurnStepOutcomes } from './ending/turn-step-outcome'
 import { TranscriptRepository } from '../../session/transcript/transcript-repository'
+import { StepCharge } from '../../session/transcript/models/transcript-record'
 import { TurnResult } from './ending/turn-result'
 
 // One turn, from the utterance that opened it to the outcome it returns. Holds
@@ -88,8 +89,21 @@ export class ConversationTurnRunner {
 
   private spendOn(spend: TurnSpend, calls: number): void {
     spend.iterationCounter.spend(calls)
+    this.recordCharge(spend)
     if (spend.iterationCounter.justRanLow())
       this.turnProgressPublisher.runningLowFn(spend.iterationCounter.warning())
+  }
+
+  // Recorded where the charge is drawn rather than read at export, which would
+  // give the whole session's total rather than this step's.
+  private recordCharge(spend: TurnSpend): void {
+    this.transcriptRepository.recordCharge(
+      new StepCharge(
+        spend.iterationCounter.chargeOfLastSpend(),
+        spend.iterationCounter.spent(),
+        spend.iterationCounter.max(),
+      ),
+    )
   }
   private endTurnWithModelUtterance(summary: string): EndedTurn {
     return this.turnEndingService.endTurnWithModelUtterance(
