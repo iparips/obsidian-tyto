@@ -47,6 +47,49 @@ describe('PathPattern', () => {
     })
   })
 
+  // A shell glob supports these, so a model that writes Week-3[5-8] is writing
+  // correct glob rather than inventing syntax. Matching them literally cost a
+  // real turn six calls that each returned nothing.
+  describe('when the pattern holds a character class', () => {
+    it('matches a digit in the range, so one pattern reaches several week folders', () => {
+      expect(matches('**/Week-3[4-6]/*.md', FRIDAY)).toBe(true)
+    })
+
+    it('misses a digit outside the range', () => {
+      expect(matches('**/Week-3[6-8]/*.md', FRIDAY)).toBe(false)
+    })
+
+    it('matches a listed character as well as a range', () => {
+      expect(matches('**/Week-3[135]/*.md', FRIDAY)).toBe(true)
+    })
+
+    it('takes two classes in one segment', () => {
+      expect(matches('**/Week-[0-9][0-9]/*.md', FRIDAY)).toBe(true)
+    })
+
+    it('negates on a leading bang, as a shell glob does', () => {
+      expect(matches('**/Week-3[!5]/*.md', FRIDAY)).toBe(false)
+    })
+
+    it('crosses no separator inside a class, since no wildcard here does', () => {
+      expect(matches('1 - Journal[/]Weekly/Week-35/*.md', FRIDAY)).toBe(false)
+    })
+
+    // The class is the wildcard now, so a folder actually named with brackets
+    // is the case that no longer matches literally. Same as a shell.
+    it('reads a bracketed folder name as a class rather than as its own name', () => {
+      expect(matches('Notes [old]/*.md', 'Notes [old]/kept.md')).toBe(false)
+    })
+
+    it('matches an unclosed bracket literally, so a stray one is a folder name', () => {
+      expect(matches('**/Week-3[5-8/*', 'x/Week-3[5-8/todo.md')).toBe(true)
+    })
+
+    it('matches a lone closing bracket literally', () => {
+      expect(matches('**/a]b/*', 'x/a]b/todo.md')).toBe(true)
+    })
+  })
+
   describe('when the case differs', () => {
     it('matches whatever the case, so a recalled lower-case folder still finds it', () => {
       expect(matches('**/week-35/*.md', FRIDAY)).toBe(true)
