@@ -776,7 +776,7 @@ describe('SessionPanel', () => {
       answerListeners.length = 0
     })
 
-    it('renders an answer with its sources when an answer is reported', () => {
+    it('renders the answer when one is reported', () => {
       renderPanel({ onAnswer })
 
       act(() =>
@@ -785,7 +785,7 @@ describe('SessionPanel', () => {
         ),
       )
 
-      expect(screen.getByLabelText('Answer sources').textContent).toBe('From 1 note')
+      expect(screen.getByText('It was 12k.')).toBeDefined()
     })
 
     // The answer block is already on the panel by the time the turn ends, so

@@ -1,12 +1,10 @@
 import { useState } from 'react'
 import { PanelEntry } from '../models/panel-state'
 import { EntryWeights } from '../models/entry-weight'
-import { EntrySources } from './EntrySources'
 import { EntryChoice } from './EntryChoice'
 import { EntrySuggestions } from './EntrySuggestions'
 import { EntryText } from './EntryText'
 import { MarkdownRenderFn } from './markdown-render'
-import { OpenSourceNoteFn } from './open-source-note'
 
 const ENTRY_CLASSES = {
   user: 'tyto-entry-user',
@@ -37,7 +35,6 @@ export interface HistoryEntryProps {
   onPickSuggestion?: (suggestion: string) => void
   onRetry?: () => void
   renderMarkdownFn?: MarkdownRenderFn
-  onOpenSource?: OpenSourceNoteFn
 }
 
 export const HistoryEntry = ({
@@ -46,7 +43,6 @@ export const HistoryEntry = ({
   onPickSuggestion,
   onRetry,
   renderMarkdownFn,
-  onOpenSource,
 }: HistoryEntryProps) => {
   const [copied, setCopied] = useState(false)
   const text = entryText(entry)
@@ -68,9 +64,6 @@ export const HistoryEntry = ({
     <div className={`tyto-entry tyto-entry-${weight} ${ENTRY_CLASSES[entry.kind]}`}>
       <div className="tyto-entry-body">
         <EntryText text={text} renderMarkdownFn={renderMarkdownFn} />
-        {entry.kind === 'answer' && (
-          <EntrySources sources={entry.sources} onOpenSource={onOpenSource} />
-        )}
         {entry.kind === 'choice' && entry.pending && onChooseNote && (
           <EntryChoice candidates={entry.candidates} onChoose={onChooseNote} />
         )}

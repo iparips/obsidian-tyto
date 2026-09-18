@@ -4,8 +4,6 @@ import { SessionPanel, SessionPanelProps } from '../SessionPanel'
 import { TYTO_ICON } from './tyto-icon'
 import { entryMarkdownRender } from './entry-markdown-render'
 import { MarkdownRenderFn } from '../markdown-render'
-import { OpenSourceNoteFn } from '../open-source-note'
-import { openSourceNote } from './open-source-note'
 
 export const VIEW_TYPE_SESSION = 'tyto-session'
 
@@ -20,7 +18,6 @@ export class SessionView extends ItemView {
   // ItemView's constructor has set it. Held after that, because a new function
   // each render would restart every entry through the effect depending on it.
   private markdownRender: MarkdownRenderFn | null = null
-  private openSource: OpenSourceNoteFn | null = null
   private panelProps: SessionPanelProps | null = null
   // Bumped on every bind, and the panel's whole key, so an unbound session needs
   // no note name to remount and clear the entries on screen.
@@ -105,11 +102,6 @@ export class SessionView extends ItemView {
     return this.markdownRender
   }
 
-  private onOpenSource(): OpenSourceNoteFn {
-    this.openSource ??= openSourceNote(this.app)
-    return this.openSource
-  }
-
   private renderPanel(): void {
     if (!this.root) return
     if (!this.panelProps) return
@@ -117,12 +109,7 @@ export class SessionView extends ItemView {
     // Supplied here rather than by wiring: the renderer needs the app, and the
     // view is the only part of the panel that already holds one.
     this.root.render(
-      <SessionPanel
-        key={key}
-        {...this.panelProps}
-        renderMarkdownFn={this.renderMarkdownFn()}
-        onOpenSource={this.onOpenSource()}
-      />,
+      <SessionPanel key={key} {...this.panelProps} renderMarkdownFn={this.renderMarkdownFn()} />,
     )
   }
 }
