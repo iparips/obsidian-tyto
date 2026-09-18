@@ -5,11 +5,13 @@ import { SessionPanel, RecorderPort, SessionPanelProps } from '../SessionPanel'
 import { Utterance } from '../../../recorder'
 import { Attempt, Outcome, Outcomes } from '../../../shared/models/outcome'
 import { RetargetReport } from '../../session-listeners'
+import { TurnResult } from '../../../engine/turn/ending/turn-result'
+import { aTurnResult } from '../../../test-support/builders'
 
 describe('SessionPanel', () => {
   let recorder: RecorderPort
   let transcribe: Mock<[Blob, string], Promise<Attempt<string>>>
-  let processUtterance: Mock<[string], Promise<Outcome<string>>>
+  let processUtterance: Mock<[string], Promise<TurnResult>>
 
   beforeEach(() => {
     vi.clearAllMocks()
@@ -20,7 +22,7 @@ describe('SessionPanel', () => {
       stream: vi.fn().mockReturnValue(null),
     }
     transcribe = vi.fn().mockResolvedValue(Outcomes.success('spoken words'))
-    processUtterance = vi.fn().mockResolvedValue(Outcomes.success('made the edit'))
+    processUtterance = vi.fn().mockResolvedValue(aTurnResult(Outcomes.success('made the edit')))
   })
 
   const hiddenListeners: (() => void)[] = []
@@ -144,7 +146,7 @@ describe('SessionPanel', () => {
     })
 
     it('renders an error entry naming the step when an outcome fails', async () => {
-      processUtterance.mockResolvedValue(Outcomes.failure('chat', 'model unavailable'))
+      processUtterance.mockResolvedValue(aTurnResult(Outcomes.failure('chat', 'model unavailable')))
       renderPanel()
       await userEvent.click(screen.getByRole('button', { name: 'Record' }))
 
@@ -284,9 +286,9 @@ describe('SessionPanel', () => {
 
   describe('when typing', () => {
     it('offers no send button while a turn is thinking', async () => {
-      let resolveTurn: (value: Outcome<string>) => void = () => undefined
+      let resolveTurn: (value: TurnResult) => void = () => undefined
       processUtterance.mockReturnValue(
-        new Promise<Outcome<string>>((resolve) => (resolveTurn = resolve)),
+        new Promise<TurnResult>((resolve) => (resolveTurn = resolve)),
       )
       renderPanel()
       await userEvent.type(screen.getByRole('textbox', { name: 'Instruction' }), 'do it')
@@ -294,7 +296,7 @@ describe('SessionPanel', () => {
       await userEvent.click(screen.getByRole('button', { name: 'Send' }))
 
       expect(screen.queryByRole('button', { name: 'Send' })).toBeNull()
-      resolveTurn(Outcomes.success('ok'))
+      resolveTurn(aTurnResult(Outcomes.success('ok')))
       await waitFor(() => expect(screen.getByText('ok')).toBeTruthy())
     })
 
@@ -310,13 +312,13 @@ describe('SessionPanel', () => {
 
   describe('when cancelling', () => {
     let cancelTurn: Mock<[], void>
-    let resolveTurn: (value: Outcome<string>) => void
+    let resolveTurn: (value: TurnResult) => void
 
     beforeEach(() => {
       cancelTurn = vi.fn()
       resolveTurn = () => undefined
       processUtterance.mockReturnValue(
-        new Promise<Outcome<string>>((resolve) => (resolveTurn = resolve)),
+        new Promise<TurnResult>((resolve) => (resolveTurn = resolve)),
       )
     })
 
@@ -331,7 +333,7 @@ describe('SessionPanel', () => {
 
       expect(screen.getByRole('button', { name: 'Cancel' })).toBeTruthy()
 
-      resolveTurn(Outcomes.success('ok'))
+      resolveTurn(aTurnResult(Outcomes.success('ok')))
       await waitFor(() => expect(screen.getByText('ok')).toBeTruthy())
     })
 
@@ -342,7 +344,7 @@ describe('SessionPanel', () => {
 
       expect(cancelTurn).toHaveBeenCalled()
 
-      resolveTurn(Outcomes.cancelled('chat'))
+      resolveTurn(aTurnResult(Outcomes.cancelled('chat')))
       await waitFor(() => expect(screen.getByText(/Stopped/)).toBeTruthy())
     })
 
@@ -353,7 +355,7 @@ describe('SessionPanel', () => {
 
       expect(screen.getByRole('button', { name: 'Cancel' }).hasAttribute('disabled')).toBe(true)
 
-      resolveTurn(Outcomes.cancelled('chat'))
+      resolveTurn(aTurnResult(Outcomes.cancelled('chat')))
       await waitFor(() => expect(screen.getByText(/Stopped/)).toBeTruthy())
     })
 
@@ -361,7 +363,7 @@ describe('SessionPanel', () => {
       await startTurn()
       await userEvent.click(screen.getByRole('button', { name: 'Cancel' }))
 
-      resolveTurn(Outcomes.cancelled('chat', ['Journal/day.md']))
+      resolveTurn(aTurnResult(Outcomes.cancelled('chat', ['Journal/day.md'])))
 
       await waitFor(() =>
         expect(screen.getByText('Stopped. Already changed: Journal/day.md')).toBeTruthy(),
@@ -372,7 +374,7 @@ describe('SessionPanel', () => {
       await startTurn()
       await userEvent.click(screen.getByRole('button', { name: 'Cancel' }))
 
-      resolveTurn(Outcomes.cancelled('chat'))
+      resolveTurn(aTurnResult(Outcomes.cancelled('chat')))
 
       await waitFor(() => expect(screen.getByText('Stopped. Nothing was changed.')).toBeTruthy())
     })
@@ -381,7 +383,7 @@ describe('SessionPanel', () => {
       await startTurn()
       await userEvent.click(screen.getByRole('button', { name: 'Cancel' }))
 
-      resolveTurn(Outcomes.cancelled('chat'))
+      resolveTurn(aTurnResult(Outcomes.cancelled('chat')))
 
       await waitFor(() => expect(screen.getByRole('button', { name: 'Send' })).toBeTruthy())
     })
@@ -545,7 +547,7 @@ describe('SessionPanel', () => {
     // The turn never settles, so the panel stays in a running phase the way it
     // does while the engine waits on the model.
     beforeEach(() => {
-      processUtterance.mockReturnValue(new Promise<Outcome<string>>(() => undefined))
+      processUtterance.mockReturnValue(new Promise<TurnResult>(() => undefined))
       renderPanel({ onChoiceRequested })
     })
 
@@ -649,7 +651,7 @@ describe('SessionPanel', () => {
     }
 
     beforeEach(() => {
-      processUtterance.mockReturnValue(new Promise<Outcome<string>>(() => undefined))
+      processUtterance.mockReturnValue(new Promise<TurnResult>(() => undefined))
       renderPanel({ onQuestionAsked })
     })
 
@@ -741,7 +743,7 @@ describe('SessionPanel', () => {
 
     it('reports the message when a turn fails', async () => {
       const notifyFailed = vi.fn()
-      processUtterance.mockResolvedValue(Outcomes.failure('chat', 'it broke'))
+      processUtterance.mockResolvedValue(aTurnResult(Outcomes.failure('chat', 'it broke')))
       renderPanel({ notifyFailed })
 
       await userEvent.type(screen.getByLabelText('Instruction'), 'do it{Enter}')
@@ -752,7 +754,7 @@ describe('SessionPanel', () => {
     it('reports nothing when the turn is cancelled, since the user stopped it', async () => {
       const notifySucceeded = vi.fn()
       const notifyFailed = vi.fn()
-      processUtterance.mockResolvedValue(Outcomes.cancelled('chat', []))
+      processUtterance.mockResolvedValue(aTurnResult(Outcomes.cancelled('chat', [])))
       renderPanel({ notifySucceeded, notifyFailed })
 
       await userEvent.type(screen.getByLabelText('Instruction'), 'do it{Enter}')
@@ -952,7 +954,7 @@ describe('SessionPanel', () => {
 
   describe('when a chat failure lands', () => {
     it('offers no retry, since nothing but a transcription has audio behind it', async () => {
-      processUtterance.mockResolvedValue(Outcomes.failure('chat', 'model unavailable'))
+      processUtterance.mockResolvedValue(aTurnResult(Outcomes.failure('chat', 'model unavailable')))
       renderPanel()
       await userEvent.click(screen.getByRole('button', { name: 'Record' }))
 

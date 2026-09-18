@@ -336,7 +336,7 @@ describe('EditEngine', () => {
 
         const outcome = await engineOf().processUtterance('open both notes')
 
-        expect(outcome).toEqual(Outcomes.success('done'))
+        expect(outcome.outcome).toEqual(Outcomes.success('done'))
       })
     })
 
@@ -378,7 +378,7 @@ describe('EditEngine', () => {
 
         const outcome = await engineOf().processUtterance('open all three')
 
-        expect(outcome).toEqual(Outcomes.success('done'))
+        expect(outcome.outcome).toEqual(Outcomes.success('done'))
       })
     })
 
@@ -657,9 +657,9 @@ describe('EditEngine', () => {
       it('ends the turn on the step that answered', async () => {
         respondsWith(aToolTurn(anAnswer('The roofing quote was 12k.')))
 
-        const outcome = await engineOf().processUtterance('what was the roofing quote')
+        const result = await engineOf().processUtterance('what was the roofing quote')
 
-        expect(outcome).toMatchObject({ value: 'The roofing quote was 12k.' })
+        expect(result.outcome).toEqual(Outcomes.success('The roofing quote was 12k.'))
       })
 
       it('makes no further model call', async () => {
@@ -688,9 +688,9 @@ describe('EditEngine', () => {
           aToolTurn(anAnswer('It was 12k.'), aToolCall('glob_notes', { pattern: 'Quotes/*.md' })),
         )
 
-        const outcome = await engineOf().processUtterance('what was the roofing quote')
+        const result = await engineOf().processUtterance('what was the roofing quote')
 
-        expect(outcome).toMatchObject({ value: 'It was 12k.' })
+        expect(result.outcome).toEqual(Outcomes.success('It was 12k.'))
       })
     })
 
@@ -725,9 +725,9 @@ describe('EditEngine', () => {
           ),
         )
 
-        const outcome = await engineOf().processUtterance('what was the roofing quote')
+        const result = await engineOf().processUtterance('what was the roofing quote')
 
-        expect(outcome.succeeded()).toBe(false)
+        expect(result.outcome.succeeded()).toBe(false)
       })
     })
 

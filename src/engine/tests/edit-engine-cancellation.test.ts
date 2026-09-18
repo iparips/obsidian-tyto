@@ -60,7 +60,7 @@ describe('EditEngine cancellation', () => {
 
       engine.cancelTurn()
 
-      expect(await run).toEqual(Outcomes.cancelled('chat', []))
+      expect((await run).outcome).toEqual(Outcomes.cancelled('chat', []))
     })
 
     it('reports itself cancelled rather than failed, so the panel says so', async () => {
@@ -69,7 +69,7 @@ describe('EditEngine cancellation', () => {
 
       engine.cancelTurn()
 
-      expect((await run).hasFailed()).toBe(false)
+      expect((await run).outcome.hasFailed()).toBe(false)
     })
 
     it('records the cancellation in the chat history, so the next turn sees it', async () => {
@@ -103,7 +103,7 @@ describe('EditEngine cancellation', () => {
 
       const second = await engine.processUtterance('try again')
 
-      expect(second).toEqual(Outcomes.success('done'))
+      expect(second.outcome).toEqual(Outcomes.success('done'))
     })
   })
 
@@ -125,7 +125,7 @@ describe('EditEngine cancellation', () => {
 
       engine.cancelTurn()
 
-      expect(await run).toEqual(Outcomes.cancelled('chat', ['note.md']))
+      expect((await run).outcome).toEqual(Outcomes.cancelled('chat', ['note.md']))
     })
 
     it('keeps the edit the turn applied before it stopped', async () => {
@@ -200,7 +200,7 @@ describe('EditEngine cancellation', () => {
 
       const outcome = await engine.processUtterance('hello')
 
-      expect(outcome).toEqual(Outcomes.success('Nothing to do'))
+      expect(outcome.outcome).toEqual(Outcomes.success('Nothing to do'))
     })
 
     it('ignores a cancel that arrives after the turn has finished', async () => {

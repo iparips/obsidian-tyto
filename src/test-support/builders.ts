@@ -28,6 +28,9 @@ import { TranscriptRepository } from '../session/transcript/transcript-repositor
 import { ToolNoteOpening } from '../session/tool-note-opening'
 import { AgentsMdRepository } from '../agents/agents-md-repository'
 import { SkillRepository } from '../skills/skill-repository'
+import { Outcome } from '../shared/models/outcome'
+import { TurnResult } from '../engine/turn/ending/turn-result'
+import { TurnEndingKind } from '../engine/turn/ending/turn-ending-kind'
 import { ChatProvider } from '../model/providers/types'
 import { NoteChoiceService } from '../engine/waiting/note-choice-service'
 import { NoteOpener } from '../engine/note-binding/note-opener'
@@ -124,6 +127,13 @@ export const aTurnState = (
   targetNote: () => targetNote,
   wasWrittenThroughEditor: () => wroteThroughEditor,
 })
+
+// The shape the panel reads off a finished turn. Replied by default, which is
+// every ending the outcome alone used to say.
+export const aTurnResult = (
+  outcome: Outcome<string>,
+  kind: TurnEndingKind = TurnEndingKind.Replied,
+): TurnResult => TurnResult.of(kind, outcome)
 
 export const aSession = (path = 'note.md'): SessionRepository =>
   new SessionRepository({ path, basename: path.replace(/\.md$/, '') } as TFile)

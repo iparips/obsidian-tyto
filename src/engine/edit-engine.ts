@@ -1,4 +1,4 @@
-import { Outcome, Outcomes } from '../shared/models/outcome'
+import { Outcomes } from '../shared/models/outcome'
 import { ConversationTurnRunner } from './turn/conversation-turn-runner'
 import { TurnRunnerFactory } from './turn/turn-runner-factory'
 import { SessionRepository } from '../session/session-repository'
@@ -6,6 +6,8 @@ import { TurnProgressPublisher } from './turn-progress-publisher'
 import { UtteranceQueue } from './utterance-queue'
 import { ChatMessage } from '../model/providers/types'
 import { ToolNoteOpening } from '../session/tool-note-opening'
+import { TurnResult } from './turn/ending/turn-result'
+import { TurnEndingKind } from './turn/ending/turn-ending-kind'
 
 export class EditEngine {
   // Null between turns, so a cancel arriving after one finished reaches nothing.
@@ -38,16 +40,21 @@ export class EditEngine {
     this.currentTurnRunner?.cancel()
   }
 
-  processUtterance(text: string): Promise<Outcome<string>> {
+  processUtterance(text: string): Promise<TurnResult> {
     return this.utterances.enqueue(text)
   }
 
-  private async runTurn(text: string): Promise<Outcome<string>> {
+  private async runTurn(text: string): Promise<TurnResult> {
     this.sessionRepository.appendChatMessage(ChatMessage.user(text))
     const runnerCreationOutcome = await this.currentTurnRunnerFactory.build()
 
+    // A turn that never started still ended, so the failure comes back wearing
+    // the kind the rest of the path expects.
     if (runnerCreationOutcome.hasFailed())
-      return Outcomes.failure(runnerCreationOutcome.step, runnerCreationOutcome.message)
+      return TurnResult.of(
+        TurnEndingKind.Failed,
+        Outcomes.failure(runnerCreationOutcome.step, runnerCreationOutcome.message),
+      )
 
     this.currentTurnRunner = runnerCreationOutcome.value
 

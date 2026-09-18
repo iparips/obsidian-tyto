@@ -48,7 +48,7 @@ describe('EditEngine', () => {
 
       const outcome = await engine.processUtterance('hello')
 
-      expect(outcome).toEqual(Outcomes.success('Nothing to do'))
+      expect(outcome.outcome).toEqual(Outcomes.success('Nothing to do'))
     })
   })
 
@@ -144,7 +144,7 @@ describe('EditEngine', () => {
 
       const outcome = await engine.processUtterance('three edits')
 
-      expect(outcome).toEqual(Outcomes.success('done'))
+      expect(outcome.outcome).toEqual(Outcomes.success('done'))
     })
 
     // The bare string applied carried no tense and no target, so a batch gave
@@ -333,7 +333,7 @@ describe('EditEngine', () => {
         Outcomes.success(aToolTurn(aToolCall('insert_at', { location: 'note_end', content: 'x' }))),
       )
 
-      const outcome = await engine.processUtterance('edit')
+      const { outcome } = await engine.processUtterance('edit')
 
       expect(outcome.hasFailed() && outcome.step).toBe('chat')
     })
@@ -343,7 +343,7 @@ describe('EditEngine', () => {
         Outcomes.success(aToolTurn(aToolCall('insert_at', { location: 'note_end', content: 'x' }))),
       )
 
-      const outcome = await engine.processUtterance('edit')
+      const { outcome } = await engine.processUtterance('edit')
 
       expect(outcome.hasFailed() && outcome.message).toContain('ran out of steps for this turn')
     })
@@ -397,7 +397,7 @@ describe('EditEngine', () => {
         Outcomes.success(aToolTurn(aToolCall('insert_at', { location: 'note_end', content: 'x' }))),
       )
 
-      const outcome = await engine.processUtterance('edit')
+      const { outcome } = await engine.processUtterance('edit')
 
       expect(outcome.hasFailed() && outcome.message).toContain('Try a smaller instruction')
     })
@@ -425,7 +425,7 @@ describe('EditEngine', () => {
 
       const outcome = await withNoEditor(aNote()).processUtterance('add ilya under the heading')
 
-      expect(outcome).toEqual(Outcomes.success('done'))
+      expect(outcome.outcome).toEqual(Outcomes.success('done'))
     })
 
     // Undo is what the vault path costs, and the panel already says so.
@@ -474,7 +474,7 @@ describe('EditEngine', () => {
     })
 
     it('still reports the failure when the turn cannot open', async () => {
-      const outcome = await boundToACanvas().processUtterance('add ilya under the heading')
+      const { outcome } = await boundToACanvas().processUtterance('add ilya under the heading')
 
       expect(outcome.hasFailed()).toBe(true)
     })

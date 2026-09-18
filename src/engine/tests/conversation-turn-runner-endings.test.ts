@@ -154,7 +154,8 @@ describe('ConversationTurnRunner endings', () => {
 
       const result = await engine.processUtterance('what was the roofing quote')
 
-      expect(result).toMatchObject({ value: 'The roofing quote was 12k.' })
+      expect(result.kind).toBe(TurnEndingKind.Answered)
+      expect(result.outcome).toEqual(Outcomes.success('The roofing quote was 12k.'))
     })
   })
 

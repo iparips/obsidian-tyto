@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Outcome } from '../../shared/models/outcome'
+import { TurnResult } from '../../engine/turn/ending/turn-result'
 import { HistoryList } from './HistoryList'
 import { PanelItem } from '../models/panel-state'
 import { PanelHeader } from './PanelHeader'
@@ -31,7 +31,7 @@ export interface SessionPanelProps
     EngineEventPorts,
     TargetNotePorts,
     RecordedHistoryPorts {
-  processUtterance: (text: string) => Promise<Outcome<string>>
+  processUtterance: (text: string) => Promise<TurnResult>
   // The engine owns the running turn's cancellation, so the panel asks rather
   // than holding it.
   cancelTurn?: () => void
@@ -80,7 +80,8 @@ export const SessionPanel = (props: SessionPanelProps) => {
   // already know (FR28).
   const runTurn = async (text: string) => {
     dispatch({ type: 'transcript', text, target: targetNote })
-    const outcome = await props.processUtterance(text)
+    const result = await props.processUtterance(text)
+    const outcome = result.outcome
     if (outcome.succeeded()) {
       dispatch({ type: 'summary', text: outcome.value })
       props.notifySucceeded?.(outcome.value)

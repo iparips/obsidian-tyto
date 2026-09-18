@@ -3,11 +3,13 @@ import { render, screen } from '@testing-library/react'
 import { SessionPanel, RecorderPort, SessionPanelProps } from '../SessionPanel'
 import { Utterance } from '../../../recorder'
 import { Attempt, Outcome, Outcomes } from '../../../shared/models/outcome'
+import { TurnResult } from '../../../engine/turn/ending/turn-result'
+import { aTurnResult } from '../../../test-support/builders'
 
 describe('SessionPanel', () => {
   let recorder: RecorderPort
   let transcribe: Mock<[Blob, string], Promise<Attempt<string>>>
-  let processUtterance: Mock<[string], Promise<Outcome<string>>>
+  let processUtterance: Mock<[string], Promise<TurnResult>>
 
   beforeEach(() => {
     vi.clearAllMocks()
@@ -18,7 +20,7 @@ describe('SessionPanel', () => {
       stream: vi.fn().mockReturnValue(null),
     }
     transcribe = vi.fn().mockResolvedValue(Outcomes.success('spoken words'))
-    processUtterance = vi.fn().mockResolvedValue(Outcomes.success('made the edit'))
+    processUtterance = vi.fn().mockResolvedValue(aTurnResult(Outcomes.success('made the edit')))
   })
 
   const renderPanel = (overrides: Partial<SessionPanelProps> = {}) =>

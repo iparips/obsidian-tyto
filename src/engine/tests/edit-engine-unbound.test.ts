@@ -124,9 +124,9 @@ describe('EditEngine', () => {
     it('opens the turn when no note is open', async () => {
       respondsWith()
 
-      const outcome = await engineOf().processUtterance('what is in my vault')
+      const result = await engineOf().processUtterance('what is in my vault')
 
-      expect(outcome.hasFailed()).toBe(false)
+      expect(result.outcome.hasFailed()).toBe(false)
     })
 
     it('tells the model no note is open when no note is open', async () => {
