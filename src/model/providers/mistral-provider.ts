@@ -36,7 +36,12 @@ export class MistralProvider implements TranscriptionProvider, ChatProvider {
   ): Promise<Outcome<ChatTurn>> {
     const payload = {
       model: this.editModel,
-      messages: messages.map(MistralMapper.toApiMessage),
+      // A message saying nothing is dropped rather than sent: the API rejects
+      // one outright, and a session restored from a record written before the
+      // harness stopped storing them would otherwise fail every turn.
+      messages: messages
+        .filter((message) => !message.saysNothing())
+        .map(MistralMapper.toApiMessage),
       tools: tools.map(MistralMapper.toApiTool),
       tool_choice: 'auto',
     }

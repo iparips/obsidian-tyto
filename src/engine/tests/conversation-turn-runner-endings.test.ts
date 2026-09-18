@@ -32,6 +32,7 @@ describe('ConversationTurnRunner endings', () => {
   let complete: Mock<Parameters<ChatProvider['complete']>, ReturnType<ChatProvider['complete']>>
   let transcript: TranscriptRepository
   let engine: EditEngine
+  let sessions: ReturnType<typeof aSession>
 
   // Search on, since answer_from_search is refused without it and the ending it
   // now records is what these read.
@@ -59,10 +60,11 @@ describe('ConversationTurnRunner endings', () => {
     complete = vi.fn()
     transcript = new TranscriptRepository()
     const vault = new FakeVault()
+    sessions = aSession()
     engine = anEngine(
       { complete },
       {
-        sessions: aSession(),
+        sessions,
         noteLocator: new FakeNoteLocator().withOpenNote('note.md', new FakeEditor('# Budget')),
         agentsMdRepository: new AgentsMdRepository(new FakeVault().asVault()),
         harnessToolsService: aSearchingHarness(vault),
@@ -88,6 +90,27 @@ describe('ConversationTurnRunner endings', () => {
       await engine.processUtterance('hello')
 
       expect(endings()).toEqual([TurnEndingKind.Replied])
+    })
+  })
+
+  // A reply with neither words nor tool calls cannot be sent back: the provider
+  // rejects it, so storing one would fail every later turn of the session
+  // rather than only the turn that produced it.
+  describe('when the model replies with nothing at all', () => {
+    beforeEach(() => {
+      complete.mockResolvedValue(Outcomes.success(aTextTurn('')))
+    })
+
+    it('records the ending as failed rather than as a reply', async () => {
+      await engine.processUtterance('hello')
+
+      expect(endings()).toEqual([TurnEndingKind.Failed])
+    })
+
+    it('leaves the empty reply out of the history, so the next turn still sends', async () => {
+      await engine.processUtterance('hello')
+
+      expect(sessions.chatHistory().map((message) => message.content)).toEqual(['hello'])
     })
   })
 

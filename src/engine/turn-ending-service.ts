@@ -22,11 +22,17 @@ export class TurnEndingService {
 
   // The model said its piece, so the summary is the answer and the cursor
   // follows the last edit the turn made.
+  //
+  // A reply carrying neither words nor tool calls is not one of those. The
+  // provider rejects an assistant message with both empty, so appending it
+  // would end this turn and every turn after it: the history travels with the
+  // session, and nothing but a reset would clear it.
   endTurnWithModelUtterance(
     summary: string,
     note: OpenNote | null,
     editEndPosition: EditorPosition | null,
   ): EndedTurn {
+    if (summary.trim() === '') return TurnEndingService.endTurnAsEmptyReply()
     this.sessionRepository.appendChatMessage(ChatMessage.model(summary))
     if (note && editEndPosition) this.targetNoteWriter.focusEdit(note, editEndPosition)
     return TurnStepOutcomes.endedTurn(TurnEndingKind.Replied, Outcomes.success(summary))
@@ -36,8 +42,20 @@ export class TurnEndingService {
   // restatement a further step would have written. No cursor moves: a turn that
   // answered from search wrote nothing to follow.
   endTurnWithAnswer(answer: string): EndedTurn {
+    if (answer.trim() === '') return TurnEndingService.endTurnAsEmptyReply()
     this.sessionRepository.appendChatMessage(ChatMessage.model(answer))
     return TurnStepOutcomes.endedTurn(TurnEndingKind.Answered, Outcomes.success(answer))
+  }
+
+  // Nothing is appended, so the session stays usable and the user can retry.
+  private static endTurnAsEmptyReply(): EndedTurn {
+    return TurnStepOutcomes.endedTurn(
+      TurnEndingKind.Failed,
+      Outcomes.failure(
+        'chat',
+        'The model returned an empty reply. Nothing was written. Say it again, or rephrase it.',
+      ),
+    )
   }
 
   endTurnAsCancelled(notesWritten: readonly string[]): EndedTurn {

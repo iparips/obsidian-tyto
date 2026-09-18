@@ -111,6 +111,37 @@ describe('MistralProvider', () => {
 
       expect(fetchMock.mock.calls[0][1].signal).toBeUndefined()
     })
+
+    // The API rejects an assistant message carrying neither words nor calls,
+    // and a session restored from a record holding one would fail every turn
+    // rather than only the turn that stored it.
+    it('drops an assistant message that says nothing, so a stored one cannot fail every turn', async () => {
+      fetchMock.mockResolvedValue(jsonResponse({ choices: [{ message: { content: 'ok' } }] }))
+
+      await provider.complete(
+        [ChatMessage.user('hi'), ChatMessage.model(''), ChatMessage.user('still here')],
+        TOOL_SCHEMAS,
+      )
+
+      const sent = JSON.parse(fetchMock.mock.calls[0][1].body).messages
+
+      expect(sent).toEqual([
+        { role: 'user', content: 'hi' },
+        { role: 'user', content: 'still here' },
+      ])
+    })
+
+    // Dropping it would leave the call it answers unanswered, which the API
+    // rejects in turn.
+    it('keeps a tool result that carries no text, since a call needs its answer', async () => {
+      fetchMock.mockResolvedValue(jsonResponse({ choices: [{ message: { content: 'ok' } }] }))
+
+      await provider.complete([ChatMessage.toolCallResult('call-1', '')], TOOL_SCHEMAS)
+
+      const sent = JSON.parse(fetchMock.mock.calls[0][1].body).messages
+
+      expect(sent).toEqual([{ role: 'tool', tool_call_id: 'call-1', content: '' }])
+    })
   })
 
   describe('when the chat request is cancelled', () => {

@@ -49,6 +49,16 @@ export class ChatMessage {
     return this.toolCalls.length > 0
   }
 
+  // A provider rejects an assistant message carrying neither words nor calls,
+  // so one in the history makes every later request fail. Asked here rather
+  // than at the provider, since it is a fact about the message.
+  //
+  // Assistant only: an empty tool result is still the answer to a call, and
+  // dropping it would leave that call unanswered, which is rejected in turn.
+  saysNothing(): boolean {
+    return this.role === 'assistant' && this.content.trim() === '' && !this.hasToolCalls()
+  }
+
   apiRole(): ChatRole {
     return this.role
   }
