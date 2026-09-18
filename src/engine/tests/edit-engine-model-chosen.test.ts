@@ -37,10 +37,12 @@ import {
 } from '../../test-support/builders'
 
 const TODO = 'Journal/Weekly/Week-36/todo.md'
+const SHOPPING = 'Journal/Weekly/Week-36/shopping.md'
 
 describe('EditEngine', () => {
   let editor: FakeEditor
   let todoEditor: FakeEditor
+  let shoppingEditor: FakeEditor
   let complete: Mock<Parameters<ChatProvider['complete']>, ReturnType<ChatProvider['complete']>>
   let vault: FakeVault
   let sessions: SessionRepository
@@ -54,6 +56,7 @@ describe('EditEngine', () => {
     vi.clearAllMocks()
     editor = new FakeEditor('# Budget\n\nbody')
     todoEditor = new FakeEditor('# Todo\n\n- [ ] milk\n')
+    shoppingEditor = new FakeEditor('# Shopping\n\n- bread\n')
     complete = vi.fn()
     vault = new FakeVault().withNote(TODO, '# Todo\n\n- [ ] milk\n')
     sessions = aSession()
@@ -289,6 +292,52 @@ describe('EditEngine', () => {
       await engineOf(picking(TODO)).processUtterance('find the todo and add an item')
 
       expect(todoEditor.content).toBe('# Todo\n\n- [ ] milk\n- [ ] toilet paper\n')
+    })
+  })
+
+  // A step reads its note once, so a second open_note inside that step leaves
+  // every following call anchored to a note the model was never shown.
+  describe('when a step opens two notes at once', () => {
+    beforeEach(() => {
+      noteLocator.withOpenNote(SHOPPING, shoppingEditor)
+    })
+
+    // Each choice offers one path, which auto mode resolves without asking, so
+    // both notes are chosen by the time the batch of opens runs.
+    const choosesBoth = () =>
+      aToolTurn(
+        aToolCall('choose_note', { paths: [TODO], purpose: 'add an item' }),
+        aToolCall('choose_note', { paths: [SHOPPING], purpose: 'add an item' }),
+      )
+
+    const opensBoth = () =>
+      aToolTurn(aToolCall('open_note', { path: TODO }), aToolCall('open_note', { path: SHOPPING }))
+
+    const findsBoth = () =>
+      aToolTurn(aToolCall('glob_notes', { pattern: 'Journal/Weekly/Week-36/*.md' }))
+
+    it('leaves the target on the note the first open moved it to', async () => {
+      respondsWith(findsBoth(), choosesBoth(), opensBoth())
+
+      await engineOf().processUtterance('open my todo and my shopping list')
+
+      expect(sessions.targetNote()).toBe(TODO)
+    })
+
+    it('refuses the second open, so the target does not move twice', async () => {
+      respondsWith(findsBoth(), choosesBoth(), opensBoth())
+
+      await engineOf().processUtterance('open my todo and my shopping list')
+
+      expect(toolResultsOf(3).at(-1)?.content).toContain('One note per step')
+    })
+
+    it('publishes the first move alone', async () => {
+      respondsWith(findsBoth(), choosesBoth(), opensBoth())
+
+      await engineOf().processUtterance('open my todo and my shopping list')
+
+      expect(retargets).toEqual([TODO])
     })
   })
 
