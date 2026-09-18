@@ -22,7 +22,9 @@ import { AllowedObsidianCommand } from '../../../commands/models/allowed-obsidia
 // resolve_date four times over, spending a fifth of its budget re-asking a
 // question it already had the answer to. Extending that rule to a reworded
 // argument re-records it once more: the same turn asked for one day under six
-// phrasings, and only two of them were literal repeats.
+// phrasings, and only two of them were literal repeats. The rule that adding is
+// not replacing re-records it again: a turn told to add a bullet under a
+// heading replaced the bullet that was there.
 import RELEASE_3_PROMPT from './fixtures/release-3-prompt.txt?raw'
 
 const aNote = (): NoteDetails => new NoteDetails('note.md', '# Budget\n\nbody', { line: 2, ch: 0 })
@@ -539,6 +541,21 @@ describe('the prompt messages', () => {
       const prompt = systemPromptText()
 
       expect(prompt).toContain('Rewording the arguments is the same')
+    })
+
+    // Told to add a bullet under a heading, a turn called replace_text on the
+    // bullet already there and destroyed it. Nothing in the prompt said which
+    // tool an instruction to add asks for, and there is no undo tool.
+    it('tells the model that adding is not replacing', () => {
+      const prompt = systemPromptText()
+
+      expect(prompt).toContain('Adding is not replacing.')
+    })
+
+    it('tells the model replace_text is for text the user asked to change', () => {
+      const prompt = systemPromptText()
+
+      expect(prompt).toContain('Use replace_text only where the user asked for existing text')
     })
 
     it('produces the release 3 prompt when commands and search are absent', () => {
