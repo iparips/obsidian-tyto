@@ -87,6 +87,30 @@ Three things the design has to get right in the wording.
 
 This is the per-step budget from the requirements spent in full and deliberately. A turn that went fine pays one line a step for a record that reads the same way as the turn that did not.
 
+#### D6: What does the panel's progress summary say about the budget? [resolved 2026-09-18]
+
+The spend alone, with the unit named: `12 of 20 steps used`. The row count comes out of the summary rather than gaining the spend beside it. Ilya: it is good to make clear what the unit is.
+
+The reported symptom was a panel showing 22 numbered rows against a budget set to 20, and the count was the lesser of its two causes. A row is a progress line, so 22 rows against a spend of 12 is not a contradiction: EntryProgress.summaryOf (Session Views) called them steps, which is the word 2-vocabulary.md reserves for the invisible middle level. The number invited a comparison with the budget and the word licensed it.
+
+| Option                                 | Cost                                                                               |
+| -------------------------------------- | ---------------------------------------------------------------------------------- |
+| The spend alone, with its unit         | A reader wanting the row count opens the list, which is what the list is for       |
+| Row count as headline, spend beside it | Two numbers on one line, and the reader has to know which the budget counts        |
+| The spend, unit unnamed                | `12 of 20` does not say what 12 is, which is the confusion moved rather than fixed |
+
+Naming the unit is what makes "step" correct here. The summary now counts turn steps, which is what the budget charges, rather than labelling rows with the word for something else. A reader who counts the rows and gets a different number is reading two different things, and the summary no longer suggests otherwise.
+
+The row count is not lost. It is the length of the list the summary opens, and a refusal count still rides beside the spend, since a turn that refused nothing rarely needs explaining.
+
+#### D7: Does a turn under way show its spend climbing? [resolved 2026-09-18]
+
+Yes, and rounded as the counter rounds it. D2 chose a running total for the transcript, where a reader scrolls a finished turn; the panel is watched live, and the same answer holds for a different reason.
+
+A user watching a long turn can cancel it. TurnProgressPublisher.runningLowFn (Engine) already exists for exactly that moment, saying once that the turn is nearing its cap, and a spend that only appeared at the end would say nothing while the decision was live.
+
+Rounded with Math.ceil, as IterationCounter.spent (Engine Turn Spending) rounds it, rather than showing the half a batched call draws. A reader must never see a number the budget check disagrees with: a turn the counter calls spent reads 20 of 20, where 19.5 of 20 would read as room the turn does not have. The half is the transcript's business, where D2 put it on the step's own charge.
+
 #### D3: Does a marked repeat compare against the turn, or the session? [resolved 2026-09-18]
 
 Within the turn, and the same call is only a repeat where it returned the same thing. Ilya: a repeat may pick up different things at different times, because the turn can change the state the call reads.
