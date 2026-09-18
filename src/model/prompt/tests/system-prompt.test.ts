@@ -618,7 +618,13 @@ describe('the prompt messages', () => {
     // The same answer ran its themes together as bold-dash paragraphs, which
     // reads as one block rather than as a theme the user can scan to.
     it('tells the model to write a multi-theme answer as a bullet list', () => {
-      expect(withSearch()).toContain('as a markdown bullet list, one bullet per')
+      expect(withSearch()).toContain('bullet list, one bullet per')
+    })
+
+    // Without a bound, a lead-in grows into the reasoning the answer is
+    // already told to leave out.
+    it('tells the model the lead-in is one sentence naming what the answer covers', () => {
+      expect(withSearch()).toContain('one sentence saying what the answer covers')
     })
   })
 

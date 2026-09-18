@@ -97,9 +97,12 @@ export class SearchSection {
       'place the answer says where a claim came from.',
       'Cite where the claim sits rather than gathering the paths at the end: the sources',
       'argument carries the full accounting, and it is not shown beside the answer.',
-      'Write an answer covering several themes as a markdown bullet list, one bullet per',
-      'theme, each opening with the theme in bold and carrying its own citations. Bullets',
-      'rather than run-together paragraphs, so each theme reads as its own point.',
+      'Write an answer covering several themes as one line of lead-in and then a markdown',
+      'bullet list, one bullet per theme, each opening with the theme in bold and carrying',
+      'its own citations. Bullets rather than run-together paragraphs, so each theme reads',
+      'as its own point. The lead-in is one sentence saying what the answer covers and over',
+      'what span, ending in a colon: it orients the reader before the list and is not a',
+      'summary of the bullets, a preamble about the search, or more than a line.',
       'When a search finds nothing, say so. Never answer such a question from your own knowledge.',
     ].join('\n')
   }
