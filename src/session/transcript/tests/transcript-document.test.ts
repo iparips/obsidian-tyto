@@ -380,6 +380,41 @@ describe('TranscriptDocument', () => {
       expect(turnSectionOf(document, 1)).toContain('I need to load the skill first.')
     })
 
+    // Answered joins Replied in keeping the tail whole: the turn's closing
+    // message is the model's own answer, and trimming it would drop the very
+    // text the ending put there.
+    it('keeps the answer that ended the turn', () => {
+      const document = documentOf({
+        entries: [{ kind: 'user', text: 'what was the roofing quote' }],
+        history: [
+          ChatMessage.user('what was the roofing quote'),
+          ChatMessage.modelToolCalls([aGlob('Quotes/*.md')]),
+          ChatMessage.toolCallResult('c1', 'Quotes/roofing.md'),
+          ChatMessage.model('The roofing quote was 12k.'),
+        ],
+        steps: [aStep(0, new StepRange(0, 1), new StepRange(0, -1))],
+        endings: [new RecordedEnding(0, TurnEndingKind.Answered, 0)],
+      })
+
+      expect(document).toContain('The roofing quote was 12k.')
+    })
+
+    it('trims the harness note from a turn the user cancelled', () => {
+      const document = documentOf({
+        entries: [{ kind: 'user', text: 'add milk' }],
+        history: [
+          ChatMessage.user('add milk'),
+          ChatMessage.modelToolCalls([aGlob('**/todo.md')]),
+          ChatMessage.toolCallResult('c1', 'todo.md'),
+          ChatMessage.model('Stopped. Nothing was changed.'),
+        ],
+        steps: [aStep(0, new StepRange(0, 1), new StepRange(0, -1))],
+        endings: [new RecordedEnding(0, TurnEndingKind.Cancelled, 0)],
+      })
+
+      expect(document).not.toContain('Stopped. Nothing was changed.')
+    })
+
     // The document is read away from the panel, so the mark is words rather than
     // a colour: an edit the editor cannot take back has to say so in the text.
     it('marks an edit that went straight to the file', () => {
