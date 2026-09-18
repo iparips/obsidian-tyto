@@ -67,7 +67,7 @@ Both grep failures are recoverable by the model rather than silent: a grep for t
 
 ### D5: Does the tag reader live in search, or in a package of its own? [resolved 2026-09-18]
 
-In src/search, as TagIndex (Search, new) beside NoteGlob and NoteReader.
+In src/search, as TagReader (Search, new) beside NoteGlob and NoteReader.
 
 A package of its own would depend on obsidian and shared, be constructed in EngineFactory (Wiring), and be reached only through the engine's tool service. That is the arrow set search already has, so the second package would be indistinguishable from the first.
 
@@ -104,7 +104,7 @@ Revisit only if a real vault shows the ranking wrong, per D2's own assumption.
 
 ### Assumptions
 
-- getAllTags (Obsidian) returns every tag hashed, from both the frontmatter list and the note body. The typings describe it as combining all tags from frontmatter and content into a single array. If frontmatter entries come back unhashed, the tally splits health and #health into two rows and TagIndex has to normalise before counting.
+- getAllTags (Obsidian) returns every tag hashed, from both the frontmatter list and the note body. The typings describe it as combining all tags from frontmatter and content into a single array. If frontmatter entries come back unhashed, the tally splits health and #health into two rows and TagReader has to normalise before counting.
 - getAllTags may repeat a tag a note carries twice, so the walk puts each note's tags through a Set. If it already de-duplicates, the Set costs nothing and the count is unchanged either way.
 - A tags cap of 50 is enough for a personal vault, mirroring MAX_GLOB_RESULTS. If a vault routinely truncates, the filter carries it and the prompt line has to say to use it, per the requirements' own assumption about vault size.
 - The obsidian mock and FakeVault (Test Support) can carry a MetadataCache fake without a real Obsidian. Both are hand-written stand-ins already and nothing in the tag walk needs Obsidian's parser. If the parsing itself turns out to need testing, that is a case for the real vault rather than a fake.

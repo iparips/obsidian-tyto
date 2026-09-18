@@ -15,9 +15,9 @@ None of this runs against the fakes as they stand, so the support work is the fi
 - FakeVault (Test Support) gains withTags(path, tags), recording a note's tags beside its content, and asMetadataCache(), answering a getFileCache built from them. Tags are given hashed or bare, so a test can state a frontmatter list as the vault writes it.
 - FakeVault.withNote leaves a note with no tags answering a cache entry with none, not null, since a note Obsidian has indexed and found nothing in is the common case.
 
-A null cache entry is its own case and TagIndex must survive it, so the fake answers null for a path it holds no note for.
+A null cache entry is its own case and TagReader must survive it, so the fake answers null for a path it holds no note for.
 
-## TagIndex.list
+## TagReader.findTags
 
 ```text
 tally = {}
@@ -61,12 +61,12 @@ more tags than the cap
   keeps the most-used tags, since the cap follows the sort
 ```
 
-## TagReport.ofTags
+## TagReport.buildReport
 
 ```text
 if result.total == 0:
   return filter ? noTagContains(filter) : "this vault uses no tags"
-rows = result.counts mapped to "<tag> - <count> notes"
+rows = result.tags mapped to "<tag> - <count> notes"
 return rows + trimmedLine(rows.length, result)
 ```
 
@@ -89,8 +89,8 @@ The two empty messages are the case worth splitting: told only that nothing matc
 
 ```text
 filter = call.optionalArgument("filter") ?? null
-result = tagIndex.list(filter)
-return TextResult(TagReport.ofTags(filter, result), ProgressLine.listedTags(filter, result.total))
+result = tagReader.findTags(filter)
+return TextResult(TagReport.buildReport(filter, result), ProgressLine.listedTags(filter, result.total))
 ```
 
 ```text
