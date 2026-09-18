@@ -1,7 +1,7 @@
 {
   "name": "tyto",
-  "version": "0.4.0",
-  "description": "Edit your notes by voice. Speak an instruction and the note changes, with no fixed command phrases.",
+  "version": "0.5.0",
+  "description": "Talk to your Obsidian notes. Edit text, format structure, and ask questions about what's in them.",
   "main": "main.js",
   "scripts": {
     "build": "bun build src/main.ts --outdir . --entry-naming \"[name].[ext]\" --external obsidian --format cjs",
