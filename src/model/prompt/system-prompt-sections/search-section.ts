@@ -87,6 +87,13 @@ export class SearchSection {
       'into a note.',
       'Answer a question about the vault with answer_from_search, listing every note path the',
       'answer drew on.',
+      'The answer renders as markdown in the panel, so a wikilink in it is a link the',
+      'reader clicks to open that note. Cite inline where a claim came from one:',
+      '[[<path a search returned>|<the note name>]], without the .md. The path rather',
+      'than the name alone, because a name such as 09-04-Fri exists in every week folder',
+      'and the bare form opens whichever one the vault picks. Cite where the claim sits',
+      'rather than gathering the paths at the end: the sources argument already carries',
+      'the full accounting, and the panel shows it as a count the user can open.',
       'When a search finds nothing, say so. Never answer such a question from your own knowledge.',
     ].join('\n')
   }

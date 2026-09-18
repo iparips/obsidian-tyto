@@ -187,11 +187,16 @@ export const TOOL_SCHEMAS: ToolSchema[] = [
     parameters: {
       type: 'object',
       properties: {
-        answer: { type: 'string' },
+        answer: {
+          type: 'string',
+          description:
+            'The answer, in markdown. Cite the note a claim came from inline, as a wikilink the reader can click: [[4 - Archive/2026/Q3-jul-aug-sep/Week-36/09-05-sat-breakup|09-05-sat-breakup]]. Use the whole path a search returned, since a name such as 09-04-Fri exists in every week folder and a bare [[09-04-Fri]] opens whichever one the vault picks. Drop the .md. Put the link where the claim is, so a point resting on three notes names all three, and leave a claim drawn from everything you read uncited rather than listing every path after it.',
+        },
         sources: {
           type: 'array',
           items: { type: 'string' },
-          description: 'Every note path the answer drew on.',
+          description:
+            'Every note path the answer drew on, whether or not it is cited inline. This is the whole accounting, shown to the user as a count they can open.',
         },
       },
       required: ['answer', 'sources'],
