@@ -20,16 +20,16 @@ The system prompt, the tool schemas, the always-on instruction files (CLAUDE.md 
 
 Arrows in the discovery graph run from a source to what it pointed at, labelled with the pointer that carried the link.
 
-| Category           | Covers                                                             |
-| ------------------ | ------------------------------------------------------------------ |
-| prompt             | the user's own messages, the only nodes with no upstream source    |
-| skill              | instruction files loaded by the harness or a skill trigger         |
-| code               | source files, prefixed with the repo name                          |
-| reference document | the repo's own docs: architecture notes and sibling spec folders   |
-| system of record   | live state no document can be trusted for: git, the test suite     |
-| navigation         | file listings, path searches, directory globs                      |
+| Category           | Covers                                                                  |
+| ------------------ | ----------------------------------------------------------------------- |
+| prompt             | the user's own messages, the only nodes with no upstream source         |
+| skill              | instruction files loaded by the harness or a skill trigger              |
+| code               | source files, prefixed with the repo name                               |
+| reference document | the repo's own docs: architecture notes and sibling spec folders        |
+| system of record   | live state no document can be trusted for: git, the test suite          |
+| navigation         | file listings, path searches, directory globs                           |
 | never opened       | pointed at by something read, never opened, drawn with a dashed outline |
-| artefact           | the file the phase produced, a terminal node                       |
+| artefact           | the file the phase produced, a terminal node                            |
 
 | Rating        | Meaning                                            |
 | ------------- | -------------------------------------------------- |

@@ -26,10 +26,11 @@ Verify before trusting, all read 2026-09-18 in this checkout:
   src/session/transcript/transcript-document.ts:17. RepeatedCalls is turn-scoped, so the
   design's per-turn construction has no site yet and this is where you choose one.
 - ConversationTurnRunner returns before spendOn when the turn is stuck, at
-  src/engine/turn/conversation-turn-runner.ts:65. A stuck step draws no charge, so the
+  src/engine/turn/conversation-turn-runner.ts:68. A stuck step draws no charge, so the
   budget line's absence has to read as that rather than as a defect.
-- spendOn passes calls.length to the counter, at conversation-turn-runner.ts:74.
-  chargeOfLastSpend records what that call charged rather than recomputing it.
+- spendOn passes calls.length to the counter, at conversation-turn-runner.ts:78, and an
+  answered turn is charged before it ends. chargeOfLastSpend records what that call
+  charged rather than recomputing it.
 - StoredMessages.of persists content for a tool-call message, at
   src/session/models/session-snapshot.ts:45. If it does not, the restore is no longer one
   line and SESSION_SNAPSHOT_VERSION moves.
@@ -38,6 +39,10 @@ Commit 2 changes what the model reads of its own last reply, which the unit suit
 judge. Run the three manual checks in the design's testing file against a real vault and
 a real API key before starting commit 3, and report them by name. Then run all five
 checks in 4-acceptance-criteria.md before calling it done.
+
+The spec was designed before 2026-09-18c merged, which added a sixth ending and changed
+the runner and the executor. Line numbers were refreshed against that merge; the claims
+were not re-derived, so check them.
 
 Where the spec is wrong, say so and fix the spec rather than designing around it. Its
 central claim about the "nothing recorded" symptom was wrong and the design corrected it,

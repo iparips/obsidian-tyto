@@ -50,7 +50,9 @@ Two mechanisms produce the symptom today, verified against the code on 2026-09-1
 
 The second is the transcript's own, and it is a wording fix rather than a slice fix: the step really did record nothing, and what it has to say is why. The first is upstream of the transcript, and fixing the transcript alone cannot recover text the history never held, so both are fixed here and ship together (D1).
 
-What this requirement does not rest on, corrected during design. TranscriptTurnSection.answered (Session Transcript) truncates the tail at the last model note on every ending but Replied, and an earlier reading had that emptying the slice on Exhausted and Stuck. It does not. Exhausted, Stuck and Failed append nothing to the history at all, since TurnOutcomes builds them and only TurnEndingService writes, so the truncation finds no model note to cut at and leaves the tail whole. It fires on Cancelled alone, where it does what it was written to do: drop the harness's closing note and keep the model's own words. A realistic exhausted turn renders its last step's tool calls today.
+What this requirement does not rest on, corrected during design. TranscriptTurnSection.answered (Session Transcript) truncates the tail at the last model note, and an earlier reading had that emptying the slice on Exhausted and Stuck. It does not. Exhausted, Stuck and Failed append nothing to the history at all, since TurnOutcomes builds the first two and Failed returns without writing, so the truncation finds no model note to cut at and leaves the tail whole. It fires on Cancelled alone, where it does what it was written to do: drop the harness's closing note and keep the model's own words. A realistic exhausted turn renders its last step's tool calls today.
+
+The sibling spec 2026-09-18c added a sixth ending and read the same distinction from the other side. TranscriptTurnSection.closesWithTheModelsOwnWords (Session Transcript) now exempts Replied and Answered from the truncation, since those two are the endings that close the tail with the model's own words.
 
 Carrying the text through is symmetric. MistralMapper.toApiMessage (Model Providers) also hardcodes content to empty on a message carrying tool calls, so a text kept in the history would still be stripped on the way back to the model. The model therefore reads its own last reply in full on the next step, which is a behaviour change and is tested as one.
 
@@ -157,7 +159,7 @@ Open first.
 ### Task
 
 - `src/session/transcript/transcript-turn-step.ts` - response() renders "nothing recorded" on an empty slice, which is the whole of the transcript's half of the symptom; request() renders the tool result carrying a search reason
-- `src/engine/turn/ending/turn-outcomes.ts` - open beside turn-ending-service.ts: Exhausted, Stuck and Failed write nothing to the history, which is why the last step of an exhausted turn renders its calls and why an empty slice means the provider failed
+- `src/engine/turn/ending/turn-outcomes.ts` - open beside turn-ending-service.ts: Exhausted, Stuck and Failed write nothing to the history, which is why the last step of an exhausted turn renders its calls and why an empty slice means the provider failed. Six endings now, since 2026-09-18c added Answered
 - `src/model/providers/models/chat-message.ts` - modelToolCalls() takes calls and sets content to empty, so a reply's text is lost before the transcript sees it
 - `src/model/providers/mistral-mapper.ts` - toChatTurn() returns calls or text and never both, which is where the loss starts
 - `src/session/transcript/transcript-repository.ts` - what a step records, and versionOf() numbering prompt parts from one per session
@@ -172,4 +174,4 @@ Open first.
 ### Architecture
 
 - [../../../architecture/2-vocabulary.md](../../../architecture/2-vocabulary.md) - open first: a turn, a turn step and a progress line are three things and the transcript renders all three
-- [../../../architecture/4-the-turn.md](../../../architecture/4-the-turn.md) - open when the budget line needs the five endings and where each is recorded
+- [../../../architecture/4-the-turn.md](../../../architecture/4-the-turn.md) - open when the budget line needs the six endings and where each is recorded

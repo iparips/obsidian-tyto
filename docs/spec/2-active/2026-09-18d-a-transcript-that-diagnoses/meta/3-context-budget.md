@@ -9,38 +9,38 @@ Metered from this session's transcript with the context-audit script, estimating
 
 ## By Category
 
-| Category           | Design | Note                                                                    |
-| ------------------ | ------ | ----------------------------------------------------------------------- |
-| code               | 37,798 | 63 reads. The largest bucket, and where the phase's one correction came from |
-| skill              | 23,342 | 12 reads, of which four were whole skill bodies                         |
-| navigation         | 5,163  | 6 reads. Inflated by one listing bundled with a full file read          |
-| command            | 853    | 5 reads                                                                 |
-| system of record   | 392    | 2 reads. Cheap, and one of them was the highest-value read of the phase |
-| other              | 214    | The one question put to the user                                        |
-| total              | 67,762 | 90 reads                                                                |
+| Category         | Design | Note                                                                         |
+| ---------------- | ------ | ---------------------------------------------------------------------------- |
+| code             | 37,798 | 63 reads. The largest bucket, and where the phase's one correction came from |
+| skill            | 23,342 | 12 reads, of which four were whole skill bodies                              |
+| navigation       | 5,163  | 6 reads. Inflated by one listing bundled with a full file read               |
+| command          | 853    | 5 reads                                                                      |
+| system of record | 392    | 2 reads. Cheap, and one of them was the highest-value read of the phase      |
+| other            | 214    | The one question put to the user                                             |
+| total            | 67,762 | 90 reads                                                                     |
 
 Reference documents are folded into code by the script, which classifies by path. The repo's own docs and spec files account for roughly 13,000 of the code row.
 
 ## By Impact
 
-| Impact  | Design | Share |
-| ------- | ------ | ----- |
-| high    | 21,400 | 32%   |
-| medium  | 24,100 | 36%   |
-| low     | 15,800 | 23%   |
-| none    | 6,400  | 9%    |
+| Impact | Design | Share |
+| ------ | ------ | ----- |
+| high   | 21,400 | 32%   |
+| medium | 24,100 | 36%   |
+| low    | 15,800 | 23%   |
+| none   | 6,400  | 9%    |
 
 Two thirds of the spend changed the artefact. The low and no-impact third is mostly whole skill bodies read for one section each.
 
 ## The Most Expensive Single Reads
 
-| Read                             | Tokens | Impact | Verdict                                                          |
-| -------------------------------- | ------ | ------ | ---------------------------------------------------------------- |
-| code-generation SKILL.md         | 4,046  | medium | Two rules used out of a full body. A reference split would help   |
-| sdd SKILL.md                     | 3,706  | medium | One workflow used out of five. Same shape                         |
-| 3-decisions.md                    | 3,587  | high   | Worth every token. Five decisions, three of them load-bearing     |
-| text-generation SKILL.md          | 3,511  | high   | Changed the deliverable's shape. Worth it, and fired late         |
-| 2-requirements.md                 | 3,412  | high   | The hub. Paid for itself despite carrying the wrong claim         |
+| Read                     | Tokens | Impact | Verdict                                                         |
+| ------------------------ | ------ | ------ | --------------------------------------------------------------- |
+| code-generation SKILL.md | 4,046  | medium | Two rules used out of a full body. A reference split would help |
+| sdd SKILL.md             | 3,706  | medium | One workflow used out of five. Same shape                       |
+| 3-decisions.md           | 3,587  | high   | Worth every token. Five decisions, three of them load-bearing   |
+| text-generation SKILL.md | 3,511  | high   | Changed the deliverable's shape. Worth it, and fired late       |
+| 2-requirements.md        | 3,412  | high   | The hub. Paid for itself despite carrying the wrong claim       |
 
 ## Blind Spots
 
@@ -62,7 +62,7 @@ Every gap the script reported, as a gap rather than an omission.
 ## Reference Data Improvements
 
 - Add turn-outcomes.ts and turn-ending-service.ts to the requirements' Task references, as the pair that decides what reaches the history. Every future spec touching the transcript's slices needs them, and neither was listed.
-- Record in 4-the-turn.md which of the five endings append to the chat history. It is a fact about the turn that three source files have to be read together to establish, and it is exactly the kind of boundary the architecture docs exist to hold.
+- Record in 4-the-turn.md which of the six endings append to the chat history. It is a fact about the turn that three source files have to be read together to establish, and it is exactly the kind of boundary the architecture docs exist to hold.
 - Drop the assumption bullets that a later phase has falsified rather than striking them through. The struck bullet in 3-decisions.md is kept deliberately as a record, but a reader scanning for current state reads two claims where one is true.
 
 ## Skills Refinements

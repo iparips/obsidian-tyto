@@ -15,11 +15,11 @@ It stays at call level, and nothing changes. Ilya: applicable_skills should rend
 
 The premise the option table rested on was that the value needed surfacing. It does not. It is an argument on the call, `toolCallLines` prints the whole argument object, so a guarded call already renders its declaration in the JSON block beneath it. Promoting it would move a value away from the thing it is a property of.
 
-| Option                                        | Cost                                                                                  |
-| --------------------------------------------- | --------------------------------------------------------------------------------------- |
-| A step-level line naming what was declared    | Duplicates a value the call JSON below it already shows, on every step that sent a guarded call |
-| Leave it at call level, in the JSON           | The third read that cost the session time stays the cost of finding it                   |
-| Promote only a declared empty list            | One line on the steps where the class of failure is possible, and none elsewhere         |
+| Option                                     | Cost                                                                                            |
+| ------------------------------------------ | ----------------------------------------------------------------------------------------------- |
+| A step-level line naming what was declared | Duplicates a value the call JSON below it already shows, on every step that sent a guarded call |
+| Leave it at call level, in the JSON        | The third read that cost the session time stays the cost of finding it                          |
+| Promote only a declared empty list         | One line on the steps where the class of failure is possible, and none elsewhere                |
 
 The second option is the one taken. What the three defects cost was the time to skim a JSON block, which is a cost of reading rather than of the record missing anything, and the per-step line allowance D2 spends on the budget is better spent there.
 
@@ -31,11 +31,11 @@ The acceptance-criteria check that asked to see the declaration without opening 
 
 Nothing, which its own entry flagged as a real answer here.
 
-| Option                              | Cost                                                                                   |
-| ----------------------------------- | ---------------------------------------------------------------------------------------- |
-| A hash of each part's text          | Stable across builds of the same text, and adds an opaque token to every citation         |
+| Option                               | Cost                                                                                                                                        |
+| ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| A hash of each part's text           | Stable across builds of the same text, and adds an opaque token to every citation                                                           |
 | A plugin build stamp in the metadata | One line for the whole transcript, and two transcripts of the same code differ, which matters if a transcript is ever compared as a fixture |
-| Nothing                             | The near-miss this session had twice stays possible                                       |
+| Nothing                              | The near-miss this session had twice stays possible                                                                                         |
 
 The appendix already writes every part's full text under its version, and `TranscriptAppendix.part` writes a later version as a diff against the one before it. Two transcripts are therefore compared by diffing their appendices, which answers the question exactly rather than by proxy.
 
@@ -49,11 +49,11 @@ Carry the text through ChatTurn and ChatMessage. Ilya: a transcript that marks t
 
 So this spec reaches outside the transcript package, and the two halves ship together: the text has to survive the provider boundary and the history before the transcript has anything to render.
 
-| Option                                                    | Cost                                                                                              |
-| --------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
-| Carry the text through ChatTurn and ChatMessage           | Touches the provider boundary and the session history, and the text then reaches the next model call as part of the assistant message, which changes what the model is sent |
-| Keep the text for the transcript only                     | A second store of the model's words beside the history, which is what response() was written to avoid |
-| Mark the step as having carried text that was not kept    | Honest and cheap, and leaves the words unrecoverable for the reader who needs them                |
+| Option                                                 | Cost                                                                                                                                                                        |
+| ------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Carry the text through ChatTurn and ChatMessage        | Touches the provider boundary and the session history, and the text then reaches the next model call as part of the assistant message, which changes what the model is sent |
+| Keep the text for the transcript only                  | A second store of the model's words beside the history, which is what response() was written to avoid                                                                       |
+| Mark the step as having carried text that was not kept | Honest and cheap, and leaves the words unrecoverable for the reader who needs them                                                                                          |
 
 What the investigation found, which the design builds on.
 
@@ -71,11 +71,11 @@ Running total and budget on every step. Ilya: it is the most informative of the 
 
 A step costs one for the round-trip plus half for each call after the first, accumulated fractionally and rounded only when read. IterationCounter (Engine Turn Spending) holds all of that and exposes isSpent, justRanLow, warning and max. It exposes neither the running total nor the charge for one step.
 
-| Option                                             | Cost                                                                                    |
-| -------------------------------------------------- | ----------------------------------------------------------------------------------------- |
-| Running total and budget on every step             | One line on every step of every turn, including the turns that went fine                  |
-| The step's own charge only                         | A reader adds up the column themselves, which is the hand-tally that cost the session time |
-| Total and budget on the step that ends the turn    | Free on a turn that went fine, and says nothing while the turn is the thing being read     |
+| Option                                          | Cost                                                                                       |
+| ----------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| Running total and budget on every step          | One line on every step of every turn, including the turns that went fine                   |
+| The step's own charge only                      | A reader adds up the column themselves, which is the hand-tally that cost the session time |
+| Total and budget on the step that ends the turn | Free on a turn that went fine, and says nothing while the turn is the thing being read     |
 
 What this settles for the recording, which is why it was blocking. The charge has to be recorded when the call is charged: the transcript is built from RecordedTurnStep (Session Transcript), and a spend read at export time would be the whole session's rather than the step's. ConversationTurnRunner.spendOn (Engine Turn) at line 73 is the one place a batch's size reaches the counter, and it is called after the calls run, so the recorded step gains a field written there rather than at recordCall.
 
@@ -103,11 +103,11 @@ Both greps are identical in name and arguments. The second is not a loop, it is 
 
 So identical arguments are necessary and not sufficient. The mark compares what came back as well as what went out, which the transcript already holds: the tool result of each call sits in the next step's request block, and an edit between them shows as a progress line under Harness.
 
-| Option                                   | Cost                                                                        |
-| ---------------------------------------- | ----------------------------------------------------------------------------- |
+| Option                                     | Cost                                                                                                         |
+| ------------------------------------------ | ------------------------------------------------------------------------------------------------------------ |
 | Within the turn, same call and same result | Marks the loop and not the confirmation, at the cost of comparing two results rather than two argument lists |
-| Within the turn, same call                | Marks the grep that confirmed a write, which is the opposite of what the mark means |
-| Across the session                       | Also marks a legitimate second search in a later turn, and the mark stops meaning loop |
+| Within the turn, same call                 | Marks the grep that confirmed a write, which is the opposite of what the mark means                          |
+| Across the session                         | Also marks a legitimate second search in a later turn, and the mark stops meaning loop                       |
 
 The turn is the right window for the same reason the budget is per turn: it is the unit a defect is diagnosed in, and a model that sends the same grep in turn one and again in turn three is answering two utterances rather than looping.
 

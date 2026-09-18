@@ -140,42 +140,42 @@ Arrows: discovery path, source pointed me at the target.
 
 ## What Each Source Decided
 
-| Source                          | Impact  | What it decided                                                                      |
-| ------------------------------- | ------- | ------------------------------------------------------------------------------------ |
-| The design prompt               | high    | Which decisions were closed, which were mine, and seven code claims to verify         |
-| 2-requirements.md               | high    | The six additions and the per-step line budget. Also the claim that proved wrong      |
-| 3-decisions.md                  | high    | D1, D2 and D3 as settled inputs; D4 and D5 as the two to close                        |
-| 4-acceptance-criteria.md        | medium  | Which check to drop when D4 closed on no change                                       |
-| 1-index.md                      | low     | Reading order, which the prompt already gave                                          |
-| sdd SKILL.md                    | medium  | The Write Design workflow and the file naming                                         |
-| design-conventions.md           | high    | The required sections, and which two to drop for a repo with no flags                 |
-| unit-tests-format.md            | high    | The pseudocode-then-outline shape, and the 120-line break-out rule                    |
-| code-generation SKILL.md        | medium  | Repository naming for RepeatedCalls, and the value-object choice for StepCharge       |
-| code-generation typescript.md   | medium  | Class over interface for the two new values, and the defaulted-parameter rule         |
-| text-generation SKILL.md        | high    | Forced the split of both over-length files, and stripped backticks from tables        |
-| mermaid SKILL.md                | medium  | The bracketed system suffixes and the arrow legend                                    |
-| 2-vocabulary.md                 | medium  | Turn, turn step and progress line kept distinct throughout                            |
-| 1-overview.md                   | low     | Confirmed the package the new file belongs in, which the sibling files already showed |
-| transcript-turn-step.ts         | high    | The three empty-response wordings, and where the repeat mark goes                      |
-| transcript-turn-section.ts      | high    | The truncation's real behaviour, which is where the correction started                 |
-| turn-outcomes.ts                | high    | That Exhausted, Stuck and Failed write nothing. The fact that falsified the claim     |
-| turn-ending-service.ts          | high    | That only Replied and Cancelled append, which is the other half of the same fact      |
-| mistral-mapper.ts               | high    | Both signatures, and that the loss is symmetric                                       |
-| chat-turn.ts                    | high    | The relaxed invariant and the defaulted content parameter                             |
-| conversation-turn-runner.ts     | high    | The one production consumer, and where recordCharge has to sit                        |
-| iteration-counter.ts            | high    | That spent is already private with the right body, so the change is an exposure       |
-| tool-call-executor.ts           | high    | That results carry the call id, so the repeat test needs nothing recorded             |
-| system-prompt.test.ts           | high    | That the release 3 fixture compares the system prompt alone and is unaffected         |
-| transcript-repository.ts        | medium  | The one step-creation site, and where a charge attaches                               |
-| session-snapshot.ts             | medium  | Confirmed the one-line restore fix                                                    |
-| builders.ts                     | medium  | The sibling builder, and the real call-site count                                     |
-| transcript-document.test.ts     | medium  | The document-level test shape the plan follows                                        |
-| applicable-skills.ts            | medium  | That declaresArgument already distinguishes the two claims, which closed D4            |
-| The throwaway vitest file       | high    | Falsified the requirements' central claim. The single highest-value read of the phase |
-| bun run test                    | low     | A clean baseline and a clean finish                                                   |
-| spec/2026-09-18c folder shape   | medium  | The folder naming for the split, and that the prefix drops                            |
-| src/session/views/              | not read| Out of scope by the requirements, and never needed                                    |
-| SearchReport                    | not read| The requirements' claim that its reason travels in the tool result was taken as given |
+| Source                        | Impact   | What it decided                                                                       |
+| ----------------------------- | -------- | ------------------------------------------------------------------------------------- |
+| The design prompt             | high     | Which decisions were closed, which were mine, and seven code claims to verify         |
+| 2-requirements.md             | high     | The six additions and the per-step line budget. Also the claim that proved wrong      |
+| 3-decisions.md                | high     | D1, D2 and D3 as settled inputs; D4 and D5 as the two to close                        |
+| 4-acceptance-criteria.md      | medium   | Which check to drop when D4 closed on no change                                       |
+| 1-index.md                    | low      | Reading order, which the prompt already gave                                          |
+| sdd SKILL.md                  | medium   | The Write Design workflow and the file naming                                         |
+| design-conventions.md         | high     | The required sections, and which two to drop for a repo with no flags                 |
+| unit-tests-format.md          | high     | The pseudocode-then-outline shape, and the 120-line break-out rule                    |
+| code-generation SKILL.md      | medium   | Repository naming for RepeatedCalls, and the value-object choice for StepCharge       |
+| code-generation typescript.md | medium   | Class over interface for the two new values, and the defaulted-parameter rule         |
+| text-generation SKILL.md      | high     | Forced the split of both over-length files, and stripped backticks from tables        |
+| mermaid SKILL.md              | medium   | The bracketed system suffixes and the arrow legend                                    |
+| 2-vocabulary.md               | medium   | Turn, turn step and progress line kept distinct throughout                            |
+| 1-overview.md                 | low      | Confirmed the package the new file belongs in, which the sibling files already showed |
+| transcript-turn-step.ts       | high     | The three empty-response wordings, and where the repeat mark goes                     |
+| transcript-turn-section.ts    | high     | The truncation's real behaviour, which is where the correction started                |
+| turn-outcomes.ts              | high     | That Exhausted, Stuck and Failed write nothing. The fact that falsified the claim     |
+| turn-ending-service.ts        | high     | That only Replied and Cancelled append, which is the other half of the same fact      |
+| mistral-mapper.ts             | high     | Both signatures, and that the loss is symmetric                                       |
+| chat-turn.ts                  | high     | The relaxed invariant and the defaulted content parameter                             |
+| conversation-turn-runner.ts   | high     | The one production consumer, and where recordCharge has to sit                        |
+| iteration-counter.ts          | high     | That spent is already private with the right body, so the change is an exposure       |
+| tool-call-executor.ts         | high     | That results carry the call id, so the repeat test needs nothing recorded             |
+| system-prompt.test.ts         | high     | That the release 3 fixture compares the system prompt alone and is unaffected         |
+| transcript-repository.ts      | medium   | The one step-creation site, and where a charge attaches                               |
+| session-snapshot.ts           | medium   | Confirmed the one-line restore fix                                                    |
+| builders.ts                   | medium   | The sibling builder, and the real call-site count                                     |
+| transcript-document.test.ts   | medium   | The document-level test shape the plan follows                                        |
+| applicable-skills.ts          | medium   | That declaresArgument already distinguishes the two claims, which closed D4           |
+| The throwaway vitest file     | high     | Falsified the requirements' central claim. The single highest-value read of the phase |
+| bun run test                  | low      | A clean baseline and a clean finish                                                   |
+| spec/2026-09-18c folder shape | medium   | The folder naming for the split, and that the prefix drops                            |
+| src/session/views/            | not read | Out of scope by the requirements, and never needed                                    |
+| SearchReport                  | not read | The requirements' claim that its reason travels in the tool result was taken as given |
 
 ## Shape Notes
 

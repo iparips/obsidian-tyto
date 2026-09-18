@@ -15,9 +15,9 @@ One entry per production method the design changes. The checks a person runs by 
 
 Four suites already cover this ground and gain cases rather than being replaced.
 
-| Suite                                                      | Covers                                        |
-| ---------------------------------------------------------- | --------------------------------------------- |
+| Suite                                                      | Covers                                                       |
+| ---------------------------------------------------------- | ------------------------------------------------------------ |
 | src/model/providers/tests/mistral-mapper.test.ts           | fileNameFor alone today, so both directions are new coverage |
-| src/session/transcript/tests/transcript-document.test.ts   | What the document renders                     |
-| src/session/transcript/tests/transcript-repository.test.ts | What a step records                           |
-| src/engine/tests/iteration-counter.test.ts                 | The charge                                    |
+| src/session/transcript/tests/transcript-document.test.ts   | What the document renders                                    |
+| src/session/transcript/tests/transcript-repository.test.ts | What a step records                                          |
+| src/engine/tests/iteration-counter.test.ts                 | The charge                                                   |

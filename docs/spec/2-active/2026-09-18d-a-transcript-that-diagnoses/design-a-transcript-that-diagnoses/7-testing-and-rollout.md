@@ -44,19 +44,19 @@ Five commits, in build order. Each leaves the suite green.
 
 Sites this design touches, at today's lines.
 
-| File                                                | Line | What sits there                                             |
-| --------------------------------------------------- | ---- | ----------------------------------------------------------- |
-| src/model/providers/models/chat-turn.ts             | 13   | ofToolCalls, which forces content to empty                  |
-| src/model/providers/models/chat-message.ts          | 28   | modelToolCalls, which does the same                         |
-| src/model/providers/mistral-mapper.ts               | 15   | toApiMessage hardcoding content on a tool-call message      |
-| src/model/providers/mistral-mapper.ts               | 34   | toChatTurn returning calls or text and never both           |
-| src/session/models/session-snapshot.ts              | 66   | StoredMessages.assistant, the one-line restore fix          |
-| src/engine/turn/tool-call-executor.ts               | 30   | The only site appending the model's tool-call message       |
-| src/engine/turn/conversation-turn-runner.ts         | 57   | ChatTurn's one production consumer                          |
-| src/engine/turn/conversation-turn-runner.ts         | 73   | spendOn, the one place a batch reaches the counter          |
-| src/engine/turn/spending/iteration-counter.ts       | 36   | spent, today private                                        |
-| src/engine/turn/ending/turn-outcomes.ts             | 23   | exhausted, which appends nothing to the history             |
-| src/session/transcript/transcript-turn-step.ts      | 66   | response, which renders nothing recorded                    |
-| src/session/transcript/transcript-turn-step.ts      | 112  | responseLines, which returns text or calls                  |
-| src/session/transcript/transcript-repository.ts     | 42   | recordCall, the one step-creation site                      |
-| src/test-support/builders.ts                        | 48   | aToolTurn, variadic over calls                              |
+| File                                            | Line | What sits there                                        |
+| ----------------------------------------------- | ---- | ------------------------------------------------------ |
+| src/model/providers/models/chat-turn.ts         | 13   | ofToolCalls, which forces content to empty             |
+| src/model/providers/models/chat-message.ts      | 28   | modelToolCalls, which does the same                    |
+| src/model/providers/mistral-mapper.ts           | 15   | toApiMessage hardcoding content on a tool-call message |
+| src/model/providers/mistral-mapper.ts           | 34   | toChatTurn returning calls or text and never both      |
+| src/session/models/session-snapshot.ts          | 66   | StoredMessages.assistant, the one-line restore fix     |
+| src/engine/turn/tool-call-executor.ts           | 30   | The only site appending the model's tool-call message  |
+| src/engine/turn/conversation-turn-runner.ts     | 57   | ChatTurn's one production consumer                     |
+| src/engine/turn/conversation-turn-runner.ts     | 73   | spendOn, the one place a batch reaches the counter     |
+| src/engine/turn/spending/iteration-counter.ts   | 36   | spent, today private                                   |
+| src/engine/turn/ending/turn-outcomes.ts         | 23   | exhausted, which appends nothing to the history        |
+| src/session/transcript/transcript-turn-step.ts  | 66   | response, which renders nothing recorded               |
+| src/session/transcript/transcript-turn-step.ts  | 112  | responseLines, which returns text or calls             |
+| src/session/transcript/transcript-repository.ts | 42   | recordCall, the one step-creation site                 |
+| src/test-support/builders.ts                    | 48   | aToolTurn, variadic over calls                         |
