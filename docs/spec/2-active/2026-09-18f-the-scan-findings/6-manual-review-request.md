@@ -24,23 +24,11 @@ The five warnings, each already settled in [2-requirements.md](2-requirements.md
 - :has at styles.css:152: it styles a rendered-markdown entry over a handful of panel rows.
 
 ```text
-Requesting manual review. Two errors block the listing; both look like
-false positives.
+Requesting manual review. Two errors block the listing; both look like false positives.
 
-1. "Code creates script elements at runtime" - not my code.
-createElement('script') appears nowhere in my source. The sites are React
-DOM's resource-preloading path, never reached: I call neither preinit nor
-preloadModule. It cannot be tree-shaken, since React assigns preinitScript
-onto a shared dispatcher, so no bundler can prove it dead. Production mode
-already removed two of the three sites. This should affect every React
-plugin you list.
+1. "Code creates script elements at runtime" - not my code. createElement('script') appears nowhere in my source. The sites are React DOM's resource-preloading path, never reached: I call neither preinit nor preloadModule. It cannot be tree-shaken, since React assigns preinitScript onto a shared dispatcher, so no bundler can prove it dead. Production mode already removed two of the three sites. This should affect every React plugin you list.
 
-2. "Unsafe call to TranscriptDocument.write" - does not reproduce. Every
-type on that line is declared, and the compiler resolves argument 0 to
-TranscriptSource, not any. My lint passes it, and strictTypeChecked with
-no-unsafe-argument forced on reports nothing. What did your rule resolve
-it to? If any, the difference is in type resolution, not the code.
+2. "Unsafe call to TranscriptDocument.write" - does not reproduce. Every type on that line is declared, and the compiler resolves argument 0 to TranscriptSource, not any. My lint passes it, and strictTypeChecked with no-unsafe-argument forced on reports nothing. What did your rule resolve it to? If any, the difference is in type resolution, not the code.
 
-The warnings are in code that does not ship or is deliberate; happy to
-detail any.
+The warnings are in code that does not ship or is deliberate; happy to detail any.
 ```
