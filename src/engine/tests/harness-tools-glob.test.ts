@@ -99,6 +99,27 @@ describe('HarnessToolsService', () => {
 
       expect(harnessResult.publishStepSummary?.refused).toBe(false)
     })
+
+    // Syntax this glob does not read matches its own characters, so the pattern
+    // asks for a note named with braces. Nothing about the rest of it is wrong,
+    // which is why an undiagnosed miss sends the model rewriting the rest.
+    it('says a brace list is not read here, rather than only that nothing matched', async () => {
+      const harnessResult = await glob('{Quotes,Lists}/*.md')
+
+      expect(harnessResult.result).toContain('a brace list such as {a,b} is not read here')
+    })
+
+    it('says a character class did not close, since the bracket then matched itself', async () => {
+      const harnessResult = await glob('Quotes/roof[ing/*.md')
+
+      expect(harnessResult.result).toContain('did not close on the same folder name')
+    })
+
+    it('says nothing more when the pattern is well formed and simply misses', async () => {
+      const harnessResult = await glob('Quotes/nothing[0-9].md')
+
+      expect(harnessResult.result).toBe('no notes match Quotes/nothing[0-9].md')
+    })
   })
 
   describe('when more notes match than the cap', () => {

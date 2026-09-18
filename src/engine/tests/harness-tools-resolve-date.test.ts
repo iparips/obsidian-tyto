@@ -88,9 +88,7 @@ describe('HarnessToolsService', () => {
     it('refuses with the reason the resolver gave, unchanged', async () => {
       const result = await resolveDate('my todo list')
 
-      expect(result.result).toBe(
-        'no date in "my todo list". Ask the user which date they mean rather than trying another phrase.',
-      )
+      expect(result.result).toContain('no date in "my todo list"')
     })
 
     it('records the refusal as a step, so a turn stalled on it says why', async () => {

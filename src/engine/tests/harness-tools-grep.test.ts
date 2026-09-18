@@ -116,10 +116,27 @@ describe('HarnessToolsService', () => {
       )
     })
 
-    it('says the narrowing matched none when no note was read', async () => {
+    it('names the narrowing that matched none, so the text is not read as absent', async () => {
       const harnessResult = await grep('roofing', { path_pattern: 'Nowhere/*.md' })
 
-      expect(harnessResult.result).toBe('no notes to search: the narrowing matched none')
+      expect(harnessResult.result).toBe(
+        'no notes to search: Nowhere/*.md matched none, so nothing was read for the pattern',
+      )
+    })
+
+    // A narrowing whose shape cannot match is the case that costs a turn its
+    // steps: the model reads "matched none" as a fact about the vault and
+    // rewrites the parts that were never wrong.
+    it('says why a folder-shaped narrowing could never match', async () => {
+      const harnessResult = await grep('roofing', { path_pattern: 'Quotes' })
+
+      expect(harnessResult.result).toContain('this matches notes, not folders')
+    })
+
+    it('says why a narrowing carrying a brace list could never match', async () => {
+      const harnessResult = await grep('roofing', { path_pattern: '{Quotes,Lists}/*.md' })
+
+      expect(harnessResult.result).toContain('a brace list such as {a,b} is not read here')
     })
   })
 

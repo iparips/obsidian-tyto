@@ -127,7 +127,7 @@ export const TOOL_SCHEMAS: ToolSchema[] = [
         pattern: {
           type: 'string',
           description:
-            'A path pattern from the vault root. * matches within one folder, ** across folders, ? one character. Example: 1 - Journal/Weekly/Week-35/*.md. Prefer a trailing * over a spelled-out filename: nothing matched means your pattern was wrong, so widen it rather than reordering the parts.',
+            'A path pattern from the vault root. Four wildcards, and no others: * matches within one folder, ** across folders, ? one character, and [...] one character from a set, as Week-3[5-8] covers weeks 35 to 38 and [!5] excludes one. A brace list such as {a,b} is not read and matches those characters literally; send one call per alternative instead. Example: 1 - Journal/Weekly/Week-35/*.md. Prefer a trailing * over a spelled-out filename: nothing matched means your pattern was wrong, so widen it rather than reordering the parts.',
         },
         sort: { type: 'string', enum: ['path', 'modified'] },
         order: { type: 'string', enum: ['ascending', 'descending'] },
@@ -187,11 +187,16 @@ export const TOOL_SCHEMAS: ToolSchema[] = [
     parameters: {
       type: 'object',
       properties: {
-        answer: { type: 'string' },
+        answer: {
+          type: 'string',
+          description:
+            'The answer, in markdown. Cite the note a claim came from inline, as a wikilink the reader can click: [[4 - Archive/2026/Q3-jul-aug-sep/Week-36/09-05-sat-breakup|09-05-sat-breakup]]. Use the whole path a search returned, since a name such as 09-04-Fri exists in every week folder and a bare [[09-04-Fri]] opens whichever one the vault picks. Drop the .md. Put the link where the claim is, so a point resting on three notes names all three, and leave a claim drawn from everything you read uncited rather than listing every path after it.',
+        },
         sources: {
           type: 'array',
           items: { type: 'string' },
-          description: 'Every note path the answer drew on.',
+          description:
+            'Every note path the answer drew on, whether or not it is cited inline. This is the whole accounting, shown to the user as a count they can open.',
         },
       },
       required: ['answer', 'sources'],
@@ -241,7 +246,7 @@ export const TOOL_SCHEMAS: ToolSchema[] = [
         phrase: {
           type: 'string',
           description:
-            'The date phrase in the user\'s own words, such as "last Friday" or "3 days ago". Send what they said, not a date you worked out from it. Surrounding words are fine.',
+            'The date phrase in the user\'s own words, such as "last Friday" or "3 days ago". Send what they said, not a date you worked out from it. Surrounding words are fine. The phrase has to name a point in time rather than a length of one: "three weeks" is a duration and resolves to nothing, where "three weeks ago" is the Friday three weeks back. Where the user gave a span, send the end of it they mean.',
         },
       },
       required: ['phrase'],

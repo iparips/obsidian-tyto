@@ -3,13 +3,15 @@ import { act, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { ChoiceRequest, SessionPanel, RecorderPort, SessionPanelProps } from '../SessionPanel'
 import { Utterance } from '../../../recorder'
-import { Attempt, Outcome, Outcomes } from '../../../shared/models/outcome'
+import { Attempt, Outcomes } from '../../../shared/models/outcome'
 import { PanelItem } from '../../models/panel-state'
+import { TurnResult } from '../../../engine/turn/ending/turn-result'
+import { aTurnResult } from '../../../test-support/builders'
 
 describe('SessionPanel', () => {
   let recorder: RecorderPort
   let transcribe: Mock<[Blob, string], Promise<Attempt<string>>>
-  let processUtterance: Mock<[string], Promise<Outcome<string>>>
+  let processUtterance: Mock<[string], Promise<TurnResult>>
   let recordHistory: Mock<[readonly PanelItem[]], void>
 
   beforeEach(() => {
@@ -21,7 +23,7 @@ describe('SessionPanel', () => {
       stream: vi.fn().mockReturnValue(null),
     }
     transcribe = vi.fn().mockResolvedValue(Outcomes.success('spoken words'))
-    processUtterance = vi.fn().mockResolvedValue(Outcomes.success('made the edit'))
+    processUtterance = vi.fn().mockResolvedValue(aTurnResult(Outcomes.success('made the edit')))
     recordHistory = vi.fn()
   })
 
@@ -95,7 +97,7 @@ describe('SessionPanel', () => {
 
   describe('when a turn is running', () => {
     it('records the utterance before the model is called, so an eviction keeps it', async () => {
-      let settle: (outcome: Outcome<string>) => void = () => undefined
+      let settle: (result: TurnResult) => void = () => undefined
       processUtterance.mockReturnValue(new Promise((resolve) => (settle = resolve)))
       renderPanel()
 
@@ -104,7 +106,7 @@ describe('SessionPanel', () => {
       expect(lastRecorded()).toEqual([
         { kind: 'turn', target: null, entries: [{ kind: 'user', text: 'add a heading' }] },
       ])
-      await act(async () => settle(Outcomes.success('made the edit')))
+      await act(async () => settle(aTurnResult(Outcomes.success('made the edit'))))
     })
   })
 
@@ -129,7 +131,9 @@ describe('SessionPanel', () => {
     })
 
     it('records the error when the turn failed', async () => {
-      processUtterance.mockResolvedValue(Outcomes.failure('chat', 'the provider failed'))
+      processUtterance.mockResolvedValue(
+        aTurnResult(Outcomes.failure('chat', 'the provider failed')),
+      )
       renderPanel()
 
       await runTurn()
@@ -149,7 +153,7 @@ describe('SessionPanel', () => {
     })
 
     it('records the cancellation when the user stopped the turn', async () => {
-      processUtterance.mockResolvedValue(Outcomes.cancelled('chat', []))
+      processUtterance.mockResolvedValue(aTurnResult(Outcomes.cancelled('chat', [])))
       renderPanel()
 
       await runTurn()
@@ -188,13 +192,13 @@ describe('SessionPanel', () => {
 
   describe('when the panel is closed mid-turn', () => {
     it('records the turn that ended after the unmount, which no effect could', async () => {
-      let settle: (outcome: Outcome<string>) => void = () => undefined
+      let settle: (result: TurnResult) => void = () => undefined
       processUtterance.mockReturnValue(new Promise((resolve) => (settle = resolve)))
       const view = renderPanel()
       await runTurn()
 
       view.unmount()
-      settle(Outcomes.success('made the edit'))
+      settle(aTurnResult(Outcomes.success('made the edit')))
 
       await waitFor(() =>
         expect(lastRecorded()).toEqual([

@@ -20,6 +20,9 @@ export class ToolCallOutcome {
     // Which of the two paths the write took, so the panel can warn about the
     // one the editor cannot undo. Absent where the call wrote nothing.
     readonly wroteThrough?: WritePath,
+    // The text the ending appends to the history. Present only on an answer,
+    // which is the one call that ends the turn it was made in.
+    readonly answerEndingTheTurn?: string,
   ) {}
 
   descriptionForUser(): string {
@@ -33,6 +36,12 @@ export class ToolCallOutcome {
 
   static refused(reason: string): ToolCallOutcome {
     return new ToolCallOutcome(reason, undefined, reason)
+  }
+
+  // The answer the model published and the result it reads are set together:
+  // the ending needs the text, and the model needs to be told the call ran.
+  static answered(result: string, answer: string): ToolCallOutcome {
+    return new ToolCallOutcome(result, undefined, undefined, undefined, undefined, answer)
   }
 
   static edited(

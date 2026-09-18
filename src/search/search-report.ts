@@ -11,10 +11,35 @@ export class SearchReport {
 
   // A glob matches notes, never folders, so a pattern aimed at a folder always
   // matches nothing. Told only "no notes match", the model retries variants of
-  // the same folder-shaped pattern until the cap stops it.
+  // the same folder-shaped pattern until the cap stops it. The same holds for a
+  // pattern carrying syntax this glob does not read: it cannot match, and a
+  // miss that does not say so is a miss the model answers by varying the parts
+  // that were never wrong.
   private static noGlobMatch(pattern: string): string {
-    if (!SearchReport.looksLikeFolder(pattern)) return `no notes match ${pattern}`
-    return `no notes match ${pattern}; this matches notes, not folders, and * stops at a / — to list what is inside, end the pattern with /* or use **`
+    const reason = SearchReport.whyItCannotMatch(pattern)
+    if (reason) return `no notes match ${pattern}; ${reason}`
+    return `no notes match ${pattern}`
+  }
+
+  // Ordered by how badly each misleads: unsupported syntax is matched as its
+  // own characters, so the pattern asks for a note named with braces and is
+  // wrong in a way no rewording of the rest can fix.
+  private static whyItCannotMatch(pattern: string): string | null {
+    if (pattern.includes('{'))
+      return 'a brace list such as {a,b} is not read here and matches those characters literally — send one call per alternative, or widen with * or **'
+    if (SearchReport.hasUnclosedClass(pattern))
+      return 'a character class opened with [ and did not close on the same folder name, so the [ matched itself — close it, as Week-3[5-8] does'
+    if (SearchReport.looksLikeFolder(pattern))
+      return 'this matches notes, not folders, and * stops at a / — to list what is inside, end the pattern with /* or use **'
+    return null
+  }
+
+  // Read per segment, since a class never spans a /: an opening bracket with no
+  // closing one after it in the same segment is the case that matched itself.
+  private static hasUnclosedClass(pattern: string): boolean {
+    return pattern
+      .split('/')
+      .some((segment) => segment.includes('[') && !segment.includes(']', segment.indexOf('[')))
   }
 
   // The last segment names a folder when it carries a prefix beside its
@@ -33,12 +58,22 @@ export class SearchReport {
   // about the vault: "no notes contain X" reads as an answer to a question the
   // search never asked, and is what sends a model on to widen the pattern.
   static ofGrep(pattern: string, result: GrepResult, scope?: string): string {
-    if (result.readNothing) return `no notes to search: the narrowing matched none`
+    if (result.readNothing) return SearchReport.readNothing(scope)
     if (result.total === 0) return SearchReport.foundNothing(pattern, scope)
     return [
       ...SearchReport.rows(result),
       ...SearchReport.trimmedLine(result.hits.length, result),
     ].join('\n')
+  }
+
+  // The narrowing admitted no note, so nothing was read and the text was never
+  // the question. Names the narrowing and, where its shape cannot match at all,
+  // says so: the same diagnosis a glob gives, since both take the same pattern.
+  private static readNothing(scope?: string): string {
+    if (scope === undefined) return 'no notes to search: the narrowing matched none'
+    const reason = SearchReport.whyItCannotMatch(scope)
+    if (reason) return `no notes to search: ${scope} matched none; ${reason}`
+    return `no notes to search: ${scope} matched none, so nothing was read for the pattern`
   }
 
   private static foundNothing(pattern: string, scope?: string): string {

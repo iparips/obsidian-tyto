@@ -26,16 +26,27 @@ export class ToolCallExecutor {
     private turnProgressPublisher: TurnProgressPublisher,
   ) {}
 
-  async executeToolCalls(toolCalls: ToolCall[], refusals: RepeatedRefusalCounter): Promise<void> {
+  // The first answer the batch published, or null where it published none. Held
+  // while the rest of the batch runs rather than returned from inside the loop,
+  // so every call still runs and the history keeps a result for each.
+  async executeToolCalls(
+    toolCalls: ToolCall[],
+    refusals: RepeatedRefusalCounter,
+  ): Promise<string | null> {
     this.sessionRepository.appendChatMessage(ChatMessage.modelToolCalls(toolCalls))
     let editApplied = false
+    let answerEndingTheTurn: string | null = null
     const targetAtStepStart = this.sessionRepository.targetNote()
     for (const call of toolCalls) {
       if (this.hasTargetMovedFrom(targetAtStepStart)) this.refuseAfterMove(call, targetAtStepStart)
       else if (this.isSecondEditIn(call, editApplied)) this.refuseSecondEdit(call)
-      else await this.executeToolCall(call, refusals)
+      else {
+        const answered = await this.executeToolCall(call, refusals)
+        answerEndingTheTurn = answerEndingTheTurn ?? answered
+      }
       editApplied = editApplied || call.isEditTool()
     }
+    return answerEndingTheTurn
   }
 
   // The step's own target, not the last call's: the note ModelService read at
@@ -68,12 +79,16 @@ export class ToolCallExecutor {
     this.sessionRepository.appendChatMessage(ChatMessage.toolCallResult(call.id, reason))
   }
 
-  private async executeToolCall(call: ToolCall, refusals: RepeatedRefusalCounter): Promise<void> {
+  private async executeToolCall(
+    call: ToolCall,
+    refusals: RepeatedRefusalCounter,
+  ): Promise<string | null> {
     const toolCallOutcome = await this.toolDispatcher.execute(call)
     this.sessionRepository.appendChatMessage(
       ChatMessage.toolCallResult(call.id, toolCallOutcome.result),
     )
     this.turnRepository.storeCursorPositionAndWrittenNote(toolCallOutcome.editEndPosition)
     refusals.record(toolCallOutcome.refusal ?? null)
+    return toolCallOutcome.answerEndingTheTurn ?? null
   }
 }

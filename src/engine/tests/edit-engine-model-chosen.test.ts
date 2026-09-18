@@ -415,9 +415,9 @@ describe('EditEngine', () => {
     it('ends the turn with a summary when the user declines', async () => {
       respondsWith(findsTodo(), offersTodo())
 
-      const outcome = await engineOf(picking(null)).processUtterance('add toilet paper')
+      const result = await engineOf(picking(null)).processUtterance('add toilet paper')
 
-      expect(outcome.succeeded()).toBe(true)
+      expect(result.outcome.succeeded()).toBe(true)
     })
   })
 

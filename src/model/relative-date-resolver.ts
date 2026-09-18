@@ -45,9 +45,15 @@ export class RelativeDateResolver {
     return result.start.isCertain('day') || result.start.isCertain('weekday')
   }
 
+  // A duration is the common miss and the one worth naming: "three weeks" is a
+  // length of time and could be counted in either direction, where "three weeks
+  // ago" is a day. Sending that once is reading the refusal rather than cycling
+  // through synonyms, which is what the last sentence rules out.
   private static nothingParsed(phrase: string): UnresolvedDate {
     return new UnresolvedDate(
-      `no date in "${phrase}". Ask the user which date they mean rather than trying another phrase.`,
+      `no date in "${phrase}": a phrase has to name a point in time rather than a length of one. ` +
+        `Where the user gave a span, send the end of it you mean, as "three weeks ago" does for "three weeks". ` +
+        `Where they named no direction at all, ask which date they mean rather than trying more wordings.`,
     )
   }
 

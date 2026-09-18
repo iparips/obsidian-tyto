@@ -28,6 +28,9 @@ export type PanelAction =
       wroteDirect: boolean
     }
   | { type: 'answer'; text: string; sources: string[] }
+  // The turn ended on its answer, which the answer action already appended, so
+  // this settles the turn and adds no entry of its own.
+  | { type: 'turnAnswered' }
   | { type: 'cancelRequested' }
   | { type: 'turnCancelled'; notesWritten: readonly string[] }
   | { type: 'choiceRequested'; candidates: string[]; purpose: string }
