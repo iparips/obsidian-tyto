@@ -15,7 +15,8 @@ import { AllowedObsidianCommand } from '../../../commands/models/allowed-obsidia
 // release 5 adds the heading rule and re-records this. The whole-note write and
 // the one-edit-per-step rule re-record it again, and so does the rule against
 // ending a turn on a statement of intent, and the rule against repeating a
-// refused call.
+// refused call. What ambiguity means re-records it again: the bare rule read as
+// licence to ask whether to make an edit the instruction had already named.
 import RELEASE_3_PROMPT from './fixtures/release-3-prompt.txt?raw'
 
 const aNote = (): NoteDetails => new NoteDetails('note.md', '# Budget\n\nbody', { line: 2, ch: 0 })
