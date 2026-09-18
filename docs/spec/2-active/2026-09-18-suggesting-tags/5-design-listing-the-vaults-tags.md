@@ -227,9 +227,9 @@ The wording is a judgement no unit test makes, per the acceptance criteria. Judg
 
 ## Re-recording the prompt fixture
 
-The fixture does not move, and this is a correction to the requirements, which say it does.
+The fixture does not move, which is the opposite of what a reader expects from a prompt change.
 
-release-3-prompt.txt records the prompt for a vault with no commands, no search and no skills, asserted at system-prompt.test.ts:511. SearchSection.build returns nothing when search is off, so text added inside it cannot reach that fixture. The guard stays green unrecorded, and re-recording it here would be the workaround CLAUDE.md warns against rather than the deliberate act. The requirements line saying otherwise is corrected in this change rather than designed around.
+release-3-prompt.txt records the prompt for a vault with no commands, no search and no skills, asserted at system-prompt.test.ts:511. SearchSection.build returns nothing when search is off, so text added inside it cannot reach that fixture. The guard stays green unrecorded, and re-recording it here would be the workaround CLAUDE.md warns against rather than the deliberate act.
 
 ## Out of scope
 

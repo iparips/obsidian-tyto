@@ -36,9 +36,8 @@ Usage counts are what turn the list into a ranking the model can choose from.
 - A cap on what one call returns, in the shape MAX_GLOB_RESULTS (search) sets for globbing, with the total stated so a truncated list says it was truncated.
 - Nested tags counted as they are written. Obsidian treats #project/tyto as its own tag and as a child of #project; the list reports the full string, since that is what an edit has to write.
 - Applying a tag through the existing edit tools. The model writes the tag as text with insert_at, insert_text or replace_text, like any other content. No new write path, per D1.
-- A prompt line saying to list before suggesting, and to suggest only from what came back. Its section sits with the search rules, which is where reaching beyond the note is already governed.
+- A prompt line saying to list before suggesting, and to suggest only from what came back. Its section sits with the search rules, which is where reaching beyond the note is already governed. Judging the wording needs a real vault and key, per CLAUDE.md.
 - Gating the tool behind the search setting, alongside the other read tools. Reading the vault's tag index is reaching outside the open note, which is the thing that setting governs.
-- A prompt line inside the search section, which the release 3 fixture does not see. That fixture records a vault with search off, where the section is absent, so the guard stays green and is not re-recorded. Judging the wording still needs a real vault and key, per CLAUDE.md.
 
 ## Out of Scope
 
