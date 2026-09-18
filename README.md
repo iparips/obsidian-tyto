@@ -26,39 +26,22 @@ Dictation leaves you the structure to add afterwards: you get the words down, th
 
 That matters most when your hands are busy. The panel is a sidebar drawer, one tap from the mobile toolbar, and adding to a shopping list while walking is the case it is designed around. Typing works too, and is the easier way to try it.
 
-Nothing about it is heavyweight. Four runtime dependencies, no database, no embedding index, and vault search that reads your notes directly. A change to an open note goes through the editor, so Ctrl+Z and Cmd+Z step back through a turn one edit at a time.
+Nothing about it is heavyweight. Four runtime dependencies, no database, no embedding index, and vault search that reads your notes directly.
 
 What it cannot promise is being right. A model decides what you meant, so read [It Can Get It Wrong](#it-can-get-it-wrong) before pointing it at notes you care about.
 
 ## What It Can Do
 
-Edit the note you are on
+Out of the box, a turn reads and edits the note in front of you. Anything that reaches past that note waits on a setting: see [Commands and Search](#commands-and-search).
 
-- Replace text, insert at a heading or a line, or write a whole note. One utterance can touch several notes.
-
-Answer a question from the vault
-
-- "What did I write about the roofing quote recently" returns a summary in the panel, naming the notes it read. Nothing is written.
-
-Reach a note you did not open
-
-- By an Obsidian command you have allowed, by path, by glob, or by a date phrase. "Saturday last week" resolves to a real date before any filename is guessed. Where several notes match, Tyto asks which one you meant.
-
-Suggest tags the vault already uses
-
-- Tyto reads Obsidian's tag index rather than inventing a tag, so a suggestion matches what the rest of the vault is filed under.
-
-Follow the vault's own instructions
-
-- Skills and AGENTS.md files tell the model how this vault writes. See [Skills and Folder Instructions](#skills-and-folder-instructions).
-
-Keep the session across a reload
-
-- The conversation is restored when Obsidian restarts, so a phone evicting the app does not lose the thread. Reset clears it.
-
-Show its working
-
-- Each turn lists the steps it spent against its budget, and every reply can be copied. Turning on the session transcript adds a header button that copies the whole session as Markdown, for filing a turn that went wrong.
+- Edit the note you are on: replace text, insert at a heading or a line, or write the whole note. One utterance can touch several notes.
+- Answer a question from the vault, with search on. "What did I write about the roofing quote recently" returns a summary in the panel naming the notes it read, and writes nothing.
+- Reach a note you did not open, by an allowed Obsidian command, a path, a glob, or a date phrase. "Saturday last week" resolves to a real date before a filename is guessed.
+- Ask you which note, where several match. The pick is also permission to write to it.
+- Suggest tags the vault already uses, read from Obsidian's tag index rather than invented, so a suggestion matches what the rest of the vault is filed under.
+- Follow the vault's own instructions, from skills and AGENTS.md files. See [Skills and Folder Instructions](#skills-and-folder-instructions).
+- Keep the session across a reload, so a phone evicting Obsidian does not lose the thread. Reset clears it.
+- Show its working. The panel lists every step a turn took and what it spent against its budget, and the session transcript setting adds a button that copies the lot as Markdown.
 
 ## It Can Get It Wrong
 
@@ -84,10 +67,9 @@ Tyto tells you when this happened. The step that made the edit reads "Undo not a
 
 ### What limits the damage
 
-- Tyto writes nothing outside the note it is on unless a command, a search or your own pick sends it elsewhere. Search is off by default.
+- Tyto writes nothing outside the note it is on unless a command, a search or your own pick sends it elsewhere.
 - An answer drawn from search is shown in the panel and never written into a note. An instruction that asks for both an answer and an edit still edits.
 - The panel lists each step as it runs. The turn is labelled with the note it is on, and a step shows its own path whenever it edited a different note or wrote directly, so a wrong target is visible rather than silent.
-- Where several notes match, the default is to ask you which. The pick is also the permission to write.
 
 ### What to do about it
 
@@ -99,50 +81,30 @@ Tyto tells you when this happened. The step that made the edit reads "Undo not a
 ## What It Does Not Do
 
 - Mistral only, using your own API key. There is no other provider and no local model.
-- Manually tested against mistral-medium-latest, which is the default. The model is a free text field, so another Mistral model will run, but nothing else has been through the acceptance checks and a smaller model is likelier to mistake the instruction.
+- Manually tested against mistral-medium-latest, the default. The model is a free text field, so another Mistral model will run untested, and a smaller one is likelier to mistake the instruction.
 - One turn has a step budget, twenty by default. A long instruction that runs out reports what it did rather than continuing.
-- One recording per request, up to the provider's limits: currently 60 minutes or 500 MB, though Tyto tracks Mistral's latest transcription model, so that can move. A longer recording is rejected rather than split, and the panel offers a retry rather than losing the audio. Normal dictation is nowhere near either, since five minutes is about 1 MB.
-
-Specs live in docs/spec, in three buckets: [1-upcoming](docs/spec/1-upcoming) is designed but unbuilt, [2-active](docs/spec/2-active) is in flight, and [3-archived](docs/spec/3-archived) is what shipped.
+- One recording per request, up to Mistral's limits on its latest transcription model, currently 60 minutes or 500 MB. A longer one is rejected rather than split, and the panel offers a retry rather than losing the audio. Normal dictation is nowhere near either, since five minutes is about 1 MB.
 
 ## What Leaves Your Vault
 
-Tyto sends note content to a remote LLM provider. This section says what, when, and to whom.
+Tyto sends note content to one remote provider: Mistral, at api.mistral.ai. Nothing is sent anywhere else, and there is no telemetry and no analytics.
 
-The service
+### What is sent, and when
 
-- Mistral, at api.mistral.ai. Nothing is sent anywhere else.
-
-What is sent
+Two things go to Mistral, and only during a turn you start by recording or typing. Nothing is sent in the background, and nothing while the panel sits idle.
 
 - Your spoken audio, so it can be transcribed.
 - The instruction, the text of the note the session is on, any skill the turn matched, any AGENTS.md or CLAUDE.md in that note's folder chain, and search excerpts when vault search is on.
 
-When
+Tyto is an instruction parser, and the parsing is the model's. Turning free speech into a structural edit is what the model does, and no local model does it.
 
-- Only during a turn you start, by recording or by typing an instruction. Nothing is sent in the background, and nothing is sent while the panel sits idle.
+### Your key, and what the plugin can reach
 
-Why
+A Mistral API key is required, and without one Tyto does nothing. The key is stored in the plugin's folder inside your vault, and is sent only to Mistral.
 
-- Tyto is an instruction parser, and the parsing is the model's. Turning free speech into a structural edit is what the model does, and no local model does it.
+Before you change any setting, a turn can read and edit the note the session is on, and run one Obsidian command: daily-notes, which creates or reveals your daily note. Vault search is off, and no other command is allowed until you add it. See [Commands and Search](#commands-and-search).
 
-The account
-
-- A Mistral API key is required. Without one Tyto does nothing.
-- The key is stored in the plugin's folder inside your vault, and is sent only to Mistral.
-
-The session transcript
-
-- Off by default, because it holds your note text and any vault instructions the turn read, verbatim. Turning it on adds a Copy button to the Tyto panel header, for debugging what went wrong. Your API key is never in it. See [Reporting a turn that went wrong](#reporting-a-turn-that-went-wrong) before posting one.
-
-What never leaves
-
-- No telemetry, no analytics, and no host other than Mistral.
-
-What it can do in the vault without being configured
-
-- Run one Obsidian command, daily-notes, which creates or reveals your daily note. Nothing else is allowed until you add it. See [Commands and Search](#commands-and-search).
-- Vault search is off by default, so nothing beyond the note in the session is read.
+The session transcript is off by default, because it holds your note text and any vault instructions the turn read, verbatim. Turning it on adds a Copy button to the Tyto panel header, for debugging what went wrong. Your API key is never in it. See [Reporting a turn that went wrong](#reporting-a-turn-that-went-wrong) before posting one.
 
 ## Getting Started
 
@@ -157,58 +119,55 @@ Then try a turn. Use a scratch note for these six, not one you care about: the p
 5. Try a follow-up: "actually make that heading level two".
 6. Press Ctrl+Z / Cmd+Z in the note: the last edit undoes through the native history.
 
-If a step fails, the panel shows an error entry naming the failing step: transcription, chat, or apply. If a step succeeds but does the wrong thing, see [It Can Get It Wrong](#it-can-get-it-wrong).
+If a step fails, the panel shows an error entry naming the failing step: transcription, chat, or apply.
 
-Commands and vault search are both off until you turn them on. See [Commands and Search](#commands-and-search).
+Those six use the note in front of you. To let Tyto find a note or answer a question from the vault, see [Commands and Search](#commands-and-search).
 
 ## Commands and Search
 
-Tyto can run an Obsidian command and then edit the note it opened, and it can search the vault to answer a question.
+Two settings widen what a turn can reach beyond the note in front of you. With both off, Tyto reads and edits only the note the session is on.
 
-- Say "open my daily note and add a paragraph under Meetings". The note opens, the session moves to it, and the edit lands there.
-- Say "what did I write about the roofing quote recently". The panel shows a copyable summary naming the notes it drew on. Nothing is written to a note.
+### The commands you allow
 
-Tyto runs only the commands you allow. Settings holds one command id or namespace pattern per line, and a collapsed count showing what those entries currently resolve to. A pattern's plugin id must be literal, and only a trailing wildcard is allowed.
+Say "open my daily note and add a paragraph under Meetings", and the note opens, the session moves to it, and the edit lands there.
 
-The list ships holding daily-notes, so "open my daily note" works out of the box. Opening the daily note creates or reveals one note and destroys nothing, which is what makes it safe to allow unasked. Clear the line to allow nothing.
+Tyto runs only the commands you allow. Settings holds one command id or namespace pattern per line, and a collapsed count showing what those entries currently resolve to. The list ships holding daily-notes, which is why that example works out of the box: opening the daily note creates or reveals one note and destroys nothing, which makes it safe to allow unasked. Clear the line to allow nothing.
 
-Write daily-notes for a single command, and open-or-create-file-command:* for every command in a namespace. Obsidian's core commands are not namespaced, so daily-notes:* matches none of them.
+Write daily-notes for a single command, and open-or-create-file-command:* for every command in a namespace. A pattern's plugin id must be literal, and only a trailing wildcard is allowed. Obsidian's core commands are not namespaced, so daily-notes:* matches none of them.
 
-Search is a toggle in settings, off by default. With both off, Tyto reads and edits only the note the session is on.
+### Vault search
 
-Where a search finds several candidates, Tyto lists them and waits for you to pick. The pick is both which note and permission to write to it.
+The second toggle, off by default. It is what lets Tyto find a note you did not name exactly, and answer a question from your notes rather than editing one.
 
 ## Skills and Folder Instructions
 
 Two ways to tell Tyto how this vault writes, so an instruction does not have to repeat the house style every time.
 
-Skills
+Skills are markdown files in the skills folder set in settings, each with a name and a description in its frontmatter. The description is what the model matches an utterance against, and a matched skill is read before the edit lands.
 
-- Markdown files in the skills folder set in settings, each with a name and a description in its frontmatter. The description is what the model matches an utterance against, and a matched skill is read before the edit lands.
-
-AGENTS.md and CLAUDE.md
-
-- Picked up from the folder chain above the note being written. Unlike a skill, these apply to every write under that folder rather than being matched per utterance.
+AGENTS.md and CLAUDE.md files are picked up from the folder chain above the note being written. Unlike a skill, these apply to every write under that folder rather than being matched per utterance.
 
 Neither can widen what the plugin does. A skill naming a tool outside Tyto's own set finds nothing to call.
 
 ## On Mobile
 
-The session panel opens as a drawer from the right sidebar. To reach it in one tap, add the command to the mobile toolbar: Settings, Mobile, Manage toolbar options, then add "Tyto: Start session".
+The session panel opens as a drawer from the right sidebar. To reach it in one tap, add the command to the mobile toolbar: Settings, Mobile, Manage toolbar options, then add "Tyto: Start session". The allowed-command list is a plain text box and the resolved list stays collapsed, so neither fills a phone screen.
 
-Recording stops if you leave Obsidian, because a backgrounded recording captures silence. What was said up to that point is transcribed and acted on rather than discarded, so a locked screen costs the rest of the sentence instead of the whole dictation. Closing the panel does the same.
+### What stops a recording
 
-Collapsing the sidebar is not closing the panel. The recording keeps running, and nothing is sent until you stop it.
+Leaving Obsidian does, because a backgrounded recording captures silence. What was said up to that point is transcribed and acted on rather than discarded, so a locked screen costs the rest of the sentence instead of the whole dictation. Closing the panel does the same.
 
-The allowed-command list is a plain text box, and the resolved list stays collapsed, so neither fills a phone screen.
+Collapsing the sidebar does not. The recording keeps running, and nothing is sent until you stop it.
 
-Skills must live in a normal vault folder. Obsidian Sync copies no dot-folder to a phone, so a skills path starting with a dot gives an empty catalogue on mobile.
+### Skills need a normal folder
+
+Obsidian Sync copies no dot-folder to a phone, so a skills path starting with a dot gives an empty catalogue on mobile.
 
 ## Troubleshooting
 
 - Mic errors: macOS needs microphone permission for Obsidian under System Settings, Privacy and Security.
 - 401 errors: check the API key in settings.
-- "Undo not available" on an edit: the edit could not go through the editor, so it was written to the file directly. It landed, and Ctrl+Z will not take it back. See [Not every edit is undoable](#not-every-edit-is-undoable).
+- "Undo not available" on an edit: it could not go through the editor, so it was written to the file directly. It landed, but Ctrl+Z will not take it back. See [Not every edit is undoable](#not-every-edit-is-undoable).
 - "is not a markdown note": the session is on a canvas, a PDF or a Bases file, which have no editor to write through. Press Reset and start on a note.
 - A turn that stops short: it spent its step budget. Raise the budget in settings, or split the instruction in two.
 - No skills on mobile: check the skills path in settings is a normal folder, not a dot-folder.
@@ -222,3 +181,5 @@ Read it before you post it. A transcript is a verbatim copy of your notes: names
 ## Contributing and Releasing
 
 Building from source, running the suite and installing a development build are in [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md). Cutting a release is in [docs/RELEASE.md](docs/RELEASE.md).
+
+Every feature here was specified before it was built, and the specs are in docs/spec: [1-upcoming](docs/spec/1-upcoming) is designed but unbuilt, [2-active](docs/spec/2-active) is in flight, and [3-archived](docs/spec/3-archived) is what shipped. They are the place to look for why something behaves the way it does.
