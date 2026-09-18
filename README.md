@@ -133,7 +133,7 @@ The account
 
 The session transcript
 
-- Off by default, because it holds your note text and any vault instructions the turn read, verbatim. Turning it on adds a Copy button to the panel header for filing a session that went wrong. Your API key is never in it.
+- Off by default, because it holds your note text and any vault instructions the turn read, verbatim. Turning it on adds a Copy button to the Tyto panel header, for debugging what went wrong. Your API key is never in it. See [Reporting a turn that went wrong](#reporting-a-turn-that-went-wrong) before posting one.
 
 What never leaves
 
@@ -212,6 +212,12 @@ Skills must live in a normal vault folder. Obsidian Sync copies no dot-folder to
 - "is not a markdown note": the session is on a canvas, a PDF or a Bases file, which have no editor to write through. Press Reset and start on a note.
 - A turn that stops short: it spent its step budget. Raise the budget in settings, or split the instruction in two.
 - No skills on mobile: check the skills path in settings is a normal folder, not a dot-folder.
+
+### Reporting a turn that went wrong
+
+Turn on the session transcript in settings, reproduce the problem, and copy the session from the panel header. The transcript holds the tool calls and what each returned, which is what makes a bad turn diagnosable after the fact.
+
+Read it before you post it. A transcript is a verbatim copy of your notes: names, dates, reference numbers, whatever the note held. Replace anything you would not publish, keeping the shape of the text, since a name changed to another name still shows a misheard match. Then raise it at [github.com/iparips/obsidian-tyto/issues](https://github.com/iparips/obsidian-tyto/issues).
 
 ## Contributing and Releasing
 
