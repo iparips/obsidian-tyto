@@ -1,8 +1,8 @@
 import { ToolCall } from '../types'
 
-// One model response: either a batch of tool calls to apply, or the text that
-// ends the utterance. Built through the two factories, so the payload and the
-// kind cannot disagree.
+// One model response: a batch of tool calls to apply, the text that ends the
+// utterance, or both at once. Built through the two factories, so the payload
+// and the kind cannot disagree.
 export class ChatTurn {
   private constructor(
     private readonly kind: 'toolCalls' | 'text',
@@ -10,8 +10,10 @@ export class ChatTurn {
     readonly content: string,
   ) {}
 
-  static ofToolCalls(calls: ToolCall[]): ChatTurn {
-    return new ChatTurn('toolCalls', calls, '')
+  // The content defaults to empty, so a caller naming calls alone keeps the
+  // meaning it had before a reply could carry both.
+  static ofToolCalls(calls: ToolCall[], content = ''): ChatTurn {
+    return new ChatTurn('toolCalls', calls, content)
   }
 
   static ofText(content: string): ChatTurn {
