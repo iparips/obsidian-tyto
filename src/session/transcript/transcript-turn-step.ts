@@ -2,6 +2,7 @@ import { ChatMessage, ToolCall } from '../../model/providers/types'
 import { ProgressLine } from '../models/panel-state'
 import { LoadedSkills } from './loaded-skills'
 import { PartName, RecordedEnding, RecordedTurnStep, StepCharge } from './models/transcript-record'
+import { RepeatedCalls } from './repeated-calls'
 import { TranscriptEntryLines } from './transcript-entry-lines'
 
 // A step whose provider call failed appended nothing, so the slice is empty by
@@ -39,13 +40,14 @@ export class TranscriptTurnStep {
     progressLines: readonly ProgressLine[],
     ending: RecordedEnding | null,
     skills: LoadedSkills,
+    repeats: RepeatedCalls,
   ): string[] {
     return [
       `### Turn step ${step.step + 1}`,
       '',
       ...TranscriptTurnStep.request(step, history.sent, skills),
       '',
-      ...TranscriptTurnStep.response(history.answered, step.charge),
+      ...TranscriptTurnStep.response(history.answered, step.charge, repeats),
       '',
       ...TranscriptTurnStep.harness(progressLines, ending, history.harnessNotes),
     ]
@@ -70,12 +72,16 @@ export class TranscriptTurnStep {
 
   // Read off the history rather than stored: the model's answer is already
   // written there, and storing it twice would let the two disagree.
-  private static response(answered: readonly ChatMessage[], charge: StepCharge | null): string[] {
+  private static response(
+    answered: readonly ChatMessage[],
+    charge: StepCharge | null,
+    repeats: RepeatedCalls,
+  ): string[] {
     const opening = ['Response from model', ...budgetLines(charge)]
     const spoke = answered.filter((message) => message.hasToolCalls() || isModelText(message))
     if (spoke.length === 0) return [...opening, `- ${chargedNothingRecorded(charge)}`]
     if (spoke.every(saidNothing)) return [...opening, `- ${AN_EMPTY_REPLY}`]
-    return [...opening, ...spoke.flatMap(responseLines)]
+    return [...opening, ...spoke.flatMap((message) => responseLines(message, repeats))]
   }
 
   // The Outcome line sits here because the harness is what decides whether the
@@ -118,9 +124,9 @@ const requestLines = (
 
 // A reply may carry text, tool calls or both, so the text is written above the
 // calls rather than instead of them: the sentence reads before what it did.
-const responseLines = (message: ChatMessage): string[] => {
+const responseLines = (message: ChatMessage, repeats: RepeatedCalls): string[] => {
   const text = message.content === '' ? [] : [`- text: ${message.content}`]
-  return [...text, ...message.toolCalls.flatMap(toolCallLines)]
+  return [...text, ...message.toolCalls.flatMap((call) => toolCallLines(call, repeats))]
 }
 
 // Neither words nor calls reached the harness. Read off the message rather than
@@ -141,8 +147,14 @@ const budgetLines = (charge: StepCharge | null): string[] => {
 const chargedNothingRecorded = (charge: StepCharge | null): string =>
   charge ? 'nothing recorded' : NO_REPLY_RECORDED
 
-const toolCallLines = (call: ToolCall): string[] =>
-  blockUnder(`- tool call ${call.name}`, 'json', JSON.stringify(call.args, null, 2))
+// The mark sits on the call's own line, above the JSON, so a reader skimming
+// the response blocks sees the loop without opening anything. The step number is
+// the one the Turn step heading shows, which is the index plus one.
+const toolCallLines = (call: ToolCall, repeats: RepeatedCalls): string[] => {
+  const repeated = repeats.repeatedStepOf(call)
+  const mark = repeated === null ? '' : ` - repeats step ${repeated + 1}`
+  return blockUnder(`- tool call ${call.name}${mark}`, 'json', JSON.stringify(call.args, null, 2))
+}
 
 // What a step is diagnosed from goes in a block of its own rather than on the
 // end of the line: a list of paths or a result listing ten notes is unreadable

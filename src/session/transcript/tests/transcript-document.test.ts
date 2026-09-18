@@ -368,6 +368,53 @@ describe('TranscriptDocument', () => {
       expect(document).toContain('- nothing recorded')
     })
 
+    it('marks the recurrence and not the first when a turn looped on one call', () => {
+      const first = new ToolCall('c1', 'grep_notes', { pattern: 'jon' })
+      const second = new ToolCall('c2', 'grep_notes', { pattern: 'jon' })
+      const document = documentOf({
+        entries: [{ kind: 'user', text: 'find jon' }],
+        history: [
+          ChatMessage.user('find jon'),
+          ChatMessage.modelToolCalls([first]),
+          ChatMessage.toolCallResult('c1', 'nothing matched'),
+          ChatMessage.modelToolCalls([second]),
+          ChatMessage.toolCallResult('c2', 'nothing matched'),
+        ],
+        steps: [
+          aStep(0, new StepRange(0, 0), new StepRange(0, -1)),
+          aStep(1, new StepRange(1, 2), new StepRange(0, -1)),
+          aStep(2, new StepRange(3, 4), new StepRange(0, -1)),
+        ],
+      })
+
+      expect(document).toContain('- tool call grep_notes - repeats step 1')
+      expect(document).toContain('- tool call grep_notes\n')
+    })
+
+    // The case that says the mark means something: a transcript marking this
+    // would report the step that did the most work as the one that went nowhere.
+    it('marks neither grep when the turn wrote between them and the answer changed', () => {
+      const missed = new ToolCall('c1', 'grep_notes', { pattern: 'jon' })
+      const hit = new ToolCall('c2', 'grep_notes', { pattern: 'jon' })
+      const document = documentOf({
+        entries: [{ kind: 'user', text: 'add jon then check' }],
+        history: [
+          ChatMessage.user('add jon then check'),
+          ChatMessage.modelToolCalls([missed]),
+          ChatMessage.toolCallResult('c1', 'nothing matched'),
+          ChatMessage.modelToolCalls([hit]),
+          ChatMessage.toolCallResult('c2', 'day.md (1 match): jon'),
+        ],
+        steps: [
+          aStep(0, new StepRange(0, 0), new StepRange(0, -1)),
+          aStep(1, new StepRange(1, 2), new StepRange(0, -1)),
+          aStep(2, new StepRange(3, 4), new StepRange(0, -1)),
+        ],
+      })
+
+      expect(document).not.toContain('repeats step')
+    })
+
     it('fences a multi-line tool result, so a listing reads as a list', () => {
       const document = documentOf({
         entries: [{ kind: 'user', text: 'find it' }],
