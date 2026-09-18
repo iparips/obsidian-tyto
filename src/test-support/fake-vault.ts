@@ -13,6 +13,7 @@ export class FakeVault {
   readonly reads: string[] = []
   private readonly notes = new Map<string, FakeNote>()
   private readonly vanishing = new Set<string>()
+  private readonly unindexed = new Set<string>()
 
   asVault(): Vault {
     return this as unknown as Vault
@@ -26,6 +27,14 @@ export class FakeVault {
 
   withNote(path: string, content: string, mtime = Date.now()): this {
     this.notes.set(path, { content, mtime, tags: [] })
+    return this
+  }
+
+  // A note the vault lists and the cache has no entry for, which is what
+  // Obsidian answers for a file it has not indexed yet.
+  withUnindexedNote(path: string, content = ''): this {
+    this.withNote(path, content)
+    this.unindexed.add(path)
     return this
   }
 
@@ -43,7 +52,7 @@ export class FakeVault {
   // A note it does hold answers an entry with no tags rather than null.
   private cacheOf(path: string): CachedMetadata | null {
     const note = this.notes.get(path)
-    if (!note) return null
+    if (!note || this.unindexed.has(path)) return null
     return {
       tags: note.tags.filter(FakeVault.isInline).map(FakeVault.tagCacheOf),
       frontmatter: { tags: note.tags.filter((tag) => !FakeVault.isInline(tag)) },
