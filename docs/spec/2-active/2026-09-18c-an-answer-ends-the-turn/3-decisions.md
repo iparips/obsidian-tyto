@@ -17,11 +17,11 @@ SessionPanel.runTurn (Session Views) branches on the outcome's shape and nothing
 
 So the panel needs a fourth thing to branch on, and the decision was what carries that fact.
 
-| Option                                    | What the panel branches on                    | Cost                                                                          |
-| ----------------------------------------- | --------------------------------------------- | ------------------------------------------------------------------------------ |
-| Return the ending kind beside the outcome | The kind, which says the turn answered        | run returns a pair where it returns one value, and every caller reads the pair  |
-| Add a fourth Outcome variant, answered    | The outcome's own type, as cancelled works    | A new variant on a type shared by everything that returns an Outcome            |
-| Keep three shapes, change the success text | Nothing new; it still writes an assistant entry | Does not fix the defect, only shortens the duplicate                          |
+| Option                                     | What the panel branches on                      | Cost                                                                           |
+| ------------------------------------------ | ----------------------------------------------- | ------------------------------------------------------------------------------ |
+| Return the ending kind beside the outcome  | The kind, which says the turn answered          | run returns a pair where it returns one value, and every caller reads the pair |
+| Add a fourth Outcome variant, answered     | The outcome's own type, as cancelled works      | A new variant on a type shared by everything that returns an Outcome           |
+| Keep three shapes, change the success text | Nothing new; it still writes an assistant entry | Does not fix the defect, only shortens the duplicate                           |
 
 The third row is not a solution and is recorded to be ruled out. It is the cheapest change and the one a build reaches for first, and all it does is shorten the duplicate.
 
@@ -39,10 +39,10 @@ Three things follow for the build.
 
 A new kind, Answered. It follows from D1 rather than being decided separately: the panel branches on the kind, so reusing Replied would leave it unable to tell the ending it must not render from the one it must.
 
-| Option                      | Cost                                                                                    |
-| --------------------------- | ----------------------------------------------------------------------------------------- |
-| A new kind, Answered        | A sixth value, and every exhaustive read of the enum gains a branch                       |
-| Reuse Replied               | The panel cannot tell the two endings apart, and neither can the transcript              |
+| Option               | Cost                                                                        |
+| -------------------- | --------------------------------------------------------------------------- |
+| A new kind, Answered | A sixth value, and every exhaustive read of the enum gains a branch         |
+| Reuse Replied        | The panel cannot tell the two endings apart, and neither can the transcript |
 
 Two other things pointed the same way before D1 settled it.
 
@@ -75,10 +75,10 @@ Both blocks in the observed turn come from the same second step. It publishes no
 
 That makes the choice narrower than it first reads. The question is not whether the history keeps something, but which of the two copies it keeps.
 
-| Copy                             | Carries                                    | What the next turn reads          |
-| -------------------------------- | ------------------------------------------ | --------------------------------- |
-| The answer, as published         | The full finding, cited, with its sources  | What the turn actually concluded  |
-| The model's restatement          | The same headings, uncited, detail cut     | The finding minus its evidence    |
+| Copy                     | Carries                                   | What the next turn reads         |
+| ------------------------ | ----------------------------------------- | -------------------------------- |
+| The answer, as published | The full finding, cited, with its sources | What the turn actually concluded |
+| The model's restatement  | The same headings, uncited, detail cut    | The finding minus its evidence   |
 
 The restatement is strictly worse and it is what the history holds today. The observed turn makes that concrete: both blocks carry the same ten headings in the same order, and the one the history keeps is the one with the citations removed. Ending on the answer and appending the answer text replaces it with the better copy, so the next turn is better informed than it is now rather than worse.
 
@@ -104,11 +104,11 @@ Two things this settles for the rest of the spec.
 
 The first. D3 already settles that every call runs, so the question is only which one's text the ending appends, and the first is the one the reader saw first.
 
-| Option              | Cost                                                                    |
-| ------------------- | ----------------------------------------------------------------------- |
-| The first answer    | Nothing; the executor holds the first and ignores later ones            |
-| The last answer     | Reads as arbitrary, and the panel already showed the first above it     |
-| Refuse the second   | A refusal for a shape the schemas never warned against, as D3 ruled out |
+| Option            | Cost                                                                    |
+| ----------------- | ----------------------------------------------------------------------- |
+| The first answer  | Nothing; the executor holds the first and ignores later ones            |
+| The last answer   | Reads as arbitrary, and the panel already showed the first above it     |
+| Refuse the second | A refusal for a shape the schemas never warned against, as D3 ruled out |
 
 Both blocks still render, since publishing is per call and happens in the dispatcher. The requirements' assumption is that the model answers once, so this is a tie-break rather than a behaviour anyone should see.
 

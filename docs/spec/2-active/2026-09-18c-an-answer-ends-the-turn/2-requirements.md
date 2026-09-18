@@ -29,11 +29,11 @@ Ending on the answer returns that step to the budget, on exactly the shape of tu
 
 Two tools park a turn on the user and one ends it, and the difference is what the tool result carries back.
 
-| Tool               | What the result carries       | What a later step does with it        |
-| ------------------ | ----------------------------- | ------------------------------------- |
-| answer_from_search | Nothing the model can act on  | Nothing; no tool writes an answer     |
-| ask_user           | The user's answer             | Acts on it, which is the point        |
-| choose_note        | The path the user picked      | Opens it, then edits it               |
+| Tool               | What the result carries      | What a later step does with it    |
+| ------------------ | ---------------------------- | --------------------------------- |
+| answer_from_search | Nothing the model can act on | Nothing; no tool writes an answer |
+| ask_user           | The user's answer            | Acts on it, which is the point    |
+| choose_note        | The path the user picked     | Opens it, then edits it           |
 
 ToolDispatcher.askUser (Engine) awaits the user's answer and returns it as the tool result, so the turn has to continue: the answer is the instruction the next step carries out. ToolDispatcher.chooseNote (Engine) returns the picked path with "open it with open_note", which is the same shape.
 

@@ -18,26 +18,26 @@ Arrows in the discovery graph mean: the source pointed me at the target. The edg
 
 Colour key, by category:
 
-| Category           | Covers                                                                 |
-| ------------------ | ---------------------------------------------------------------------- |
-| prompt             | the user's own message. The only node with no upstream source          |
-| skill              | instruction files the harness or a skill trigger loaded                |
-| reference document | the repo's architecture docs                                           |
-| code               | source files under obsidian-tyto/src                                   |
-| system of record   | live state no document can be trusted for: git, the suite, the spec    |
-| navigation         | file listings, path searches, greps that only located a file           |
-| never opened       | pointed at by something read, never opened. Dashed outline             |
-| artefact           | the files the phase produced. Terminal node                            |
+| Category           | Covers                                                              |
+| ------------------ | ------------------------------------------------------------------- |
+| prompt             | the user's own message. The only node with no upstream source       |
+| skill              | instruction files the harness or a skill trigger loaded             |
+| reference document | the repo's architecture docs                                        |
+| code               | source files under obsidian-tyto/src                                |
+| system of record   | live state no document can be trusted for: git, the suite, the spec |
+| navigation         | file listings, path searches, greps that only located a file        |
+| never opened       | pointed at by something read, never opened. Dashed outline          |
+| artefact           | the files the phase produced. Terminal node                         |
 
 Impact scale, used in every node label and table row:
 
-| Rating        | Meaning                                              |
-| ------------- | ---------------------------------------------------- |
-| high impact   | changed a decision in the design                     |
-| medium impact | shaped wording, a test row, or a formatting choice   |
-| low impact    | added a detail that could have been inferred         |
-| no impact     | changed nothing                                      |
-| not read      | pointed at, never opened                             |
+| Rating        | Meaning                                            |
+| ------------- | -------------------------------------------------- |
+| high impact   | changed a decision in the design                   |
+| medium impact | shaped wording, a test row, or a formatting choice |
+| low impact    | added a detail that could have been inferred       |
+| no impact     | changed nothing                                    |
+| not read      | pointed at, never opened                           |
 
 ## Categories
 
