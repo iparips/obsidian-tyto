@@ -15,6 +15,7 @@ export class SessionListeners {
   readonly retargets = new Listeners<RetargetReport>()
   readonly warnings = new Listeners<string>()
   readonly steps = new Listeners<ProgressLineReport>()
+  readonly spends = new Listeners<TurnSpendReport>()
 }
 
 // The header follows every retarget, where the timeline only wants the ones the
@@ -22,6 +23,14 @@ export class SessionListeners {
 export interface RetargetReport {
   path: string | null
   byUser: boolean
+}
+
+// What the turn has drawn of its allowance, published as it is charged. Its own
+// channel rather than a field on a progress line: a line is one thing the turn
+// did, and a batch charged once publishes several.
+export interface TurnSpendReport {
+  used: number
+  budget: number
 }
 
 export interface ProgressLineReport {

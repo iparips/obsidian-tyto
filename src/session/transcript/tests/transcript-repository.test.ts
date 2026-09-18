@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it } from 'vitest'
 import { TurnEndingKind } from '../../../engine/turn/ending/turn-ending-kind'
 import { TranscriptRepository } from '../transcript-repository'
 import { RestoredCounts } from '../models/restored-counts'
-import { PartName } from '../models/transcript-record'
+import { PartName, StepCharge } from '../models/transcript-record'
 
 // A recorded step holds only what it did not share with the steps around it, so
 // the reported session's twenty globs keep two system prompts rather than
@@ -119,6 +119,38 @@ describe('TranscriptRepository', () => {
       transcript.recordEnding(TurnEndingKind.Replied)
 
       expect(transcript.recordedSteps()[0].progressLines.isEmpty()).toBe(true)
+    })
+  })
+
+  describe('when a step is charged', () => {
+    it('attaches the charge to the open step, which is the one that sent the calls', () => {
+      recordCall(1)
+
+      transcript.recordCharge(new StepCharge(2.5, 3, 20))
+
+      expect(transcript.recordedSteps()[0].charge).toEqual(new StepCharge(2.5, 3, 20))
+    })
+
+    it('leaves the earlier steps charges alone', () => {
+      recordCall(1)
+      transcript.recordCharge(new StepCharge(1, 1, 20))
+      recordCall(2)
+
+      transcript.recordCharge(new StepCharge(2.5, 4, 20))
+
+      expect(transcript.recordedSteps()[0].charge).toEqual(new StepCharge(1, 1, 20))
+    })
+
+    it('records nothing when no step is open, since a charge with no step is a defect', () => {
+      transcript.recordCharge(new StepCharge(1, 1, 20))
+
+      expect(transcript.recordedSteps()).toEqual([])
+    })
+
+    it('leaves a step uncharged when the provider call never reached the counter', () => {
+      recordCall(1)
+
+      expect(transcript.recordedSteps()[0].charge).toBeNull()
     })
   })
 

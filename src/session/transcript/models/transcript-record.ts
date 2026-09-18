@@ -33,6 +33,17 @@ export class StepRange {
   }
 }
 
+// What one turn step drew of the turn's allowance. The three travel together so
+// they cannot be recorded apart and disagree: charged carries the half a batch
+// draws, where usedAfter is rounded as the counter rounds it.
+export class StepCharge {
+  constructor(
+    readonly charged: number,
+    readonly usedAfter: number,
+    readonly budget: number,
+  ) {}
+}
+
 // What one pass of the turn loop sent and owns: the parts it cited by version,
 // the slice of chat history it carried, and the progress lines running its tool
 // calls produced.
@@ -43,10 +54,31 @@ export class RecordedTurnStep {
     readonly parts: readonly TranscriptPart[],
     readonly history: StepRange,
     readonly progressLines: StepRange,
+    // Null until the step is charged: a step whose provider call failed never
+    // reaches the counter.
+    readonly charge: StepCharge | null = null,
   ) {}
 
   withProgressLines(progressLines: StepRange): RecordedTurnStep {
-    return new RecordedTurnStep(this.turn, this.step, this.parts, this.history, progressLines)
+    return new RecordedTurnStep(
+      this.turn,
+      this.step,
+      this.parts,
+      this.history,
+      progressLines,
+      this.charge,
+    )
+  }
+
+  withCharge(charge: StepCharge): RecordedTurnStep {
+    return new RecordedTurnStep(
+      this.turn,
+      this.step,
+      this.parts,
+      this.history,
+      this.progressLines,
+      charge,
+    )
   }
 
   partNamed(name: PartName): TranscriptPart | null {

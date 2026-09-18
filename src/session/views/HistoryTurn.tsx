@@ -1,7 +1,7 @@
 import { Fragment } from 'react'
 import { HistoryEntry } from './HistoryEntry'
 import { EntryProgress } from './EntryProgress'
-import { PanelTurn, ProgressLine } from '../models/panel-state'
+import { PanelTurn, ProgressLine, TurnSpendReport } from '../models/panel-state'
 import { NoteName } from '../models/note-name'
 import { MarkdownRenderFn } from './markdown-render'
 
@@ -28,7 +28,7 @@ export const HistoryTurn = ({
     {turn.entries.map((entry, index) => (
       <Fragment key={index}>
         {entry.kind === 'progress' ? (
-          <ProgressEntry lines={entry.lines} target={turn.target} />
+          <ProgressEntry lines={entry.lines} target={turn.target} spend={entry.spend} />
         ) : (
           <HistoryEntry
             entry={entry}
@@ -60,10 +60,18 @@ const TurnTarget = ({ target }: { target: string | null }) => {
 // Rendered here rather than through HistoryEntry, because only the turn holds
 // the target a line's note is compared against. Threading it through
 // HistoryEntry would hand all nine other kinds a fact one of them needs.
-const ProgressEntry = ({ lines, target }: { lines: ProgressLine[]; target: string | null }) => (
+const ProgressEntry = ({
+  lines,
+  target,
+  spend,
+}: {
+  lines: ProgressLine[]
+  target: string | null
+  spend?: TurnSpendReport
+}) => (
   <div className="tyto-entry tyto-entry-context tyto-entry-progress-line">
     <div className="tyto-entry-body">
-      <EntryProgress lines={lines} target={target} />
+      <EntryProgress lines={lines} target={target} spend={spend} />
     </div>
   </div>
 )

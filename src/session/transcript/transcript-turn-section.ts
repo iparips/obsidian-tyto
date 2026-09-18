@@ -5,6 +5,7 @@ import { LoadedSkills } from './loaded-skills'
 import { RecordedEnding, RecordedTurnStep } from './models/transcript-record'
 import { TranscriptSource } from './models/transcript-source'
 import { TranscriptTurn } from './models/transcript-turn'
+import { CallsOfStep, RepeatedCalls } from './repeated-calls'
 import { TranscriptEntryLines } from './transcript-entry-lines'
 import { TranscriptTurnStep } from './transcript-turn-step'
 
@@ -24,13 +25,18 @@ export class TranscriptTurnSection {
 
   write(turn: TranscriptTurn): string[] {
     const steps = this.source.stepsOfTurn(turn.index)
+    // Built per turn rather than per document, since the window a repeat is
+    // judged in is the turn.
+    const repeats = RepeatedCalls.of(
+      steps.map((step, index) => this.callsOf(step, steps[index + 1])),
+    )
     return [
       `## Conversation turn ${turn.index + 1}`,
       '',
       `Utterance: ${turn.utterance}`,
       '',
       ...this.setup(turn.index, steps),
-      ...steps.flatMap((step, index) => [...this.step(step, steps, index), '']),
+      ...steps.flatMap((step, index) => [...this.step(step, steps, index, repeats), '']),
       ...turn.entriesBesideSteps().flatMap((entry) => [...TranscriptEntryLines.of(entry), '']),
     ]
   }
@@ -62,7 +68,12 @@ export class TranscriptTurnSection {
 
   // The step's own answer opens the next step's history slice, so a step is
   // written from the slice it was sent and the one after it.
-  private step(step: RecordedTurnStep, steps: readonly RecordedTurnStep[], at: number): string[] {
+  private step(
+    step: RecordedTurnStep,
+    steps: readonly RecordedTurnStep[],
+    at: number,
+    repeats: RepeatedCalls,
+  ): string[] {
     const last = at === steps.length - 1
     const ending = last ? this.source.endingOfTurn(step.turn) : null
     return TranscriptTurnStep.write(
@@ -75,6 +86,19 @@ export class TranscriptTurnSection {
       this.progressLinesOf(step),
       ending,
       this.skills,
+      repeats,
+    )
+  }
+
+  // ToolCallExecutor appends the model's call message and then each result, so
+  // a step's calls and their answers land in the same slice: the one the step
+  // after it was sent, which is where its Response block already reads them.
+  private callsOf(step: RecordedTurnStep, next: RecordedTurnStep | undefined): CallsOfStep {
+    const answered = next ? this.slice(next) : this.tail(step)
+    return new CallsOfStep(
+      step.step,
+      answered.flatMap((message) => message.toolCalls),
+      resultsByCallId(answered),
     )
   }
 
@@ -134,3 +158,12 @@ export class TranscriptTurnSection {
     return this.source.steps[at + 1]?.history.first
   }
 }
+
+// A result names the call it answers by id, which is what pairs the two without
+// anything new being recorded.
+const resultsByCallId = (messages: readonly ChatMessage[]): ReadonlyMap<string, string> =>
+  new Map(
+    messages
+      .filter((message) => message.isToolResult())
+      .map((message) => [message.toolCallId, message.content]),
+  )

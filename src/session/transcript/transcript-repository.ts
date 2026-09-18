@@ -2,6 +2,7 @@ import {
   PartName,
   RecordedEnding,
   RecordedTurnStep,
+  StepCharge,
   StepRange,
   TranscriptPart,
 } from './models/transcript-record'
@@ -49,6 +50,15 @@ export class TranscriptRepository {
       new StepRange(this.publishedProgressLines, this.publishedProgressLines - 1),
     )
     this.steps.push(step)
+  }
+
+  // Called from ConversationTurnRunner once the calls have run and the counter
+  // has taken them, so the open step is the one that sent them. A charge with no
+  // open step is a harness defect rather than a crash, and records nothing.
+  recordCharge(charge: StepCharge): void {
+    const open = this.steps.at(-1)
+    if (!open) return
+    this.steps[this.steps.length - 1] = open.withCharge(charge)
   }
 
   // Closes the open step's panel range, so the steps the last tool calls

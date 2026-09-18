@@ -1,4 +1,4 @@
-import { ProgressLine } from '../models/panel-state'
+import { ProgressLine, TurnSpendReport } from '../models/panel-state'
 
 // Collapsed by default, like the resolved commands in settings: the reply is
 // what the user reads, and how the turn got there is a check they open when a
@@ -6,12 +6,14 @@ import { ProgressLine } from '../models/panel-state'
 export const EntryProgress = ({
   lines,
   target,
+  spend,
 }: {
   lines: ProgressLine[]
   target: string | null
+  spend?: TurnSpendReport
 }) => (
   <details className="tyto-entry-progress">
-    <summary>{summaryOf(lines)}</summary>
+    <summary>{summaryOf(lines, spend)}</summary>
     <ol aria-label="What the turn did">
       {lines.map((line, index) => (
         <ProgressRow key={index} line={line} target={target} />
@@ -46,10 +48,21 @@ const ProgressRow = ({ line, target }: { line: ProgressLine; target: string | nu
   </li>
 )
 
-// The refusal count is in the summary because it is the reason to open the
-// list: a turn that refused nothing rarely needs explaining.
-const summaryOf = (lines: ProgressLine[]): string => {
+// What the turn spent rather than how many rows it produced (D6). The row count
+// invited a comparison with the budget it could only lose: a row is a progress
+// line, and a batch of four calls publishes four of them for one charged step.
+// The count is still the length of the list this summary opens.
+//
+// The refusal count stays, because it is the reason to open the list: a turn
+// that refused nothing rarely needs explaining.
+const summaryOf = (lines: ProgressLine[], spend?: TurnSpendReport): string => {
   const refused = lines.filter((line) => line.refused).length
-  const count = `${lines.length} ${lines.length === 1 ? 'step' : 'steps'}`
-  return refused === 0 ? count : `${count}, ${refused} refused`
+  const headline = spend ? `${spend.used} of ${spend.budget} steps used` : lineCountOf(lines)
+  return refused === 0 ? headline : `${headline}, ${refused} refused`
 }
+
+// The fallback for a turn with no spend to name: one restored from a record
+// written before the spend was published, and a turn whose first charge has not
+// landed. Named as lines rather than steps, since that is what they are.
+const lineCountOf = (lines: ProgressLine[]): string =>
+  `${lines.length} ${lines.length === 1 ? 'line' : 'lines'}`

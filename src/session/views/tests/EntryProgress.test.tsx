@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { EntryProgress } from '../EntryProgress'
-import { ProgressLine } from '../../models/panel-state'
+import { ProgressLine, TurnSpendReport } from '../../models/panel-state'
 
 const aStep = (
   label: string,
@@ -17,31 +17,78 @@ const aStep = (
   wroteDirect,
 })
 
-describe('EntryProgress', () => {
-  describe('when the turn refused nothing', () => {
-    it('counts the steps in the summary when several ran', () => {
-      render(<EntryProgress lines={[aStep('Searched', 'milk'), aStep('Read', '')]} target={null} />)
+const aSpend = (used: number, budget = 20): TurnSpendReport => ({ used, budget })
 
-      expect(screen.getByText('2 steps')).toBeTruthy()
+describe('EntryProgress', () => {
+  // The reported symptom: a panel of 22 rows against a budget of 20. The rows
+  // are progress lines and the budget counts turn steps, so the summary names
+  // the spend and leaves the row count to the list it opens (D6).
+  describe('when the turn has spent some of its budget', () => {
+    it('names what the turn spent and what the budget is', () => {
+      render(
+        <EntryProgress
+          lines={[aStep('Searched', 'milk'), aStep('Read', '')]}
+          target={null}
+          spend={aSpend(1)}
+        />,
+      )
+
+      expect(screen.getByText('1 of 20 steps used')).toBeTruthy()
     })
 
-    it('uses the singular when one step ran', () => {
+    // A batch of four calls publishes four rows and is charged one round-trip
+    // plus three halves, so the two numbers differ by design.
+    it('names fewer steps than rows when the turn batched its calls', () => {
+      render(
+        <EntryProgress
+          lines={[
+            aStep('Grepped', 'a'),
+            aStep('Grepped', 'b'),
+            aStep('Grepped', 'c'),
+            aStep('Grepped', 'd'),
+          ]}
+          target={null}
+          spend={aSpend(3)}
+        />,
+      )
+
+      expect(screen.getByText('3 of 20 steps used')).toBeTruthy()
+    })
+
+    it('names the budget the user set rather than the default', () => {
+      render(<EntryProgress lines={[aStep('Read', '')]} target={null} spend={aSpend(2, 40)} />)
+
+      expect(screen.getByText('2 of 40 steps used')).toBeTruthy()
+    })
+  })
+
+  // A record written before the spend was published, and a turn whose first
+  // charge has not landed, both have lines and no spend.
+  describe('when the turn has no spend to name', () => {
+    it('falls back to the row count, named as lines rather than steps', () => {
+      render(<EntryProgress lines={[aStep('Searched', 'milk'), aStep('Read', '')]} target={null} />)
+
+      expect(screen.getByText('2 lines')).toBeTruthy()
+    })
+
+    it('uses the singular when one line ran', () => {
       render(<EntryProgress lines={[aStep('Searched', 'milk')]} target={null} />)
 
-      expect(screen.getByText('1 step')).toBeTruthy()
+      expect(screen.getByText('1 line')).toBeTruthy()
     })
   })
 
   describe('when the turn refused a call', () => {
-    it('counts the refusals in the summary, since that is why the list is opened', () => {
+    it('counts the refusals beside the spend, since that is why the list is opened', () => {
       render(
         <EntryProgress
           lines={[aStep('Searched', 'milk'), aStep('Refused', 'cap', true)]}
           target={null}
+          spend={aSpend(2)}
         />,
       )
 
-      expect(screen.getByText('2 steps, 1 refused')).toBeTruthy()
+      expect(screen.getByText('2 of 20 steps used, 1 refused')).toBeTruthy()
     })
 
     it('marks the refused row so it stands out from the muted rest', () => {
@@ -186,9 +233,9 @@ describe('EntryProgress', () => {
     })
 
     it('counts no refusal for it, since the write worked', () => {
-      render(<EntryProgress lines={[directEdit()]} target="Lists/shopping.md" />)
+      render(<EntryProgress lines={[directEdit()]} target="Lists/shopping.md" spend={aSpend(1)} />)
 
-      expect(screen.getByText('1 step')).toBeTruthy()
+      expect(screen.getByText('1 of 20 steps used')).toBeTruthy()
     })
   })
 })

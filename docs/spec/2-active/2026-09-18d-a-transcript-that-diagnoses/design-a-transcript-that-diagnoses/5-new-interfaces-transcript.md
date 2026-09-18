@@ -22,7 +22,7 @@ export class IterationCounter {
 }
 ```
 
-spent is today a private method with exactly this body, and the change makes it public.
+spent is today a private method with exactly this body, and the change makes it public. max is already public, since the budget became a setting and the counter now takes it through its constructor, so the budget line reads it off the instance rather than the class.
 
 ## RecordedTurnStep and StepCharge (Session Transcript)
 

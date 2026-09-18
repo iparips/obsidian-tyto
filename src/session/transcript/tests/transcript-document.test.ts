@@ -7,6 +7,7 @@ import { TranscriptSource } from '../models/transcript-source'
 import {
   RecordedEnding,
   RecordedTurnStep,
+  StepCharge,
   StepRange,
   TranscriptPart,
 } from '../models/transcript-record'
@@ -260,6 +261,158 @@ describe('TranscriptDocument', () => {
       expect(document).toContain('- tool call glob_notes')
       expect(document).toContain('"pattern": "**/a.md"')
       expect(document).toContain('"pattern": "**/b.md"')
+    })
+
+    it('renders the sentence and the calls when a reply carried both', () => {
+      const document = documentOf({
+        entries: [{ kind: 'user', text: 'find it' }],
+        history: [
+          ChatMessage.user('find it'),
+          ChatMessage.modelToolCalls([aGlob('**/a.md')], 'Searching the vault now.'),
+          ChatMessage.toolCallResult('c1', 'a.md'),
+        ],
+        steps: [
+          aStep(0, new StepRange(0, 0), new StepRange(0, -1)),
+          aStep(1, new StepRange(1, 2), new StepRange(0, -1)),
+        ],
+      })
+
+      expect(document).toContain('- text: Searching the vault now.')
+      expect(document).toContain('- tool call glob_notes')
+    })
+
+    it('says the provider call did not return when the step recorded no reply', () => {
+      const document = documentOf({
+        entries: [{ kind: 'user', text: 'find it' }],
+        history: [ChatMessage.user('find it')],
+        steps: [aStep(0, new StepRange(0, 0), new StepRange(0, -1))],
+        endings: [new RecordedEnding(0, TurnEndingKind.Failed, 0)],
+      })
+
+      expect(document).toContain('- no reply recorded: the provider call did not return')
+      expect(document).not.toContain('nothing recorded')
+    })
+
+    it('says the reply was empty when the model answered with neither words nor calls', () => {
+      const document = documentOf({
+        entries: [{ kind: 'user', text: 'find it' }],
+        history: [ChatMessage.user('find it'), ChatMessage.model('')],
+        steps: [aStep(0, new StepRange(0, 0), new StepRange(0, -1))],
+        endings: [new RecordedEnding(0, TurnEndingKind.Replied, 0)],
+      })
+
+      expect(document).toContain('- the model returned an empty reply')
+    })
+
+    it('names what the turn has spent and what the budget is, on a step that went fine', () => {
+      const document = documentOf({
+        entries: [{ kind: 'user', text: 'find it' }],
+        history: [
+          ChatMessage.user('find it'),
+          ChatMessage.modelToolCalls([aGlob('**/a.md')]),
+          ChatMessage.toolCallResult('c1', 'a.md'),
+        ],
+        steps: [
+          aStep(0, new StepRange(0, 0), new StepRange(0, -1)).withCharge(new StepCharge(1, 1, 20)),
+          aStep(1, new StepRange(1, 2), new StepRange(0, -1)),
+        ],
+      })
+
+      expect(document).toContain('- Spend: 1 charged, 1 of 20 used')
+    })
+
+    // The case the line exists for: a reader comparing the charge against the
+    // calls listed below it must not read the pair as a contradiction.
+    it('names a charge that carries a half when the reply batched four calls', () => {
+      const document = documentOf({
+        entries: [{ kind: 'user', text: 'find it' }],
+        history: [
+          ChatMessage.user('find it'),
+          ChatMessage.modelToolCalls([aGlob('**/a.md')]),
+          ChatMessage.toolCallResult('c1', 'a.md'),
+        ],
+        steps: [
+          aStep(0, new StepRange(0, 0), new StepRange(0, -1)).withCharge(
+            new StepCharge(2.5, 3, 20),
+          ),
+          aStep(1, new StepRange(1, 2), new StepRange(0, -1)),
+        ],
+      })
+
+      expect(document).toContain('- Spend: 2.5 charged, 3 of 20 used')
+    })
+
+    it('writes no budget line for a step whose provider call drew no charge', () => {
+      const document = documentOf({
+        entries: [{ kind: 'user', text: 'find it' }],
+        history: [ChatMessage.user('find it')],
+        steps: [aStep(0, new StepRange(0, 0), new StepRange(0, -1))],
+        endings: [new RecordedEnding(0, TurnEndingKind.Failed, 0)],
+      })
+
+      expect(document).not.toContain('- Spend:')
+    })
+
+    // The honest fallback: the harness charged the step and kept no reply, which
+    // is a defect in the record rather than a fact about the turn.
+    it('falls back to nothing recorded when a charged step recorded no reply', () => {
+      const document = documentOf({
+        entries: [{ kind: 'user', text: 'find it' }],
+        history: [ChatMessage.user('find it')],
+        steps: [
+          aStep(0, new StepRange(0, 0), new StepRange(0, -1)).withCharge(new StepCharge(1, 1, 20)),
+        ],
+        endings: [new RecordedEnding(0, TurnEndingKind.Exhausted, 0)],
+      })
+
+      expect(document).toContain('- nothing recorded')
+    })
+
+    it('marks the recurrence and not the first when a turn looped on one call', () => {
+      const first = new ToolCall('c1', 'grep_notes', { pattern: 'jon' })
+      const second = new ToolCall('c2', 'grep_notes', { pattern: 'jon' })
+      const document = documentOf({
+        entries: [{ kind: 'user', text: 'find jon' }],
+        history: [
+          ChatMessage.user('find jon'),
+          ChatMessage.modelToolCalls([first]),
+          ChatMessage.toolCallResult('c1', 'nothing matched'),
+          ChatMessage.modelToolCalls([second]),
+          ChatMessage.toolCallResult('c2', 'nothing matched'),
+        ],
+        steps: [
+          aStep(0, new StepRange(0, 0), new StepRange(0, -1)),
+          aStep(1, new StepRange(1, 2), new StepRange(0, -1)),
+          aStep(2, new StepRange(3, 4), new StepRange(0, -1)),
+        ],
+      })
+
+      expect(document).toContain('- tool call grep_notes - repeats step 1')
+      expect(document).toContain('- tool call grep_notes\n')
+    })
+
+    // The case that says the mark means something: a transcript marking this
+    // would report the step that did the most work as the one that went nowhere.
+    it('marks neither grep when the turn wrote between them and the answer changed', () => {
+      const missed = new ToolCall('c1', 'grep_notes', { pattern: 'jon' })
+      const hit = new ToolCall('c2', 'grep_notes', { pattern: 'jon' })
+      const document = documentOf({
+        entries: [{ kind: 'user', text: 'add jon then check' }],
+        history: [
+          ChatMessage.user('add jon then check'),
+          ChatMessage.modelToolCalls([missed]),
+          ChatMessage.toolCallResult('c1', 'nothing matched'),
+          ChatMessage.modelToolCalls([hit]),
+          ChatMessage.toolCallResult('c2', 'day.md (1 match): jon'),
+        ],
+        steps: [
+          aStep(0, new StepRange(0, 0), new StepRange(0, -1)),
+          aStep(1, new StepRange(1, 2), new StepRange(0, -1)),
+          aStep(2, new StepRange(3, 4), new StepRange(0, -1)),
+        ],
+      })
+
+      expect(document).not.toContain('repeats step')
     })
 
     it('fences a multi-line tool result, so a listing reads as a list', () => {
