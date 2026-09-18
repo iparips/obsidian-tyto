@@ -28,8 +28,10 @@ Three checks against a real vault and a real API key.
 
 Five commits, in build order. Each leaves the suite green.
 
+Commits one and two are built. Three to five wait on the three manual checks above, which gate commit three and need Obsidian driven by hand against a real vault and a real Mistral key.
+
 1. ChatTurn and ChatMessage take an optional content beside their calls, and aToolTurn (Test Support) gains a sibling builder for the pair. No behaviour moves, since the defaults keep every existing call site meaning what it meant.
-2. MistralMapper carries the content both ways, and StoredMessages.assistant (Session Models) reads it back. This is the behaviour change, and the point to run the three manual checks above.
+2. MistralMapper carries the content both ways, and StoredMessages.assistant (Session Models) reads it back. ConversationTurnRunner.executeToolCalls and ToolCallExecutor.executeToolCalls (Engine Turn) pass the text on to the message the history keeps, since the mapper alone only gets it as far as the ChatTurn. This is the behaviour change, and the point to run the three manual checks above.
 3. TranscriptTurnStep.response renders text and calls together, and names the three empty cases apart.
 4. IterationCounter exposes the total and the last charge, RecordedTurnStep gains its charge, ConversationTurnRunner.spendOn records it, and the budget line renders.
 5. RepeatedCalls and the repeat mark.
@@ -51,9 +53,9 @@ Sites this design touches, at today's lines.
 | src/model/providers/mistral-mapper.ts           | 15   | toApiMessage hardcoding content on a tool-call message |
 | src/model/providers/mistral-mapper.ts           | 34   | toChatTurn returning calls or text and never both      |
 | src/session/models/session-snapshot.ts          | 66   | StoredMessages.assistant, the one-line restore fix     |
-| src/engine/turn/tool-call-executor.ts           | 30   | The only site appending the model's tool-call message  |
+| src/engine/turn/tool-call-executor.ts           | 36   | The only site appending the model's tool-call message  |
 | src/engine/turn/conversation-turn-runner.ts     | 57   | ChatTurn's one production consumer                     |
-| src/engine/turn/conversation-turn-runner.ts     | 73   | spendOn, the one place a batch reaches the counter     |
+| src/engine/turn/conversation-turn-runner.ts     | 71   | The one place a batch's size reaches the counter       |
 | src/engine/turn/spending/iteration-counter.ts   | 36   | spent, today private                                   |
 | src/engine/turn/ending/turn-outcomes.ts         | 23   | exhausted, which appends nothing to the history        |
 | src/session/transcript/transcript-turn-step.ts  | 66   | response, which renders nothing recorded               |
