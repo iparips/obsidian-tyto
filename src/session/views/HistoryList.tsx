@@ -3,6 +3,7 @@ import { HistoryTurn } from './HistoryTurn'
 import { PendingEntry } from './PendingEntry'
 import { PanelItem, Phase } from '../models/panel-state'
 import { MarkdownRenderFn } from './markdown-render'
+import { OpenSourceNoteFn } from './open-source-note'
 
 export interface HistoryListProps {
   entries: PanelItem[]
@@ -11,6 +12,7 @@ export interface HistoryListProps {
   onPickSuggestion?: (suggestion: string) => void
   onRetry?: () => void
   renderMarkdownFn?: MarkdownRenderFn
+  onOpenSource?: OpenSourceNoteFn
 }
 
 export const HistoryList = ({
@@ -20,6 +22,7 @@ export const HistoryList = ({
   onPickSuggestion,
   onRetry,
   renderMarkdownFn,
+  onOpenSource,
 }: HistoryListProps) => (
   <div className="tyto-history">
     {entries.map((item, index) =>
@@ -31,6 +34,7 @@ export const HistoryList = ({
           onPickSuggestion={onPickSuggestion}
           onRetry={onRetry}
           renderMarkdownFn={renderMarkdownFn}
+          onOpenSource={onOpenSource}
         />
       ) : (
         <HistoryEntry
@@ -40,6 +44,7 @@ export const HistoryList = ({
           onPickSuggestion={onPickSuggestion}
           onRetry={onRetry}
           renderMarkdownFn={renderMarkdownFn}
+          onOpenSource={onOpenSource}
         />
       ),
     )}

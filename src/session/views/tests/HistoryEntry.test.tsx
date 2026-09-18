@@ -115,12 +115,71 @@ describe('HistoryEntry', () => {
       sources: ['Quotes/roofing.md', 'Journal/day.md'],
     })
 
-    it('renders the sources apart from the body when the entry is an answer', () => {
+    // The count alone when collapsed, since that is what a closed block has to
+    // say: the answer rests on this many notes.
+    it('names how many notes the answer drew on, without listing them', () => {
       render(<HistoryEntry entry={anAnswer()} />)
 
-      expect(screen.getByLabelText('Answer sources').textContent).toBe(
-        'From 2: Quotes/roofing.md, Journal/day.md',
+      expect(screen.getByLabelText('Answer sources').textContent).toBe('From 2 notes')
+    })
+
+    it('collapses the list, as the turn steps do', () => {
+      const { container } = render(<HistoryEntry entry={anAnswer()} />)
+
+      expect(container.querySelector('details.tyto-entry-sources')?.hasAttribute('open')).toBe(
+        false,
       )
+    })
+
+    // Twelve archived notes share one long folder, and a flat list is that
+    // folder twelve times over.
+    it('says a shared folder once, with the names it holds beneath it', () => {
+      const { container } = render(
+        <HistoryEntry
+          entry={{
+            kind: 'answer',
+            text: 'Themes.',
+            sources: ['4 - Archive/Week-36/09-04-Fri.md', '4 - Archive/Week-36/09-05-Sat.md'],
+          }}
+        />,
+      )
+
+      const groups = container.querySelectorAll('.tyto-entry-sources-group')
+
+      expect(groups).toHaveLength(1)
+      expect(groups[0].textContent).toBe('4 - Archive/Week-3609-04-Fri, 09-05-Sat')
+    })
+
+    // Following up a citation should be a click, not a search of the user's
+    // own. The path is what opens, since the name alone is ambiguous across
+    // week folders that all hold a 09-04-Fri.
+    it('opens the note by its path when a source name is clicked', async () => {
+      const onOpenSource = vi.fn()
+      render(<HistoryEntry entry={anAnswer()} onOpenSource={onOpenSource} />)
+
+      await userEvent.click(screen.getByText('roofing'))
+
+      expect(onOpenSource).toHaveBeenCalledWith('Quotes/roofing.md')
+    })
+
+    it('renders a source as plain text when nothing can open it', () => {
+      const { container } = render(<HistoryEntry entry={anAnswer()} />)
+
+      expect(container.querySelector('.tyto-entry-sources-link')).toBeNull()
+    })
+
+    it('counts the notes rather than the folders they sit in', () => {
+      render(
+        <HistoryEntry
+          entry={{
+            kind: 'answer',
+            text: 'Themes.',
+            sources: ['A/one.md', 'A/two.md', 'B/three.md'],
+          }}
+        />,
+      )
+
+      expect(screen.getByLabelText('Answer sources').textContent).toBe('From 3 notes')
     })
 
     it('keeps the sources inside the body, apart from the copy control', () => {

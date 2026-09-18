@@ -20,6 +20,7 @@ import { TytoSettings } from '../../settings/settings'
 import { TranscriptSource } from '../transcript/models/transcript-source'
 import { TranscriptDocument } from '../transcript/transcript-document'
 import { MarkdownRenderFn } from './markdown-render'
+import { OpenSourceNoteFn } from './open-source-note'
 
 export type { ChoiceRequest, QuestionRequest, RecorderPort }
 
@@ -53,6 +54,7 @@ export interface SessionPanelProps
   // Absent without a vault to render against, which leaves the panel printing
   // the model's markdown as it wrote it.
   renderMarkdownFn?: MarkdownRenderFn
+  onOpenSource?: OpenSourceNoteFn
 }
 
 export const SessionPanel = (props: SessionPanelProps) => {
@@ -154,6 +156,7 @@ export const SessionPanel = (props: SessionPanelProps) => {
         onPickSuggestion={fireAndForget(pickSuggestion)}
         onRetry={fireAndForget(recorded.retry)}
         renderMarkdownFn={props.renderMarkdownFn}
+        onOpenSource={props.onOpenSource}
       />
       <InputRow
         phase={state.phase}

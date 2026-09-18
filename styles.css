@@ -273,6 +273,44 @@
   word-break: break-word;
 }
 
+/* Matches the steps disclosure, since both are a collapsed check on how the
+   turn reached its answer. */
+.tyto-entry-sources summary {
+  cursor: pointer;
+  color: var(--text-muted);
+  font-size: var(--font-ui-smaller);
+}
+
+/* One line per folder, the folder above the names it holds, so a shared prefix
+   is read once rather than at the head of every path. */
+.tyto-entry-sources-group {
+  margin-top: var(--size-4-1);
+}
+
+.tyto-entry-sources-folder {
+  display: block;
+  opacity: 0.75;
+}
+
+.tyto-entry-sources-names {
+  display: block;
+  padding-left: var(--size-4-2);
+  color: var(--text-normal);
+}
+
+/* Undecorated until hovered, since a folder's worth of names underlined at once
+   reads as noise rather than as a set of links. */
+.tyto-entry-sources-link {
+  color: var(--link-color);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.tyto-entry-sources-link:hover {
+  color: var(--link-color-hover);
+  text-decoration: underline;
+}
+
 .tyto-settings-error {
   color: var(--text-error);
   font-size: var(--font-ui-small);

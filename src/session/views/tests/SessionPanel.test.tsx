@@ -782,7 +782,7 @@ describe('SessionPanel', () => {
         ),
       )
 
-      expect(screen.getByLabelText('Answer sources').textContent).toBe('From 1: Quotes/roofing.md')
+      expect(screen.getByLabelText('Answer sources').textContent).toBe('From 1 note')
     })
   })
 
