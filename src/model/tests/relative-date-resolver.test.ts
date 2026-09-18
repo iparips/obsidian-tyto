@@ -58,9 +58,21 @@ describe('RelativeDateResolver', () => {
 
   describe('when a phrase names no single day', () => {
     it('refuses a phrase holding no date at all, and says to ask the user', () => {
-      expect(reasonOf('my todo list')).toBe(
-        'no date in "my todo list". Ask the user which date they mean rather than trying another phrase.',
+      expect(reasonOf('my todo list')).toContain(
+        'Where they named no direction at all, ask which date they mean',
       )
+    })
+
+    // The common miss, and the one the refusal names: a length of time could be
+    // counted in either direction, so it is not a day.
+    it('refuses a duration, naming the direction it lacks', () => {
+      expect(reasonOf('three weeks')).toContain(
+        'a phrase has to name a point in time rather than a length of one',
+      )
+    })
+
+    it('resolves the same span once a direction is given', () => {
+      expect(isoOf('three weeks ago')).toBe('2026-08-21')
     })
 
     it('names both dates when a phrase parses to two, rather than taking the first', () => {

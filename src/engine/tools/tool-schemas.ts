@@ -241,7 +241,7 @@ export const TOOL_SCHEMAS: ToolSchema[] = [
         phrase: {
           type: 'string',
           description:
-            'The date phrase in the user\'s own words, such as "last Friday" or "3 days ago". Send what they said, not a date you worked out from it. Surrounding words are fine.',
+            'The date phrase in the user\'s own words, such as "last Friday" or "3 days ago". Send what they said, not a date you worked out from it. Surrounding words are fine. The phrase has to name a point in time rather than a length of one: "three weeks" is a duration and resolves to nothing, where "three weeks ago" is the Friday three weeks back. Where the user gave a span, send the end of it they mean.',
         },
       },
       required: ['phrase'],
