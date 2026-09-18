@@ -14,11 +14,14 @@ export const EntryProgress = ({
 }) => (
   <details className="tyto-entry-progress">
     <summary>{summaryOf(lines, spend)}</summary>
-    <ol aria-label="What the turn did">
+    {/* Unordered, because a row is a progress line rather than a turn step: a
+        batched step draws several rows, so an ordinal would run past the budget
+        the summary names and read as arithmetic that does not add up. */}
+    <ul aria-label="What the turn did">
       {lines.map((line, index) => (
         <ProgressRow key={index} line={line} target={target} />
       ))}
-    </ol>
+    </ul>
   </details>
 )
 

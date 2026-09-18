@@ -121,6 +121,15 @@ describe('EntryProgress', () => {
 
       expect([...rows].map((row) => row.textContent)).toEqual(['Searchedmilk', 'Greppedeggs'])
     })
+
+    // A batched step draws a row per call, so numbering them counts something
+    // other than what the summary's budget counts: twenty-one rows against a
+    // budget of twenty read as arithmetic that does not add up.
+    it('leaves the rows unnumbered, since a row is not a turn step', () => {
+      render(<EntryProgress lines={[aStep('Searched', 'milk')]} target={null} />)
+
+      expect(screen.getByLabelText('What the turn did').tagName).toBe('UL')
+    })
   })
 
   // The turn names its target at the top, so only a line acting elsewhere has
