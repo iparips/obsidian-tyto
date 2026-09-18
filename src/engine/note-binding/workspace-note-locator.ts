@@ -63,11 +63,9 @@ export class WorkspaceNoteLocator {
       // load replaces it rather than filling it in.
       const view = WorkspaceNoteLocator.viewShowing(path, [leaf])
       if (view) {
-        console.debug(`[tyto] loaded deferred leaf for ${path}`)
         return view
       }
     }
-    console.debug(`[tyto] no leaf holds ${path}`)
     return null
   }
 
