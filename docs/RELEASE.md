@@ -41,7 +41,11 @@ git push origin main --tags
 ## 5. Draft the Release
 
 Go to Releases, then "Draft a new release". Select the new tag, title it
-`v0.2.0`, and write what changed. Publish.
+`v0.2.0`, and generate the notes. Publish.
+
+.github/release.yml groups the generated notes by the labels on the merged
+pull requests, so a release reads as features, fixes and maintenance rather
+than as one flat list. A PR labelled ignore-for-release is left out.
 
 Creating it triggers .github/workflows/build.yml, which rebuilds from a clean
 checkout and attaches main.js, manifest.json and styles.css, attested with
@@ -57,7 +61,7 @@ directory cannot resolve is worse than no release.
 ## 6. Check the Assets Landed
 
 ```bash
-gh attestation verify main.js --repo <owner>/<repo>
+gh attestation verify main.js --repo iparips/obsidian-tyto
 ```
 
 Three assets on the release, each attested.
