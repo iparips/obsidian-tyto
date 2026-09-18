@@ -9,6 +9,8 @@ updated: 2026-09-18
 
 The listing was submitted on 2026-09-18 against release 0.5.0, commit 82a88af, and the automated review came back with two errors, six warnings and two recommendations. The listing is pending on them.
 
+Release 0.5.1, commit ebb0f81, was scanned after the first round of fixes. The description error is gone and the release assets pass their attestation checks. What is left is the two errors this spec cannot fix from here, which is why [6-manual-review-request.md](6-manual-review-request.md) exists.
+
 Only three findings are about code that ships. The rest are in test support, in a dependency, or are disclosures the dashboard asks for rather than defects. Sorting them that way is most of the work, because a warning about a file the bundle never includes costs nothing to leave and something to chase.
 
 ## In Scope
@@ -17,7 +19,9 @@ Only three findings are about code that ships. The rest are in test support, in 
 
 The rule: a plugin description must not contain the word "Obsidian", because the directory is the context. The manifest reads "Talk to your Obsidian notes."
 
-The word has to come out of manifest.json, and the same string is in package.json and the directory entry, which the scan compares against each other. The repo's GitHub description carries it too and is not read by the scan, so it can stay or go as a matter of taste.
+The word has to come out of manifest.json, and the same string is in package.json. There is no directory entry to match: pull requests against obsidian-releases are disabled and community-plugins.json is generated from the dashboard, which the earlier spec's audit recorded. The repo's GitHub description carries the word too and is not read by the scan.
+
+Fixed in 3c7b20a, and the 0.5.1 scan no longer raises it.
 
 ### A script element is created at runtime
 
@@ -33,7 +37,9 @@ The cause is the bundler version. build.yml pins `bun-version: latest`, so CI bu
 
 ### An unsafe call at SessionPanel.tsx:126
 
-`TranscriptDocument.write(transcriptOf(state.entries))` is reported as an unsafe call for argument 0. The port is typed, so the looseness is in what the type-aware rule can see through the callback, and the fix is a signature rather than a behaviour change.
+`TranscriptDocument.write(transcriptOf(state.entries))` is reported as an unsafe call for argument 0, and it does not reproduce. Every type on the line is declared, and the compiler resolves the argument to TranscriptSource rather than to any.
+
+So there is nothing here to fix, and D3 asks the review what its rule saw instead. The usual cause of the rule misfiring is a linter with no resolvable type information, where every import degrades to any.
 
 ### The disclosures the dashboard asks for
 
@@ -51,6 +57,8 @@ The `this: void` warnings, the TFile and TFolder cast warnings, and the vitest a
 - The eighteen `this: void` sites are a style rule about method shorthand. The repo already moved its port and props callbacks to properties for this reason when it adopted the scanner's linter; what is left is static methods passed to map, where the unintended `this` the rule guards against cannot arise.
 - Every TFile and TFolder cast is in src/test-support, which the bundle does not contain. Verified: the string test-support appears in main.js zero times.
 - vitest is a dev dependency and vite arrives through it. Neither is in the bundle, so the advisory describes the test runner rather than the plugin.
+
+The fetch warning at mistral-provider.ts:69, which the 0.5.1 scan raised and the first report did not show. Already answered when the linter was adopted: RequestUrlParam carries no AbortSignal, and the signal is what makes cancelling a turn stop the request rather than wait for the model. The CORS requestUrl exists to bypass is not in play, since api.mistral.ai answers a preflight with access-control-allow-origin *. The reasoning sits beside the call and in eslint.config.mjs, where the rule is off for that one file.
 
 The `:has` selector at styles.css:152 is deliberate and stays. It styles a rendered-markdown entry, the alternative is a class the renderer would have to set, and one selector over a handful of panel rows is not the invalidation case the warning describes.
 

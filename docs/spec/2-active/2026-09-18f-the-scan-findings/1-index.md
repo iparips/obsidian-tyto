@@ -13,6 +13,7 @@ Three are about code that ships. The rest are in test support, in a dev dependen
 - [3-decisions.md](3-decisions.md) - D1 the script element, which blocks, and D2 how far the build has to reproduce
 - [4-acceptance-criteria.md](4-acceptance-criteria.md) - four checks, ending at the listing going live
 - [5-tasks.md](5-tasks.md) - three commits, then the dashboard fields, the reply and a release
+- [6-manual-review-request.md](6-manual-review-request.md) - the block to send the reviewers, and why it is ordered as it is
 
 ## What the Findings Are Really About
 
@@ -26,6 +27,7 @@ Two errors, six warnings, two recommendations. Sorted by whether the bundle cont
 | Unsafe call in SessionPanel | yes   | Fix: a signature                          |
 | Vault enumeration           | yes   | Disclose: it is what search does          |
 | Clipboard access            | yes   | Disclose: the copy controls               |
+| fetch over requestUrl       | yes   | Leave: the signal is what cancels a turn  |
 | this: void, eighteen sites  | yes   | Leave: static methods, no this to capture |
 | TFile and TFolder casts     | no    | Leave: every site is in test-support      |
 | vitest advisory             | no    | Leave: a dev dependency                   |
