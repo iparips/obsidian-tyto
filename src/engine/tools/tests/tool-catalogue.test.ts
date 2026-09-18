@@ -10,7 +10,22 @@ const schemaFor = (name: string, skillsExist: boolean): ToolSchema =>
 const declaresSkills = (name: string, skillsExist: boolean) =>
   schemaFor(name, skillsExist).parameters.required.includes('applicable_skills')
 
+const namesOffered = (searchEnabled: boolean) =>
+  ToolCatalogue.forCapabilities(true, searchEnabled, true, false).map((schema) => schema.name)
+
 describe('ToolCatalogue', () => {
+  describe('when searching is on', () => {
+    it('offers list_tags', () => {
+      expect(namesOffered(true)).toContain('list_tags')
+    })
+  })
+
+  describe('when searching is off', () => {
+    it('omits list_tags, as it omits the other search tools', () => {
+      expect(namesOffered(false)).not.toContain('list_tags')
+    })
+  })
+
   describe('when the vault defines skills', () => {
     it.each(['run_command', 'glob_notes', 'grep_notes', 'read_note'])(
       'requires applicable_skills on %s, which opens vault access',
@@ -36,6 +51,12 @@ describe('ToolCatalogue', () => {
     // gating it would ask the question blind.
     it('leaves resolve_date without the argument, since it reaches no vault', () => {
       expect(declaresSkills('resolve_date', true)).toBe(false)
+    })
+
+    // It takes no path and covers the whole vault, so a skill has nothing to
+    // say about it.
+    it('leaves list_tags without the argument, since it reaches no path', () => {
+      expect(declaresSkills('list_tags', true)).toBe(false)
     })
 
     it('describes the argument, so the model knows an empty list is an answer', () => {

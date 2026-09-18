@@ -34,6 +34,13 @@ export class ProgressLine {
     return new ProgressLine('Grepped', `${pattern} — ${ProgressLine.noteCount(found)}`)
   }
 
+  // A null filter reads as the whole vault, so the line says which question was
+  // asked rather than showing an empty detail.
+  static listedTags(filter: string | null, found: number): ProgressLine {
+    const asked = filter ?? 'the whole vault'
+    return new ProgressLine('Listed tags', `${asked} — ${ProgressLine.tagCount(found)}`)
+  }
+
   static read(path: string): ProgressLine {
     return new ProgressLine('Read', '', false, path)
   }
@@ -106,6 +113,11 @@ export class ProgressLine {
   private static hitCount(hits: number): string {
     if (hits === 0) return 'nothing matched'
     return `${hits} ${hits === 1 ? 'match' : 'matches'}`
+  }
+
+  private static tagCount(found: number): string {
+    if (found === 0) return 'no tags'
+    return `${found} ${found === 1 ? 'tag' : 'tags'}`
   }
 
   private static noteCount(found: number): string {

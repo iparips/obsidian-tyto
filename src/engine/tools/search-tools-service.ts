@@ -2,6 +2,8 @@ import { ToolCall } from '../../model/providers/types'
 import { NoteGlob } from '../../search/note-glob'
 import { NoteGrep } from '../../search/note-grep'
 import { SearchReport } from '../../search/search-report'
+import { TagReader } from '../../search/tag-reader'
+import { TagReport } from '../../search/tag-report'
 import { GrepRequest } from '../../search/models/grep-request'
 import { GrepResult } from '../../search/models/grep-result'
 import { ResultOrder } from '../../search/models/result-order'
@@ -16,6 +18,7 @@ export class SearchToolsService {
   constructor(
     private noteGlob: NoteGlob,
     private noteGrep: NoteGrep,
+    private tagReader: TagReader,
   ) {}
 
   glob(call: ToolCall, turn: TurnState): HarnessResult {
@@ -35,6 +38,17 @@ export class SearchToolsService {
     )
     if (outcome.hasFailed()) return Refusal.of(outcome.message)
     return SearchToolsService.reported(call.argument('pattern'), outcome.value, turn)
+  }
+
+  // No TurnState, unlike glob and grep: nothing it returns is a path, so
+  // nothing it returned becomes a note the model may open.
+  listTags(call: ToolCall): HarnessResult {
+    const filter = call.optionalArgument('filter') ?? null
+    const result = this.tagReader.findTags(filter)
+    return new TextResult(
+      TagReport.buildReport(filter, result),
+      ProgressLine.listedTags(filter, result.total),
+    )
   }
 
   private static reported(pattern: string, result: GrepResult, turn: TurnState): HarnessResult {

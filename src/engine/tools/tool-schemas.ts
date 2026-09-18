@@ -8,6 +8,7 @@ import {
   GREP_NOTES,
   INSERT_AT,
   INSERT_TEXT,
+  LIST_TAGS,
   LOAD_SKILL,
   OPEN_NOTE,
   READ_NOTE,
@@ -235,6 +236,22 @@ export const TOOL_SCHEMAS: ToolSchema[] = [
     },
   },
   {
+    name: LIST_TAGS,
+    description:
+      "List the tags this vault already uses, most-used first, with the number of notes carrying each. Call this before suggesting any tag: a tag you invented splits the vault's vocabulary into near-duplicates no search reaches.",
+    parameters: {
+      type: 'object',
+      properties: {
+        filter: {
+          type: 'string',
+          description:
+            'Only list tags whose name contains this text, matched without regard to case. Omit it to see the whole vocabulary.',
+        },
+      },
+      required: [],
+    },
+  },
+  {
     name: ASK_USER,
     description:
       'Ask the user one question and act on their answer in this same turn. Use it only when a search found nothing, or the instruction itself is unclear. Never use it to ask which of several notes they meant: search, then offer them with choose_note.',
@@ -339,4 +356,7 @@ const SEARCH_TOOLS: string[] = [
   ANSWER_FROM_SEARCH,
   OPEN_NOTE,
   RESOLVE_DATE,
+  // It reaches outside the open note, which is what the setting governs, so it
+  // is gated with the readers rather than offered beside ask_user.
+  LIST_TAGS,
 ]

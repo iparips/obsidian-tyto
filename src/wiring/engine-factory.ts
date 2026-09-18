@@ -19,6 +19,7 @@ import { ObsidianCommandRunner } from '../commands/obsidian-command-runner'
 import { OpenedNoteWait } from '../commands/opened-note-wait'
 import { NoteGlob } from '../search/note-glob'
 import { NoteGrep } from '../search/note-grep'
+import { TagReader } from '../search/tag-reader'
 import { SearchToolsService } from '../engine/tools/search-tools-service'
 import { DateToolService } from '../engine/tools/date-tool-service'
 import { NoteReader } from '../search/note-reader'
@@ -151,6 +152,7 @@ export class EngineFactory {
       new SearchToolsService(
         new NoteGlob(this.scope.app.vault),
         new NoteGrep(this.scope.app.vault),
+        new TagReader(this.scope.app.vault, this.scope.app.metadataCache),
       ),
       new DateToolService(),
       this.buildTargetNoteWriter(),

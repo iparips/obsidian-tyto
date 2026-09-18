@@ -8,6 +8,7 @@ export const OPEN_NOTE = 'open_note'
 export const CHOOSE_NOTE = 'choose_note'
 export const ASK_USER = 'ask_user'
 export const RESOLVE_DATE = 'resolve_date'
+export const LIST_TAGS = 'list_tags'
 export const REPLACE_TEXT = 'replace_text'
 export const INSERT_TEXT = 'insert_text'
 export const INSERT_AT = 'insert_at'
@@ -63,6 +64,10 @@ export class ToolCall {
     return this.name === RESOLVE_DATE
   }
 
+  isListTags(): boolean {
+    return this.name === LIST_TAGS
+  }
+
   // The tools that reach the vault or the command registry. Asking and
   // answering are dispatched before this, since neither touches either.
   // resolve_date reaches neither, but it is refused with the search tools when
@@ -75,7 +80,8 @@ export class ToolCall {
       this.isReadNote() ||
       this.isOpenNote() ||
       this.isChooseNote() ||
-      this.isResolveDate()
+      this.isResolveDate() ||
+      this.isListTags()
     )
   }
 
