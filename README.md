@@ -22,25 +22,13 @@ Other voice plugins transcribe what you say into the note. Tyto treats what you 
 
 ## Why Tyto
 
-Voice as an instruction, not dictation
+Dictation leaves you the structure to add afterwards: you get the words down, then go back to put them under the right heading. Tyto does that part. It reads what you said as an instruction about the note, works out which heading and which list you meant, and makes the change there.
 
-- Speech-to-text plugins capture words. Tyto parses intent and edits structure: headings, lists, and blocks.
+That matters most when your hands are busy. The panel is a sidebar drawer, one tap from the mobile toolbar, and adding to a shopping list while walking is the case it is designed around. Typing works too, and is the easier way to try it.
 
-Edits you can usually undo
+Nothing about it is heavyweight. Four runtime dependencies, no database, no embedding index, and vault search that reads your notes directly. A change to an open note goes through the editor, so Ctrl+Z and Cmd+Z step back through a turn one edit at a time.
 
-- A change to a note open in a tab goes through the editor, so Ctrl+Z and Cmd+Z step back through them one at a time. Not every edit can take that route: some are written to the file directly and cannot be undone. See [Not every edit is undoable](#not-every-edit-is-undoable).
-
-It finds the note itself
-
-- Tyto can run an Obsidian command you have allowed, search the vault for the note you meant, and edit there. Where several notes match, it asks which one.
-
-Built for a phone
-
-- The panel is a sidebar drawer, one tap from the mobile toolbar. Adding to a shopping list while walking is the case it is designed around.
-
-Small and legible
-
-- Four runtime dependencies, no database, no embedding index. Vault search reads notes directly.
+What it cannot promise is being right. A model decides what you meant, so read [It Can Get It Wrong](#it-can-get-it-wrong) before pointing it at notes you care about.
 
 ## What It Can Do
 
@@ -54,7 +42,7 @@ Answer a question from the vault
 
 Reach a note you did not open
 
-- By command, by path, by glob, or by a date phrase. "Saturday last week" resolves to a real date before any filename is guessed.
+- By an Obsidian command you have allowed, by path, by glob, or by a date phrase. "Saturday last week" resolves to a real date before any filename is guessed. Where several notes match, Tyto asks which one you meant.
 
 Suggest tags the vault already uses
 
@@ -119,7 +107,7 @@ Specs live in docs/spec, in three buckets: [1-upcoming](docs/spec/1-upcoming) is
 
 ## What Leaves Your Vault
 
-Tyto sends note content to a remote service. This section says what, when, and to whom.
+Tyto sends note content to a remote LLM provider. This section says what, when, and to whom.
 
 The service
 
