@@ -50,6 +50,7 @@ export class ModelService {
       this.sessionRepository.chatHistory(),
       this.harnessToolsService.allowedCommands(),
       this.harnessToolsService.hasSearchEnabled(),
+      this.turnRepository.turnNumber,
     )
   }
 

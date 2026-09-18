@@ -24,7 +24,9 @@ import { AllowedObsidianCommand } from '../../../commands/models/allowed-obsidia
 // argument re-records it once more: the same turn asked for one day under six
 // phrasings, and only two of them were literal repeats. The rule that adding is
 // not replacing re-records it again: a turn told to add a bullet under a
-// heading replaced the bullet that was there.
+// heading replaced the bullet that was there. So does the rule that an edit
+// just made is reported in the past tense: a turn answered its own applied
+// edit with "I've already converted the line".
 import RELEASE_3_PROMPT from './fixtures/release-3-prompt.txt?raw'
 
 const aNote = (): NoteDetails => new NoteDetails('note.md', '# Budget\n\nbody', { line: 2, ch: 0 })
@@ -43,7 +45,8 @@ const catalogue = [aSkill('tidy-notes', 'Tidies a note.'), aSkill('weekly-review
 const systemPromptText = (...args: Parameters<typeof SystemPrompt.build>) =>
   SystemPrompt.build(...args).content
 
-const noteContextText = (note: NoteDetails) => NoteContextMessage.build(note).content
+const noteContextText = (note: NoteDetails, turnNumber?: number) =>
+  NoteContextMessage.build(note, turnNumber).content
 
 const unboundContextText = (canRunCommands = false, canSearch = false) =>
   NoNoteBoundMessage.build(canRunCommands, canSearch).content
@@ -558,6 +561,25 @@ describe('the prompt messages', () => {
       expect(prompt).toContain('Use replace_text only where the user asked for existing text')
     })
 
+    // A turn made the edit, read the applied result, and answered "I've already
+    // converted the line to a checkbox item". The rule against reporting an
+    // applied edit as state you found did not reach it: the turn never claimed
+    // it found the change, it claimed it had made it earlier than it had. The
+    // history gave it nothing to judge on, being one flat list of messages with
+    // no turn boundary in it, so the fix is the two facts rather than the rule:
+    // the result names its turn and the note context names the current one.
+    it('tells the model an applied result names the turn it was made in', () => {
+      const prompt = systemPromptText()
+
+      expect(prompt).toContain('Each applied result names the turn it was made in')
+    })
+
+    it('tells the model to report an edit from the turn it is in in the past tense', () => {
+      const prompt = systemPromptText()
+
+      expect(prompt).toContain('report it in the past tense')
+    })
+
     it('produces the release 3 prompt when commands and search are absent', () => {
       const prompt = systemPromptText()
 
@@ -790,6 +812,14 @@ describe('the prompt messages', () => {
 
     it('states that it supersedes earlier copies when the final context carries a note', () => {
       expect(noteContextText(aNote())).toContain('supersedes any')
+    })
+
+    // The one message rebuilt on every call, so the turn it names is the turn
+    // the model is in. The history holds no copy of it to go stale, which is
+    // what lets an applied result carry a fixed turn number and still be read
+    // as recency: the two numbers are compared, and neither can drift.
+    it('names the turn the model is in when the final context carries a note', () => {
+      expect(noteContextText(aNote(), 3)).toContain('This is turn 3.')
     })
 
     it('keeps the note out of the standing rules when both are built', () => {

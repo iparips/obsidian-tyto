@@ -40,6 +40,18 @@ export class SessionRepository {
     return this.messages
   }
 
+  // Counted from the history rather than held as a field, so a restored session
+  // numbers its turns the same way a live one does: one user message starts one
+  // turn, and the messages are the record of both.
+  //
+  // At least one, so the number always names a turn. The engine appends the
+  // utterance before it builds the turn, so a live turn counts itself; a reader
+  // that asks before any utterance is asking about the turn about to run, and
+  // zero would name no turn at all.
+  currentTurnNumber(): number {
+    return Math.max(this.messages.filter((message) => message.isUser()).length, 1)
+  }
+
   appendChatMessage(message: ChatMessage): void {
     this.messages.push(message)
   }

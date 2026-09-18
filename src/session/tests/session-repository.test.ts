@@ -24,6 +24,41 @@ describe('SessionRepository', () => {
     })
   })
 
+  // Counted rather than held, so a restored session numbers its turns the same
+  // way a live one does. The number reaches the model twice: the note context
+  // names the turn it is in, and an applied edit result names the turn it was
+  // made in, which is how the model tells its own current work from an edit an
+  // earlier turn left behind.
+  describe('when the session counts its turns', () => {
+    it('is on turn one before any utterance, which is the turn about to run', () => {
+      expect(sessions.currentTurnNumber()).toBe(1)
+    })
+
+    it('counts the utterance as the turn it started', () => {
+      sessions.appendChatMessage(ChatMessage.user('add a line'))
+
+      expect(sessions.currentTurnNumber()).toBe(1)
+    })
+
+    it('counts one turn per utterance rather than one per message', () => {
+      sessions.appendChatMessage(ChatMessage.user('add a line'))
+      sessions.appendChatMessage(ChatMessage.model('added it'))
+      sessions.appendChatMessage(ChatMessage.user('now tick it off'))
+
+      expect(sessions.currentTurnNumber()).toBe(2)
+    })
+
+    it('numbers a restored session from the utterances it was restored with', () => {
+      const restored = SessionRepository.restored('note.md', [
+        ChatMessage.user('add a line'),
+        ChatMessage.model('added it'),
+        ChatMessage.user('now tick it off'),
+      ])
+
+      expect(restored.currentTurnNumber()).toBe(2)
+    })
+  })
+
   describe('when the session starts with no note open', () => {
     beforeEach(() => {
       sessions = new SessionRepository(null)

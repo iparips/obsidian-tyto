@@ -895,6 +895,22 @@ describe('EditEngine', () => {
       expect(results[1].content).toContain(`insert_at applied to ${DAILY}`)
     })
 
+    // The result stays in the history for the rest of the session, so it says
+    // which turn made it rather than that it is recent: a turn read its own
+    // applied edit and answered "I've already converted the line". The note
+    // context names the current turn, and the model compares the two.
+    it('names the turn an applied edit was made in', async () => {
+      respondsWith(
+        runCommand(),
+        aToolTurn(aToolCall('insert_at', { location: 'note_end', content: '\n- plates' })),
+      )
+
+      await engineOf().processUtterance('open my daily note and add a line')
+
+      const results = complete.mock.calls[2][0].filter((m: ChatMessage) => m.isToolResult())
+      expect(results[1].content).toContain('turn 1, edit 1:')
+    })
+
     // The anchor matches the note the turn opened away from, so an edit that
     // followed the stale handle would land in it rather than in the target.
     it('leaves the note the turn moved off untouched', async () => {

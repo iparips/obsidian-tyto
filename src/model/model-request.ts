@@ -16,6 +16,10 @@ export class ModelRequest {
     readonly chatHistory: readonly ChatMessage[],
     readonly allowedCommands: readonly AllowedObsidianCommand[],
     readonly searchEnabled: boolean,
+    // Which turn of the session this is. Carried so the note context can say
+    // it, which is what lets the model read an edit result's turn number as
+    // recency rather than as a bare label.
+    readonly turnNumber: number = 1,
   ) {}
 
   hasCommands(): boolean {

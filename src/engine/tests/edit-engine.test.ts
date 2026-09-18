@@ -160,6 +160,35 @@ describe('EditEngine', () => {
       expect(toolResults()[1].content).toContain('One edit per step')
     })
 
+    // The failure this numbering exists for: a turn made an edit, read its own
+    // applied result, and reported it as something the note already said. The
+    // history is one flat list with no turn boundary in it, so the result names
+    // the turn that made it and the note context names the turn the model is
+    // in. A second turn's edit is labelled 2, and the edit ordinal restarts, so
+    // the pair stays unique across the session.
+    it('numbers a later turn edit by the turn that made it', async () => {
+      complete
+        .mockResolvedValueOnce(
+          Outcomes.success(
+            aToolTurn(
+              aToolCall('replace_text', { anchor_text: '# Budget', replacement: '# Costs' }),
+            ),
+          ),
+        )
+        .mockResolvedValueOnce(Outcomes.success(aTextTurn('renamed it')))
+        .mockResolvedValueOnce(
+          Outcomes.success(
+            aToolTurn(aToolCall('insert_at', { location: 'note_end', content: '\n- item' })),
+          ),
+        )
+        .mockResolvedValueOnce(Outcomes.success(aTextTurn('added it')))
+
+      await engine.processUtterance('rename it')
+      await engine.processUtterance('now add a line')
+
+      expect(toolResults().at(-1)?.content).toContain('turn 2, edit 1:')
+    })
+
     it('applies an edit that follows a search call, since only edits count', async () => {
       complete
         .mockResolvedValueOnce(

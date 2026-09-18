@@ -18,6 +18,7 @@ export class TurnRepository {
   private unwritablePath: string | null = null
   private refusedOpenPath: string | null = null
   private readonly written: string[] = []
+  private editsApplied = 0
   private readonly writtenThroughEditor = new Set<string>()
 
   constructor(
@@ -32,6 +33,11 @@ export class TurnRepository {
     // in the chat history, so a later turn can still read the steps and a
     // refusal saying otherwise is untrue.
     private readonly skillsRead: SkillsReadRepository = new SkillsReadRepository(),
+    // Which turn of the session this is, counted by the session from the
+    // utterances it holds. A tool result carries it so the model can place the
+    // result against the utterance it answers rather than against the whole
+    // history, where every applied edit otherwise reads alike.
+    readonly turnNumber: number = 1,
   ) {}
 
   // Built here rather than passed in, which is the whole of its turn scope: a
@@ -133,6 +139,15 @@ export class TurnRepository {
   // left rather than the user reading the note to find out.
   notesWritten(): readonly string[] {
     return this.written
+  }
+
+  // Counts edits rather than notes, where notesWritten() deduplicates by path.
+  // Two edits to one note are two results the model has to tell apart, and a
+  // step number cannot do it: a batch of three edits is one step. The pair of
+  // this and turnNumber places every applied edit uniquely in the session.
+  countEditApplied(): number {
+    this.editsApplied += 1
+    return this.editsApplied
   }
 
   // A write through the editor leaves text the file will not hold for two

@@ -72,7 +72,22 @@ export class NoteEditTool {
   }
 
   // The bare string `applied` carried no tense and no target, so a batch gave
-  // the model two identical results and it read one as an earlier edit.
+  // the model two identical results and it read one as an earlier edit. Naming
+  // the path fixed the target but not the ordering: every result still read as
+  // a standing fact about the note, and a turn answered its own applied edit
+  // with "I've already converted the line", reporting what it had just written
+  // as something it found.
+  //
+  // Numbered rather than phrased as recency. A result stays in the history for
+  // the rest of the session, so "just now" is true when written and false a
+  // step later, and a history of results all claiming to be the latest tells
+  // the model less than none of them would. A number is fixed when written and
+  // stays true, and the prompt turns it back into recency: an edit carrying the
+  // current turn's number is one the model made this turn.
+  //
+  // Both coordinates, because neither alone is unique. The turn number repeats
+  // across the edits of one turn, and the edit ordinal restarts each turn. A
+  // step index would not do either: a batch of three edits is one step.
   //
   // A failure names the path for the same reason, and needs it more: the model
   // anchors against a note it opened several steps ago, while the target has
@@ -91,7 +106,7 @@ export class NoteEditTool {
     const result = await this.writeRecordingThePath(note, op)
     if (result.applied)
       return ToolCallOutcome.edited(
-        `${tool} applied to ${note.path}, ending at line ${result.endedAt.line + 1}`,
+        `turn ${this.turnRepository.turnNumber}, edit ${this.turnRepository.countEditApplied()}: ${tool} applied to ${note.path}, ending at line ${result.endedAt.line + 1}`,
         result.endedAt,
         result.wroteThrough,
         'applied',

@@ -6,9 +6,10 @@ import { NoteDetails } from '../../engine/note-editing/note-details'
 // state, including the user's own manual edits, so this copy is the only
 // current one.
 export class NoteContextMessage {
-  static build(note: NoteDetails): ChatMessage {
+  static build(note: NoteDetails, turnNumber = 1): ChatMessage {
     return ChatMessage.system(
       [
+        `This is turn ${turnNumber}.`,
         `Note path: ${note.path}`,
         `Cursor line: ${note.cursor.line}`,
         'This is the note as it is right now, re-read for this message. It supersedes any',
