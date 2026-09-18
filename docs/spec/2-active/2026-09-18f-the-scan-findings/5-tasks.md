@@ -13,9 +13,9 @@ The only error that is plainly Tyto's, and the cheapest to fix.
 
 - Drop the word from manifest.json. "Talk to your notes. Edit text, format structure, and ask questions about what's in them." keeps the sentence and loses the word.
 - Match package.json, which carries the same string.
-- Match the directory entry in the obsidian-releases fork, since the scan compares the two and a fix in one is a mismatch in the other.
+- Check the listing's own description in the dashboard, under Edit listing. The directory is no longer a file in a repository, so there is no entry to edit in a fork: submission is the dashboard, and community-plugins.json is generated from it.
 
-Exit test: the word appears in neither manifest.json nor package.json, and the three descriptions are byte-identical.
+Exit test: the word appears in neither manifest.json nor package.json, and the listing's description matches the manifest's.
 
 ## 2. Pin the Bundler So the Build Reproduces (done)
 
@@ -27,12 +27,19 @@ The size change also answers two thirds of the script-element finding: the produ
 
 Exit test: two CI runs of one commit produce the same main.js, and a local build on the pinned version matches the released asset.
 
-## 3. Type the Transcript Callback
+## 3. Type the Transcript Callback (blocked: cannot reproduce)
 
-- Give the transcriptOf port a signature the type-aware rule can see through, so SessionPanel.tsx:126 is no longer an unsafe call.
-- Behaviour does not move. The document is still built at the click rather than per render.
+The finding does not reproduce locally, and nothing on that line is untyped.
 
-Exit test: the scanner's rule is quiet on that line, and the transcript still copies.
+- `transcriptOf` is declared `(entries: readonly PanelItem[]) => TranscriptSource`.
+- `TranscriptDocument.write` takes a `TranscriptSource` and returns a string.
+- `TranscriptSource` is a class with seven readonly properties, none of them `any`.
+- The repo's own lint is clean on the file, and `no-unsafe-argument` is switched off only under `**/tests/**` and `src/test-support/**`, so this file is checked.
+- Running `strictTypeChecked` with `no-unsafe-argument` forced on reports nothing there either.
+
+So there is no change to make from here that can be shown to fix it. Ask the review what its rule saw: it may be resolving types differently, or reporting against the bundled line rather than the source one. D3 owns it.
+
+Exit test: none until the finding can be reproduced. Do not change the signature on a guess: a type widened to silence a rule nobody can trigger is a change that cannot be verified and will not be understood later.
 
 ## Before Re-scanning
 

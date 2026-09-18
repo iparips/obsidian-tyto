@@ -38,6 +38,18 @@ The scan wants its rebuild to match the released asset. Pinning `bun-version` to
 
 Not blocking. A warning rather than an error, but it is the warning most likely to worry a reader, since its own text raises the possibility that the asset was modified after building.
 
+### D3: What does the unsafe-call finding see? [open]
+
+Reported as an error at SessionPanel.tsx:126, and it does not reproduce. Every type on that line is declared, the repo's lint is clean on the file, and `strictTypeChecked` with `no-unsafe-argument` forced on says nothing there.
+
+| Option                                    | Cost                                                                     |
+| ----------------------------------------- | ------------------------------------------------------------------------ |
+| Ask the review what the rule saw          | A round trip, and the answer may be that the line number is the bundle's |
+| Widen or restate the signature on a guess | A change nobody can verify, silencing a rule nobody can trigger          |
+| Leave it and see whether it recurs        | It is an error, and errors gate a listing                                |
+
+Not blocking the other work, since the fixes are independent. Ask before changing anything: a type edited to satisfy a report that cannot be reproduced is a change the next reader cannot account for.
+
 ### Assumptions
 
 - The scan reads the release assets rather than the default branch, so a fix needs a new release before it is re-scanned. Everything the earlier spec learnt about the process says so, and the dashboard named release 0.5.0 and commit 82a88af together.
