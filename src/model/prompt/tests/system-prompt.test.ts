@@ -526,6 +526,14 @@ describe('the prompt messages', () => {
       expect(withSearch()).toContain('When a search finds nothing, say so.')
     })
 
+    it('tells the model to list the tags before suggesting one', () => {
+      expect(withSearch()).toContain("List the vault's tags with list_tags before suggesting")
+    })
+
+    it('tells the model to suggest only tags the list returned', () => {
+      expect(withSearch()).toContain('only tags that call returned')
+    })
+
     it('states the order to try when search is enabled', () => {
       expect(withSearch()).toContain('Reach a note in this order:')
     })
@@ -678,6 +686,12 @@ describe('the prompt messages', () => {
       const prompt = systemPromptText()
 
       expect(prompt).not.toContain('Reach a note in this order:')
+    })
+
+    // The tagging rules sit inside the search section, so a vault with search
+    // off is told nothing about a tool it is not offered.
+    it('says nothing about tags', () => {
+      expect(systemPromptText()).not.toContain('list_tags')
     })
   })
 
