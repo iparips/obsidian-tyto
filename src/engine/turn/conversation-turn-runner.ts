@@ -59,13 +59,21 @@ export class ConversationTurnRunner {
     return this.executeToolCalls(modelAnswer.value.calls, spend)
   }
 
+  // The answer is read after the stuck check, so a batch that answered beside
+  // two identical refusals still ends as stuck, and before the keep-going it
+  // replaces. The spend runs either way: the batch is charged for its calls.
   private async executeToolCalls(calls: ToolCall[], spend: TurnSpend): Promise<TurnStepOutcome> {
-    await this.toolCallExecutor.executeToolCalls(calls, spend.repeatedRefusalCounter)
+    const answer = await this.toolCallExecutor.executeToolCalls(
+      calls,
+      spend.repeatedRefusalCounter,
+    )
 
     if (spend.repeatedRefusalCounter.isStuck())
       return TurnOutcomes.stuck(spend.repeatedRefusalCounter)
 
     this.spendOn(spend, calls.length)
+
+    if (answer) return this.turnEndingService.endTurnWithAnswer(answer)
 
     return TurnStepOutcomes.keepGoing()
   }
