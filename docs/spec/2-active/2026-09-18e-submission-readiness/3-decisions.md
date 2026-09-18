@@ -13,11 +13,11 @@ updated: 2026-09-18
 
 GitHub reports the licence as Other. Its detector matches a file named LICENSE, LICENSE.md, LICENSE.txt or COPYING against known licence texts, so the filename alone is probably not the cause; the copyright line added above the AGPL body is the likelier one, since the detector matches on the text it expects to find first.
 
-| Option                                     | Cost                                                                    |
-| ------------------------------------------ | ----------------------------------------------------------------------- |
-| Move the copyright line below the AGPL text | Weakens the notice's placement, which validate-license wants at the top   |
-| Add a `license` field to the repo via API   | Not a thing GitHub offers; detection is from the file alone              |
-| Leave it as Other                          | The repo page shows no licence, which a reviewer may read as unlicensed  |
+| Option                                      | Cost                                                                    |
+| ------------------------------------------- | ----------------------------------------------------------------------- |
+| Move the copyright line below the AGPL text | Weakens the notice's placement, which validate-license wants at the top |
+| Add a `license` field to the repo via API   | Not a thing GitHub offers; detection is from the file alone             |
+| Leave it as Other                           | The repo page shows no licence, which a reviewer may read as unlicensed |
 
 Not blocking. The directory requires the source be public under a licence, which it is, and the README and package.json both name AGPL-3.0-or-later. The repo page is cosmetic. Worth one experiment before the submission rather than a rewrite.
 
