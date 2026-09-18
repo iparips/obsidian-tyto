@@ -23,8 +23,8 @@ Not blocking. The directory requires the source be public under a licence, which
 
 ### Assumptions
 
-- The two console.debug calls are the only ones that returned. The grep covered src excluding tests and test-support, and found no others. If a later commit adds more, the same grep is the check.
-- No install is running an affected version, so removing the debug lines needs no migration. Nothing has shipped: there are no releases and no tags.
+- The two console.debug calls were the only ones that returned, and they are now gone. The grep covers src excluding tests and test-support. If a later commit adds more, the same grep is the check.
+- No install is running an affected version, so removing the debug lines needed no migration. Nothing has shipped: there are no releases and no tags.
 - The scan re-reads every release rather than only the first, which the earlier audit established. A regression landing after the listing is therefore caught at the next release, not silently accepted.
 
 ## Design

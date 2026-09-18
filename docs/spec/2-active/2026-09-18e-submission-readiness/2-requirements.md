@@ -7,7 +7,7 @@ updated: 2026-09-18
 
 ## Motivation
 
-The community-plugin-submission spec landed all ten of its commits, and the automated scan's gate is green: lint reports nothing, typecheck passes, and the suite is 1504 tests across 112 files. Its own closing section left four things to do by hand, and none of them has happened. There are no tags, no releases, and ten unpushed commits on main.
+The community-plugin-submission spec landed all ten of its commits, and the automated scan's gate is green: lint reports nothing, typecheck passes, and the suite passes. Its own closing section left four things to do by hand, and none of them has happened. There are no tags and no releases.
 
 A re-audit against the current tree also found three regressions and gaps that the earlier spec cannot have caught, because two of them arrived in work that shipped after it closed. None changes what the plugin does; all are packaging or hygiene the scan or a reader sees.
 
@@ -15,14 +15,11 @@ The plugin is close. This spec is the short list between here and a submitted li
 
 ## In Scope
 
-### Two console.debug calls returned
+### Two console.debug calls returned (done)
 
-The submission spec's commit 5 removed all eight console.debug calls, and its exit test was a full turn printing nothing. Two are back, both in WorkspaceNoteLocator (engine/note-binding):
+The submission spec's commit 5 removed all eight console.debug calls, and its exit test was a full turn printing nothing. Two came back in WorkspaceNoteLocator (engine/note-binding), arriving with the deferred-views work after the submission spec closed. The linter does not catch a console call, so only a reading found them.
 
-- workspace-note-locator.ts:66, on loading a deferred leaf
-- workspace-note-locator.ts:70, when no leaf holds the path
-
-They arrived with the deferred-views work, in commits eed9e13 and a0bd647, after the submission spec closed. The linter does not catch them, so only a reading finds them. Remove both, keeping the surrounding control flow unchanged.
+Removed in 92db8b0, with the loop and both return paths unchanged. The grep over src outside tests and test-support now returns nothing.
 
 ### The GitHub repo carries no description and no topics
 
@@ -34,7 +31,7 @@ The directory's reviewers and its readers both land on the repo page. It has an 
 
 ### No release exists
 
-The manifest says 0.1.0 and versions.json maps it to 1.13.0, but the repository has no tags and no releases. The directory reads a release's assets, so there is nothing for it to read. Ten commits are also unpushed, so the default branch GitHub serves is not the tree that was just verified.
+The manifest says 0.1.0 and versions.json maps it to 1.13.0, but the repository has no tags and no releases. The directory reads a release's assets, so there is nothing for it to read. The default branch is in sync with the local tree, so the release is the only thing standing between the verified code and something the directory can scan.
 
 This is the hand-run sequence docs/RELEASE.md already describes. It is in scope as a checklist to run, not as code to write.
 
@@ -54,7 +51,6 @@ Re-auditing the rules the earlier spec already cleared. Its audit folder holds t
 
 - [docs/spec/3-archived/2026-09-11b-community-plugin-submission/1-index.md](../../3-archived/2026-09-11b-community-plugin-submission/1-index.md) - open first: the audit, the design and the ten commits this spec continues from
 - [docs/spec/3-archived/2026-09-11b-community-plugin-submission/5-tasks.md](../../3-archived/2026-09-11b-community-plugin-submission/5-tasks.md) - its Before Submitting section, which is the unfinished half of this work
-- src/engine/note-binding/workspace-note-locator.ts - the two console.debug calls, at lines 66 and 70
 - docs/RELEASE.md - the six-step release ritual the release task runs
 
 ### Project

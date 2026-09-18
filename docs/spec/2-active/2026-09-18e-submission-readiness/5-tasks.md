@@ -5,16 +5,11 @@ updated: 2026-09-18
 
 # Implementation Order
 
-Two commits, then a sequence run by hand. The commits are independent of each other and of the release, so either can land alone.
+One commit left, then a sequence run by hand. It is independent of the release, so it can land alone.
 
-## 1. Silence the Console Again
+## 1. Silence the Console Again (done)
 
-The only code change in this spec.
-
-- Remove the two console.debug calls in WorkspaceNoteLocator (engine/note-binding), at workspace-note-locator.ts:66 and :70.
-- Keep the loop, the re-read after the load, and both return paths unchanged. The comments explaining why the view is re-read stay.
-
-Exit test: `bun run verify` is green, and the grep for console in src outside tests and test-support returns nothing.
+Landed in 92db8b0. The two console.debug calls are out of WorkspaceNoteLocator (engine/note-binding), with the loop and both return paths unchanged. Verify is green and the grep over src outside tests and test-support returns nothing.
 
 ## 2. Make the Licence Detectable
 
@@ -38,17 +33,9 @@ gh repo edit iparips/obsidian-tyto \
   --add-topic obsidian --add-topic obsidian-plugin --add-topic obsidian-md
 ```
 
-### Push main
-
-Ten commits are unpushed, and main has no upstream. The directory reads the manifest from the default branch, so the branch must hold the verified tree before anything else.
-
-```bash
-git push -u origin main
-```
-
-Confirm the Build workflow goes green on the push before cutting the release. A red CI run at the tag is the failure this ordering avoids.
-
 ### Cut the release
+
+main is in sync with origin and its last Build run was green, so the branch already holds the tree the directory will read.
 
 docs/RELEASE.md owns the six steps. The two that matter to the directory:
 

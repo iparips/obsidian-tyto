@@ -7,12 +7,12 @@ updated: 2026-09-18
 
 Closes the gap between a plugin that passes the community directory's gate and a plugin that is listed. The community-plugin-submission spec built the compliance; this one finds what has drifted since, fixes it, and runs the submission.
 
-The re-audit found the gate itself green. Lint reports nothing, typecheck passes, 1504 tests pass, and the bundle builds clean with no sourcemap and no rewritten source. What is missing is smaller than the earlier spec's work and mostly not code: two debug lines that returned, a repo page with no description, and a release that was never cut.
+The re-audit found the gate itself green. Lint reports nothing, typecheck passes, the suite passes, and the bundle builds clean with no sourcemap and no rewritten source. What is missing is smaller than the earlier spec's work and none of it is code now: a repo page with no description, a licence GitHub cannot identify, and a release that was never cut.
 
 - [2-requirements.md](2-requirements.md) - what drifted, what is missing, and what the earlier spec already cleared
 - [3-decisions.md](3-decisions.md) - one open decision, on making the licence detectable, and the assumptions the work rests on
 - [4-acceptance-criteria.md](4-acceptance-criteria.md) - the four checks a person runs, ending at the scan result
-- [5-tasks.md](5-tasks.md) - two commits, then the hand-run submission sequence
+- [5-tasks.md](5-tasks.md) - one commit left, then the hand-run submission sequence
 
 ## What the Re-audit Confirmed
 
@@ -28,3 +28,5 @@ Worth stating, because it is most of the earlier spec and none of it needs revis
 ## The One Thing That Regressed
 
 Two console.debug calls came back in WorkspaceNoteLocator (engine/note-binding), arriving with the deferred-views work after the submission spec closed. The linter does not catch a console call, so the earlier spec's exit test - run a turn and see nothing printed - is the only thing that would have. That test is now an acceptance criterion rather than a one-off, which is the difference worth carrying forward.
+
+They are gone again, in 92db8b0. What is left in this spec is the repo page, the licence and the release, none of which is code.
