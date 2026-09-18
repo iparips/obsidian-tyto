@@ -58,7 +58,7 @@ Keep the session across a reload
 
 Show its working
 
-- Each turn lists the steps it spent against its budget. Every reply has a Copy button, and turning on the transcript adds one to the header that copies the whole session as Markdown.
+- Each turn lists the steps it spent against its budget, and every reply can be copied. Turning on the session transcript adds a header button that copies the whole session as Markdown, for filing a turn that went wrong.
 
 ## It Can Get It Wrong
 
@@ -131,11 +131,9 @@ The account
 - A Mistral API key is required. Without one Tyto does nothing.
 - The key is stored in the plugin's folder inside your vault, and is sent only to Mistral.
 
-The clipboard
+The session transcript
 
-- Nothing reaches your clipboard unless you press a Copy button. Tyto neither reads the clipboard nor controls what your system does with it afterwards.
-- Every reply in the panel has one, including answers drawn from search. It copies that entry's text, which for an answer quotes the notes it read.
-- The Copy button in the panel header is the whole session, and is the one thing here behind a setting: it appears only once you turn the transcript on. A session transcript holds your note text and any vault instructions the turn read, which is why it is off by default. Your API key is never in it.
+- Off by default, because it holds your note text and any vault instructions the turn read, verbatim. Turning it on adds a Copy button to the panel header for filing a session that went wrong. Your API key is never in it.
 
 What never leaves
 
