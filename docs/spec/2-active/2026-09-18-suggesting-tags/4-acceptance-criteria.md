@@ -5,7 +5,7 @@ updated: 2026-09-18
 
 # Acceptance Criteria
 
-Whether a suggested tag is a good tag is a judgement no unit test makes. The suite asserts that the tool returns the vault's tags with counts, that the filter narrows, and that search off puts it out of reach. Whether the model lists before suggesting, and whether what it suggests belongs to the vault's own vocabulary, is what a person has to watch.
+Whether a suggested tag is a good tag is a judgement no unit test makes. The suite asserts the counts, the ordering, the filter, the frontmatter and inline walk, and the search-off gate, per [6-unit-tests.md](6-unit-tests.md). Whether the model lists before suggesting, and whether what it suggests belongs to the vault's own vocabulary, is what a person has to watch.
 
 ## Setup
 
@@ -24,26 +24,17 @@ Then  the panel shows a call listing the vault's tags
 And   every tag suggested is one that call returned
 ```
 
-A suggestion outside the returned list means the prompt line is not holding, and D4's stricter rule is what the fix becomes.
+A suggestion outside the returned list means the prompt line is not holding. The fix is then the stricter rule the decisions file names: refusing an edit that writes a tag no list returned.
 
-### A frontmatter tag is found as readily as an inline one
-
-```gherkin
-Given a vault where some notes tag in frontmatter and some inline
-When  the model lists the vault's tags
-Then  tags from both places appear in one list
-```
-
-This is the case a grep gets wrong, and the reason the tool reads the cache.
-
-### The vault's convention outranks its typos
+### The model picks the vault's convention over its near-duplicate
 
 ```gherkin
 Given a tag used many times and a near-identical one used once
-When  the model lists the vault's tags
-Then  the frequent tag appears above the rare one
-And   the model suggests the frequent one
+When  the user asks for tag suggestions
+Then  the model suggests the frequent tag rather than the rare one
 ```
+
+That one list is ordered by count, and that frontmatter and inline tags reach it as one vocabulary, are asserted in the suite. What a person judges is whether the model reads the ranking and acts on it.
 
 ### Applying a suggestion writes the tag
 
