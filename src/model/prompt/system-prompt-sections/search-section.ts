@@ -91,9 +91,15 @@ export class SearchSection {
       'reader clicks to open that note. Cite inline where a claim came from one:',
       '[[<path a search returned>|<the note name>]], without the .md. The path rather',
       'than the name alone, because a name such as 09-04-Fri exists in every week folder',
-      'and the bare form opens whichever one the vault picks. Cite where the claim sits',
-      'rather than gathering the paths at the end: the sources argument already carries',
-      'the full accounting, and the panel shows it as a count the user can open.',
+      'and the bare form opens whichever one the vault picks. A claim naming a note in',
+      'any other form is uncited: a bare date, a name in plain text or a parenthesised',
+      '(Aug 24) is not a link the reader can follow, and the inline link is the only',
+      'place the answer says where a claim came from.',
+      'Cite where the claim sits rather than gathering the paths at the end: the sources',
+      'argument carries the full accounting, and it is not shown beside the answer.',
+      'Write an answer covering several themes as a markdown bullet list, one bullet per',
+      'theme, each opening with the theme in bold and carrying its own citations. Bullets',
+      'rather than run-together paragraphs, so each theme reads as its own point.',
       'When a search finds nothing, say so. Never answer such a question from your own knowledge.',
     ].join('\n')
   }

@@ -603,6 +603,23 @@ describe('the prompt messages', () => {
         'A glob matches notes, never folders. Listing a folder ends in /*.',
       )
     })
+
+    // An answer came back naming its notes as bare dates in brackets, which no
+    // reader can click. The inline link is the only place an answer says where
+    // a claim came from, so the rule names the forms that are not one.
+    it('tells the model a note named in any other form is uncited', () => {
+      expect(withSearch()).toContain('A claim naming a note in\nany other form is uncited')
+    })
+
+    it('tells the model the sources argument is not shown beside the answer', () => {
+      expect(withSearch()).toContain('it is not shown beside the answer')
+    })
+
+    // The same answer ran its themes together as bold-dash paragraphs, which
+    // reads as one block rather than as a theme the user can scan to.
+    it('tells the model to write a multi-theme answer as a bullet list', () => {
+      expect(withSearch()).toContain('as a markdown bullet list, one bullet per')
+    })
   })
 
   describe('when the model might ask instead of acting', () => {
