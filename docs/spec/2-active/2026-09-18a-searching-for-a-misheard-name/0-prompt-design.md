@@ -58,7 +58,7 @@ harness-tools-grep.test.ts. Use the helpers in src/test-support.
 Check your work with `bun run test`, not `bun run verify`: verify runs prettier
 over the repo and writes main.js, leaving a diff to unpick from the design.
 
-A sibling spec, docs/spec/2-active/2026-09-18-suggesting-tags, is being built in
+A sibling spec, docs/spec/3-archived/2026-09-18-suggesting-tags, has been built in
 this same checkout and its design touches three files yours does:
 src/search/search-report.ts, src/search/note-glob.ts and
 src/engine/tools/tool-schemas.ts. Designing over that is fine, since neither
