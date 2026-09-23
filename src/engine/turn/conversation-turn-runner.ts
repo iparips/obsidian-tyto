@@ -11,6 +11,7 @@ import { EndedTurn, TurnStepOutcome, TurnStepOutcomes } from './ending/turn-step
 import { TranscriptRepository } from '../../session/transcript/transcript-repository'
 import { StepCharge } from '../../session/transcript/models/transcript-record'
 import { TurnResult } from './ending/turn-result'
+import { SearchAnswerVerdict } from './ending/search-answer-verdict'
 
 // One turn, from the utterance that opened it to the outcome it returns. Holds
 // its collaborators and drives them; what it spends lives in TurnSpend.
@@ -58,7 +59,7 @@ export class ConversationTurnRunner {
     if (!modelAnswer.succeeded())
       return this.turnEndingService.endTurnAsUnfinished(modelAnswer, this.repository.notesWritten())
 
-    if (modelAnswer.value.isText()) return this.endTurnWithModelUtterance(modelAnswer.value.content)
+    if (modelAnswer.value.isText()) return this.endTextReply(modelAnswer.value.content, spend)
 
     return this.executeToolCalls(modelAnswer.value.calls, spend, modelAnswer.value.content)
   }
@@ -106,6 +107,20 @@ export class ConversationTurnRunner {
       ),
     )
   }
+
+  // A turn whose search found notes answers through the tool and cites what it
+  // names, so a plain reply is sent back once rather than ending the turn. The
+  // correction costs an iteration, since it is a step the turn spent.
+  private endTextReply(summary: string, spend: TurnSpend): TurnStepOutcome {
+    const verdict = SearchAnswerVerdict.onReply(summary, this.repository.pathsReturnedByVault)
+    if (!verdict.needsCorrecting() || !spend.answerCorrectionsCounter.canCorrect())
+      return this.endTurnWithModelUtterance(summary)
+    spend.answerCorrectionsCounter.spend()
+    this.modelService.correctAnswer(summary, verdict.message())
+    this.spendOn(spend, 1)
+    return TurnStepOutcomes.keepGoing()
+  }
+
   private endTurnWithModelUtterance(summary: string): EndedTurn {
     return this.turnEndingService.endTurnWithModelUtterance(
       summary,

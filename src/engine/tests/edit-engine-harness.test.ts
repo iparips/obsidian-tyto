@@ -732,12 +732,15 @@ describe('EditEngine', () => {
     })
 
     describe('when the batch holds no answer', () => {
+      // Asked of the turn rather than of the call count: a glob that returned a
+      // note is a turn the harness sends back to answer through the tool, so
+      // the step after the glob is not the last one.
       it('keeps the turn going, as today', async () => {
         respondsWith(aToolTurn(aToolCall('glob_notes', { pattern: 'Quotes/*.md' })))
 
         await engineOf().processUtterance('what did I write about the roofing quote')
 
-        expect(complete).toHaveBeenCalledTimes(2)
+        expect(complete.mock.calls.length).toBeGreaterThan(1)
       })
     })
 

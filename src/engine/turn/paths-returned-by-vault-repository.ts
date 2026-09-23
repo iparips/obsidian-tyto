@@ -19,4 +19,17 @@ export class PathsReturnedByVaultRepository {
   includes(path: string): boolean {
     return this.paths.has(path)
   }
+
+  // Whether a search found anything this session, which is not the same as
+  // whether one ran: a search that matched nothing leaves the model with
+  // nothing to cite, and a turn ending in text is then the honest ending.
+  foundAnything(): boolean {
+    return this.paths.size > 0
+  }
+
+  // Longest first, so a path is tested before any path it contains: a citation
+  // of a folder's index note must not count as citing a note beneath it.
+  pathsLongestFirst(): string[] {
+    return [...this.paths].sort((one, other) => other.length - one.length)
+  }
 }

@@ -1,3 +1,4 @@
+import { ChatMessage } from '../../model/providers/models/chat-message'
 import { ChatTurn } from '../../model/providers/models/chat-turn'
 import { Outcome } from '../../shared/models/outcome'
 import { ChatProvider } from '../../model/providers/types'
@@ -38,6 +39,15 @@ export class ModelService {
     )
 
     return answer
+  }
+
+  // The rejected reply and the correction both go into the history, because a
+  // model shown only the correction cannot see which reply drew it. The
+  // correction is a user message rather than a tool result: no call was made,
+  // so there is no id to answer.
+  correctAnswer(rejectedReply: string, correction: string): void {
+    this.sessionRepository.appendChatMessage(ChatMessage.model(rejectedReply))
+    this.sessionRepository.appendChatMessage(ChatMessage.user(correction))
   }
 
   // The reach is read here rather than deeper down, so every message the turn
