@@ -1,3 +1,4 @@
+import { AgentsMdChain } from '../../agents/agents-md-chain'
 import { ResolvedNote } from './resolved-note'
 
 // What resolving the session's target found. Three states rather than a note
@@ -17,17 +18,32 @@ export class TargetResolved {
   noteOrNull(): ResolvedNote | null {
     return this.resolvedNote
   }
+
+  instructions(): AgentsMdChain {
+    return this.resolvedNote.instructions
+  }
 }
 
 // The session names no note at all. A turn still opens on this: it searches,
 // reads and answers, and refuses only the edits.
+//
+// Carries the vault-wide instructions, which a bound turn reads from the note's
+// own folders. There is no note to walk up from, so only the root file applies:
+// it governs every note in the vault, and a search turn that has not read it
+// hunts for a layout the vault already states.
 export class NoNoteBound {
+  constructor(private readonly vaultInstructions: AgentsMdChain = new AgentsMdChain()) {}
+
   hasFailed(): this is ResolutionFailed {
     return false
   }
 
   noteOrNull(): ResolvedNote | null {
     return null
+  }
+
+  instructions(): AgentsMdChain {
+    return this.vaultInstructions
   }
 }
 
@@ -52,5 +68,11 @@ export class ResolutionFailed {
 
   noteOrNull(): ResolvedNote | null {
     return null
+  }
+
+  // Never read: the turn is refused before anything asks. Present so the three
+  // states answer the same questions and the caller needs no narrowing.
+  instructions(): AgentsMdChain {
+    return new AgentsMdChain()
   }
 }

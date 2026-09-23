@@ -27,8 +27,17 @@ export class TargetNoteResolver {
   // rather than a failure, so the turn still opens and the search tools work.
   async resolve(): Promise<TargetResolution> {
     const targetPath = this.sessionRepository.targetNote()
-    if (targetPath === null) return new NoNoteBound()
+    if (targetPath === null) return new NoNoteBound(await this.collectVaultInstructions())
     return this.resolveFor(targetPath)
+  }
+
+  // Reported the way a bound turn reports its chain, so the panel says the
+  // instructions were loaded rather than leaving a search turn looking as
+  // though it ran without them.
+  private async collectVaultInstructions(): Promise<AgentsMdChain> {
+    const chain = await this.agentsMdRepository.resolveVaultWide()
+    this.turnProgressPublisher.instructionsResolvedFn(chain)
+    return chain
   }
 
   // Resolves the path it is given rather than reading the session back. A tool

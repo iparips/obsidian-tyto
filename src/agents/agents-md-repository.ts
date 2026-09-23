@@ -6,6 +6,9 @@ import { AgentsMdChainFactory } from './agents-md-chain-factory'
 
 const FILE_NAMES = ['AGENTS.md', 'CLAUDE.md']
 
+// Any root-level path resolves the root chain, since only its folder is read.
+const ROOT_NOTE = 'note.md'
+
 // An absent, unreadable or blank file is an empty result rather than a failure,
 // so a vault with neither name behaves exactly as one built before them (FR11).
 export class AgentsMdRepository {
@@ -14,6 +17,13 @@ export class AgentsMdRepository {
   private readonly chains = new Map<string, AgentsMdChain>()
 
   constructor(private vault: Vault) {}
+
+  // The vault root alone, for a session bound to no note. A note at the root
+  // has no folder above it, so the walk reads the root and stops; the name is
+  // never read, only the folder it sits in.
+  async resolveVaultWide(): Promise<AgentsMdChain> {
+    return this.resolveFor(ROOT_NOTE)
+  }
 
   async resolveFor(notePath: string): Promise<AgentsMdChain> {
     const folder = AgentsMdRepository.folderOf(notePath)

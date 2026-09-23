@@ -85,6 +85,7 @@ export class TurnRunnerFactory {
       this.pathsReturnedByVault,
       this.skillsRead,
       this.sessionRepository.currentTurnNumber(),
+      resolution.instructions(),
     )
     const cancellationController = new TurnCancellationController()
     const askers = this.askersFor(cancellationController, turnRepository.notesChosenByUser)

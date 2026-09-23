@@ -8,6 +8,7 @@ import { FakeEditor } from '../../test-support/fake-editor'
 import { aSession, aTextTurn, anEngine } from '../../test-support/builders'
 import { FakeNoteLocator } from '../../test-support/fake-note-locator'
 import { TurnProgressPublisher } from '../turn-progress-publisher'
+import { SessionRepository } from '../../session/session-repository'
 
 const NOTE = 'Journal/2026/today.md'
 
@@ -42,6 +43,23 @@ describe('EditEngine', () => {
     )
 
   const systemPrompt = (call = 0) => complete.mock.calls[call][0][0].content
+
+  // No note, so nothing to walk up from: the root file is the whole chain.
+  const anUnboundEngine = () =>
+    anEngine(
+      { complete },
+      {
+        sessions: new SessionRepository(null),
+        noteLocator: new FakeNoteLocator(),
+        agentsMdRepository: new AgentsMdRepository(vault.asVault()),
+        progress: new TurnProgressPublisher(
+          () => undefined,
+          () => undefined,
+          (chain: AgentsMdChain) => reported.push(chain),
+          () => undefined,
+        ),
+      },
+    )
 
   describe('when the target folder holds instructions', () => {
     beforeEach(() => {
@@ -80,6 +98,42 @@ describe('EditEngine', () => {
       await engineFor('Clients/acme.md').processUtterance('add a line')
 
       expect(systemPrompt()).not.toContain('Write in second person.')
+    })
+  })
+
+  // A search turn runs unbound, and it is the one that most needs the vault's
+  // layout: without it the model hunts for a folder scheme the root file states.
+  describe('when the session is bound to no note', () => {
+    it('puts the vault root instructions in the system prompt', async () => {
+      vault.withNote('CLAUDE.md', 'Journal entries live under Weekly.')
+
+      await anUnboundEngine().processUtterance('where did I walk')
+
+      expect(systemPrompt()).toContain('Journal entries live under Weekly.')
+    })
+
+    it('reports the root chain, so the panel says the instructions loaded', async () => {
+      vault.withNote('CLAUDE.md', 'Journal entries live under Weekly.')
+
+      await anUnboundEngine().processUtterance('where did I walk')
+
+      expect(reported[0].files.map((file) => file.folder)).toEqual([''])
+    })
+
+    it('leaves a folder instruction out, since no note names the folder', async () => {
+      vault
+        .withNote('CLAUDE.md', 'Journal entries live under Weekly.')
+        .withNote('Clients/AGENTS.md', 'Never abbreviate a name.')
+
+      await anUnboundEngine().processUtterance('where did I walk')
+
+      expect(systemPrompt()).not.toContain('Never abbreviate a name.')
+    })
+
+    it('omits the section when the vault root holds no file', async () => {
+      await anUnboundEngine().processUtterance('where did I walk')
+
+      expect(systemPrompt()).not.toContain('standing instructions below')
     })
   })
 

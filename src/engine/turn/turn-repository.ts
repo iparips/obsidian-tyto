@@ -38,6 +38,10 @@ export class TurnRepository {
     // result against the utterance it answers rather than against the whole
     // history, where every applied edit otherwise reads alike.
     readonly turnNumber: number = 1,
+    // What the resolution found: the note's folders when one is bound, the
+    // vault root when none is. Defaulted empty so a vault with no instruction
+    // file behaves as one built before them.
+    private readonly instructions: AgentsMdChain = new AgentsMdChain(),
   ) {}
 
   // Built here rather than passed in, which is the whole of its turn scope: a
@@ -59,10 +63,11 @@ export class TurnRepository {
     return this.resolvedNote !== null
   }
 
-  // Empty when unbound: a chain resolves from a note's folders, and there is no
-  // note.
+  // The note's own folders once one is bound, so a command that moves the target
+  // mid-turn moves the chain with it. The constructor's chain is what an unbound
+  // turn has instead: the vault root, which has no note to hang it on.
   agentMdChain(): AgentsMdChain {
-    return this.resolvedNote?.instructions ?? new AgentsMdChain()
+    return this.resolvedNote?.instructions ?? this.instructions
   }
 
   skills(): readonly Skill[] {
