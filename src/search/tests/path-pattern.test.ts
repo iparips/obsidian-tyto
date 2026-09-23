@@ -90,6 +90,68 @@ describe('PathPattern', () => {
     })
   })
 
+  // A shell supports these, so a model writing them is writing correct glob.
+  // Each was previously matched literally, which could only miss.
+  describe('when the pattern holds a brace list', () => {
+    it('matches either alternative, so one call covers two week folders', () => {
+      expect(matches('**/{Week-35,Week-36}/*.md', FRIDAY)).toBe(true)
+    })
+
+    it('misses a note in neither alternative', () => {
+      expect(matches('**/{Week-33,Week-34}/*.md', FRIDAY)).toBe(false)
+    })
+
+    it('expands a brace list mid-name, so Week-3{5,6} needs no folder repeated', () => {
+      expect(matches('**/Week-3{5,6}/*.md', FRIDAY)).toBe(true)
+    })
+
+    it('matches either extension, so one call covers a note and a canvas', () => {
+      expect(matches('**/*.{md,canvas}', FRIDAY)).toBe(true)
+    })
+
+    it('expands a numeric range, as a shell does', () => {
+      expect(matches('**/Week-{30..40}/*.md', FRIDAY)).toBe(true)
+    })
+  })
+
+  describe('when the pattern holds an extglob', () => {
+    it('matches one of the listed alternatives on an at sign', () => {
+      expect(matches('**/@(Week-35|Week-36)/*.md', FRIDAY)).toBe(true)
+    })
+
+    it('repeats a class on a plus, so Week-+([0-9]) covers any week number', () => {
+      expect(matches('**/Week-+([0-9])/*.md', FRIDAY)).toBe(true)
+    })
+
+    it('excludes the listed alternative on a bang', () => {
+      expect(matches('**/!(Week-35)/*.md', FRIDAY)).toBe(false)
+    })
+
+    it('admits a folder the bang did not name', () => {
+      expect(matches('**/!(Week-36)/*.md', FRIDAY)).toBe(true)
+    })
+
+    it('matches the alternative when present on a question mark', () => {
+      expect(matches('**/Week-35/?(04)-09-Fri.md', FRIDAY)).toBe(true)
+    })
+
+    it('matches nothing at all on a question mark, so the group is optional', () => {
+      expect(matches('**/Week-35/?(x)04-09-Fri.md', FRIDAY)).toBe(true)
+    })
+
+    it('crosses no separator inside an extglob, since no wildcard here does', () => {
+      expect(matches('1 - Journal/?(Weekly/)Week-35/*.md', FRIDAY)).toBe(false)
+    })
+  })
+
+  // The pattern comes from the model, so one that will not compile must be an
+  // empty result rather than a thrown error (NFR5).
+  describe('when the pattern cannot compile', () => {
+    it('matches nothing rather than throwing, as a POSIX class does not compile', () => {
+      expect(matches('**/Week-[[:digit:]][[:digit:]]/*.md', FRIDAY)).toBe(false)
+    })
+  })
+
   describe('when the case differs', () => {
     it('matches whatever the case, so a recalled lower-case folder still finds it', () => {
       expect(matches('**/week-35/*.md', FRIDAY)).toBe(true)

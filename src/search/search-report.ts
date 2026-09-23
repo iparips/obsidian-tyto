@@ -11,22 +11,16 @@ export class SearchReport {
 
   // A glob matches notes, never folders, so a pattern aimed at a folder always
   // matches nothing. Told only "no notes match", the model retries variants of
-  // the same folder-shaped pattern until the cap stops it. The same holds for a
-  // pattern carrying syntax this glob does not read: it cannot match, and a
-  // miss that does not say so is a miss the model answers by varying the parts
-  // that were never wrong.
+  // the same folder-shaped pattern until the cap stops it.
   private static noGlobMatch(pattern: string): string {
     const reason = SearchReport.whyItCannotMatch(pattern)
     if (reason) return `no notes match ${pattern}; ${reason}`
     return `no notes match ${pattern}`
   }
 
-  // Ordered by how badly each misleads: unsupported syntax is matched as its
-  // own characters, so the pattern asks for a note named with braces and is
-  // wrong in a way no rewording of the rest can fix.
+  // Ordered by how badly each misleads: a pattern wrong in its shape cannot
+  // match whatever the rest of it says, so no rewording of the rest fixes it.
   private static whyItCannotMatch(pattern: string): string | null {
-    if (pattern.includes('{'))
-      return 'a brace list such as {a,b} is not read here and matches those characters literally — send one call per alternative, or widen with * or **'
     if (SearchReport.hasUnclosedClass(pattern))
       return 'a character class opened with [ and did not close on the same folder name, so the [ matched itself — close it, as Week-3[5-8] does'
     if (SearchReport.looksLikeFolder(pattern))

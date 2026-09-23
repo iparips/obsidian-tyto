@@ -133,10 +133,10 @@ describe('HarnessToolsService', () => {
       expect(harnessResult.result).toContain('this matches notes, not folders')
     })
 
-    it('says why a narrowing carrying a brace list could never match', async () => {
+    it('reads a brace list in a narrowing, so it admits the notes it names', async () => {
       const harnessResult = await grep('roofing', { path_pattern: '{Quotes,Lists}/*.md' })
 
-      expect(harnessResult.result).toContain('a brace list such as {a,b} is not read here')
+      expect(harnessResult.result).toContain('Quotes/roofing.md')
     })
   })
 

@@ -127,7 +127,7 @@ export const TOOL_SCHEMAS: ToolSchema[] = [
         pattern: {
           type: 'string',
           description:
-            'A path pattern from the vault root. Four wildcards, and no others: * matches within one folder, ** across folders, ? one character, and [...] one character from a set, as Week-3[5-8] covers weeks 35 to 38 and [!5] excludes one. A brace list such as {a,b} is not read and matches those characters literally; send one call per alternative instead. Example: 1 - Journal/Weekly/Week-35/*.md. Prefer a trailing * over a spelled-out filename: nothing matched means your pattern was wrong, so widen it rather than reordering the parts.',
+            'A path pattern from the vault root, in full shell glob syntax. * matches within one folder, ** across folders, ? one character, [...] one character from a set, as Week-3[5-8] covers weeks 35 to 38 and [!5] excludes one. A brace list is read: {Week-35,Week-36}/*.md covers both folders, Week-3{5,6} both weeks, *.{md,canvas} both extensions, and Week-{30..40} a numeric range. So are the extglobs @(a|b) for one of the alternatives, +(...) and *(...) for repeats, ?(...) for an optional group, and !(a) to exclude. No wildcard crosses a /. Example: 1 - Journal/Weekly/Week-35/*.md. Prefer a trailing * over a spelled-out filename: nothing matched means your pattern was wrong, so widen it rather than reordering the parts.',
         },
         sort: { type: 'string', enum: ['path', 'modified'] },
         order: { type: 'string', enum: ['ascending', 'descending'] },
