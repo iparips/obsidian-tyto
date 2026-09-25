@@ -74,6 +74,12 @@ describe('HarnessToolsService', () => {
       expect(turn.pathsReturnedByVault.includes(FRIDAY)).toBe(true)
     })
 
+    it("records the paths as found by this turn's search, so the turn answers from it", async () => {
+      await glob(`${WEEK}/*.md`)
+
+      expect(turn.pathsFoundBySearch.includes(FRIDAY)).toBe(true)
+    })
+
     it('reports a glob as a step, naming the pattern and the count', async () => {
       const harnessResult = await glob(`${WEEK}/*.md`)
 

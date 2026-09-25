@@ -53,6 +53,10 @@ export class TurnRepository {
   // read recorded in an earlier one says nothing about the note now.
   readonly notesRead = new NotesReadRepository()
 
+  // Built here too, and filled by glob and grep alone: it says whether this
+  // turn answers from a search. A read or an earlier turn's search does not.
+  readonly pathsFoundBySearch = new PathsReturnedByVaultRepository()
+
   // Null while the session is unbound, which is a turn that can search but not
   // write.
   targetNote(): OpenNote | null {

@@ -21,6 +21,7 @@ export interface TurnState {
   readonly notesOpenedCounter: NotesOpenedCounter
   readonly pathsReturnedByVault: PathsReturnedByVaultRepository
   readonly notesRead: NotesReadRepository
+  readonly pathsFoundBySearch: PathsReturnedByVaultRepository
   // Null while the session is unbound. A read of this note comes from the
   // editor it holds, which is where the turn's writes go.
   targetNote(): OpenNote | null

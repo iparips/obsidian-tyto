@@ -1,8 +1,9 @@
 import { SearchHit } from '../../search/models/search-hit'
 
-// Session-scoped, so an opened note is one a search returned rather than one the
-// model recalled (FR3). Finding a note is knowledge and does not expire the way
-// consent to write to it does, which is why NotesChosenByUserRepository is per turn instead.
+// The holder states the scope. The session's copy makes an opened note one the
+// vault returned rather than one the model recalled (FR3), and finding a note
+// does not expire the way consent to write to it does. TurnRepository holds a
+// per-turn copy of search results alone, which decides how the turn may end.
 export class PathsReturnedByVaultRepository {
   private readonly paths = new Set<string>()
 
@@ -20,8 +21,8 @@ export class PathsReturnedByVaultRepository {
     return this.paths.has(path)
   }
 
-  // Whether a search found anything this session, which is not the same as
-  // whether one ran: a search that matched nothing leaves the model with
+  // Whether anything was recorded, which is not the same as whether a search
+  // ran: a search that matched nothing leaves the model with
   // nothing to cite, and a turn ending in text is then the honest ending.
   foundAnything(): boolean {
     return this.paths.size > 0

@@ -74,6 +74,12 @@ describe('HarnessToolsService', () => {
       expect(turn.pathsReturnedByVault.includes(QUOTE)).toBe(true)
     })
 
+    it("records the paths as found by this turn's search, so the turn answers from it", async () => {
+      await grep('roofing')
+
+      expect(turn.pathsFoundBySearch.includes(QUOTE)).toBe(true)
+    })
+
     it('reports a grep as a step, naming the expression and the count', async () => {
       const harnessResult = await grep('roofing')
 

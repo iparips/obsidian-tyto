@@ -148,7 +148,13 @@ EditOperation, is not one.
 
 Everything under turn dies with the turn. The one repository that outlives it,
 PathsReturnedByVaultRepository, is session-scoped and lives in
-TurnRunnerFactory.
+TurnRunnerFactory. It records every path the vault returned, a read included,
+so a note found in one turn can be opened in the next.
+
+TurnRepository holds a second, per-turn copy that only glob and grep fill. The
+check on how a turn ends reads that one: a turn answers through
+answer_from_search only when its own search found notes, not when it read the
+note it edits or when an earlier turn searched.
 
 ## References
 

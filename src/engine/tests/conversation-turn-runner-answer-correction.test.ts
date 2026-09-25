@@ -161,6 +161,33 @@ describe('ConversationTurnRunner answer correction', () => {
     })
   })
 
+  // A read makes a note openable, but the turn is not answering from a search:
+  // archiving a todo reads the note and ends by saying what it moved.
+  describe('when the turn read a note but ran no search', () => {
+    it('ends the turn on the reply', async () => {
+      complete
+        .mockResolvedValueOnce(Outcomes.success(aToolTurn(aToolCall('read_note', { path: FOUND }))))
+        .mockResolvedValue(Outcomes.success(aTextTurn('I archived the two ticked items')))
+
+      await engine.processUtterance('archive the done items')
+
+      expect(complete).toHaveBeenCalledTimes(2)
+    })
+  })
+
+  describe('when an earlier turn searched and this one did not', () => {
+    it('corrects only the turn that searched', async () => {
+      searchesThenReplies(`The quote is in ${FOUND}`, `Still ${FOUND}`)
+      complete.mockResolvedValue(Outcomes.success(aTextTurn('I added the line')))
+
+      await engine.processUtterance('what did roofing cost')
+      await engine.processUtterance('add a line about it')
+
+      // The grep, the reply corrected, the reply ending turn one, then turn two.
+      expect(complete).toHaveBeenCalledTimes(4)
+    })
+  })
+
   describe('when no search found a path', () => {
     it('ends the turn on the reply, since there is nothing to cite', async () => {
       complete.mockResolvedValue(Outcomes.success(aTextTurn('Nothing in the vault covers that')))

@@ -128,6 +128,7 @@ export const aTurnState = (
 ): TurnState => ({
   notesOpenedCounter: new NotesOpenedCounter(),
   pathsReturnedByVault: new PathsReturnedByVaultRepository(),
+  pathsFoundBySearch: new PathsReturnedByVaultRepository(),
   notesRead: new NotesReadRepository(),
   targetNote: () => targetNote,
   wasWrittenThroughEditor: () => wroteThroughEditor,

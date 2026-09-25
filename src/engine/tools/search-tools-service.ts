@@ -25,6 +25,7 @@ export class SearchToolsService {
     const pattern = call.argument('pattern')
     const result = this.noteGlob.find(pattern, SearchToolsService.orderOf(call))
     turn.pathsReturnedByVault.recordPaths(result.paths)
+    turn.pathsFoundBySearch.recordPaths(result.paths)
     return new TextResult(
       SearchReport.ofGlob(pattern, result),
       ProgressLine.globbed(pattern, result.total),
@@ -54,7 +55,9 @@ export class SearchToolsService {
     result: GrepResult,
     turn: TurnState,
   ): HarnessResult {
-    turn.pathsReturnedByVault.recordPaths(result.hits.map((hit) => hit.path))
+    const paths = result.hits.map((hit) => hit.path)
+    turn.pathsReturnedByVault.recordPaths(paths)
+    turn.pathsFoundBySearch.recordPaths(paths)
     const scope = request.scopeDescription()
     return new TextResult(
       SearchReport.ofGrep(request.pattern, result, request.narrows() ? scope : undefined),

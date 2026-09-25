@@ -112,7 +112,7 @@ export class ConversationTurnRunner {
   // names, so a plain reply is sent back once rather than ending the turn. The
   // correction costs an iteration, since it is a step the turn spent.
   private endTextReply(summary: string, spend: TurnSpend): TurnStepOutcome {
-    const verdict = SearchAnswerVerdict.onReply(summary, this.repository.pathsReturnedByVault)
+    const verdict = SearchAnswerVerdict.onReply(summary, this.repository.pathsFoundBySearch)
     if (!verdict.needsCorrecting() || !spend.answerCorrectionsCounter.canCorrect())
       return this.endTurnWithModelUtterance(summary)
     spend.answerCorrectionsCounter.spend()
