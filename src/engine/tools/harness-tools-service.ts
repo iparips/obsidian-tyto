@@ -105,7 +105,7 @@ export class HarnessToolsService {
     const contentsOutcome = await this.readContents(path, turn)
     if (contentsOutcome.hasFailed()) return Refusal.of(contentsOutcome.message)
     turn.pathsReturnedByVault.recordPaths([path])
-    turn.notesRead.record(path)
+    turn.notesRead.record(path, contentsOutcome.value)
     return new TextResult(
       HarnessToolsService.contentsOrEmptyNote(path, contentsOutcome.value),
       ProgressLine.read(path),

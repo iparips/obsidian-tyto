@@ -84,6 +84,22 @@ chose to be on.
 Only the note the user is looking at is scrolled when a turn ends. On mobile the
 panel holds the screen, so that is never the target and nothing moves.
 
+## A Whole-Note Write Checks The Recorded Read
+
+A rewrite applies whatever it is given, where a failed anchor says so loudly.
+So write_note is refused unless the model read the note this turn and the note
+still holds what that read returned.
+
+read_note records the text it returned in NotesReadRepository (engine), and the
+latest read of a path wins. The guard compares a fresh TargetNoteWriter.read
+(engine) against that record, byte for byte. Any difference means the note
+changed, and the model is told to read it again.
+
+The model does not send its read back. A model copying a long note loses
+whitespace the same way every time, such as a trailing newline or a tab turned
+into spaces. Compared exactly, that refused every write as stale, and
+re-reading could not clear it, since the model made the same copy again.
+
 ## A Background Leaf Holds No View
 
 Obsidian 1.7.2 defers a leaf that is not in front. Its view is a stand-in

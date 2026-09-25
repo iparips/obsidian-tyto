@@ -19,7 +19,7 @@ describe('NotesReadRepository', () => {
 
   describe('when a note has been read this turn', () => {
     beforeEach(() => {
-      notesRead.record(TODO)
+      notesRead.record(TODO, '# Todo\n')
     })
 
     it('includes a note read this turn', () => {
@@ -28,6 +28,19 @@ describe('NotesReadRepository', () => {
 
     it('excludes a note that was not read', () => {
       expect(notesRead.includes(SHOPPING)).toBe(false)
+    })
+
+    it('answers the contents that read returned', () => {
+      expect(notesRead.getContentsRead(TODO)).toBe('# Todo\n')
+    })
+  })
+
+  describe('when a note has been read twice this turn', () => {
+    it('answers the later read, since a re-read is what a stale write is told to do', () => {
+      notesRead.record(TODO, '# Todo\n')
+      notesRead.record(TODO, '# Todo\n\n- [ ] eggs\n')
+
+      expect(notesRead.getContentsRead(TODO)).toBe('# Todo\n\n- [ ] eggs\n')
     })
   })
 })

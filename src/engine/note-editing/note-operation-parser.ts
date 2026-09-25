@@ -19,12 +19,9 @@ export class NoteOperationParser {
     return Outcomes.failure('apply', `unknown tool ${call.name}`)
   }
 
-  // read_content is parsed but not carried into the operation: it is what the
-  // guard compares against the note, not something the write applies.
   private static parseWriteNote(args: Record<string, unknown>): NoteOperation {
     const content = args.content
-    if (typeof content !== 'string' || typeof args.read_content !== 'string')
-      return Outcomes.failure('apply', 'content and read_content must be strings')
+    if (typeof content !== 'string') return Outcomes.failure('apply', 'content must be a string')
     return Outcomes.success({ kind: 'writeNote', content })
   }
 

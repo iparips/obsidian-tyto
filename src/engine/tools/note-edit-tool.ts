@@ -46,7 +46,7 @@ export class NoteEditTool {
     op: EditOperation,
     note: OpenNote,
   ): Promise<ToolCallOutcome> {
-    const refusal = await this.refuseUncurrentWrite(call, note)
+    const refusal = await this.refuseUncurrentWrite(note)
     if (refusal) return refusal
     if (!(await this.noteChoiceService.confirmsWrite(note.path)))
       return ToolCallOutcome.of(`the user declined the write to ${note.path}`)
@@ -56,15 +56,17 @@ export class NoteEditTool {
   // A rewrite applies whatever it is given where an anchor fails loudly, so it
   // is refused unless the model read this note this turn and the note still
   // matches what that read returned.
-  private async refuseUncurrentWrite(
-    call: ToolCall,
-    note: OpenNote,
-  ): Promise<ToolCallOutcome | null> {
+  //
+  // The read is the one the harness recorded, not a copy the model sends back:
+  // a model copying a long note loses whitespace the same way on every attempt,
+  // so a refusal it caused could never be cleared by re-reading.
+  private async refuseUncurrentWrite(note: OpenNote): Promise<ToolCallOutcome | null> {
     if (!this.turnRepository.notesRead.includes(note.path))
       return ToolCallOutcome.of(
         `call read_note on ${note.path} in this turn before writing the whole of it`,
       )
-    if ((await this.readNote(note)) !== call.argument('read_content'))
+    const contentsRead = this.turnRepository.notesRead.getContentsRead(note.path)
+    if ((await this.readNote(note)) !== contentsRead)
       return ToolCallOutcome.of(
         `${note.path} has changed since you read it; read it again and rewrite from what it says now`,
       )

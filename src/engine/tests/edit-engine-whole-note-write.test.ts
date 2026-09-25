@@ -27,6 +27,7 @@ import { aSession, aTextTurn, aToolCall, aToolTurn, anEngine } from '../../test-
 const TODO = 'Lists/todo.md'
 const CONTENT = '# Todo\n\n- [x] milk\n- [ ] eggs\n'
 const ARCHIVED = '# Todo\n\n- [ ] eggs\n\n## Done\n\n- [x] milk\n'
+const TYPED_INTO = '# Todo\n\n- [x] milk\n- [ ] eggs\n- [ ] bread\n'
 
 // A rewrite applies whatever it is given, where an anchor fails loudly. The
 // three guards are what make it safe to offer: read this turn, unchanged since,
@@ -47,23 +48,33 @@ describe('EditEngine', () => {
     asked = []
   })
 
-  const readsThenWrites = (readContent = CONTENT) => {
+  const readsThenWrites = () => {
     complete
       .mockResolvedValueOnce(Outcomes.success(aToolTurn(aToolCall('read_note', { path: TODO }))))
       .mockResolvedValueOnce(
-        Outcomes.success(
-          aToolTurn(aToolCall('write_note', { content: ARCHIVED, read_content: readContent })),
-        ),
+        Outcomes.success(aToolTurn(aToolCall('write_note', { content: ARCHIVED }))),
       )
+      .mockResolvedValue(Outcomes.success(aTextTurn('done')))
+  }
+
+  // The user types into the note and it saves between the read and the write.
+  const readsThenNoteChangesThenWrites = () => {
+    complete
+      .mockResolvedValueOnce(Outcomes.success(aToolTurn(aToolCall('read_note', { path: TODO }))))
+      .mockImplementationOnce(() => {
+        editor.content = TYPED_INTO
+        vault.withNote(TODO, TYPED_INTO)
+        return Promise.resolve(
+          Outcomes.success(aToolTurn(aToolCall('write_note', { content: ARCHIVED }))),
+        )
+      })
       .mockResolvedValue(Outcomes.success(aTextTurn('done')))
   }
 
   const writesWithoutReading = () => {
     complete
       .mockResolvedValueOnce(
-        Outcomes.success(
-          aToolTurn(aToolCall('write_note', { content: ARCHIVED, read_content: CONTENT })),
-        ),
+        Outcomes.success(aToolTurn(aToolCall('write_note', { content: ARCHIVED }))),
       )
       .mockResolvedValue(Outcomes.success(aTextTurn('done')))
   }
@@ -105,6 +116,7 @@ describe('EditEngine', () => {
       { complete },
       {
         sessions,
+        vault,
         noteLocator: new FakeNoteLocator().withOpenNote(TODO, editor),
         agentsMdRepository: new AgentsMdRepository(new FakeVault().asVault()),
         harnessToolsService: harnessOf(),
@@ -169,9 +181,7 @@ describe('EditEngine', () => {
   })
 
   describe('when the note changed since the model read it', () => {
-    beforeEach(() => {
-      readsThenWrites('# Todo\n\nwhat the model thinks it read\n')
-    })
+    beforeEach(() => readsThenNoteChangesThenWrites())
 
     it('refuses, naming that the note moved', async () => {
       await engineOf().processUtterance('archive the done items')
@@ -182,7 +192,7 @@ describe('EditEngine', () => {
     it('writes nothing', async () => {
       await engineOf().processUtterance('archive the done items')
 
-      expect(editor.content).toBe(CONTENT)
+      expect(editor.content).toBe(TYPED_INTO)
     })
 
     it('refuses before asking the user, so no confirmation is spent on a stale write', async () => {

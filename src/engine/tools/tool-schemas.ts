@@ -80,13 +80,8 @@ export const TOOL_SCHEMAS: ToolSchema[] = [
       type: 'object',
       properties: {
         content: { type: 'string', description: 'The complete new text of the note.' },
-        read_content: {
-          type: 'string',
-          description:
-            'The note exactly as read_note returned it this turn. The write is refused if the note has changed since, so the user typing into it is never overwritten.',
-        },
       },
-      required: ['content', 'read_content'],
+      required: ['content'],
     },
   },
   {
